@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>{% block title %}Criterivox{% endblock %}</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', path='css/app.css') }}"
+    >
+
+    <script
+        src="{{ url_for('static', path='js/htmx.min.js') }}"
+    ></script>
+</head>
+
+<body>
+    <div class="app-shell">
+
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-mark">C</div>
+                <div>
+                    <strong>Criterivox</strong>
+                    <span>Content Intelligence</span>
+                </div>
+            </div>
+
+            <nav aria-label="Primary navigation">
+                <a
+                    href="/"
+                    class="{% if page == 'home' %}active{% endif %}"
+                >
+                    Home
+                </a>
+
+                <a
+                    href="/workspace"
+                    class="{% if page == 'workspace' %}active{% endif %}"
+                >
+                    Workspace
+                </a>
+
+                <div class="nav-section">
+                    <span>Workspace</span>
+
+                    <a href="/workspace#context">Context</a>
+                    <a href="/workspace#data">Data</a>
+                    <a href="/workspace#intelligence">Intelligence</a>
+                    <a href="/workspace#explanations">Explanations</a>
+                    <a href="/workspace#experiments">Experiments</a>
+                    <a href="/workspace#knowledge">Knowledge</a>
+                </div>
+
+                <div class="nav-bottom">
+                    <a href="#">Settings</a>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+
+    </div>
+</body>
+</html>
