@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "criterivox"
+version = "0.1.0"
+description = "Research-driven, context-aware intelligence and decision-support system."
+requires-python = ">=3.13,<3.14"
+dependencies = [
+        "pydantic-settings>=2,<3"
+
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<10"
+]
