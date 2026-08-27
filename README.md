@@ -48,3 +48,21 @@ Create/activate the environment before installing project dependencies.
 ## Status
 
 This repository is under active development.
+
+## Project Structure
+
+- `src/criterivox/` - application source
+- `tests/` - automated tests
+- `docs/` - architecture and research documentation
+
+## Requirements
+
+- Python 3.13+
+- Git
+
+## Setup
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -e ".[dev]"
