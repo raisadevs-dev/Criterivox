@@ -128,3 +128,35 @@ It establishes a testable design hypothesis for future evaluation.
 
 Prototype demonstrated.
 Formal comparative evaluation remains future work.
+
+## S1 Findings
+
+### What Worked
+- Conventional header/footer navigation works.
+- Bloom opens and closes through the central node.
+- Context-aware capability filtering is established.
+- Application tests pass.
+- Responsive behavior has been checked.
+- Accessibility/fallback navigation remains available.
+
+### What Did Not Work / Limitations
+- Bloom currently remains largely static.
+- Contextual sub-options are not yet fully implemented.
+- Rich visual/character-driven behavior is deferred.
+- Bloom does not yet dynamically transform according to every application component.
+
+### Architectural Implications
+- Current UI architecture is sufficient for continuing S1.
+- Future contextual Bloom behavior should be connected through the application/service boundary.
+- Rich agent-driven interaction should not be forced into the current prototype layer.
+
+### Research Implications
+- The current implementation demonstrates feasibility of the navigation concept.
+- It does NOT yet establish that Bloom is superior to conventional navigation.
+- Dynamic contextual interaction remains an evaluation target.
+
+### Deferred Work
+- Rich visual system
+- Character/agent integration
+- Deep contextual Bloom behavior
+- Advanced animations

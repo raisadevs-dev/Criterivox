@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="/static/css/app.css">
+</head>
+
+<body>
+    <header class="topbar">
+        <div class="brand">CRITERIVOX</div>
+
+        <nav class="utility-nav" aria-label="Utility navigation">
+            <a href="/">Home</a>
+            <a href="/settings">Settings</a>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <nav aria-label="Accessible fallback navigation">
+            <a href="/">Home</a>
+            <a href="/workspace">Workspace</a>
+            <a href="/data">Data</a>
+            <a href="/intelligence">Intelligence</a>
+            <a href="/explanations">Explanations</a>
+            <a href="/experiments">Experiments</a>
+            <a href="/knowledge">Knowledge</a>
+            <a href="/settings">Settings</a>
+        </nav>
+    </footer>
+</body>
+</html>

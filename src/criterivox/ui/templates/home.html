@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="hero">
+    <p class="eyebrow">CONTEXT-AWARE CONTENT INTELLIGENCE</p>
+
+    <h1>Understand before you decide.</h1>
+
+    <p>
+        Criterivox connects context, intelligence, explanation,
+        and human judgment.
+    </p>
+</section>
+
+<section
+    class="bloom-stage"
+    aria-label="Primary exploration"
+>
+    <div class="bloom-container" id="bloom">
+
+        <button
+            class="bloom-center"
+            type="button"
+            aria-label="Open primary exploration"
+            aria-expanded="false"
+            aria-controls="bloom-options"
+        >
+            ◎
+        </button>
+
+        <div class="bloom-options" id="bloom-options" aria-hidden="true">
+            <button 
+            data-bloom-item 
+            data-capability="analyze"
+            type="button">Analyze</button>
+
+            <button 
+            data-bloom-item 
+            type="button">Compare</button>
+
+            <button data-bloom-item 
+            data-capability="explore"
+            type="button">Explore</button>
+
+            <button data-bloom-item 
+            data-capability="explain"
+            type="button">Explain</button>
+        </div>
+
+    </div>
+</section>
+
+<script src="/static/js/bloom.js"></script>
+
+<section class="areas">
+    <a href="/workspace">Workspace</a>
+    <a href="/data">Data</a>
+    <a href="/intelligence">Intelligence</a>
+    <a href="/explanations">Explanations</a>
+    <a href="/experiments">Experiments</a>
+    <a href="/knowledge">Knowledge</a>
+</section>
+
+{% endblock %}
