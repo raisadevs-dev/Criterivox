@@ -4,41 +4,46 @@ import 'package:presentation/main.dart';
 
 void main() {
   testWidgets(
-    'Criterivox presentation renders the first functional character',
+    'Criterivox presentation renders the runtime character shell',
     (WidgetTester tester) async {
       await tester.pumpWidget(const CriterivoxApp());
 
       expect(find.text('Criterivox'), findsOneWidget);
-      expect(find.text('Character Interaction'), findsOneWidget);
-      expect(find.text('Dharen'), findsOneWidget);
-      expect(find.text('Analysis'), findsOneWidget);
-      expect(find.text('IDLE'), findsOneWidget);
+      expect(find.text('Runtime Character Interaction'), findsOneWidget);
+      expect(find.text('Synthetic data (JSON object)'), findsOneWidget);
+      expect(find.text('Synthetic context (JSON object)'), findsOneWidget);
+      expect(find.text('Task'), findsOneWidget);
+      expect(
+        find.text('Send analysis request to Python'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('Waiting for the Python runtime connection'), findsOneWidget);
     },
   );
 
   testWidgets(
-    'Criterivox presentation changes character state',
+    'Criterivox presentation exposes the runtime analysis action',
     (WidgetTester tester) async {
       await tester.pumpWidget(const CriterivoxApp());
 
-      expect(find.text('IDLE'), findsOneWidget);
-
-      await tester.tap(find.text('WORK'));
-      await tester.pump();
-
-      expect(find.text('WORK'), findsOneWidget);
+      final button = find.text('Send analysis request to Python');
+      expect(button, findsOneWidget);
+      expect(tester.widget<FilledButton>(
+        find.ancestor(
+          of: button,
+          matching: find.byType(FilledButton),
+        ),
+      ), isNotNull);
     },
   );
 
   testWidgets(
-    'Criterivox presentation supports quiet state',
+    'Criterivox presentation provides accessible runtime status',
     (WidgetTester tester) async {
       await tester.pumpWidget(const CriterivoxApp());
 
-      await tester.tap(find.text('QUIET'));
-      await tester.pump();
-
-      expect(find.text('IDLE'), findsOneWidget);
+      expect(find.bySemanticsLabel('Dharen status'), findsNothing);
+      expect(find.bySemanticsLabel('Runtime error'), findsNothing);
     },
   );
 }
