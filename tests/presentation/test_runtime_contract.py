@@ -23,5 +23,5 @@ def test_contract_serializes_renderer_independent_state() -> None:
 
 
 def test_contract_rejects_invalid_character_state() -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         PresentationContract.from_state("Dharen", "WORK")  # type: ignore[arg-type]
