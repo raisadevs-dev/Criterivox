@@ -1,9 +1,18 @@
 """Criterivox application entry point."""
 
+import asyncio
+import json
 import logging
-from fastapi import FastAPI
+
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
+
 from .config import settings
+from .infrastructure.runtime import (
+    dharen_runtime,
+    parse_analysis_request,
+    runtime_connections,
+)
 from .logging_config import configure_logging
 from .ui.routes import router
 
@@ -16,8 +25,42 @@ app.mount(
     StaticFiles(directory="src/criterivox/ui/static"),
     name="static",
 )
-
 app.include_router(router)
+
+
+@app.websocket("/runtime/characters")
+async def character_runtime(websocket: WebSocket) -> None:
+    """Bridge validated user actions and Python character state to Flutter."""
+    await runtime_connections.connect(websocket)
+    try:
+        await websocket.send_text(
+            json.dumps(
+                {
+                    "contract_version": 1,
+                    "character_id": "Dharen",
+                    "character_state": "idle",
+                    "animation": "idle",
+                    "active": False,
+                    "prominence": 0.25,
+                    "reduced_motion": False,
+                    "message": None,
+                    "event": None,
+                }
+            )
+        )
+        while True:
+            payload = await websocket.receive_json()
+            request = parse_analysis_request(payload)
+            asyncio.create_task(dharen_runtime.run_analysis(request))
+    except WebSocketDisconnect:
+        runtime_connections.disconnect(websocket)
+    except (ValueError, TypeError):
+        await websocket.close(code=1003, reason="Invalid runtime payload")
+        runtime_connections.disconnect(websocket)
+    except Exception:
+        logger.exception("Character runtime connection failed.")
+        runtime_connections.disconnect(websocket)
+
 
 def main() -> None:
     """Start the Criterivox application."""
