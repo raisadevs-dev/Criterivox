@@ -4,6 +4,7 @@ import asyncio
 import logging
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from .config import settings
@@ -27,6 +28,18 @@ app.mount(
 app.include_router(router)
 
 
+@app.get("/health")
+def health() -> JSONResponse:
+    """Return readiness information for the local runtime host."""
+    return JSONResponse(
+        {
+            "service": "criterivox",
+            "status": "ready",
+            "runtime": "python",
+        }
+    )
+
+
 @app.websocket("/runtime/characters")
 async def character_runtime(websocket: WebSocket) -> None:
     """Bridge validated user actions and Python character state to Flutter."""
@@ -48,6 +61,7 @@ async def character_runtime(websocket: WebSocket) -> None:
 
 def main() -> None:
     """Start the Criterivox application."""
+    configure_logging()
     logger.info(
         "Criterivox application starting in %s mode.",
         settings.environment,
@@ -55,5 +69,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    configure_logging()
     main()
