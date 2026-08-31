@@ -24,10 +24,14 @@ htmlcov/
 
 # IDE
 .vscode/
+**/.idea/
+**/*.iml
 
 # OS
 .DS_Store
 Thumbs.db
+**/.DS_Store
+**/Thumbs.db
 
 # Python package metadata
 *.egg-info/
@@ -43,13 +47,6 @@ Thumbs.db
 **/.flutter_tool_state
 **/flutter_export_environment.sh
 
-# IDE files
-**/.idea/
-**/*.iml
-
-# VS Code
-**/.vscode/
-
-# OS files
-**/.DS_Store
-**/Thumbs.db
+# Criterivox local runtime diagnostics
+/diagnostics/*
+!/diagnostics/.gitkeep
