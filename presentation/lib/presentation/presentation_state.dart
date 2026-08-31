@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import '../character/character_identity.dart';
+
 class PresentationState {
   static const allowedStates = <String>{
     'IDLE',
@@ -46,6 +48,9 @@ class PresentationState {
     }
     if (agentId is! String || agentId.trim().isEmpty) {
       throw const FormatException('Runtime message has no character ID.');
+    }
+    if (!CharacterIdentities.all.containsKey(agentId)) {
+      throw const FormatException('Runtime message has an unknown character.');
     }
     if (stateValue is! String) {
       throw const FormatException('Runtime message has no character state.');
