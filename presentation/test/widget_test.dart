@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:presentation/main.dart';
@@ -13,11 +14,11 @@ void main() {
       expect(find.text('Synthetic data (JSON object)'), findsOneWidget);
       expect(find.text('Synthetic context (JSON object)'), findsOneWidget);
       expect(find.text('Task'), findsOneWidget);
+      expect(find.text('Send analysis request to Python'), findsOneWidget);
       expect(
-        find.text('Send analysis request to Python'),
+        find.textContaining('Waiting for the Python runtime connection'),
         findsOneWidget,
       );
-      expect(find.textContaining('Waiting for the Python runtime connection'), findsOneWidget);
     },
   );
 
@@ -26,14 +27,11 @@ void main() {
     (WidgetTester tester) async {
       await tester.pumpWidget(const CriterivoxApp());
 
-      final button = find.text('Send analysis request to Python');
+      final button = find.widgetWithText(
+        FilledButton,
+        'Send analysis request to Python',
+      );
       expect(button, findsOneWidget);
-      expect(tester.widget<FilledButton>(
-        find.ancestor(
-          of: button,
-          matching: find.byType(FilledButton),
-        ),
-      ), isNotNull);
     },
   );
 
