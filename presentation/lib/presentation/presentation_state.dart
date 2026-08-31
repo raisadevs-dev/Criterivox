@@ -15,7 +15,7 @@ class PresentationState {
   final String characterState;
   final bool active;
   final bool reducedMotion;
-  final double prominence;
+  final double? prominence;
   final String? message;
   final String? event;
 
@@ -24,7 +24,7 @@ class PresentationState {
     required this.characterState,
     required this.active,
     this.reducedMotion = false,
-    this.prominence = 0.25,
+    this.prominence,
     this.message,
     this.event,
   });
