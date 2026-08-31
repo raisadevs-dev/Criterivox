@@ -2,13 +2,13 @@ import 'dart:convert';
 
 class PresentationState {
   static const allowedStates = <String>{
-    'idle',
-    'receive',
-    'work',
-    'communicate',
-    'handoff',
-    'complete',
-    'warning',
+    'IDLE',
+    'RECEIVE',
+    'WORK',
+    'COMMUNICATE',
+    'HANDOFF',
+    'COMPLETE',
+    'WARNING',
   };
 
   final String agentId;
@@ -35,15 +35,24 @@ class PresentationState {
       throw const FormatException('Runtime message must be an object.');
     }
 
-    final state = decoded['character_state'];
+    final stateValue = decoded['character_state'];
     final agentId = decoded['character_id'];
     final active = decoded['active'];
     final prominence = decoded['prominence'];
+    final version = decoded['contract_version'];
 
+    if (version != 1) {
+      throw const FormatException('Unsupported presentation contract version.');
+    }
     if (agentId is! String || agentId.trim().isEmpty) {
       throw const FormatException('Runtime message has no character ID.');
     }
-    if (state is! String || !allowedStates.contains(state)) {
+    if (stateValue is! String) {
+      throw const FormatException('Runtime message has no character state.');
+    }
+
+    final characterState = stateValue.toUpperCase();
+    if (!allowedStates.contains(characterState)) {
       throw const FormatException('Runtime message has an unsupported state.');
     }
     if (active is! bool) {
@@ -53,19 +62,23 @@ class PresentationState {
       throw const FormatException('Runtime message has invalid prominence.');
     }
 
-    final version = decoded['contract_version'];
-    if (version != 1) {
-      throw const FormatException('Unsupported presentation contract version.');
+    final message = decoded['message'];
+    final event = decoded['event'];
+    if (message != null && message is! String) {
+      throw const FormatException('Runtime message has invalid message.');
+    }
+    if (event != null && event is! String) {
+      throw const FormatException('Runtime message has invalid event.');
     }
 
     return PresentationState(
       agentId: agentId,
-      characterState: state,
+      characterState: characterState,
       active: active,
       reducedMotion: decoded['reduced_motion'] == true,
       prominence: prominence.toDouble(),
-      message: decoded['message'] as String?,
-      event: decoded['event'] as String?,
+      message: message as String?,
+      event: event as String?,
     );
   }
 
