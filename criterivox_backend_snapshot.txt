@@ -1,0 +1,4475 @@
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\application\services\__init__.py =====
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\application\services\navigation_service.py =====
+from criterivox.infrastructure.mock_provider import MockProvider
+
+
+class NavigationService:
+    def __init__(self, provider: MockProvider):
+        self.provider = provider
+
+    def get_navigation_context(self) -> dict:
+        return self.provider.get_navigation_context()
+
+    def get_primary_capabilities(self) -> list[str]:
+        context = self.provider.get_navigation_context()
+        return context["capabilities"]
+
+    def get_contextual_options(self, capability: str) -> list[str]:
+        return self.provider.get_contextual_options(capability)
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\application\__init__.py =====
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\application\agent_flow.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from criterivox.domain.characters import CharacterState
+from criterivox.application.bloom_integration import (
+    ApplicationEvent,
+    BloomIntegration,
+)
+
+
+@dataclass(frozen=True, slots=True)
+class AgentFlowStep:
+    """One observable step in an agent activity flow."""
+
+    character_id: str
+    state: CharacterState
+
+
+@dataclass(frozen=True, slots=True)
+class AgentFlow:
+    """Behavior flow triggered for one application event."""
+
+    event: ApplicationEvent
+    steps: tuple[AgentFlowStep, ...]
+
+
+class AgentFlowCoordinator:
+    """Connects application events to the character lifecycle."""
+
+    _LIFECYCLE = (
+        CharacterState.RECEIVE,
+        CharacterState.WORK,
+        CharacterState.COMMUNICATE,
+        CharacterState.COMPLETE,
+    )
+
+    def __init__(self) -> None:
+        self._integration = BloomIntegration()
+
+    def create_flow(
+        self,
+        event: ApplicationEvent,
+    ) -> AgentFlow:
+        """Create the lifecycle flow for all agents relevant to an event."""
+
+        if not isinstance(event, ApplicationEvent):
+            raise TypeError(
+                "Event must be an ApplicationEvent."
+            )
+
+        mapping = self._integration.event_to_agents(event)
+
+        steps = tuple(
+            AgentFlowStep(
+                character_id=character_id,
+                state=state,
+            )
+            for character_id in mapping.character_ids
+            for state in self._LIFECYCLE
+        )
+
+        return AgentFlow(
+            event=event,
+            steps=steps,
+        )
+
+    def states_for_agent(
+        self,
+        event: ApplicationEvent,
+        character_id: str,
+    ) -> tuple[CharacterState, ...]:
+        """Return the lifecycle states for one relevant agent."""
+
+        if not isinstance(event, ApplicationEvent):
+            raise TypeError(
+                "Event must be an ApplicationEvent."
+            )
+
+        if not character_id.strip():
+            raise ValueError(
+                "Character identifier cannot be empty."
+            )
+
+        mapping = self._integration.event_to_agents(event)
+
+        if character_id not in mapping.character_ids:
+            return ()
+
+        return self._LIFECYCLE
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\application\bloom_integration.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+from enum import Enum
+
+from criterivox.domain.characters import get_all_characters
+
+
+class BloomCapability(str, Enum):
+    """Capabilities exposed by the Bloom interaction."""
+
+    ANALYZE = "analyze"
+    COMPARE = "compare"
+    EXPLORE = "explore"
+    PLAN = "plan"
+    INSIGHTS = "insights"
+    EXPLAIN = "explain"
+
+
+class ApplicationAction(str, Enum):
+    """Application-level actions produced by Bloom."""
+
+    REQUEST_ANALYSIS = "request_analysis"
+    REQUEST_COMPARISON = "request_comparison"
+    REQUEST_EXPLORATION = "request_exploration"
+    REQUEST_PLAN = "request_plan"
+    REQUEST_INSIGHTS = "request_insights"
+    REQUEST_EXPLANATION = "request_explanation"
+
+
+class ApplicationEvent(str, Enum):
+    """Events emitted by application actions."""
+
+    ANALYSIS_REQUESTED = "analysis_requested"
+    EXPLANATION_REQUESTED = "explanation_requested"
+
+
+@dataclass(frozen=True, slots=True)
+class BloomActionMapping:
+    """Mapping between a Bloom capability and an application action."""
+
+    capability: BloomCapability
+    action: ApplicationAction
+
+
+@dataclass(frozen=True, slots=True)
+class EventAgentMapping:
+    """Mapping between an application event and relevant characters."""
+
+    event: ApplicationEvent
+    character_ids: tuple[str, ...]
+
+
+class BloomIntegration:
+    """Maps Bloom interaction into application actions and agent targets."""
+
+    _CAPABILITY_ACTIONS = {
+        BloomCapability.ANALYZE: ApplicationAction.REQUEST_ANALYSIS,
+        BloomCapability.COMPARE: ApplicationAction.REQUEST_COMPARISON,
+        BloomCapability.EXPLORE: ApplicationAction.REQUEST_EXPLORATION,
+        BloomCapability.PLAN: ApplicationAction.REQUEST_PLAN,
+        BloomCapability.INSIGHTS: ApplicationAction.REQUEST_INSIGHTS,
+        BloomCapability.EXPLAIN: ApplicationAction.REQUEST_EXPLANATION,
+    }
+
+    _ACTION_EVENTS = {
+        ApplicationAction.REQUEST_ANALYSIS:
+            ApplicationEvent.ANALYSIS_REQUESTED,
+        ApplicationAction.REQUEST_EXPLANATION:
+            ApplicationEvent.EXPLANATION_REQUESTED,
+    }
+
+    _EVENT_AGENTS = {
+        ApplicationEvent.ANALYSIS_REQUESTED: (
+            "Dharen",
+            "Vivren",
+            "Tarkis",
+            "Sandre",
+            "Pramon",
+        ),
+        ApplicationEvent.EXPLANATION_REQUESTED: (
+            "Epistre",
+            "Syvax",
+        ),
+    }
+
+    def map_capability(
+        self,
+        capability: BloomCapability,
+    ) -> BloomActionMapping:
+        """Map one Bloom capability to an application action."""
+
+        if not isinstance(capability, BloomCapability):
+            raise TypeError(
+                "Capability must be a BloomCapability."
+            )
+
+        return BloomActionMapping(
+            capability=capability,
+            action=self._CAPABILITY_ACTIONS[capability],
+        )
+
+    def action_to_event(
+        self,
+        action: ApplicationAction,
+    ) -> ApplicationEvent | None:
+        """Convert an application action into an event when defined."""
+
+        if not isinstance(action, ApplicationAction):
+            raise TypeError(
+                "Action must be an ApplicationAction."
+            )
+
+        return self._ACTION_EVENTS.get(action)
+
+    def event_to_agents(
+        self,
+        event: ApplicationEvent,
+    ) -> EventAgentMapping:
+        """Return characters relevant to an application event."""
+
+        if not isinstance(event, ApplicationEvent):
+            raise TypeError(
+                "Event must be an ApplicationEvent."
+            )
+
+        character_ids = self._EVENT_AGENTS.get(event, ())
+
+        registered_ids = {
+            character.identity.identifier
+            for character in get_all_characters()
+        }
+
+        if not set(character_ids).issubset(registered_ids):
+            raise ValueError(
+                "Event mapping contains an unknown character."
+            )
+
+        return EventAgentMapping(
+            event=event,
+            character_ids=character_ids,
+        )
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\application\contextual_capabilities.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from criterivox.application.bloom_integration import (
+    BloomCapability,
+)
+
+
+@dataclass(frozen=True, slots=True)
+class ContextualCapability:
+    """A Bloom capability made available for the current context."""
+
+    capability: BloomCapability
+    reason: str
+
+
+class ContextualCapabilityProvider:
+    """Provides relevant Bloom capabilities without owning UI behavior."""
+
+    def get_capabilities(
+        self,
+        *,
+        context: dict[str, object] | None = None,
+    ) -> tuple[ContextualCapability, ...]:
+        """Return capabilities relevant to the supplied context."""
+
+        context = context or {}
+
+        capabilities: list[ContextualCapability] = []
+
+        capabilities.append(
+            ContextualCapability(
+                capability=BloomCapability.ANALYZE,
+                reason="Analysis is available for the current task.",
+            )
+        )
+
+        if context.get("comparison_available") is True:
+            capabilities.append(
+                ContextualCapability(
+                    capability=BloomCapability.COMPARE,
+                    reason="Comparable information is available.",
+                )
+            )
+
+        if context.get("exploration_available") is True:
+            capabilities.append(
+                ContextualCapability(
+                    capability=BloomCapability.EXPLORE,
+                    reason="Additional exploration is relevant.",
+                )
+            )
+
+        if context.get("planning_available") is True:
+            capabilities.append(
+                ContextualCapability(
+                    capability=BloomCapability.PLAN,
+                    reason="Planning is relevant to the current context.",
+                )
+            )
+
+        if context.get("insights_available") is True:
+            capabilities.append(
+                ContextualCapability(
+                    capability=BloomCapability.INSIGHTS,
+                    reason="Insights are available from existing analysis.",
+                )
+            )
+
+        if context.get("explanation_available") is True:
+            capabilities.append(
+                ContextualCapability(
+                    capability=BloomCapability.EXPLAIN,
+                    reason="An explanation can be requested.",
+                )
+            )
+
+        return tuple(capabilities)
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\application\main.py =====
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\application\scenarios.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True, slots=True)
+class DemonstrationTrace:
+    """Trace of one Criterivox end-to-end demonstration scenario."""
+
+    scenario: str
+    steps: tuple[str, ...]
+
+    def contains(self, step: str) -> bool:
+        return step in self.steps
+
+    def index(self, step: str) -> int:
+        return self.steps.index(step)
+
+
+_ANALYSIS_FLOW = (
+    "user_intent",
+    "bloom",
+    "event",
+    "agent",
+    "attention",
+    "state",
+    "communication",
+    "result",
+    "quiet",
+)
+
+_EXPLANATION_FLOW = (
+    "user_intent",
+    "bloom",
+    "event",
+    "agent",
+    "attention",
+    "state",
+    "communication",
+    "result",
+    "quiet",
+)
+
+_HANDOFF_FLOW = (
+    "user_intent",
+    "bloom",
+    "event",
+    "sender",
+    "handoff",
+    "receiver",
+    "attention",
+    "state",
+    "communication",
+    "result",
+    "quiet",
+)
+
+_WAITING_FLOW = (
+    "user_intent",
+    "bloom",
+    "event",
+    "agent",
+    "attention",
+    "waiting",
+    "communication",
+    "quiet",
+)
+
+_HUMOR_FLOW = (
+    "user_intent",
+    "bloom",
+    "event",
+    "agent",
+    "attention",
+    "state",
+    "communication",
+    "humor",
+    "result",
+    "quiet",
+)
+
+_WARNING_RECOVERY_FLOW = (
+    "user_intent",
+    "bloom",
+    "event",
+    "agent",
+    "attention",
+    "warning",
+    "recovery",
+    "communication",
+    "result",
+    "quiet",
+)
+
+_COMPLETION_QUIET_FLOW = (
+    "user_intent",
+    "bloom",
+    "event",
+    "agent",
+    "attention",
+    "state",
+    "communication",
+    "complete",
+    "quiet",
+)
+
+
+def analysis_flow() -> DemonstrationTrace:
+    return DemonstrationTrace("analysis", _ANALYSIS_FLOW)
+
+
+def explanation_flow() -> DemonstrationTrace:
+    return DemonstrationTrace("explanation", _EXPLANATION_FLOW)
+
+
+def handoff_flow() -> DemonstrationTrace:
+    return DemonstrationTrace("agent_handoff", _HANDOFF_FLOW)
+
+
+def waiting_flow() -> DemonstrationTrace:
+    return DemonstrationTrace("waiting", _WAITING_FLOW)
+
+
+def humor_flow() -> DemonstrationTrace:
+    return DemonstrationTrace("contextual_humor", _HUMOR_FLOW)
+
+
+def warning_recovery_flow() -> DemonstrationTrace:
+    return DemonstrationTrace(
+        "warning_recovery",
+        _WARNING_RECOVERY_FLOW,
+    )
+
+
+def completion_quiet_flow() -> DemonstrationTrace:
+    """Return the completion-to-quiet demonstration trace."""
+
+    return DemonstrationTrace(
+        "completion_quiet",
+        _COMPLETION_QUIET_FLOW,
+    )
+
+
+def all_demonstration_flows() -> tuple[DemonstrationTrace, ...]:
+    """Return every Phase 13 demonstration scenario."""
+
+    return (
+        analysis_flow(),
+        explanation_flow(),
+        handoff_flow(),
+        waiting_flow(),
+        humor_flow(),
+        warning_recovery_flow(),
+        completion_quiet_flow(),
+    )
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\__init__.py =====
+from .animation import AnimationState
+from .attention import CharacterAttention
+from .attention_state import AttentionState
+from .behavior import CharacterBehavior
+from .character import Character
+from .communication import (
+    CharacterCommunication,
+    CommunicationCapability
+)
+from .definitions import create_character_definitions
+from .handoff import CharacterHandoff
+from .identity import CharacterIdentity
+from .personality import CharacterPersonality
+from .registry import (
+    CHARACTER_REGISTRY,
+    CharacterRegistry,
+    create_character_registry,
+    get_all_characters,
+    get_character,
+)
+
+from .activity import (
+    CharacterActivity,
+    CharacterActivityManager,
+    InvalidCharacterStateTransition,
+)
+
+from .availability import (
+    CharacterAvailability,
+    CharacterAvailabilityManager,
+)
+from .responsibility import CharacterResponsibility
+from .role import CharacterRole
+from .selection import CharacterSelection, CharacterSelector
+from .state import CharacterState
+from .trigger import ContextualTrigger
+from .communication_message import (
+    CommunicationPriority,
+    ContextualMessage,
+)
+from .communication_priority import (
+    highest_priority,
+    is_higher_priority,
+    priority_value,
+)
+from .communication_manager import CommunicationManager
+from .communication_suppression import (
+    is_repeated_message,
+    suppress_repeated_messages,
+)
+from .communication_outcome import (
+    create_completion_message,
+    create_uncertainty_message,
+)
+from .handoff_event import HandoffEvent
+from .handoff_payload import HandoffPayload
+from .handoff_relationship import HandoffRelationship
+
+__all__ = [
+    "AnimationState",
+    "AttentionState",
+    "CharacterAttention",
+    "Character",
+    "CharacterBehavior",
+    "CharacterCommunication",
+    "CommunicationCapability",
+    "CharacterHandoff",
+    "ContextualTrigger",
+    "CharacterIdentity",
+    "CharacterPersonality",
+    "CharacterResponsibility",
+    "CharacterRole",
+    "CharacterState",
+    "InvalidCharacterStateTransition",
+    "CharacterRegistry",
+    "CharacterSelection",
+    "CharacterSelector",
+    "CharacterActivity",
+    "CharacterActivityManager",
+    "CharacterAvailability",
+    "CharacterAvailabilityManager",
+    "CHARACTER_REGISTRY",
+    "create_character_definitions",
+    "create_character_registry",
+    "get_character",
+    "get_all_characters",
+    "CommunicationPriority",
+    "ContextualMessage",
+    "highest_priority",
+    "is_higher_priority",
+    "priority_value",
+    "CommunicationManager",
+    "is_repeated_message",
+    "HandoffEvent",
+    "HandoffPayload",
+    "HandoffRelationship",
+    "suppress_repeated_messages",
+    "create_completion_message",
+    "create_uncertainty_message",
+]
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\activity.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from .character import Character
+from .state import CharacterState
+
+
+@dataclass(frozen=True, slots=True)
+class CharacterActivity:
+    """Current runtime activity of a character."""
+
+    character_id: str
+    state: CharacterState
+
+
+class InvalidCharacterStateTransition(ValueError):
+    """Raised when a character attempts an invalid state transition."""
+
+
+class CharacterActivityManager:
+    """Tracks character activity and enforces valid state transitions."""
+
+    _VALID_TRANSITIONS: dict[
+        CharacterState,
+        frozenset[CharacterState],
+    ] = {
+        CharacterState.IDLE: frozenset(
+            {
+                CharacterState.RECEIVE,
+            }
+        ),
+        CharacterState.RECEIVE: frozenset(
+            {
+                CharacterState.WORK,
+                CharacterState.WARNING,
+            }
+        ),
+        CharacterState.WORK: frozenset(
+            {
+                CharacterState.COMMUNICATE,
+                CharacterState.HANDOFF,
+                CharacterState.WARNING,
+                CharacterState.COMPLETE,
+            }
+        ),
+        CharacterState.COMMUNICATE: frozenset(
+            {
+                CharacterState.COMPLETE,
+                CharacterState.HANDOFF,
+                CharacterState.WARNING,
+            }
+        ),
+        CharacterState.HANDOFF: frozenset(
+            {
+                CharacterState.IDLE,
+                CharacterState.RECEIVE,
+                CharacterState.WARNING,
+            }
+        ),
+        CharacterState.COMPLETE: frozenset(
+            {
+                CharacterState.IDLE,
+            }
+        ),
+        CharacterState.WARNING: frozenset(
+            {
+                CharacterState.IDLE,
+                CharacterState.RECEIVE,
+                CharacterState.WORK,
+            }
+        ),
+    }
+
+    def __init__(
+        self,
+        characters: tuple[Character, ...],
+    ) -> None:
+        if not characters:
+            raise ValueError("Characters cannot be empty.")
+
+        self._characters = {
+            character.identity.identifier: character
+            for character in characters
+        }
+
+        self._states = {
+            character.identity.identifier: CharacterState.IDLE
+            for character in characters
+        }
+
+    def get_state(self, character_id: str) -> CharacterState:
+        """Return the current state of a character."""
+
+        self._ensure_character_exists(character_id)
+
+        return self._states[character_id]
+
+    def set_state(
+        self,
+        character_id: str,
+        state: CharacterState,
+    ) -> CharacterActivity:
+        """Transition a character to a valid next state."""
+
+        self._ensure_character_exists(character_id)
+
+        current_state = self._states[character_id]
+
+        if state is current_state:
+            return CharacterActivity(
+                character_id=character_id,
+                state=current_state,
+            )
+
+        if not self.can_transition(current_state, state):
+            raise InvalidCharacterStateTransition(
+                f"Invalid character state transition: "
+                f"{current_state.value} -> {state.value}"
+            )
+
+        self._states[character_id] = state
+
+        return CharacterActivity(
+            character_id=character_id,
+            state=state,
+        )
+
+    def can_transition(
+        self,
+        current_state: CharacterState,
+        next_state: CharacterState,
+    ) -> bool:
+        """Return whether a state transition is valid."""
+
+        return next_state in self._VALID_TRANSITIONS[current_state]
+
+    def get_valid_next_states(
+        self,
+        character_id: str,
+    ) -> frozenset[CharacterState]:
+        """Return valid next states for a character."""
+
+        current_state = self.get_state(character_id)
+
+        return self._VALID_TRANSITIONS[current_state]
+
+    def get_activity(
+        self,
+        character_id: str,
+    ) -> CharacterActivity:
+        """Return the current activity of a character."""
+
+        return CharacterActivity(
+            character_id=character_id,
+            state=self.get_state(character_id),
+        )
+
+    def reset(
+        self,
+        character_id: str,
+    ) -> CharacterActivity:
+        """Return a character to IDLE through a valid transition."""
+
+        current_state = self.get_state(character_id)
+
+        if current_state is CharacterState.IDLE:
+            return self.get_activity(character_id)
+
+        return self.set_state(
+            character_id,
+            CharacterState.IDLE,
+        )
+
+    def _ensure_character_exists(self, character_id: str) -> None:
+        if character_id not in self._characters:
+            raise KeyError(character_id)
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\animation.py =====
+from enum import Enum
+
+
+class AnimationState(str, Enum):
+    """Presentation-independent animation state."""
+
+    IDLE = "idle"
+    RECEIVE = "receive"
+    WORK = "work"
+    COMMUNICATE = "communicate"
+    HANDOFF = "handoff"
+    COMPLETE = "complete"
+    WARNING = "warning"
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\attention_activation.py =====
+from __future__ import annotations
+
+from .attention_selection import AttentionCandidate
+
+
+class AttentionActivation:
+    """Controls how many relevant characters may demand attention."""
+
+    @staticmethod
+    def select(
+        candidates: tuple[AttentionCandidate, ...],
+    ) -> tuple[AttentionCandidate, ...]:
+        """Select the highest-priority candidate for activation.
+
+        Only one character is selected at a time. This prevents
+        unnecessary simultaneous activation in the interface.
+        """
+
+        if not candidates:
+            return ()
+
+        highest_priority = max(
+            candidate.priority
+            for candidate in candidates
+        )
+
+        for candidate in candidates:
+            if candidate.priority == highest_priority:
+                return (candidate,)
+
+        return ()
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\attention_completion.py =====
+from __future__ import annotations
+
+from .attention_state import AttentionState
+
+
+class AttentionCompletion:
+    """Handles the attentional consequence of character completion."""
+
+    @staticmethod
+    def release(state: AttentionState) -> AttentionState:
+        """Return the attention state after completion.
+
+        A character that is COMPLETING becomes QUIET.
+        A character that is already QUIET remains QUIET.
+
+        Other states are rejected because completion should not
+        silently alter an unrelated attentional state.
+        """
+
+        if not isinstance(state, AttentionState):
+            raise TypeError(
+                "Attention state must be an AttentionState."
+            )
+
+        if state is AttentionState.COMPLETING:
+            return AttentionState.QUIET
+
+        if state is AttentionState.QUIET:
+            return AttentionState.QUIET
+
+        raise ValueError(
+            "Completion release requires COMPLETING or QUIET state."
+        )
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\attention_priority.py =====
+from __future__ import annotations
+
+from .attention_state import AttentionState
+
+
+class AttentionPriority:
+    """Provides deterministic priority values for attention states."""
+
+    _PRIORITIES: dict[AttentionState, int] = {
+        AttentionState.QUIET: 0,
+        AttentionState.WAITING: 1,
+        AttentionState.ATTENTIVE: 2,
+        AttentionState.RECOVERING: 2,
+        AttentionState.FOCUSED: 3,
+        AttentionState.COMPLETING: 3,
+        AttentionState.BUSY: 4,
+        AttentionState.NEEDS_USER: 5,
+    }
+
+    @classmethod
+    def for_state(cls, state: AttentionState) -> int:
+        """Return the attention priority for a state."""
+
+        if not isinstance(state, AttentionState):
+            raise TypeError(
+                "Attention priority requires an AttentionState."
+            )
+
+        return cls._PRIORITIES[state]
+
+    @classmethod
+    def is_higher(
+        cls,
+        first: AttentionState,
+        second: AttentionState,
+    ) -> bool:
+        """Return whether the first state has higher priority."""
+
+        return cls.for_state(first) > cls.for_state(second)
+
+    @classmethod
+    def is_equal(
+        cls,
+        first: AttentionState,
+        second: AttentionState,
+    ) -> bool:
+        """Return whether two states have equal priority."""
+
+        return cls.for_state(first) == cls.for_state(second)
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\attention_selection.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from .attention_priority import AttentionPriority
+from .attention_state import AttentionState
+from .character import Character
+
+
+@dataclass(frozen=True, slots=True)
+class AttentionCandidate:
+    """A character considered for attentional prioritization."""
+
+    character: Character
+    priority: int
+
+
+class AttentionSelection:
+    """Prioritizes characters that are already relevant to the task."""
+
+    @staticmethod
+    def prioritize(
+        characters: tuple[Character, ...],
+    ) -> tuple[AttentionCandidate, ...]:
+        """Return relevant characters ordered by attention priority.
+
+        Higher attention priority appears first.
+
+        Characters with the same priority preserve their original
+        registration/input order.
+        """
+
+        candidates = tuple(
+            AttentionCandidate(
+                character=character,
+                priority=AttentionPriority.for_state(
+                    character.attention.default_state
+                ),
+            )
+            for character in characters
+        )
+
+        return tuple(
+            sorted(
+                candidates,
+                key=lambda candidate: candidate.priority,
+                reverse=True,
+            )
+        )
+
+    @staticmethod
+    def prioritize_by_state(
+        characters: tuple[Character, ...],
+        state: AttentionState,
+    ) -> tuple[AttentionCandidate, ...]:
+        """Prioritize characters currently represented by a given state."""
+
+        if not isinstance(state, AttentionState):
+            raise TypeError(
+                "Attention state must be an AttentionState."
+            )
+
+        matching = tuple(
+            character
+            for character in characters
+            if character.attention.default_state is state
+        )
+
+        return AttentionSelection.prioritize(matching)
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\attention_state.py =====
+from enum import Enum
+
+
+class AttentionState(str, Enum):
+    """Interaction-attention state of a Criterivox character."""
+
+    QUIET = "quiet"
+    ATTENTIVE = "attentive"
+    FOCUSED = "focused"
+    BUSY = "busy"
+    WAITING = "waiting"
+    NEEDS_USER = "needs_user"
+    COMPLETING = "completing"
+    RECOVERING = "recovering"
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\attention_transition.py =====
+from __future__ import annotations
+
+from .attention_state import AttentionState
+
+
+class AttentionTransitionError(ValueError):
+    """Raised when an attention-state transition is not permitted."""
+
+
+_VALID_TRANSITIONS: dict[AttentionState, frozenset[AttentionState]] = {
+    AttentionState.QUIET: frozenset(
+        {
+            AttentionState.ATTENTIVE,
+        }
+    ),
+    AttentionState.ATTENTIVE: frozenset(
+        {
+            AttentionState.QUIET,
+            AttentionState.FOCUSED,
+            AttentionState.WAITING,
+            AttentionState.NEEDS_USER,
+        }
+    ),
+    AttentionState.FOCUSED: frozenset(
+        {
+            AttentionState.BUSY,
+            AttentionState.COMPLETING,
+            AttentionState.RECOVERING
+            if hasattr(AttentionState, "WARNING")
+            else AttentionState.RECOVERING,
+        }
+    ),
+    AttentionState.BUSY: frozenset(
+        {
+            AttentionState.FOCUSED,
+            AttentionState.COMPLETING,
+            AttentionState.WAITING,
+            AttentionState.RECOVERING,
+        }
+    ),
+    AttentionState.WAITING: frozenset(
+        {
+            AttentionState.ATTENTIVE,
+            AttentionState.FOCUSED,
+            AttentionState.NEEDS_USER,
+            AttentionState.RECOVERING,
+        }
+    ),
+    AttentionState.NEEDS_USER: frozenset(
+        {
+            AttentionState.ATTENTIVE,
+            AttentionState.FOCUSED,
+            AttentionState.WAITING,
+        }
+    ),
+    AttentionState.COMPLETING: frozenset(
+        {
+            AttentionState.QUIET,
+            AttentionState.RECOVERING,
+        }
+    ),
+    AttentionState.RECOVERING: frozenset(
+        {
+            AttentionState.QUIET,
+            AttentionState.ATTENTIVE,
+            AttentionState.FOCUSED,
+        }
+    ),
+}
+
+
+def can_transition(
+    current: AttentionState,
+    target: AttentionState,
+) -> bool:
+    """Return whether an attention-state transition is permitted."""
+
+    return target in _VALID_TRANSITIONS.get(current, frozenset())
+
+
+def transition_attention(
+    current: AttentionState,
+    target: AttentionState,
+) -> AttentionState:
+    """Transition to a valid attention state.
+
+    Raises:
+        AttentionTransitionError:
+            If the requested transition is not permitted.
+    """
+
+    if not can_transition(current, target):
+        raise AttentionTransitionError(
+            f"Invalid attention transition: "
+            f"{current.value} -> {target.value}"
+        )
+
+    return target
+
+
+def valid_attention_transitions(
+    current: AttentionState,
+) -> frozenset[AttentionState]:
+    """Return all states directly reachable from the current state."""
+
+    return _VALID_TRANSITIONS.get(
+        current,
+        frozenset(),
+    )
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\attention.py =====
+from dataclasses import dataclass
+
+from .attention_state import AttentionState
+
+
+@dataclass(frozen=True, slots=True)
+class CharacterAttention:
+    """Defines how a Criterivox character responds to interaction context."""
+
+    default_state: AttentionState
+    attention_description: str
+
+    def __post_init__(self) -> None:
+        if not self.attention_description.strip():
+            raise ValueError(
+                "Attention description must not be empty."
+            )
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\availability.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from .character import Character
+
+
+@dataclass(frozen=True, slots=True)
+class CharacterAvailability:
+    """Runtime availability of a character."""
+
+    character_id: str
+    available: bool
+    reason: str = ""
+
+    def __post_init__(self) -> None:
+        if not self.character_id.strip():
+            raise ValueError("Character identifier cannot be empty.")
+
+
+class CharacterAvailabilityManager:
+    """Tracks whether characters are available for activity."""
+
+    def __init__(
+        self,
+        characters: tuple[Character, ...],
+    ) -> None:
+        if not characters:
+            raise ValueError("Characters cannot be empty.")
+
+        self._characters = {
+            character.identity.identifier: character
+            for character in characters
+        }
+
+        self._availability = {
+            character.identity.identifier: True
+            for character in characters
+        }
+
+    def is_available(self, character_id: str) -> bool:
+        """Return whether a character is currently available."""
+
+        if character_id not in self._characters:
+            raise KeyError(character_id)
+
+        return self._availability[character_id]
+
+    def set_available(
+        self,
+        character_id: str,
+        available: bool,
+    ) -> None:
+        """Set the availability of a character."""
+
+        if character_id not in self._characters:
+            raise KeyError(character_id)
+
+        self._availability[character_id] = available
+
+    def get_status(
+        self,
+        character_id: str,
+    ) -> CharacterAvailability:
+        """Return the current availability status."""
+
+        if character_id not in self._characters:
+            raise KeyError(character_id)
+
+        available = self._availability[character_id]
+
+        return CharacterAvailability(
+            character_id=character_id,
+            available=available,
+            reason="" if available else "Character is unavailable.",
+        )
+
+    def available_characters(
+        self,
+        characters: tuple[Character, ...],
+    ) -> tuple[Character, ...]:
+        """Return only currently available characters."""
+
+        return tuple(
+            character
+            for character in characters
+            if self.is_available(character.identity.identifier)
+        )
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\behavior_engine.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from .character import Character
+from .state import CharacterState
+from .state_manager import CharacterStateManager
+
+
+class UnsupportedBehavior(ValueError):
+    """Raised when a requested behavior is not supported."""
+
+
+@dataclass(frozen=True, slots=True)
+class BehaviorDecision:
+    """Result of a character behavior evaluation."""
+
+    character_id: str
+    current_state: CharacterState
+    next_state: CharacterState
+    behavior: str
+
+
+class BehaviorEngine:
+    """Executes shared behavioral primitives for a character."""
+
+    def __init__(
+        self,
+        character: Character,
+        state_manager: CharacterStateManager | None = None,
+    ) -> None:
+        self.character = character
+        self.state_manager = state_manager or CharacterStateManager()
+
+    def receive(self) -> BehaviorDecision:
+        """Move the character into the receive state."""
+        return self._transition(
+            CharacterState.RECEIVE,
+            "receive",
+        )
+
+    def work(self) -> BehaviorDecision:
+        """Move the character into the work state."""
+        return self._transition(
+            CharacterState.WORK,
+            self.character.behavior.work_behavior,
+        )
+
+    def communicate(self) -> BehaviorDecision:
+        """Move the character into the communicate state."""
+        return self._transition(
+            CharacterState.COMMUNICATE,
+            self.character.behavior.communication_style,
+        )
+
+    def handoff(self) -> BehaviorDecision:
+        """Move the character into the handoff state."""
+        return self._transition(
+            CharacterState.HANDOFF,
+            "Hands the task to another relevant character.",
+        )
+
+    def warning(self) -> BehaviorDecision:
+        """Move the character into the warning state."""
+        return self._transition(
+            CharacterState.WARNING,
+            self.character.behavior.warning_behavior,
+        )
+
+    def complete(self) -> BehaviorDecision:
+        """Move the character into the complete state."""
+        return self._transition(
+            CharacterState.COMPLETE,
+            self.character.behavior.completion_behavior,
+        )
+
+    def reset(self) -> BehaviorDecision:
+        """Return the character to the idle state."""
+        previous_state = self.state_manager.current_state
+        next_state = self.state_manager.reset()
+
+        return BehaviorDecision(
+            character_id=self.character.identity.identifier,
+            current_state=previous_state,
+            next_state=next_state,
+            behavior=self.character.behavior.completion_behavior,
+        )
+
+    def _transition(
+        self,
+        target: CharacterState,
+        behavior: str,
+    ) -> BehaviorDecision:
+        current_state = self.state_manager.current_state
+
+        if not behavior.strip():
+            raise UnsupportedBehavior(
+                f"Character '{self.character.identity.identifier}' "
+                f"has no behavior defined for '{target.value}'."
+            )
+
+        next_state = self.state_manager.transition(target)
+
+        return BehaviorDecision(
+            character_id=self.character.identity.identifier,
+            current_state=current_state,
+            next_state=next_state,
+            behavior=behavior,
+        )
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\behavior.py =====
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True, slots=True)
+class CharacterBehavior:
+    """Behavioral configuration for a Criterivox character."""
+
+    activation_priority: int
+    preferred_events: tuple[str, ...]
+    contextual_triggers: tuple[str, ...]
+    communication_style: str
+    work_behavior: str
+    completion_behavior: str
+    warning_behavior: str
+    humor_characteristics: str
+
+    def __post_init__(self) -> None:
+        if self.activation_priority < 0:
+            raise ValueError("Activation priority cannot be negative.")
+
+        if not self.communication_style.strip():
+            raise ValueError("Communication style cannot be empty.")
+
+        if not self.work_behavior.strip():
+            raise ValueError("Work behavior cannot be empty.")
+
+        if not self.completion_behavior.strip():
+            raise ValueError("Completion behavior cannot be empty.")
+
+        if not self.warning_behavior.strip():
+            raise ValueError("Warning behavior cannot be empty.")
+
+        if not self.humor_characteristics.strip():
+            raise ValueError("Humor characteristics cannot be empty.")
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\character.py =====
+from dataclasses import dataclass
+from .attention import CharacterAttention
+from .behavior import CharacterBehavior
+from .identity import CharacterIdentity
+from .personality import CharacterPersonality
+from .responsibility import CharacterResponsibility
+from .role import CharacterRole
+from .communication import CharacterCommunication
+from .handoff import CharacterHandoff
+from .trigger import ContextualTrigger
+
+@dataclass(frozen=True, slots=True)
+class Character:
+    """Technology-independent definition of a Criterivox character."""
+
+    identity: CharacterIdentity
+    role: CharacterRole
+    responsibilities: tuple[CharacterResponsibility, ...]
+    personality: CharacterPersonality
+    communication: CharacterCommunication
+    attention: CharacterAttention
+    handoffs: tuple[CharacterHandoff, ...]
+    contextual_triggers: tuple[ContextualTrigger, ...]
+    behavior: CharacterBehavior
+
+    def __post_init__(self) -> None:
+        if not self.responsibilities:
+            raise ValueError(
+                "A character must have at least one responsibility."
+            )
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\communication_manager.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from .communication_message import (
+    CommunicationPriority,
+    ContextualMessage,
+)
+from .communication_priority import highest_priority
+
+
+@dataclass(frozen=True, slots=True)
+class CommunicationManager:
+    """Selects meaningful character communication for the current context."""
+
+    def select_message(
+        self,
+        messages: tuple[ContextualMessage, ...],
+    ) -> ContextualMessage | None:
+        """Select the most important applicable message.
+
+        Selection order:
+        1. Highest communication priority.
+        2. Original message order when priorities are equal.
+        """
+
+        if not messages:
+            return None
+
+        highest = highest_priority(
+            *(message.priority for message in messages)
+        )
+
+        for message in messages:
+            if message.priority is highest:
+                return message
+
+        return None
+
+    def select_messages(
+        self,
+        messages: tuple[ContextualMessage, ...],
+        limit: int = 1,
+    ) -> tuple[ContextualMessage, ...]:
+        """Select up to ``limit`` messages by priority.
+
+        Equal-priority messages retain their original order.
+        """
+
+        if limit < 1:
+            raise ValueError("Message selection limit must be positive.")
+
+        ordered = tuple(
+            sorted(
+                messages,
+                key=lambda message: message.priority,
+                reverse=True,
+            )
+        )
+
+        return ordered[:limit]
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\communication_message.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+from enum import IntEnum
+
+
+class CommunicationPriority(IntEnum):
+    """Priority assigned to character communication."""
+
+    LOW = 1
+    NORMAL = 2
+    HIGH = 3
+    CRITICAL = 4
+
+
+@dataclass(frozen=True, slots=True)
+class ContextualMessage:
+    """A contextual message produced by a Criterivox character."""
+
+    character_id: str
+    event: str
+    content: str
+    priority: CommunicationPriority
+
+    def __post_init__(self) -> None:
+        if not self.character_id.strip():
+            raise ValueError("Character identifier cannot be empty.")
+
+        if not self.event.strip():
+            raise ValueError("Message event cannot be empty.")
+
+        if not self.content.strip():
+            raise ValueError("Message content cannot be empty.")
+
+    @property
+    def is_critical(self) -> bool:
+        """Return whether the message requires critical attention."""
+        return self.priority is CommunicationPriority.CRITICAL
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\communication_outcome.py =====
+from __future__ import annotations
+
+from .communication_message import (
+    CommunicationPriority,
+    ContextualMessage,
+)
+
+
+def create_uncertainty_message(
+    *,
+    character_id: str,
+    event: str,
+    content: str,
+) -> ContextualMessage:
+    """Create a communication message that explicitly represents uncertainty."""
+
+    return ContextualMessage(
+        character_id=character_id,
+        event=event,
+        content=content,
+        priority=CommunicationPriority.HIGH,
+    )
+
+
+def create_completion_message(
+    *,
+    character_id: str,
+    event: str,
+    content: str,
+) -> ContextualMessage:
+    """Create a communication message representing completed work."""
+
+    return ContextualMessage(
+        character_id=character_id,
+        event=event,
+        content=content,
+        priority=CommunicationPriority.NORMAL,
+    )
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\communication_priority.py =====
+from __future__ import annotations
+
+from .communication_message import CommunicationPriority
+
+
+def is_higher_priority(
+    first: CommunicationPriority,
+    second: CommunicationPriority,
+) -> bool:
+    """Return whether the first priority outranks the second."""
+
+    return first > second
+
+
+def highest_priority(
+    *priorities: CommunicationPriority,
+) -> CommunicationPriority:
+    """Return the highest priority from the supplied priorities."""
+
+    if not priorities:
+        raise ValueError("At least one communication priority is required.")
+
+    return max(priorities)
+
+
+def priority_value(
+    priority: CommunicationPriority,
+) -> int:
+    """Return the numeric value of a communication priority."""
+
+    return int(priority)
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\communication_suppression.py =====
+from __future__ import annotations
+
+from .communication_message import ContextualMessage
+
+
+def suppress_repeated_messages(
+    messages: tuple[ContextualMessage, ...],
+) -> tuple[ContextualMessage, ...]:
+    """Remove duplicate messages while preserving their original order.
+
+    Messages are considered repeated when their character, event, and
+    content are identical. Priority differences do not create a second
+    message because the underlying communication is the same.
+    """
+
+    seen: set[tuple[str, str, str]] = set()
+    result: list[ContextualMessage] = []
+
+    for message in messages:
+        key = (
+            message.character_id,
+            message.event,
+            message.content,
+        )
+
+        if key in seen:
+            continue
+
+        seen.add(key)
+        result.append(message)
+
+    return tuple(result)
+
+
+def is_repeated_message(
+    message: ContextualMessage,
+    previous_messages: tuple[ContextualMessage, ...],
+) -> bool:
+    """Return whether the message repeats an earlier communication."""
+
+    return any(
+        message.character_id == previous.character_id
+        and message.event == previous.event
+        and message.content == previous.content
+        for previous in previous_messages
+    )
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\communication_truth.py =====
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True, slots=True)
+class CommunicationTruth:
+    """Guards communication against unsupported progress claims."""
+
+    completed: bool = False
+    in_progress: bool = False
+    warning: bool = False
+    result_available: bool = False
+
+    def status_message(self) -> str:
+        """Return a truthful status description."""
+        if self.warning:
+            return "warning"
+
+        if self.completed:
+            return "completed"
+
+        if self.in_progress:
+            return "in_progress"
+
+        return "waiting"
+
+    def can_claim_progress(self) -> bool:
+        """Return whether progress can truthfully be communicated."""
+        return self.in_progress or self.completed
+
+    def can_claim_completion(self) -> bool:
+        """Return whether completion can truthfully be communicated."""
+        return self.completed
+
+    def can_claim_result(self) -> bool:
+        """Return whether a result can truthfully be communicated."""
+        return self.result_available
+
+    def can_claim_warning(self) -> bool:
+        """Return whether a warning can truthfully be communicated."""
+        return self.warning
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\communication.py =====
+from dataclasses import dataclass
+from enum import Enum
+
+
+class CommunicationCapability(str, Enum):
+    """Types of communication a character can provide."""
+
+    ACKNOWLEDGE = "acknowledge"
+    STATUS = "status"
+    RESULT = "result"
+    WARNING = "warning"
+    HANDOFF = "handoff"
+
+
+@dataclass(frozen=True, slots=True)
+class CharacterCommunication:
+    """Communication capabilities available to a character."""
+
+    capabilities: frozenset[CommunicationCapability]
+
+    def supports(self, capability: CommunicationCapability) -> bool:
+        return capability in self.capabilities
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\definitions.py =====
+from .attention import CharacterAttention
+from .attention_state import AttentionState
+from .behavior import CharacterBehavior
+from .character import Character
+from .communication import (
+    CharacterCommunication,
+    CommunicationCapability,
+)
+from .handoff import CharacterHandoff
+from .identity import CharacterIdentity
+from .personality import CharacterPersonality
+from .responsibility import CharacterResponsibility
+from .role import CharacterRole
+from .trigger import ContextualTrigger
+
+
+_ALL_COMMUNICATION_CAPABILITIES = frozenset(
+    {
+        CommunicationCapability.ACKNOWLEDGE,
+        CommunicationCapability.STATUS,
+        CommunicationCapability.RESULT,
+        CommunicationCapability.WARNING,
+        CommunicationCapability.HANDOFF,
+    }
+)
+
+
+def _communication(
+    *capabilities: CommunicationCapability,
+) -> CharacterCommunication:
+    if not capabilities:
+        capabilities = tuple(_ALL_COMMUNICATION_CAPABILITIES)
+
+    return CharacterCommunication(
+        capabilities=frozenset(capabilities),
+    )
+
+
+def _responsibility(
+    identifier: str,
+    description: str,
+) -> tuple[CharacterResponsibility, ...]:
+    return (
+        CharacterResponsibility(
+            identifier=identifier,
+            description=description,
+        ),
+    )
+
+
+def _handoffs(
+    *targets: tuple[str, str],
+) -> tuple[CharacterHandoff, ...]:
+    return tuple(
+        CharacterHandoff(
+            target_character_id=target,
+            reason=reason,
+        )
+        for target, reason in targets
+    )
+
+
+def _triggers(
+    *items: tuple[str, str],
+) -> tuple[ContextualTrigger, ...]:
+    return tuple(
+        ContextualTrigger(
+            identifier=identifier,
+            description=description,
+        )
+        for identifier, description in items
+    )
+
+
+def _character(
+    *,
+    identifier: str,
+    name: str,
+    role_identifier: str,
+    role_name: str,
+    role_description: str,
+    responsibility_identifier: str,
+    responsibility_description: str,
+    communication_style: str,
+    interaction_style: str,
+    tone: str,
+    behavior_description: str,
+    behavior_communication_style: str,
+    attention_state: AttentionState,
+    attention_description: str,
+    preferred_events: tuple[str, ...],
+    behavior_triggers: tuple[str, ...],
+    work_behavior: str,
+    completion_behavior: str,
+    warning_behavior: str,
+    humor_characteristics: str,
+    handoffs: tuple[tuple[str, str], ...],
+    triggers: tuple[tuple[str, str], ...],
+) -> Character:
+    """Build one fully typed Criterivox character definition."""
+
+    return Character(
+        identity=CharacterIdentity(
+            identifier=identifier,
+            name=name,
+        ),
+        role=CharacterRole(
+            identifier=role_identifier,
+            name=role_name,
+            description=role_description,
+        ),
+        responsibilities=_responsibility(
+            responsibility_identifier,
+            responsibility_description,
+        ),
+        personality=CharacterPersonality(
+            communication_style=communication_style,
+            interaction_style=interaction_style,
+            tone=tone,
+        ),
+        communication=_communication(),
+        attention=CharacterAttention(
+            default_state=attention_state,
+            attention_description=attention_description,
+        ),
+        handoffs=_handoffs(*handoffs),
+        contextual_triggers=_triggers(*triggers),
+        behavior=CharacterBehavior(
+            activation_priority=1,
+            preferred_events=preferred_events,
+            contextual_triggers=behavior_triggers,
+            communication_style=behavior_communication_style,
+            work_behavior=work_behavior,
+            completion_behavior=completion_behavior,
+            warning_behavior=warning_behavior,
+            humor_characteristics=humor_characteristics,
+        ),
+    )
+
+
+def create_character_definitions() -> tuple[Character, ...]:
+    """Create the complete Criterivox character roster."""
+
+    return (
+        _character(
+            identifier="Dharen",
+            name="Dharen",
+            role_identifier="structural_context",
+            role_name="Structural Context",
+            role_description="Provides structural understanding of context.",
+            responsibility_identifier="context_structure",
+            responsibility_description=(
+                "Organizes the problem and establishes its surrounding context."
+            ),
+            communication_style="clear",
+            interaction_style="structured",
+            tone="calm",
+            behavior_description=(
+                "Establishes the structural frame before deeper analysis."
+            ),
+            behavior_communication_style="Concise and contextual.",
+            attention_state=AttentionState.FOCUSED,
+            attention_description=(
+                "Becomes focused when context must be established or clarified."
+            ),
+            preferred_events=(
+                "analysis_requested",
+                "context_received",
+            ),
+            behavior_triggers=(
+                "context establishment",
+                "problem framing",
+            ),
+            work_behavior="Structures the task before deeper processing.",
+            completion_behavior="Presents a clear contextual frame.",
+            warning_behavior="Signals when important context is missing.",
+            humor_characteristics="Dry, restrained humor about messy structure.",
+            handoffs=(
+                (
+                    "Sandre",
+                    "Context requires broader contextual connections.",
+                ),
+                (
+                    "Kaelen",
+                    "Temporal or environmental context is relevant.",
+                ),
+                (
+                    "Tarkis",
+                    "The structured context is ready for hypothesis work.",
+                ),
+            ),
+            triggers=(
+                (
+                    "context_establishment",
+                    "The task requires establishment of surrounding context.",
+                ),
+                (
+                    "problem_framing",
+                    "The problem requires structural framing.",
+                ),
+                (
+                    "missing_contextual_structure",
+                    "Important contextual structure is missing.",
+                ),
+            ),
+        ),
+
+        _character(
+            identifier="Vivren",
+            name="Vivren",
+            role_identifier="critical_reasoning",
+            role_name="Critical Reasoning",
+            role_description=(
+                "Examines assumptions and evaluates the strength of reasoning."
+            ),
+            responsibility_identifier="reasoning_critique",
+            responsibility_description=(
+                "Questions assumptions and examines the strength of reasoning."
+            ),
+            communication_style="analytical",
+            interaction_style="questioning",
+            tone="precise",
+            behavior_description=(
+                "Challenges weak assumptions and alternative explanations."
+            ),
+            behavior_communication_style="Analytical and questioning.",
+            attention_state=AttentionState.ATTENTIVE,
+            attention_description=(
+                "Becomes attentive when conclusions require scrutiny."
+            ),
+            preferred_events=(
+                "analysis_requested",
+                "explanation_requested",
+            ),
+            behavior_triggers=(
+                "weak reasoning",
+                "alternative explanation",
+            ),
+            work_behavior="Challenges assumptions and tests alternative explanations.",
+            completion_behavior="Reports reasoning concerns and surviving alternatives.",
+            warning_behavior="Flags unsupported assumptions or weak reasoning.",
+            humor_characteristics="Skeptical, understated, intellectually teasing.",
+            handoffs=(
+                (
+                    "Veridat",
+                    "A reasoning claim requires verification.",
+                ),
+                (
+                    "Pramon",
+                    "A conclusion requires empirical support.",
+                ),
+                (
+                    "Manis",
+                    "Alternative implications require deliberation.",
+                ),
+            ),
+            triggers=(
+                (
+                    "weak_reasoning",
+                    "The reasoning contains a potentially weak assumption.",
+                ),
+                (
+                    "alternative_explanation",
+                    "An alternative explanation requires examination.",
+                ),
+                (
+                    "assumption_review",
+                    "An assumption requires critical review.",
+                ),
+            ),
+        ),
+
+        _character(
+            identifier="Tarkis",
+            name="Tarkis",
+            role_identifier="hypothesis_evidence",
+            role_name="Hypothesis & Evidence",
+            role_description=(
+                "Forms and evaluates hypotheses using available evidence."
+            ),
+            responsibility_identifier="hypothesis_evaluation",
+            responsibility_description=(
+                "Forms and evaluates hypotheses using available evidence."
+            ),
+            communication_style="logical",
+            interaction_style="investigative",
+            tone="structured",
+            behavior_description=(
+                "Transforms observations into testable hypotheses and connects them with evidence."
+            ),
+            behavior_communication_style="Logical and exploratory.",
+            attention_state=AttentionState.FOCUSED,
+            attention_description=(
+                "Focuses when a task requires hypothesis formation or evaluation."
+            ),
+            preferred_events=(
+                "analysis_requested",
+                "analysis_started",
+            ),
+            behavior_triggers=(
+                "hypothesis formation",
+                "hypothesis evaluation",
+            ),
+            work_behavior="Transforms observations into testable hypotheses.",
+            completion_behavior="Returns hypotheses linked to available evidence.",
+            warning_behavior="Signals when evidence is insufficient for a hypothesis.",
+            humor_characteristics="Curious, experimental, lightly playful.",
+            handoffs=(
+                (
+                    "Pramon",
+                    "A hypothesis requires empirical examination.",
+                ),
+                (
+                    "Vivren",
+                    "A hypothesis requires critical reasoning.",
+                ),
+            ),
+            triggers=(
+                (
+                    "hypothesis_formation",
+                    "Observations require transformation into a hypothesis.",
+                ),
+                (
+                    "hypothesis_evaluation",
+                    "A hypothesis requires evaluation.",
+                ),
+                (
+                    "evidence_linked_reasoning",
+                    "Reasoning must be connected with evidence.",
+                ),
+            ),
+        ),
+
+        _character(
+            identifier="Sandre",
+            name="Sandre",
+            role_identifier="contextual_weaving",
+            role_name="Contextual Weaving",
+            role_description="Connects information across contexts and platforms.",
+            responsibility_identifier="context_integration",
+            responsibility_description="Connects information across contexts and platforms.",
+            communication_style="integrative",
+            interaction_style="connective",
+            tone="perceptive",
+            behavior_description=(
+                "Links related contextual information that may otherwise remain isolated."
+            ),
+            behavior_communication_style="Connecting and explanatory.",
+            attention_state=AttentionState.FOCUSED,
+            attention_description=(
+                "Activates when information must be related across contexts."
+            ),
+            preferred_events=(
+                "analysis_requested",
+                "context_received",
+            ),
+            behavior_triggers=(
+                "cross-context analysis",
+                "context integration",
+            ),
+            work_behavior="Connects information across contextual boundaries.",
+            completion_behavior="Presents relationships between previously separated information.",
+            warning_behavior="Signals when context cannot be safely connected.",
+            humor_characteristics="Observational humor about disconnected information.",
+            handoffs=(
+                (
+                    "Dharen",
+                    "The integrated information requires structural framing.",
+                ),
+                (
+                    "Kaelen",
+                    "Temporal or environmental context affects the connection.",
+                ),
+                (
+                    "Tarkis",
+                    "Connected context can support hypothesis formation.",
+                ),
+            ),
+            triggers=(
+                (
+                    "cross_context_analysis",
+                    "Information must be related across contexts.",
+                ),
+                (
+                    "cross_platform_comparison",
+                    "Information from different platforms requires comparison.",
+                ),
+                (
+                    "context_integration",
+                    "Previously separated contextual information must be integrated.",
+                ),
+            ),
+        ),
+
+        _character(
+            identifier="Pramon",
+            name="Pramon",
+            role_identifier="empirical_proof",
+            role_name="Empirical Proof",
+            role_description=(
+                "Examines whether conclusions are supported by empirical evidence."
+            ),
+            responsibility_identifier="empirical_validation",
+            responsibility_description=(
+                "Examines whether conclusions are supported by empirical evidence."
+            ),
+            communication_style="evidence-focused",
+            interaction_style="disciplined",
+            tone="factual",
+            behavior_description="Checks claims against available evidence.",
+            behavior_communication_style="Evidence-focused and factual.",
+            attention_state=AttentionState.FOCUSED,
+            attention_description=(
+                "Focuses when supporting evidence must be examined."
+            ),
+            preferred_events=(
+                "analysis_started",
+                "analysis_completed",
+            ),
+            behavior_triggers=(
+                "evidence examination",
+                "claim support",
+            ),
+            work_behavior="Examines claims against available evidence.",
+            completion_behavior="Reports whether claims are empirically supported.",
+            warning_behavior="Flags unsupported or weakly supported claims.",
+            humor_characteristics="Matter-of-fact humor about evidence doing the talking.",
+            handoffs=(
+                (
+                    "Vivren",
+                    "The evidence raises a reasoning concern.",
+                ),
+                (
+                    "Veridat",
+                    "Evidence requires reliability verification.",
+                ),
+                (
+                    "Bodhex",
+                    "Verified evidence can support insight generation.",
+                ),
+            ),
+            triggers=(
+                (
+                    "evidence_examination",
+                    "Available evidence requires examination.",
+                ),
+                (
+                    "claim_support",
+                    "A claim requires supporting evidence.",
+                ),
+                (
+                    "empirical_validation",
+                    "A conclusion requires empirical validation.",
+                ),
+            ),
+        ),
+
+        _character(
+            identifier="Syvax",
+            name="Syvax",
+            role_identifier="human_machine_dialogue",
+            role_name="Human-Machine Dialogue",
+            role_description=(
+                "Facilitates communication between the user and the system."
+            ),
+            responsibility_identifier="user_system_dialogue",
+            responsibility_description=(
+                "Facilitates communication between the user and the system."
+            ),
+            communication_style="clear",
+            interaction_style="responsive",
+            tone="approachable",
+            behavior_description=(
+                "Receives user intent and communicates meaningful system activity."
+            ),
+            behavior_communication_style="Clear, human-readable, and contextual.",
+            attention_state=AttentionState.ATTENTIVE,
+            attention_description=(
+                "Remains attentive to user interaction and system communication."
+            ),
+            preferred_events=(
+                "user_request",
+                "explanation_ready",
+            ),
+            behavior_triggers=(
+                "user request",
+                "user clarification",
+            ),
+            work_behavior="Translates system activity into understandable interaction.",
+            completion_behavior="Communicates completed results clearly to the user.",
+            warning_behavior="Alerts the user when clarification or intervention is needed.",
+            humor_characteristics="Warm, approachable, lightly conversational.",
+            handoffs=(
+                (
+                    "Dharen",
+                    "The user request requires contextual structuring.",
+                ),
+                (
+                    "Epistre",
+                    "The user requires an explanation.",
+                ),
+                (
+                    "Bodhex",
+                    "The user requires interpreted insights.",
+                ),
+            ),
+            triggers=(
+                (
+                    "user_request",
+                    "The user initiates a request.",
+                ),
+                (
+                    "user_clarification",
+                    "The system requires clarification from the user.",
+                ),
+                (
+                    "result_delivery",
+                    "A result is ready to be communicated to the user.",
+                ),
+            ),
+        ),
+
+        _character(
+            identifier="Bodhex",
+            name="Bodhex",
+            role_identifier="perception_insight",
+            role_name="Perception & Insight",
+            role_description="Transforms analyzed information into meaningful insights.",
+            responsibility_identifier="insight_generation",
+            responsibility_description="Transforms analyzed information into meaningful insights.",
+            communication_style="clear",
+            interaction_style="synthesis-oriented",
+            tone="curious",
+            behavior_description="Identifies meaningful patterns and presents resulting insights.",
+            behavior_communication_style="Clear and insight-oriented.",
+            attention_state=AttentionState.FOCUSED,
+            attention_description="Focuses when analysis is ready for interpretation.",
+            preferred_events=(
+                "analysis_completed",
+                "insight_requested",
+            ),
+            behavior_triggers=(
+                "insight generation",
+                "pattern interpretation",
+            ),
+            work_behavior="Synthesizes findings and interprets meaningful patterns.",
+            completion_behavior="Presents concise insights derived from analysis.",
+            warning_behavior="Signals when patterns are weak or ambiguous.",
+            humor_characteristics="Curious, pattern-loving, gently playful.",
+            handoffs=(
+                (
+                    "Epistre",
+                    "An insight requires an understandable explanation.",
+                ),
+                (
+                    "Syvax",
+                    "An insight is ready for user communication.",
+                ),
+                (
+                    "Manis",
+                    "An insight requires deliberation before a decision.",
+                ),
+            ),
+            triggers=(
+                (
+                    "insight_generation",
+                    "Completed analysis requires insight generation.",
+                ),
+                (
+                    "pattern_interpretation",
+                    "A meaningful pattern requires interpretation.",
+                ),
+                (
+                    "analysis_synthesis",
+                    "Multiple analytical findings require synthesis.",
+                ),
+            ),
+        ),
+
+        _character(
+            identifier="Medrus",
+            name="Medrus",
+            role_identifier="knowledge_retention",
+            role_name="Knowledge Retention",
+            role_description="Maintains historical knowledge, previous findings, and patterns.",
+            responsibility_identifier="historical_knowledge",
+            responsibility_description="Maintains historical knowledge, previous findings, and patterns.",
+            communication_style="measured",
+            interaction_style="reflective",
+            tone="steady",
+            behavior_description="Connects current work with retained knowledge and previous findings.",
+            behavior_communication_style="Measured and contextual.",
+            attention_state=AttentionState.ATTENTIVE,
+            attention_description="Activates when prior knowledge or historical findings are relevant.",
+            preferred_events=(
+                "analysis_requested",
+                "knowledge_requested",
+            ),
+            behavior_triggers=(
+                "historical knowledge",
+                "knowledge retrieval",
+            ),
+            work_behavior="Retrieves and relates previous findings to current work.",
+            completion_behavior="Provides relevant historical knowledge.",
+            warning_behavior="Signals when retained knowledge may not fit the current context.",
+            humor_characteristics="Reflective humor about humans forgetting what they already learned.",
+            handoffs=(
+                (
+                    "Viveda",
+                    "Relevant retained knowledge can support the current task.",
+                ),
+                (
+                    "Anukor",
+                    "Retained knowledge may need transfer to another context.",
+                ),
+            ),
+            triggers=(
+                (
+                    "historical_knowledge",
+                    "Historical knowledge is relevant to the current task.",
+                ),
+                (
+                    "previous_finding",
+                    "A previous finding may inform the current task.",
+                ),
+                (
+                    "knowledge_retrieval",
+                    "Relevant retained knowledge must be retrieved.",
+                ),
+            ),
+        ),
+
+        _character(
+            identifier="Epistre",
+            name="Epistre",
+            role_identifier="knowledge_explanation_transfer",
+            role_name="Knowledge & Explanation Transfer",
+            role_description="Communicates how knowledge and findings were obtained.",
+            responsibility_identifier="explanation_transfer",
+            responsibility_description="Communicates how knowledge and findings were obtained.",
+            communication_style="explanatory",
+            interaction_style="transparent",
+            tone="calm",
+            behavior_description="Transforms internal findings into understandable explanations.",
+            behavior_communication_style="Explanatory and transparent.",
+            attention_state=AttentionState.FOCUSED,
+            attention_description="Focuses when the user requires explanation or reasoning trace.",
+            preferred_events=(
+                "explanation_requested",
+                "explanation_ready",
+            ),
+            behavior_triggers=(
+                "explanation request",
+                "reasoning explanation",
+            ),
+            work_behavior="Transforms internal reasoning into understandable explanations.",
+            completion_behavior="Delivers a transparent explanation of findings.",
+            warning_behavior="Signals when an explanation cannot be fully supported.",
+            humor_characteristics="Calm, explanatory humor that makes complex ideas less intimidating.",
+            handoffs=(
+                (
+                    "Syvax",
+                    "The explanation is ready for user communication.",
+                ),
+                (
+                    "Bodhex",
+                    "The explanation requires supporting insights.",
+                ),
+            ),
+            triggers=(
+                (
+                    "explanation_request",
+                    "The user requests an explanation.",
+                ),
+                (
+                    "reasoning_explanation",
+                    "Reasoning must be explained.",
+                ),
+                (
+                    "knowledge_transfer",
+                    "Knowledge or findings must be transferred clearly.",
+                ),
+            ),
+        ),
+
+        _character(
+            identifier="Manis",
+            name="Manis",
+            role_identifier="deliberative_reasoning",
+            role_name="Deliberative Reasoning",
+            role_description="Considers alternatives, implications, and decisions.",
+            responsibility_identifier="deliberative_analysis",
+            responsibility_description="Considers alternatives, implications, and decisions.",
+            communication_style="balanced",
+            interaction_style="deliberate",
+            tone="reflective",
+            behavior_description="Considers alternatives before supporting a decision.",
+            behavior_communication_style="Balanced and reflective.",
+            attention_state=AttentionState.FOCUSED,
+            attention_description="Becomes focused when alternatives or implications require consideration.",
+            preferred_events=(
+                "analysis_completed",
+                "decision_requested",
+            ),
+            behavior_triggers=(
+                "alternative consideration",
+                "decision support",
+            ),
+            work_behavior="Compares alternatives and evaluates implications.",
+            completion_behavior="Returns balanced decision-support reasoning.",
+            warning_behavior="Flags meaningful trade-offs or unresolved implications.",
+            humor_characteristics="Thoughtful humor about humans wanting one perfect answer.",
+            handoffs=(
+                (
+                    "Vivren",
+                    "An alternative requires critical examination.",
+                ),
+                (
+                    "Epistre",
+                    "The decision reasoning requires explanation.",
+                ),
+                (
+                    "Syvax",
+                    "A decision-support result is ready for communication.",
+                ),
+            ),
+            triggers=(
+                (
+                    "alternative_consideration",
+                    "Multiple alternatives require consideration.",
+                ),
+                (
+                    "decision_support",
+                    "The user requires support for a decision.",
+                ),
+                (
+                    "implication_analysis",
+                    "The implications of an option require analysis.",
+                ),
+            ),
+        ),
+
+        _character(
+            identifier="Anuka",
+            name="Anuka",
+            role_identifier="adaptive_context",
+            role_name="Adaptive Context",
+            role_description="Adjusts interpretation and analysis as context changes.",
+            responsibility_identifier="context_adaptation",
+            responsibility_description="Adjusts interpretation and analysis as context changes.",
+            communication_style="adaptive",
+            interaction_style="responsive",
+            tone="flexible",
+            behavior_description="Refines system interpretation when contextual conditions change.",
+            behavior_communication_style="Adaptive and concise.",
+            attention_state=AttentionState.ATTENTIVE,
+            attention_description="Activates when existing interpretation no longer fits the context.",
+            preferred_events=(
+                "context_received",
+                "analysis_requested",
+            ),
+            behavior_triggers=(
+                "context change",
+                "context refinement",
+            ),
+            work_behavior="Reevaluates interpretation when contextual conditions change.",
+            completion_behavior="Provides an adapted interpretation.",
+            warning_behavior="Signals when previous assumptions no longer fit.",
+            humor_characteristics="Flexible humor that acknowledges changing circumstances.",
+            handoffs=(
+                (
+                    "Anukor",
+                    "The changed context requires adaptive transfer.",
+                ),
+                (
+                    "Dharen",
+                    "The changed context requires structural reframing.",
+                ),
+                (
+                    "Sandre",
+                    "The changed context requires contextual integration.",
+                ),
+            ),
+            triggers=(
+                (
+                    "context_change",
+                    "Relevant contextual conditions have changed.",
+                ),
+                (
+                    "context_refinement",
+                    "Existing interpretation requires refinement.",
+                ),
+                (
+                    "adaptive_interpretation",
+                    "Interpretation must adapt to new conditions.",
+                ),
+            ),
+        ),
+
+        _character(
+            identifier="Veridat",
+            name="Veridat",
+            role_identifier="verification",
+            role_name="Verification",
+            role_description="Checks reliability and verification of findings.",
+            responsibility_identifier="finding_verification",
+            responsibility_description="Checks reliability and verification of findings.",
+            communication_style="direct",
+            interaction_style="verification-oriented",
+            tone="cautious",
+            behavior_description="Checks whether findings are adequately supported.",
+            behavior_communication_style="Direct, evidence-focused, and cautious.",
+            attention_state=AttentionState.FOCUSED,
+            attention_description="Becomes highly focused when findings require verification.",
+            preferred_events=(
+                "analysis_completed",
+                "verification_requested",
+            ),
+            behavior_triggers=(
+                "finding verification",
+                "reliability check",
+            ),
+            work_behavior="Checks reliability, consistency, and support for findings.",
+            completion_behavior="Reports verification status and identified concerns.",
+            warning_behavior="Raises explicit reliability warnings.",
+            humor_characteristics="Cautious humor that treats unsupported claims with suspicion.",
+            handoffs=(
+                (
+                    "Pramon",
+                    "A finding requires deeper empirical examination.",
+                ),
+                (
+                    "Vivren",
+                    "The finding raises a reasoning concern.",
+                ),
+                (
+                    "Epistre",
+                    "The verification result requires explanation.",
+                ),
+            ),
+            triggers=(
+                (
+                    "finding_verification",
+                    "A finding requires verification.",
+                ),
+                (
+                    "insufficient_evidence",
+                    "Available evidence may be insufficient.",
+                ),
+                (
+                    "reliability_check",
+                    "The reliability of a finding requires examination.",
+                ),
+            ),
+        ),
+
+        _character(
+            identifier="Viveda",
+            name="Viveda",
+            role_identifier="knowledge_support",
+            role_name="Knowledge Base & Knowledge Support",
+            role_description="Connects findings with established knowledge and resources.",
+            responsibility_identifier="knowledge_connection",
+            responsibility_description="Connects findings with established knowledge and knowledge resources.",
+            communication_style="informative",
+            interaction_style="organized",
+            tone="contextual",
+            behavior_description="Provides relevant retained or established knowledge to support analysis.",
+            behavior_communication_style="Informative and contextual.",
+            attention_state=AttentionState.ATTENTIVE,
+            attention_description="Activates when established knowledge can support the current task.",
+            preferred_events=(
+                "analysis_requested",
+                "knowledge_requested",
+            ),
+            behavior_triggers=(
+                "knowledge support",
+                "knowledge connection",
+            ),
+            work_behavior="Connects current findings with established knowledge.",
+            completion_behavior="Provides relevant knowledge and supporting resources.",
+            warning_behavior="Signals when relevant knowledge is missing or uncertain.",
+            humor_characteristics="Organized, informative humor about humans reinventing things.",
+            handoffs=(
+                (
+                    "Medrus",
+                    "Historical knowledge may provide additional support.",
+                ),
+                (
+                    "Epistre",
+                    "Knowledge requires clear explanation.",
+                ),
+                (
+                    "Anukor",
+                    "Knowledge may need transfer into another context.",
+                ),
+            ),
+            triggers=(
+                (
+                    "knowledge_support",
+                    "Established knowledge can support the current task.",
+                ),
+                (
+                    "established_knowledge",
+                    "Established knowledge is relevant.",
+                ),
+                (
+                    "knowledge_connection",
+                    "Findings must be connected with established knowledge.",
+                ),
+            ),
+        ),
+
+        _character(
+            identifier="Kaelen",
+            name="Kaelen",
+            role_identifier="temporal_environmental_context",
+            role_name="Temporal & Environmental Context",
+            role_description="Accounts for time and environmental conditions affecting interpretation.",
+            responsibility_identifier="temporal_environmental_context",
+            responsibility_description="Accounts for time and environmental conditions affecting interpretation.",
+            communication_style="contextual",
+            interaction_style="observant",
+            tone="precise",
+            behavior_description="Identifies temporal or environmental conditions relevant to the task.",
+            behavior_communication_style="Contextual and precise.",
+            attention_state=AttentionState.FOCUSED,
+            attention_description="Focuses when time or environmental conditions affect interpretation.",
+            preferred_events=(
+                "context_received",
+                "analysis_requested",
+            ),
+            behavior_triggers=(
+                "temporal context",
+                "environmental context",
+            ),
+            work_behavior="Examines temporal and environmental factors affecting interpretation.",
+            completion_behavior="Provides relevant temporal or environmental context.",
+            warning_behavior="Flags time-sensitive or environment-sensitive interpretations.",
+            humor_characteristics="Observational humor about humans forgetting that time exists.",
+            handoffs=(
+                (
+                    "Dharen",
+                    "Temporal or environmental context affects overall framing.",
+                ),
+                (
+                    "Sandre",
+                    "Environmental context must be connected with broader context.",
+                ),
+                (
+                    "Anuka",
+                    "Changing conditions require adaptive interpretation.",
+                ),
+            ),
+            triggers=(
+                (
+                    "temporal_context",
+                    "Time affects interpretation of the current task.",
+                ),
+                (
+                    "environmental_context",
+                    "Environmental conditions affect interpretation.",
+                ),
+                (
+                    "time_sensitive_interpretation",
+                    "The task requires time-sensitive interpretation.",
+                ),
+            ),
+        ),
+
+        _character(
+            identifier="Anukor",
+            name="Anukor",
+            role_identifier="adaptive_transfer",
+            role_name="Adaptive Transfer",
+            role_description="Handles system-level adaptation and transfer between contexts.",
+            responsibility_identifier="adaptive_transfer",
+            responsibility_description="Handles system-level adaptation and transfer between contexts.",
+            communication_style="strategic",
+            interaction_style="transfer-oriented",
+            tone="flexible",
+            behavior_description="Supports adaptation and transfer of useful findings between contexts.",
+            behavior_communication_style="Strategic and contextual.",
+            attention_state=AttentionState.FOCUSED,
+            attention_description="Activates when knowledge or behavior must transfer to a changed context.",
+            preferred_events=(
+                "context_received",
+                "analysis_completed",
+            ),
+            behavior_triggers=(
+                "adaptive transfer",
+                "context transfer",
+            ),
+            work_behavior="Transfers useful knowledge or behavior into changed contexts.",
+            completion_behavior="Reports what was transferred and under which context.",
+            warning_behavior="Flags transfers that may not remain valid under new conditions.",
+            humor_characteristics="Strategic humor about humans trying to copy-paste context.",
+            handoffs=(
+                (
+                    "Anuka",
+                    "The transferred knowledge requires contextual adaptation.",
+                ),
+                (
+                    "Viveda",
+                    "Transferred knowledge requires knowledge support.",
+                ),
+                (
+                    "Medrus",
+                    "Transferred knowledge should be connected with retained findings.",
+                ),
+            ),
+            triggers=(
+                (
+                    "adaptive_transfer",
+                    "Useful knowledge or behavior must transfer.",
+                ),
+                (
+                    "context_transfer",
+                    "A finding must transfer into another context.",
+                ),
+                (
+                    "knowledge_reuse",
+                    "Previous knowledge may be reused in a changed context.",
+                ),
+            ),
+        ),
+    )
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\handoff_communication.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from .character import Character
+from .handoff_payload import HandoffPayload
+
+
+@dataclass(frozen=True, slots=True)
+class HandoffCommunication:
+    """Communication describing information transferred between characters."""
+
+    sender_id: str
+    receiver_id: str
+    message: str
+    payload: HandoffPayload
+
+
+class HandoffCommunicationManager:
+    """Creates truthful communication for character handoffs."""
+
+    def create(
+        self,
+        sender: Character,
+        receiver: Character,
+        payload: HandoffPayload,
+    ) -> HandoffCommunication:
+        """Create a communication record for a handoff."""
+
+        if not isinstance(sender, Character):
+            raise TypeError("Sender must be a Character.")
+
+        if not isinstance(receiver, Character):
+            raise TypeError("Receiver must be a Character.")
+
+        if not isinstance(payload, HandoffPayload):
+            raise TypeError("Payload must be a HandoffPayload.")
+
+        message = (
+            f"{sender.identity.name} handed context to "
+            f"{receiver.identity.name}."
+        )
+
+        return HandoffCommunication(
+            sender_id=sender.identity.identifier,
+            receiver_id=receiver.identity.identifier,
+            message=message,
+            payload=payload,
+        )
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\handoff_event.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from .handoff_payload import HandoffPayload
+
+
+@dataclass(frozen=True, slots=True)
+class HandoffEvent:
+    """Event representing information transfer between two characters."""
+
+    sender_character_id: str
+    receiver_character_id: str
+    payload: HandoffPayload
+
+    def __post_init__(self) -> None:
+        if not self.sender_character_id.strip():
+            raise ValueError(
+                "Sender character identifier cannot be empty."
+            )
+
+        if not self.receiver_character_id.strip():
+            raise ValueError(
+                "Receiver character identifier cannot be empty."
+            )
+
+        if self.sender_character_id == self.receiver_character_id:
+            raise ValueError(
+                "Sender and receiver must be different characters."
+            )
+
+    @property
+    def event_type(self) -> str:
+        return "handoff"
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\handoff_payload.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Any
+
+
+@dataclass(frozen=True, slots=True)
+class HandoffPayload:
+    """Context and result information transferred between characters."""
+
+    context: dict[str, Any] = field(default_factory=dict)
+    result: Any = None
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.context, dict):
+            raise TypeError("Handoff context must be a dictionary.")
+
+    @property
+    def has_context(self) -> bool:
+        """Return whether the payload contains contextual information."""
+        return bool(self.context)
+
+    @property
+    def has_result(self) -> bool:
+        """Return whether the payload contains a result."""
+        return self.result is not None
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\handoff_relationship.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True, slots=True)
+class HandoffRelationship:
+    """Defines an allowed information-flow relationship."""
+
+    sender_character_id: str
+    receiver_character_id: str
+    reason: str
+
+    def __post_init__(self) -> None:
+        if not self.sender_character_id.strip():
+            raise ValueError(
+                "Sender character identifier cannot be empty."
+            )
+
+        if not self.receiver_character_id.strip():
+            raise ValueError(
+                "Receiver character identifier cannot be empty."
+            )
+
+        if self.sender_character_id == self.receiver_character_id:
+            raise ValueError(
+                "Sender and receiver must be different characters."
+            )
+
+        if not self.reason.strip():
+            raise ValueError(
+                "Handoff relationship reason cannot be empty."
+            )
+
+    def matches(
+        self,
+        sender_character_id: str,
+        receiver_character_id: str,
+    ) -> bool:
+        """Return whether the supplied pair matches this relationship."""
+
+        return (
+            self.sender_character_id == sender_character_id
+            and self.receiver_character_id == receiver_character_id
+        )
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\handoff_router.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from .character import Character
+from .handoff_payload import HandoffPayload
+from .state import CharacterState
+
+
+@dataclass(frozen=True, slots=True)
+class HandoffResult:
+    """Result produced by a successful character handoff."""
+
+    sender_id: str
+    receiver_id: str
+    payload: HandoffPayload
+    sender_state: CharacterState
+    receiver_state: CharacterState
+
+
+class HandoffRouter:
+    """Routes contextual information between permitted characters."""
+
+    def route(
+        self,
+        sender: Character,
+        receiver: Character,
+        payload: HandoffPayload,
+    ) -> HandoffResult:
+        """Validate and perform a handoff between two characters."""
+
+        if not isinstance(sender, Character):
+            raise TypeError("Sender must be a Character.")
+
+        if not isinstance(receiver, Character):
+            raise TypeError("Receiver must be a Character.")
+
+        if not isinstance(payload, HandoffPayload):
+            raise TypeError("Payload must be a HandoffPayload.")
+
+        sender_id = sender.identity.identifier
+        receiver_id = receiver.identity.identifier
+
+        if sender_id == receiver_id:
+            raise ValueError(
+                "Sender and receiver must be different characters."
+            )
+
+        allowed = any(
+            handoff.target_character_id == receiver_id
+            for handoff in sender.handoffs
+        )
+
+        if not allowed:
+            raise ValueError(
+                f"Character '{sender_id}' cannot handoff to "
+                f"character '{receiver_id}'."
+            )
+
+        return HandoffResult(
+            sender_id=sender_id,
+            receiver_id=receiver_id,
+            payload=payload,
+            sender_state=CharacterState.HANDOFF,
+            receiver_state=CharacterState.RECEIVE,
+        )
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\handoff.py =====
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True, slots=True)
+class CharacterHandoff:
+    """A permitted information-flow relationship between characters."""
+
+    target_character_id: str
+    reason: str
+
+    def __post_init__(self) -> None:
+        if not self.target_character_id.strip():
+            raise ValueError("Target character identifier cannot be empty.")
+
+        if not self.reason.strip():
+            raise ValueError("Handoff reason cannot be empty.")
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\humor_repetition.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True, slots=True)
+class HumorRecord:
+    """Record of previously selected contextual humor."""
+
+    character_id: str
+    situation: str
+    characteristics: str
+
+
+class HumorRepetitionController:
+    """Prevents the same humor selection from repeating consecutively."""
+
+    def __init__(self) -> None:
+        self._last_record: HumorRecord | None = None
+
+    def allow(
+        self,
+        record: HumorRecord,
+    ) -> bool:
+        """Return whether this humor record may be used."""
+
+        if not isinstance(record, HumorRecord):
+            raise TypeError("Record must be a HumorRecord.")
+
+        if self._last_record == record:
+            return False
+
+        return True
+
+    def record(self, record: HumorRecord) -> None:
+        """Store the most recently used humor record."""
+
+        if not isinstance(record, HumorRecord):
+            raise TypeError("Record must be a HumorRecord.")
+
+        self._last_record = record
+
+    def reset(self) -> None:
+        """Clear repetition history."""
+
+        self._last_record = None
+
+    @property
+    def last_record(self) -> HumorRecord | None:
+        """Return the most recently recorded humor selection."""
+
+        return self._last_record
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\humor_selection.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from .character import Character
+from .humor import HumorEligibility, HumorPolicy, HumorSituation
+
+
+@dataclass(frozen=True, slots=True)
+class HumorCandidate:
+    """A deterministic humor candidate for a character."""
+
+    character_id: str
+    situation: HumorSituation
+    characteristics: str
+
+
+class ContextualHumorSelector:
+    """Selects whether a character may provide contextual humor."""
+
+    def __init__(self) -> None:
+        self._policy = HumorPolicy()
+
+    def select(
+        self,
+        character: Character,
+        situation: HumorSituation,
+        *,
+        user_intervention_required: bool = False,
+        critical_uncertainty: bool = False,
+        active_recovery: bool = False,
+    ) -> HumorCandidate | None:
+        """Return a humor candidate when humor is permitted."""
+
+        if not isinstance(character, Character):
+            raise TypeError("Character must be a Character.")
+
+        if not isinstance(situation, HumorSituation):
+            raise TypeError("Situation must be a HumorSituation.")
+
+        eligible = self._policy.is_eligible(
+            situation,
+            has_humor_characteristics=bool(
+                character.behavior.humor_characteristics.strip()
+            ),
+            user_intervention_required=user_intervention_required,
+            critical_uncertainty=critical_uncertainty,
+            active_recovery=active_recovery,
+        )
+
+        if not eligible:
+            return None
+
+        return HumorCandidate(
+            character_id=character.identity.identifier,
+            situation=situation,
+            characteristics=character.behavior.humor_characteristics,
+        )
+
+
+class HarmlessErrorHumorPolicy:
+    """Rules for humor during non-serious errors."""
+
+    def __init__(self) -> None:
+        self._policy = HumorPolicy()
+
+    def evaluate(
+        self,
+        *,
+        is_harmless: bool,
+        user_intervention_required: bool = False,
+        critical_uncertainty: bool = False,
+    ) -> HumorEligibility:
+        """Evaluate whether harmless-error humor is permitted."""
+
+        if not is_harmless:
+            return HumorEligibility.SUPPRESSED
+
+        return self._policy.evaluate(
+            HumorSituation.HARMLESS_ERROR,
+            user_intervention_required=user_intervention_required,
+            critical_uncertainty=critical_uncertainty,
+        )
+
+
+class CompletionHumorPolicy:
+    """Rules for humor after successful completion."""
+
+    def __init__(self) -> None:
+        self._policy = HumorPolicy()
+
+    def evaluate(
+        self,
+        *,
+        completed_successfully: bool,
+        user_intervention_required: bool = False,
+        critical_uncertainty: bool = False,
+    ) -> HumorEligibility:
+        """Evaluate whether completion humor is permitted."""
+
+        if not completed_successfully:
+            return HumorEligibility.SUPPRESSED
+
+        return self._policy.evaluate(
+            HumorSituation.COMPLETION,
+            user_intervention_required=user_intervention_required,
+            critical_uncertainty=critical_uncertainty,
+        )
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\humor_suppression.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from .character import Character
+from .humor import HumorEligibility, HumorPolicy, HumorSituation
+
+
+@dataclass(frozen=True, slots=True)
+class AgentHumorProfile:
+    """Humor characteristics associated with one Criterivox character."""
+
+    character_id: str
+    characteristics: str
+
+
+class AgentHumorRegistry:
+    """Provides agent-specific humor characteristics."""
+
+    def get_profile(self, character: Character) -> AgentHumorProfile:
+        """Return the humor profile defined by the character."""
+
+        if not isinstance(character, Character):
+            raise TypeError("Character must be a Character.")
+
+        characteristics = character.behavior.humor_characteristics.strip()
+
+        if not characteristics:
+            raise ValueError(
+                "Character humor characteristics cannot be empty."
+            )
+
+        return AgentHumorProfile(
+            character_id=character.identity.identifier,
+            characteristics=characteristics,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class WaitingHumorRules:
+    """Rules governing humor during waiting situations."""
+
+    minimum_waiting_cycles: int = 1
+    enabled: bool = True
+
+    def __post_init__(self) -> None:
+        if self.minimum_waiting_cycles < 1:
+            raise ValueError(
+                "Minimum waiting cycles must be at least 1."
+            )
+
+
+class WaitingHumorPolicy:
+    """Determines whether waiting humor is currently permitted."""
+
+    def __init__(
+        self,
+        rules: WaitingHumorRules | None = None,
+    ) -> None:
+        self.rules = rules or WaitingHumorRules()
+        self._policy = HumorPolicy()
+
+    def evaluate(
+        self,
+        *,
+        waiting_cycles: int,
+        has_humor_characteristics: bool = True,
+        user_intervention_required: bool = False,
+        critical_uncertainty: bool = False,
+        active_recovery: bool = False,
+    ) -> HumorEligibility:
+        """Evaluate humor eligibility for a waiting situation."""
+
+        if waiting_cycles < 0:
+            raise ValueError("Waiting cycles cannot be negative.")
+
+        if not self.rules.enabled:
+            return HumorEligibility.SUPPRESSED
+
+        if waiting_cycles < self.rules.minimum_waiting_cycles:
+            return HumorEligibility.SUPPRESSED
+
+        return self._policy.evaluate(
+            HumorSituation.WAITING,
+            has_humor_characteristics=has_humor_characteristics,
+            user_intervention_required=user_intervention_required,
+            critical_uncertainty=critical_uncertainty,
+            active_recovery=active_recovery,
+        )
+
+    def is_eligible(
+        self,
+        *,
+        waiting_cycles: int,
+        has_humor_characteristics: bool = True,
+        user_intervention_required: bool = False,
+        critical_uncertainty: bool = False,
+        active_recovery: bool = False,
+    ) -> bool:
+        """Return whether waiting humor is permitted."""
+
+        return (
+            self.evaluate(
+                waiting_cycles=waiting_cycles,
+                has_humor_characteristics=has_humor_characteristics,
+                user_intervention_required=user_intervention_required,
+                critical_uncertainty=critical_uncertainty,
+                active_recovery=active_recovery,
+            )
+            is HumorEligibility.ELIGIBLE
+        )
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\humor.py =====
+from enum import Enum
+
+
+class HumorSituation(str, Enum):
+    """Situations in which contextual humor may be considered."""
+
+    WAITING = "waiting"
+    HARMLESS_ERROR = "harmless_error"
+    SUCCESS = "success"
+    COMPLETION = "completion"
+    SERIOUS_WARNING = "serious_warning"
+
+
+class HumorEligibility(str, Enum):
+    """Result of humor eligibility evaluation."""
+
+    ELIGIBLE = "eligible"
+    SUPPRESSED = "suppressed"
+
+
+class HumorPolicy:
+    """Deterministic domain policy controlling whether humor is permitted."""
+
+    _ALLOWED_SITUATIONS = frozenset(
+        {
+            HumorSituation.WAITING,
+            HumorSituation.HARMLESS_ERROR,
+            HumorSituation.SUCCESS,
+            HumorSituation.COMPLETION,
+        }
+    )
+
+    _SUPPRESSION_SITUATIONS = frozenset(
+        {
+            HumorSituation.SERIOUS_WARNING,
+        }
+    )
+
+    def evaluate(
+        self,
+        situation: HumorSituation,
+        *,
+        has_humor_characteristics: bool = True,
+        user_intervention_required: bool = False,
+        critical_uncertainty: bool = False,
+        active_recovery: bool = False,
+    ) -> HumorEligibility:
+        """Determine whether humor is permitted in the current situation."""
+
+        if situation in self._SUPPRESSION_SITUATIONS:
+            return HumorEligibility.SUPPRESSED
+
+        if situation not in self._ALLOWED_SITUATIONS:
+            return HumorEligibility.SUPPRESSED
+
+        if not has_humor_characteristics:
+            return HumorEligibility.SUPPRESSED
+
+        if user_intervention_required:
+            return HumorEligibility.SUPPRESSED
+
+        if critical_uncertainty:
+            return HumorEligibility.SUPPRESSED
+
+        if active_recovery:
+            return HumorEligibility.SUPPRESSED
+
+        return HumorEligibility.ELIGIBLE
+
+    def is_eligible(
+        self,
+        situation: HumorSituation,
+        *,
+        has_humor_characteristics: bool = True,
+        user_intervention_required: bool = False,
+        critical_uncertainty: bool = False,
+        active_recovery: bool = False,
+    ) -> bool:
+        """Return True only when humor is permitted."""
+
+        return (
+            self.evaluate(
+                situation,
+                has_humor_characteristics=has_humor_characteristics,
+                user_intervention_required=user_intervention_required,
+                critical_uncertainty=critical_uncertainty,
+                active_recovery=active_recovery,
+            )
+            is HumorEligibility.ELIGIBLE
+        )
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\identity.py =====
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True, slots=True)
+class CharacterIdentity:
+    """Stable identity of a Criterivox character."""
+
+    identifier: str
+    name: str
+
+    def __post_init__(self) -> None:
+        if not self.identifier.strip():
+            raise ValueError("Character identifier cannot be empty.")
+
+        if not self.name.strip():
+            raise ValueError("Character name cannot be empty.")
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\lifecycle.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from .state import CharacterState
+
+
+@dataclass(frozen=True, slots=True)
+class CharacterLifecycle:
+    """Manages the activity lifecycle of a Criterivox character.
+
+    The normal lifecycle is:
+
+        IDLE
+          ↓
+        RECEIVE
+          ↓
+        WORK
+          ↓
+        COMMUNICATE
+          ↓
+        COMPLETE
+          ↓
+        IDLE
+
+    HANDOFF and WARNING are meaningful branches that may return
+    to the normal lifecycle.
+    """
+
+    state: CharacterState = CharacterState.IDLE
+
+    def transition(self, target: CharacterState) -> CharacterState:
+        """Return a new lifecycle with a valid state transition.
+
+        The lifecycle object is immutable. A transition therefore
+        creates and returns a new CharacterLifecycle instance.
+        """
+
+        if not isinstance(target, CharacterState):
+            raise TypeError(
+                "Lifecycle target must be a CharacterState."
+            )
+
+        if target not in self.valid_next_states():
+            raise ValueError(
+                f"Invalid lifecycle transition: "
+                f"{self.state.value} -> {target.value}"
+            )
+
+        return CharacterLifecycle(state=target)
+
+    def valid_next_states(self) -> frozenset[CharacterState]:
+        """Return the states reachable from the current state."""
+
+        transitions: dict[
+            CharacterState,
+            frozenset[CharacterState],
+        ] = {
+            CharacterState.IDLE: frozenset(
+                {
+                    CharacterState.RECEIVE,
+                }
+            ),
+            CharacterState.RECEIVE: frozenset(
+                {
+                    CharacterState.WORK,
+                    CharacterState.HANDOFF,
+                    CharacterState.WARNING,
+                }
+            ),
+            CharacterState.WORK: frozenset(
+                {
+                    CharacterState.COMMUNICATE,
+                    CharacterState.HANDOFF,
+                    CharacterState.WARNING,
+                }
+            ),
+            CharacterState.COMMUNICATE: frozenset(
+                {
+                    CharacterState.COMPLETE,
+                    CharacterState.HANDOFF,
+                    CharacterState.WARNING,
+                }
+            ),
+            CharacterState.HANDOFF: frozenset(
+                {
+                    CharacterState.IDLE,
+                    CharacterState.RECEIVE,
+                    CharacterState.WORK,
+                }
+            ),
+            CharacterState.COMPLETE: frozenset(
+                {
+                    CharacterState.IDLE,
+                }
+            ),
+            CharacterState.WARNING: frozenset(
+                {
+                    CharacterState.IDLE,
+                    CharacterState.RECEIVE,
+                    CharacterState.WORK,
+                }
+            ),
+        }
+
+        return transitions[self.state]
+
+    def can_transition_to(
+        self,
+        target: CharacterState,
+    ) -> bool:
+        """Return whether the requested transition is valid."""
+
+        if not isinstance(target, CharacterState):
+            return False
+
+        return target in self.valid_next_states()
+
+    def is_idle(self) -> bool:
+        """Return whether the character is currently idle."""
+
+        return self.state is CharacterState.IDLE
+
+    def is_active(self) -> bool:
+        """Return whether the character is performing activity."""
+
+        return self.state is not CharacterState.IDLE
+
+    def reset(self) -> CharacterLifecycle:
+        """Return the character to IDLE."""
+
+        if self.state is CharacterState.IDLE:
+            return self
+
+        if not self.can_transition_to(CharacterState.IDLE):
+            raise ValueError(
+                f"Cannot reset lifecycle from {self.state.value} to idle."
+            )
+
+        return CharacterLifecycle(state=CharacterState.IDLE)
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\personality.py =====
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True, slots=True)
+class CharacterPersonality:
+    """Interaction personality configuration for a character."""
+
+    communication_style: str
+    interaction_style: str
+    tone: str
+
+    def __post_init__(self) -> None:
+        if not self.communication_style.strip():
+            raise ValueError("Communication style cannot be empty.")
+
+        if not self.interaction_style.strip():
+            raise ValueError("Interaction style cannot be empty.")
+
+        if not self.tone.strip():
+            raise ValueError("Tone cannot be empty.")
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\registry.py =====
+from __future__ import annotations
+
+from types import MappingProxyType
+from typing import Mapping
+
+from .character import Character
+from .definitions import create_character_definitions
+
+
+class CharacterRegistry:
+    """Central registry for Criterivox character definitions.
+
+    The registry is responsible only for registration and retrieval.
+    Character construction belongs to the definitions module.
+    """
+
+    def __init__(self, characters: tuple[Character, ...]) -> None:
+        if not characters:
+            raise ValueError("Character registry cannot be empty.")
+
+        identifiers = [
+            character.identity.identifier
+            for character in characters
+        ]
+
+        if len(identifiers) != len(set(identifiers)):
+            raise ValueError(
+                "Character identities must be unique."
+            )
+
+        self._characters: Mapping[str, Character] = MappingProxyType(
+            {
+                character.identity.identifier: character
+                for character in characters
+            }
+        )
+
+    def get(self, identity: str) -> Character:
+        """Return a character by stable identity identifier."""
+        return self._characters[identity]
+
+    def get_all(self) -> tuple[Character, ...]:
+        """Return all registered characters in registration order."""
+        return tuple(self._characters.values())
+
+    def contains(self, identity: str) -> bool:
+        """Return whether a character is registered."""
+        return identity in self._characters
+
+    def __len__(self) -> int:
+        return len(self._characters)
+
+
+def create_character_registry() -> CharacterRegistry:
+    """Create the registry from the canonical character definitions."""
+    return CharacterRegistry(
+        characters=create_character_definitions(),
+    )
+
+
+CHARACTER_REGISTRY = create_character_registry()
+
+
+def get_character(identity: str) -> Character:
+    """Return a registered Criterivox character."""
+    return CHARACTER_REGISTRY.get(identity)
+
+
+def get_all_characters() -> tuple[Character, ...]:
+    """Return the complete Criterivox character roster."""
+    return CHARACTER_REGISTRY.get_all()
+
+
+__all__ = [
+    "CHARACTER_REGISTRY",
+    "CharacterRegistry",
+    "create_character_registry",
+    "get_all_characters",
+    "get_character",
+]
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\responsibility.py =====
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True, slots=True)
+class CharacterResponsibility:
+    """A responsibility assigned to a Criterivox character."""
+
+    identifier: str
+    description: str
+
+    def __post_init__(self) -> None:
+        if not self.identifier.strip():
+            raise ValueError("Responsibility identifier cannot be empty.")
+
+        if not self.description.strip():
+            raise ValueError("Responsibility description cannot be empty.")
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\role.py =====
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True, slots=True)
+class CharacterRole:
+    """Functional role performed by a Criterivox character."""
+
+    identifier: str
+    name: str
+    description: str
+
+    def __post_init__(self) -> None:
+        if not self.identifier.strip():
+            raise ValueError("Character role identifier cannot be empty.")
+
+        if not self.name.strip():
+            raise ValueError("Character role name cannot be empty.")
+
+        if not self.description.strip():
+            raise ValueError("Character role description cannot be empty.")
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\selection.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from .character import Character
+
+
+@dataclass(frozen=True, slots=True)
+class CharacterSelection:
+    """Result of contextual character selection."""
+
+    character: Character
+    score: int
+
+
+class CharacterSelector:
+    """Select characters that are relevant to the current context."""
+
+    def select(
+        self,
+        characters: tuple[Character, ...],
+        *,
+        event: str | None = None,
+        context: tuple[str, ...] = (),
+        limit: int | None = None,
+    ) -> tuple[CharacterSelection, ...]:
+        """Return relevant characters ordered by contextual relevance."""
+
+        normalized_event = (
+            event.strip().lower()
+            if event is not None
+            else None
+        )
+
+        normalized_context = {
+            item.strip().lower()
+            for item in context
+            if item.strip()
+        }
+
+        selections: list[CharacterSelection] = []
+
+        for character in characters:
+            score = self._score(
+                character,
+                event=normalized_event,
+                context=normalized_context,
+            )
+
+            if score > 0:
+                selections.append(
+                    CharacterSelection(
+                        character=character,
+                        score=score,
+                    )
+                )
+
+        selections.sort(
+            key=lambda selection: (
+                -selection.score,
+                selection.character.behavior.activation_priority,
+                selection.character.identity.identifier,
+            )
+        )
+
+        if limit is not None:
+            if limit < 1:
+                raise ValueError("Selection limit must be positive.")
+
+            selections = selections[:limit]
+
+        return tuple(selections)
+
+    @staticmethod
+    def _score(
+        character: Character,
+        *,
+        event: str | None,
+        context: set[str],
+    ) -> int:
+        behavior = character.behavior
+
+        score = 0
+
+        if event is not None and event in {
+            item.strip().lower()
+            for item in behavior.preferred_events
+        }:
+            score += 3
+
+        character_triggers = {
+            item.strip().lower()
+            for item in behavior.contextual_triggers
+        }
+
+        score += sum(
+            1
+            for item in context
+            if item in character_triggers
+        )
+
+        return score
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\state_manager.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from .state import CharacterState
+
+
+class InvalidStateTransition(ValueError):
+    """Raised when a character attempts an invalid state transition."""
+
+
+_VALID_TRANSITIONS: dict[CharacterState, frozenset[CharacterState]] = {
+    CharacterState.IDLE: frozenset(
+        {
+            CharacterState.RECEIVE,
+        }
+    ),
+    CharacterState.RECEIVE: frozenset(
+        {
+            CharacterState.WORK,
+        }
+    ),
+    CharacterState.WORK: frozenset(
+        {
+            CharacterState.COMMUNICATE,
+            CharacterState.HANDOFF,
+            CharacterState.WARNING,
+        }
+    ),
+    CharacterState.COMMUNICATE: frozenset(
+        {
+            CharacterState.COMPLETE,
+        }
+    ),
+    CharacterState.COMPLETE: frozenset(
+        {
+            CharacterState.IDLE,
+        }
+    ),
+    CharacterState.HANDOFF: frozenset(
+        {
+            CharacterState.RECEIVE,
+        }
+    ),
+    CharacterState.WARNING: frozenset(
+        {
+            CharacterState.IDLE,
+        }
+    ),
+}
+
+
+@dataclass
+class CharacterStateManager:
+    """Manages the runtime state of one Criterivox character."""
+
+    current_state: CharacterState = CharacterState.IDLE
+
+    def can_transition(self, target: CharacterState) -> bool:
+        """Return whether the requested state transition is valid."""
+        return target in _VALID_TRANSITIONS[self.current_state]
+
+    def transition(self, target: CharacterState) -> CharacterState:
+        """Transition to a valid state and return the new state."""
+        if not self.can_transition(target):
+            raise InvalidStateTransition(
+                f"Invalid character state transition: "
+                f"{self.current_state.value} -> {target.value}"
+            )
+
+        self.current_state = target
+        return self.current_state
+
+    def reset(self) -> CharacterState:
+        """Return the character to the idle state."""
+        self.current_state = CharacterState.IDLE
+        return self.current_state
+
+    def available_transitions(
+        self,
+    ) -> frozenset[CharacterState]:
+        """Return all states reachable from the current state."""
+        return _VALID_TRANSITIONS[self.current_state]
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\state.py =====
+from enum import Enum
+
+
+class CharacterState(str, Enum):
+    """Runtime activity state of a Criterivox character."""
+
+    IDLE = "idle"
+    RECEIVE = "receive"
+    WORK = "work"
+    COMMUNICATE = "communicate"
+    HANDOFF = "handoff"
+    COMPLETE = "complete"
+    WARNING = "warning"
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\characters\trigger.py =====
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True, slots=True)
+class ContextualTrigger:
+    """A condition that can make a character relevant to a context."""
+
+    identifier: str
+    description: str
+
+    def __post_init__(self) -> None:
+        if not self.identifier.strip():
+            raise ValueError("Trigger identifier cannot be empty.")
+
+        if not self.description.strip():
+            raise ValueError("Trigger description cannot be empty.")
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\domain\events.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from enum import Enum
+from types import MappingProxyType
+from typing import Any, Mapping
+from uuid import uuid4
+
+
+class EventType(str, Enum):
+    """Common system events understood by Criterivox."""
+
+    DATA_RECEIVED = "data_received"
+    CONTEXT_UPDATED = "context_updated"
+    TASK_IDENTIFIED = "task_identified"
+    ANALYSIS_REQUESTED = "analysis_requested"
+    ANALYSIS_STARTED = "analysis_started"
+    ANALYSIS_COMPLETED = "analysis_completed"
+    INSIGHT_GENERATED = "insight_generated"
+    EXPLANATION_REQUESTED = "explanation_requested"
+    EXPLANATION_READY = "explanation_ready"
+    WARNING_RAISED = "warning_raised"
+    TASK_COMPLETED = "task_completed"
+
+
+@dataclass(frozen=True, slots=True)
+class DomainEvent:
+    """Immutable event representing meaningful system activity."""
+
+    event_type: EventType
+    payload: Mapping[str, Any] = field(default_factory=dict)
+    event_id: str = field(default_factory=lambda: str(uuid4()))
+
+    def __post_init__(self) -> None:
+        if not self.event_id.strip():
+            raise ValueError("Event identifier cannot be empty.")
+
+        if not isinstance(self.event_type, EventType):
+            raise TypeError("event_type must be an EventType.")
+
+        if not isinstance(self.payload, Mapping):
+            raise TypeError("Event payload must be a mapping.")
+
+        object.__setattr__(
+            self,
+            "payload",
+            MappingProxyType(dict(self.payload)),
+        )
+
+
+def create_event(
+    event_type: EventType,
+    payload: Mapping[str, Any] | None = None,
+) -> DomainEvent:
+    """Create a new immutable domain event."""
+
+    return DomainEvent(
+        event_type=event_type,
+        payload={} if payload is None else payload,
+    )
+
+
+__all__ = [
+    "DomainEvent",
+    "EventType",
+    "create_event",
+]
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\infrastructure\__init__.py =====
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\infrastructure\mock_provider.py =====
+class MockProvider:
+    def get_navigation_context(self) -> dict:
+        return {
+            "context": "home",
+            "capabilities": [
+                "Analyze",
+                "Compare",
+                "Explore",
+                "Explain",
+            ],
+        }
+
+    def get_contextual_options(self, capability: str) -> list[str]:
+        options = {
+            "Analyze": ["Performance", "Audience", "Content"],
+            "Compare": ["Content", "Platforms", "Periods"],
+            "Explore": ["Insights", "Patterns", "Observations"],
+            "Explain": ["Reasoning", "Evidence", "Factors"],
+        }
+
+        return options.get(capability, [])
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\presentation\__init__.py =====
+from .adapter import PresentationAdapter
+from .mapping import (
+    CharacterPresentation,
+    character_presentation,
+    visual_state_for,
+)
+from .states import (
+    VisualPresentation,
+    present_communicate,
+    present_complete,
+    present_handoff,
+    present_idle,
+    present_receive,
+    present_state,
+    present_warning,
+    present_work,
+)
+
+__all__ = [
+    "CharacterPresentation",
+    "PresentationAdapter",
+    "VisualPresentation",
+    "character_presentation",
+    "present_communicate",
+    "present_complete",
+    "present_handoff",
+    "present_idle",
+    "present_receive",
+    "present_state",
+    "present_warning",
+    "present_work",
+    "visual_state_for",
+]
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\presentation\adapter.py =====
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+
+from criterivox.domain.characters import CharacterState
+
+
+class PresentationAdapter(ABC):
+    """Interface between character behavior and visual presentation."""
+
+    @abstractmethod
+    def present(
+        self,
+        character_id: str,
+        state: CharacterState,
+    ) -> None:
+        """Present a character in the supplied system state."""
+        raise NotImplementedError
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\presentation\mapping.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from criterivox.domain.characters import (
+    AnimationState,
+    CharacterState,
+    get_character,
+)
+
+
+@dataclass(frozen=True, slots=True)
+class CharacterPresentation:
+    """Presentation identity for a Criterivox character."""
+
+    character_id: str
+    presentation_id: str
+
+
+def character_presentation(
+    character_id: str,
+) -> CharacterPresentation:
+    """Map a domain character identity to its presentation identity."""
+
+    character = get_character(character_id)
+
+    return CharacterPresentation(
+        character_id=character.identity.identifier,
+        presentation_id=character.identity.identifier,
+    )
+
+
+def visual_state_for(
+    state: CharacterState,
+) -> AnimationState:
+    """Map a domain state to its presentation state."""
+
+    if not isinstance(state, CharacterState):
+        raise TypeError(
+            "State must be a CharacterState."
+        )
+
+    return AnimationState(state.value)
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\presentation\states.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from criterivox.domain.characters import (
+    AnimationState,
+    CharacterState,
+)
+
+
+@dataclass(frozen=True, slots=True)
+class VisualPresentation:
+    """Visual representation of a character's current system state."""
+
+    character_id: str
+    state: CharacterState
+    animation: AnimationState
+
+
+def present_state(
+    character_id: str,
+    state: CharacterState,
+) -> VisualPresentation:
+    """Create a presentation that exactly reflects the domain state."""
+
+    if not character_id.strip():
+        raise ValueError(
+            "Character identifier cannot be empty."
+        )
+
+    if not isinstance(state, CharacterState):
+        raise TypeError(
+            "State must be a CharacterState."
+        )
+
+    return VisualPresentation(
+        character_id=character_id,
+        state=state,
+        animation=AnimationState(state.value),
+    )
+
+
+def present_idle(character_id: str) -> VisualPresentation:
+    return present_state(
+        character_id,
+        CharacterState.IDLE,
+    )
+
+
+def present_receive(character_id: str) -> VisualPresentation:
+    return present_state(
+        character_id,
+        CharacterState.RECEIVE,
+    )
+
+
+def present_work(character_id: str) -> VisualPresentation:
+    return present_state(
+        character_id,
+        CharacterState.WORK,
+    )
+
+
+def present_communicate(
+    character_id: str,
+) -> VisualPresentation:
+    return present_state(
+        character_id,
+        CharacterState.COMMUNICATE,
+    )
+
+
+def present_handoff(
+    character_id: str,
+) -> VisualPresentation:
+    return present_state(
+        character_id,
+        CharacterState.HANDOFF,
+    )
+
+
+def present_complete(
+    character_id: str,
+) -> VisualPresentation:
+    return present_state(
+        character_id,
+        CharacterState.COMPLETE,
+    )
+
+
+def present_warning(
+    character_id: str,
+) -> VisualPresentation:
+    return present_state(
+        character_id,
+        CharacterState.WARNING,
+    )
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\presentation\transition.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from criterivox.domain.characters import (
+    AnimationState,
+    CharacterState,
+)
+from criterivox.presentation.states import VisualPresentation
+
+
+@dataclass(frozen=True, slots=True)
+class PresentationTransition:
+    """A meaningful transition between two character presentation states."""
+
+    character_id: str
+    from_state: CharacterState
+    to_state: CharacterState
+    from_animation: AnimationState
+    to_animation: AnimationState
+    animated: bool
+
+
+def create_transition(
+    current: VisualPresentation,
+    target_state: CharacterState,
+    *,
+    reduced_motion: bool = False,
+) -> PresentationTransition:
+    """Create a presentation transition that follows the system state."""
+
+    if not isinstance(target_state, CharacterState):
+        raise TypeError(
+            "Target state must be a CharacterState."
+        )
+
+    if not isinstance(reduced_motion, bool):
+        raise TypeError(
+            "Reduced motion must be a boolean."
+        )
+
+    target_animation = AnimationState(target_state.value)
+
+    return PresentationTransition(
+        character_id=current.character_id,
+        from_state=current.state,
+        to_state=target_state,
+        from_animation=current.animation,
+        to_animation=target_animation,
+        animated=not reduced_motion and current.state is not target_state,
+    )
+
+
+def transition_is_consistent(
+    transition: PresentationTransition,
+) -> bool:
+    """Verify that visual states exactly represent system states."""
+
+    return (
+        transition.from_animation.value
+        == transition.from_state.value
+        and transition.to_animation.value
+        == transition.to_state.value
+    )
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\ui\__init__.py =====
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\ui\bloom.py =====
+"""Bloom interaction state model."""
+
+from enum import Enum
+
+
+class BloomState(str, Enum):
+    """States of the Bloom interaction."""
+
+    CLOSED = "closed"
+    OPEN = "open"
+    PRIMARY_SELECTED = "primary_selected"
+    CONTEXT_EXPANDED = "context_expanded"
+    ACTION_SELECTED = "action_selected"
+    ERROR = "error"
+
+
+class BloomInteraction:
+    """Manage Bloom interaction state.
+
+    This class contains interaction state only.
+    It does not contain UI rendering or business logic.
+    """
+
+    def __init__(self) -> None:
+        self.state = BloomState.CLOSED
+        self.selected_capability: str | None = None
+
+    def open(self) -> None:
+        self.state = BloomState.OPEN
+
+    def close(self) -> None:
+        self.state = BloomState.CLOSED
+        self.selected_capability = None
+
+    def select_primary(self, capability: str) -> None:
+        self.selected_capability = capability
+        self.state = BloomState.PRIMARY_SELECTED
+
+    def expand_context(self) -> None:
+        if self.state != BloomState.PRIMARY_SELECTED:
+            self.state = BloomState.ERROR
+            return
+
+        self.state = BloomState.CONTEXT_EXPANDED
+
+    def select_action(self) -> None:
+        if self.state != BloomState.CONTEXT_EXPANDED:
+            self.state = BloomState.ERROR
+            return
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\ui\context.py =====
+"""Context used to determine relevant Bloom capabilities."""
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class UIContext:
+    """Current user-interface context."""
+
+    area: str = "home"
+    has_dataset: bool = False
+    has_content: bool = False
+
+CAPABILITIES = {
+    "home": [
+        "Analyze",
+        "Explore",
+        "Explain",
+    ],
+    "dataset": [
+        "Analyze",
+        "Compare",
+        "Explore",
+        "Explain",
+    ],
+    "content": [
+        "Analyze",
+        "Compare",
+        "Explain",
+    ],
+}
+
+def get_relevant_capabilities(context: UIContext) -> list[str]:
+    """Return capabilities relevant to the current UI context."""
+
+    if context.has_dataset:
+        return CAPABILITIES["dataset"]
+
+    if context.has_content:
+        return CAPABILITIES["content"]
+
+    return CAPABILITIES.get(
+        context.area,
+        CAPABILITIES["home"],
+    )
+
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\ui\routes.py =====
+from fastapi import APIRouter, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+
+router = APIRouter()
+
+templates = Jinja2Templates(
+    directory="src/criterivox/ui/templates"
+)
+
+
+@router.get("/", response_class=HTMLResponse)
+def home(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="home.html",
+        context={
+            "request": request,
+            "title": "Criterivox",
+        },
+    )
+
+
+@router.get("/settings", response_class=HTMLResponse)
+def settings_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="home.html",
+        context={
+            "request": request,
+            "title": "Criterivox Settings",
+        },
+    )
+
+
+def placeholder_page(request: Request, page_name: str):
+    return templates.TemplateResponse(
+        request=request,
+        name="home.html",
+        context={
+            "request": request,
+            "title": f"Criterivox {page_name}",
+        },
+    )
+
+
+@router.get("/{page_name}", response_class=HTMLResponse)
+def placeholder(request: Request, page_name: str):
+    allowed_pages = {
+        "workspace",
+        "data",
+        "intelligence",
+        "explanations",
+        "experiments",
+        "knowledge",
+    }
+
+    if page_name not in allowed_pages:
+        return HTMLResponse(
+            "Page not found",
+            status_code=404,
+        )
+
+    return placeholder_page(request, page_name)
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\__init__.py =====
+"""Criterivox application package."""
+
+__version__ = "0.1.0"
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\__main__.py =====
+"""Allow Criterivox to be executed with python -m criterivox."""
+
+from .app import main
+from .logging_config import configure_logging
+
+
+if __name__ == "__main__":
+    configure_logging()
+    main()
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\app.py =====
+"""Criterivox application entry point."""
+
+import logging
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from .config import settings
+from .logging_config import configure_logging
+from .ui.routes import router
+
+
+logger = logging.getLogger(__name__)
+
+app = FastAPI(title="Criterivox")
+app.mount(
+    "/static",
+    StaticFiles(directory="src/criterivox/ui/static"),
+    name="static",
+)
+
+app.include_router(router)
+
+def main() -> None:
+    """Start the Criterivox application."""
+    logger.info(
+        "Criterivox application starting in %s mode.",
+        settings.environment,
+    )
+
+
+if __name__ == "__main__":
+    configure_logging()
+    main()
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\config.py =====
+"""Application configuration."""
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    """Criterivox runtime configuration."""
+
+    environment: str = "development"
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+
+settings = Settings()
+
+===== FILE: F:\Rsearch Project\Criterivox\src\criterivox\logging_config.py =====
+"""Logging configuration for Criterivox."""
+
+import logging
+
+
+def configure_logging(level: int = logging.INFO) -> None:
+    """Configure application-wide logging."""
+    root_logger = logging.getLogger()
+
+    root_logger.setLevel(level)
+
+    if not root_logger.handlers:
+        logging.basicConfig(
+            level=level,
+            format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+        )
+

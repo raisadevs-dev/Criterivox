@@ -15,6 +15,7 @@ env/
 
 # Testing
 .pytest_cache/
+*.pyc
 .coverage
 htmlcov/
 
@@ -30,3 +31,25 @@ Thumbs.db
 
 # Python package metadata
 *.egg-info/
+
+# Flutter / Dart generated files
+**/.dart_tool/
+**/.packages
+**/.pub-cache/
+**/build/
+**/coverage/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.flutter_tool_state
+**/flutter_export_environment.sh
+
+# IDE files
+**/.idea/
+**/*.iml
+
+# VS Code
+**/.vscode/
+
+# OS files
+**/.DS_Store
+**/Thumbs.db

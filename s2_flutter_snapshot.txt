@@ -1,0 +1,1032 @@
+===== FILE: F:\Rsearch Project\Criterivox\presentation\lib\main.dart =====
+import 'package:flutter/material.dart';
+
+import 'character/character_presentation.dart';
+import 'presentation/presentation_adapter.dart';
+import 'presentation/presentation_state.dart';
+
+void main() {
+  runApp(const CriterivoxApp());
+}
+
+class CriterivoxApp extends StatelessWidget {
+  const CriterivoxApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Criterivox',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.indigo,
+        ),
+        useMaterial3: true,
+      ),
+      home: const CriterivoxPresentationScreen(),
+    );
+  }
+}
+
+class CriterivoxPresentationScreen extends StatefulWidget {
+  const CriterivoxPresentationScreen({super.key});
+
+  @override
+  State<CriterivoxPresentationScreen> createState() =>
+      _CriterivoxPresentationScreenState();
+}
+
+class _CriterivoxPresentationScreenState
+    extends State<CriterivoxPresentationScreen> {
+  final PresentationAdapter _adapter = const PresentationAdapter();
+
+  late PresentationState _presentationState;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _presentationState = _adapter.adapt(
+      agentId: 'Dharen',
+      characterState: 'IDLE',
+      active: true,
+    );
+  }
+
+  void _setCharacterState(String characterState) {
+    setState(() {
+      _presentationState = _presentationState.copyWith(
+        characterState: characterState,
+        active: true,
+      );
+    });
+  }
+
+  void _setQuiet() {
+    setState(() {
+      _presentationState = _presentationState.copyWith(
+        characterState: 'IDLE',
+        active: false,
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Criterivox'),
+        centerTitle: true,
+      ),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight - 48,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Character Interaction',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Criterivox agents respond through presentation state.',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 32),
+                    CharacterPresentation(
+                      state: _presentationState,
+                    ),
+                    const SizedBox(height: 32),
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        _StateButton(
+                          label: 'IDLE',
+                          onPressed: () => _setCharacterState('IDLE'),
+                        ),
+                        _StateButton(
+                          label: 'RECEIVE',
+                          onPressed: () => _setCharacterState('RECEIVE'),
+                        ),
+                        _StateButton(
+                          label: 'WORK',
+                          onPressed: () => _setCharacterState('WORK'),
+                        ),
+                        _StateButton(
+                          label: 'COMMUNICATE',
+                          onPressed: () =>
+                              _setCharacterState('COMMUNICATE'),
+                        ),
+                        _StateButton(
+                          label: 'HANDOFF',
+                          onPressed: () => _setCharacterState('HANDOFF'),
+                        ),
+                        _StateButton(
+                          label: 'COMPLETE',
+                          onPressed: () =>
+                              _setCharacterState('COMPLETE'),
+                        ),
+                        _StateButton(
+                          label: 'WARNING',
+                          onPressed: () =>
+                              _setCharacterState('WARNING'),
+                        ),
+                        _StateButton(
+                          label: 'QUIET',
+                          onPressed: _setQuiet,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _StateButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onPressed;
+
+  const _StateButton({
+    required this.label,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      onPressed: onPressed,
+      child: Text(label),
+    );
+  }
+}
+
+===== FILE: F:\Rsearch Project\Criterivox\presentation\lib\character\character_identity.dart =====
+class CharacterIdentity {
+  final String id;
+  final String displayName;
+  final String role;
+
+  const CharacterIdentity({
+    required this.id,
+    required this.displayName,
+    required this.role,
+  });
+}
+
+class CharacterIdentities {
+  CharacterIdentities._();
+
+  static const Map<String, CharacterIdentity> all = {
+    'Dharen': CharacterIdentity(
+      id: 'Dharen',
+      displayName: 'Dharen',
+      role: 'Analysis',
+    ),
+    'Vivren': CharacterIdentity(
+      id: 'Vivren',
+      displayName: 'Vivren',
+      role: 'Context',
+    ),
+    'Tarkis': CharacterIdentity(
+      id: 'Tarkis',
+      displayName: 'Tarkis',
+      role: 'Reasoning',
+    ),
+    'Sandre': CharacterIdentity(
+      id: 'Sandre',
+      displayName: 'Sandre',
+      role: 'Comparison',
+    ),
+    'Pramon': CharacterIdentity(
+      id: 'Pramon',
+      displayName: 'Pramon',
+      role: 'Planning',
+    ),
+    'Syvax': CharacterIdentity(
+      id: 'Syvax',
+      displayName: 'Syvax',
+      role: 'Pattern Analysis',
+    ),
+    'Bodhex': CharacterIdentity(
+      id: 'Bodhex',
+      displayName: 'Bodhex',
+      role: 'Evidence',
+    ),
+    'Medrus': CharacterIdentity(
+      id: 'Medrus',
+      displayName: 'Medrus',
+      role: 'Measurement',
+    ),
+    'Epistre': CharacterIdentity(
+      id: 'Epistre',
+      displayName: 'Epistre',
+      role: 'Explanation',
+    ),
+    'Manis': CharacterIdentity(
+      id: 'Manis',
+      displayName: 'Manis',
+      role: 'Human Interaction',
+    ),
+    'Anuka': CharacterIdentity(
+      id: 'Anuka',
+      displayName: 'Anuka',
+      role: 'Exploration',
+    ),
+    'Veridat': CharacterIdentity(
+      id: 'Veridat',
+      displayName: 'Veridat',
+      role: 'Verification',
+    ),
+    'Viveda': CharacterIdentity(
+      id: 'Viveda',
+      displayName: 'Viveda',
+      role: 'Knowledge',
+    ),
+    'Kaelen': CharacterIdentity(
+      id: 'Kaelen',
+      displayName: 'Kaelen',
+      role: 'Experimentation',
+    ),
+    'Anukor': CharacterIdentity(
+      id: 'Anukor',
+      displayName: 'Anukor',
+      role: 'Transfer',
+    ),
+  };
+
+  static CharacterIdentity resolve(String id) {
+    return all[id] ??
+        CharacterIdentity(
+          id: id,
+          displayName: id,
+          role: 'Criterivox Agent',
+        );
+  }
+}
+
+===== FILE: F:\Rsearch Project\Criterivox\presentation\lib\character\character_presentation.dart =====
+import 'package:flutter/material.dart';
+
+import '../presentation/presentation_state.dart';
+import 'character_identity.dart';
+import 'character_visual_state.dart';
+
+class CharacterPresentation extends StatelessWidget {
+  final PresentationState state;
+
+  const CharacterPresentation({
+    super.key,
+    required this.state,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final identity = CharacterIdentities.resolve(state.agentId);
+    final visualState =
+        CharacterVisualState.fromPresentationState(state);
+
+    return Semantics(
+      container: true,
+      label: '${identity.displayName}, ${identity.role}',
+      value: visualState.characterState,
+      child: _CharacterCard(
+        identity: identity,
+        visualState: visualState,
+      ),
+    );
+  }
+}
+
+class _CharacterCard extends StatelessWidget {
+  final CharacterIdentity identity;
+  final CharacterVisualState visualState;
+
+  const _CharacterCard({
+    required this.identity,
+    required this.visualState,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return AnimatedOpacity(
+      duration: visualState.reducedMotion
+          ? Duration.zero
+          : const Duration(milliseconds: 220),
+      opacity: visualState.active ? 1.0 : 0.55,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _CharacterFigure(
+            visualState: visualState,
+          ),
+          const SizedBox(height: 18),
+          Text(
+            identity.displayName,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            identity.role,
+            style: theme.textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 12),
+          _StateBadge(
+            state: visualState.characterState,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CharacterFigure extends StatelessWidget {
+  final CharacterVisualState visualState;
+
+  const _CharacterFigure({
+    required this.visualState,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final configuration =
+        _VisualConfiguration.fromState(
+      visualState.characterState,
+    );
+
+    final prominenceScale =
+        0.96 + (visualState.prominence * 0.04);
+
+    final scale =
+        configuration.scale * prominenceScale;
+
+    return AnimatedScale(
+      scale: visualState.active ? scale : 0.94,
+      duration: visualState.reducedMotion
+          ? Duration.zero
+          : const Duration(milliseconds: 220),
+      child: SizedBox(
+        width: 230,
+        height: 270,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Positioned(
+              bottom: 4,
+              child: Container(
+                width: 170,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 25,
+              child: AnimatedContainer(
+                duration: visualState.reducedMotion
+                    ? Duration.zero
+                    : const Duration(milliseconds: 220),
+                width: configuration.bodyWidth,
+                height: configuration.bodyHeight,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary,
+                  borderRadius: BorderRadius.circular(52),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 22,
+              child: AnimatedContainer(
+                duration: visualState.reducedMotion
+                    ? Duration.zero
+                    : const Duration(milliseconds: 220),
+                width: configuration.headSize,
+                height: configuration.headSize,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: theme.colorScheme.primary,
+                    width: configuration.borderWidth,
+                  ),
+                ),
+                child: _CharacterFace(
+                  state: visualState.characterState,
+                  reducedMotion: visualState.reducedMotion,
+                ),
+              ),
+            ),
+            if (configuration.showActivityIndicator)
+              Positioned(
+                top: 4,
+                right: 28,
+                child: _ActivityIndicator(
+                  state: visualState.characterState,
+                  reducedMotion: visualState.reducedMotion,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CharacterFace extends StatelessWidget {
+  final String state;
+  final bool reducedMotion;
+
+  const _CharacterFace({
+    required this.state,
+    required this.reducedMotion,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bool emphasized =
+        state == 'RECEIVE' ||
+        state == 'COMMUNICATE' ||
+        state == 'HANDOFF' ||
+        state == 'WARNING';
+
+    final bool complete = state == 'COMPLETE';
+    final bool communicating = state == 'COMMUNICATE';
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _Eye(emphasized: emphasized),
+            const SizedBox(width: 28),
+            _Eye(emphasized: emphasized),
+          ],
+        ),
+        const SizedBox(height: 16),
+        AnimatedContainer(
+          duration: reducedMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 180),
+          width: communicating ? 38 : 30,
+          height: complete ? 8 : 14,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: complete
+                ? null
+                : Border.all(width: 2),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Eye extends StatelessWidget {
+  final bool emphasized;
+
+  const _Eye({
+    required this.emphasized,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      width: emphasized ? 13 : 12,
+      height: emphasized ? 20 : 18,
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+      ),
+    );
+  }
+}
+
+class _ActivityIndicator extends StatelessWidget {
+  final String state;
+  final bool reducedMotion;
+
+  const _ActivityIndicator({
+    required this.state,
+    required this.reducedMotion,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final String symbol = switch (state) {
+      'WORK' => '•',
+      'COMMUNICATE' => '…',
+      'HANDOFF' => '→',
+      'WARNING' => '!',
+      _ => '•',
+    };
+
+    return AnimatedOpacity(
+      opacity: 1.0,
+      duration: reducedMotion
+          ? Duration.zero
+          : const Duration(milliseconds: 180),
+      child: Container(
+        width: 34,
+        height: 34,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerHighest,
+          shape: BoxShape.circle,
+        ),
+        child: Text(
+          symbol,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _VisualConfiguration {
+  final double scale;
+  final double bodyWidth;
+  final double bodyHeight;
+  final double headSize;
+  final double borderWidth;
+  final bool showActivityIndicator;
+
+  const _VisualConfiguration({
+    required this.scale,
+    required this.bodyWidth,
+    required this.bodyHeight,
+    required this.headSize,
+    required this.borderWidth,
+    required this.showActivityIndicator,
+  });
+
+  factory _VisualConfiguration.fromState(String state) {
+    return switch (state) {
+      'RECEIVE' => const _VisualConfiguration(
+          scale: 1.04,
+          bodyWidth: 124,
+          bodyHeight: 134,
+          headSize: 138,
+          borderWidth: 6,
+          showActivityIndicator: false,
+        ),
+      'WORK' => const _VisualConfiguration(
+          scale: 1.02,
+          bodyWidth: 122,
+          bodyHeight: 136,
+          headSize: 134,
+          borderWidth: 5,
+          showActivityIndicator: true,
+        ),
+      'COMMUNICATE' => const _VisualConfiguration(
+          scale: 1.03,
+          bodyWidth: 124,
+          bodyHeight: 132,
+          headSize: 136,
+          borderWidth: 6,
+          showActivityIndicator: true,
+        ),
+      'HANDOFF' => const _VisualConfiguration(
+          scale: 1.05,
+          bodyWidth: 126,
+          bodyHeight: 136,
+          headSize: 136,
+          borderWidth: 6,
+          showActivityIndicator: true,
+        ),
+      'COMPLETE' => const _VisualConfiguration(
+          scale: 1.01,
+          bodyWidth: 120,
+          bodyHeight: 130,
+          headSize: 134,
+          borderWidth: 5,
+          showActivityIndicator: false,
+        ),
+      'WARNING' => const _VisualConfiguration(
+          scale: 1.06,
+          bodyWidth: 126,
+          bodyHeight: 138,
+          headSize: 140,
+          borderWidth: 7,
+          showActivityIndicator: true,
+        ),
+      _ => const _VisualConfiguration(
+          scale: 1.0,
+          bodyWidth: 118,
+          bodyHeight: 128,
+          headSize: 132,
+          borderWidth: 5,
+          showActivityIndicator: false,
+        ),
+    };
+  }
+}
+
+class _StateBadge extends StatelessWidget {
+  final String state;
+
+  const _StateBadge({
+    required this.state,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 7,
+      ),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        state.toUpperCase(),
+        style: theme.textTheme.labelMedium?.copyWith(
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.0,
+        ),
+      ),
+    );
+  }
+}
+
+===== FILE: F:\Rsearch Project\Criterivox\presentation\lib\character\character_visual_state.dart =====
+import '../presentation/presentation_state.dart';
+
+class CharacterVisualState {
+  final String agentId;
+  final String characterState;
+  final bool active;
+  final double prominence;
+  final bool reducedMotion;
+
+  const CharacterVisualState({
+    required this.agentId,
+    required this.characterState,
+    required this.active,
+    required this.prominence,
+    required this.reducedMotion,
+  });
+
+  factory CharacterVisualState.fromPresentationState(
+    PresentationState state,
+  ) {
+    return CharacterVisualState(
+      agentId: state.agentId,
+      characterState: state.characterState,
+      active: state.active,
+      prominence: _calculateProminence(state),
+      reducedMotion: state.reducedMotion,
+    );
+  }
+
+  static double _calculateProminence(
+    PresentationState state,
+  ) {
+    if (!state.active) {
+      return 0.0;
+    }
+
+    switch (state.characterState) {
+      case 'WARNING':
+      case 'NEEDS_USER':
+        return 1.0;
+
+      case 'WORK':
+      case 'RECEIVE':
+      case 'HANDOFF':
+      case 'COMMUNICATE':
+        return 0.75;
+
+      case 'COMPLETE':
+        return 0.5;
+
+      case 'IDLE':
+      case 'QUIET':
+      default:
+        return 0.25;
+    }
+  }
+
+  bool get isActive => active;
+
+  bool get isIdle =>
+      characterState == 'IDLE' ||
+      characterState == 'QUIET';
+
+  bool get isReceiving =>
+      characterState == 'RECEIVE';
+
+  bool get isWorking =>
+      characterState == 'WORK';
+
+  bool get isCommunicating =>
+      characterState == 'COMMUNICATE';
+
+  bool get isHandingOff =>
+      characterState == 'HANDOFF';
+
+  bool get isComplete =>
+      characterState == 'COMPLETE';
+
+  bool get isWarning =>
+      characterState == 'WARNING';
+
+  bool get requiresUserAttention =>
+      characterState == 'NEEDS_USER' ||
+      characterState == 'WARNING';
+
+  bool get hasMotion =>
+      active && !reducedMotion;
+}
+
+===== FILE: F:\Rsearch Project\Criterivox\presentation\lib\presentation\activity_presentation.dart =====
+import 'presentation_state.dart';
+
+class ActivityPresentation {
+  const ActivityPresentation();
+
+  PresentationState quiet(PresentationState state) {
+    return state.copyWith(
+      active: false,
+      characterState: 'IDLE',
+    );
+  }
+
+  PresentationState active(PresentationState state) {
+    return state.copyWith(
+      active: true,
+    );
+  }
+
+  bool isQuiet(PresentationState state) {
+    return !state.active;
+  }
+
+  bool isActive(PresentationState state) {
+    return state.active;
+  }
+}
+
+===== FILE: F:\Rsearch Project\Criterivox\presentation\lib\presentation\agent_activation.dart =====
+import 'presentation_state.dart';
+
+class AgentActivation {
+  const AgentActivation();
+
+  PresentationState activate(PresentationState state) {
+    return state.copyWith(active: true);
+  }
+
+  PresentationState deactivate(PresentationState state) {
+    return state.copyWith(active: false);
+  }
+}
+
+===== FILE: F:\Rsearch Project\Criterivox\presentation\lib\presentation\attention_presentation.dart =====
+import 'presentation_state.dart';
+
+class AttentionPresentation {
+  const AttentionPresentation();
+
+  double prominence(PresentationState state) {
+    if (!state.active) {
+      return 0.0;
+    }
+
+    switch (state.characterState) {
+      case 'WARNING':
+      case 'NEEDS_USER':
+        return 1.0;
+      case 'WORK':
+      case 'RECEIVE':
+      case 'HANDOFF':
+      case 'COMMUNICATE':
+        return 0.75;
+      case 'COMPLETE':
+        return 0.5;
+      case 'IDLE':
+      case 'QUIET':
+      default:
+        return 0.25;
+    }
+  }
+}
+
+===== FILE: F:\Rsearch Project\Criterivox\presentation\lib\presentation\bloom_presentation.dart =====
+import 'presentation_state.dart';
+
+class BloomPresentation {
+  const BloomPresentation();
+
+  PresentationState open(PresentationState state) {
+    return state.copyWith(
+      active: true,
+    );
+  }
+
+  PresentationState close(PresentationState state) {
+    return state.copyWith(
+      active: false,
+    );
+  }
+
+  bool isOpen(PresentationState state) {
+    return state.active;
+  }
+}
+
+===== FILE: F:\Rsearch Project\Criterivox\presentation\lib\presentation\character_presentation.dart =====
+import 'presentation_state.dart';
+
+class CharacterPresentation {
+  const CharacterPresentation({
+    required this.state,
+  });
+
+  final PresentationState state;
+
+  String get characterState => state.characterState;
+
+  bool get isActive => state.active;
+
+  bool get isCommunicating => characterState == 'COMMUNICATE';
+
+  String get visualState => characterState;
+}
+
+===== FILE: F:\Rsearch Project\Criterivox\presentation\lib\presentation\communication_presentation.dart =====
+import 'presentation_state.dart';
+
+class CommunicationPresentation {
+  const CommunicationPresentation();
+
+  PresentationState communicate(PresentationState state) {
+    return state.copyWith(
+      characterState: 'COMMUNICATE',
+      active: true,
+    );
+  }
+}
+
+===== FILE: F:\Rsearch Project\Criterivox\presentation\lib\presentation\handoff_presentation.dart =====
+import 'presentation_state.dart';
+
+class HandoffPresentation {
+  const HandoffPresentation();
+
+  PresentationState senderState(PresentationState state) {
+    return state.copyWith(
+      characterState: 'HANDOFF',
+      active: true,
+    );
+  }
+
+  PresentationState receiverState(PresentationState state) {
+    return state.copyWith(
+      characterState: 'RECEIVE',
+      active: true,
+    );
+  }
+}
+
+===== FILE: F:\Rsearch Project\Criterivox\presentation\lib\presentation\motion_presentation.dart =====
+import 'presentation_state.dart';
+
+class MotionPresentation {
+  const MotionPresentation();
+
+  bool shouldAnimate(PresentationState state) {
+    return !state.reducedMotion;
+  }
+
+  bool shouldUseStaticTransition(
+    PresentationState state,
+  ) {
+    return state.reducedMotion;
+  }
+
+  PresentationState applyReducedMotion(
+    PresentationState state,
+  ) {
+    return state.copyWith(
+      reducedMotion: true,
+    );
+  }
+}
+
+===== FILE: F:\Rsearch Project\Criterivox\presentation\lib\presentation\presentation_adapter.dart =====
+import 'presentation_state.dart';
+
+class PresentationAdapter {
+  const PresentationAdapter();
+
+  PresentationState adapt({
+    required String agentId,
+    required String characterState,
+    required bool active,
+    bool reducedMotion = false,
+  }) {
+    return PresentationState(
+      agentId: agentId,
+      characterState: characterState,
+      active: active,
+      reducedMotion: reducedMotion,
+    );
+  }
+}
+
+===== FILE: F:\Rsearch Project\Criterivox\presentation\lib\presentation\presentation_state.dart =====
+class PresentationState {
+  final String agentId;
+  final String characterState;
+  final bool active;
+  final bool reducedMotion;
+
+  const PresentationState({
+    required this.agentId,
+    required this.characterState,
+    required this.active,
+    this.reducedMotion = false,
+  });
+
+  PresentationState copyWith({
+    String? agentId,
+    String? characterState,
+    bool? active,
+    bool? reducedMotion,
+  }) {
+    return PresentationState(
+      agentId: agentId ?? this.agentId,
+      characterState: characterState ?? this.characterState,
+      active: active ?? this.active,
+      reducedMotion: reducedMotion ?? this.reducedMotion,
+    );
+  }
+}
+
+===== FILE: F:\Rsearch Project\Criterivox\presentation\lib\presentation\responsive_presentation.dart =====
+import 'presentation_state.dart';
+
+class ResponsivePresentation {
+  const ResponsivePresentation();
+
+  double scaleForWidth(double width) {
+    if (width < 600) {
+      return 0.85;
+    }
+
+    if (width < 900) {
+      return 1.0;
+    }
+
+    return 1.15;
+  }
+
+  bool isCompact(double width) {
+    return width < 600;
+  }
+
+  bool isExpanded(double width) {
+    return width >= 900;
+  }
+
+  PresentationState preserveState(
+    PresentationState state,
+  ) {
+    return state.copyWith();
+  }
+}
+
