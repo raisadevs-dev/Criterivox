@@ -2,7 +2,7 @@
 
 ## Status
 
-This document records the runtime integration implemented on the `s2-integration-hardening` branch. S2 must not be declared complete until the local manual demonstration and project test suites have been executed successfully in a real development environment.
+This document records the runtime integration on `s2-integration-hardening`. S2 is complete only after the local test suites and the real manual demonstration pass.
 
 ## Runtime boundary
 
@@ -30,7 +30,50 @@ CharacterPresentation
 visible Dharen
 ```
 
-The runtime transport is a **local WebSocket boundary**. It was selected because S2 requires low-latency state changes in a browser presentation while keeping Python character behavior independent of Flutter rendering. The transport is an infrastructure concern and is not exposed to the domain model.
+The runtime transport is a **local WebSocket boundary**. Python owns semantic character behavior; Flutter consumes the versioned presentation contract and chooses the visual representation.
+
+## Runtime host
+
+Normal local development uses the repository-level launcher:
+
+```powershell
+.\start-criterivox.ps1
+```
+
+The launcher is the local Criterivox runtime host. It validates the environment, starts the project `.venv` Python runtime, waits for `/health`, starts Flutter Web, supervises both processes, and stops the managed processes together.
+
+This replaces the normal need to manually start `server.py`, Uvicorn, and Flutter in separate terminals. Low-level commands remain valid troubleshooting tools, but they are not the canonical startup path.
+
+### Readiness
+
+Python exposes:
+
+```text
+GET /health
+```
+
+The launcher does not start Flutter until the Python runtime reports readiness. This prevents the presentation from being opened into an avoidable `WAITING_FOR_PYTHON_CONNECTION` state during normal startup.
+
+## Developer diagnostics
+
+Critical launcher/runtime failures produce a local incident directory:
+
+```text
+diagnostics/
+└── incident-CVX-YYYYMMDD-HHMMSS/
+    ├── incident.md
+    └── incident.json
+```
+
+The Markdown report explains the failure story, expected versus observed behavior, affected boundary, evidence and recommended investigation. The JSON report provides structured incident data for developer tooling or AI-assisted diagnosis. Runtime stdout/stderr logs are referenced from the incident and remain local.
+
+Generated diagnostics are intentionally ignored by Git.
+
+## End-user error boundary
+
+The technical incident artifact is developer-facing. The presentation should expose only a concise runtime error and an incident identifier when appropriate. It should not expose stack traces, local filesystem paths, credentials, or internal transport details.
+
+A future user-facing `Copy diagnostics` action may package the safe incident identifier and approved diagnostic information without exposing internal secrets.
 
 ## Contract
 
@@ -45,9 +88,7 @@ The runtime transport is a **local WebSocket boundary**. It was selected because
 - optional communication message
 - optional originating event
 
-Python uses the domain `CharacterState` and `VisualPresentation` to create the contract. Dart validates the contract before converting it into `PresentationState`.
-
-The renderer does not receive instructions such as "play animation 17". It receives semantic state such as `work` and chooses its visual representation.
+The renderer receives semantic state such as `work`, not technology-specific commands.
 
 ## Current Dharen slice
 
@@ -63,7 +104,7 @@ context
 task
 ```
 
-Current operation counts the supplied top-level data items, nested data fields, and context fields. This is real application code used only to demonstrate the runtime lifecycle.
+The current operation performs a real deterministic application calculation over the supplied data/context. Its purpose is to prove the runtime lifecycle, not to simulate sophisticated intelligence.
 
 Lifecycle:
 
@@ -83,29 +124,7 @@ IDLE
 
 Flutter does not create this sequence. Python emits each state over the runtime boundary.
 
-## Validation and security
-
-The Python boundary rejects:
-
-- unknown request fields
-- empty or oversized tasks
-- excessive top-level data/context fields
-- oversized serialized payloads
-
-The Dart receiver rejects:
-
-- unsupported contract versions
-- unknown character IDs
-- unsupported character states
-- invalid activation values
-- invalid prominence values
-- invalid message/event types
-
-The Flutter presentation remains a consumer of application truth and cannot directly mutate Python domain state through the presentation contract.
-
 ## Renderer independence
-
-The current renderer is the existing Flutter character presentation foundation. The semantic boundary is intentionally compatible with future adapters:
 
 ```text
 PresentationContract
@@ -117,43 +136,27 @@ CharacterRenderer
      Rive   3D/WebGL/Spline
 ```
 
-Production Rive or 3D assets are not required for this S2 proof.
+The current Flutter renderer is a functional S2 renderer. Production Rive and 3D assets remain future work.
 
-## Startup
+## Validation and security
 
-Start the Python application with the existing project environment and ASGI runner, for example:
+The Python boundary validates request fields, task size, data/context limits and serialized payload size. The Dart receiver validates contract version, character identity, character state, activation, prominence, message and event values.
 
-```powershell
-uvicorn criterivox.app:app --reload
-```
-
-Then start Flutter Web from `presentation`:
-
-```powershell
-flutter pub get
-flutter run -d chrome
-```
-
-If the Python server is not on port `8000`, pass the port to Flutter:
-
-```powershell
-flutter run -d chrome --dart-define=CRITERIVOX_BACKEND_PORT=8000
-```
-
-The default is `8000`.
+The runtime boundary must never become an arbitrary command-execution channel.
 
 ## Manual proof
 
-1. Start Python.
-2. Start Flutter Web.
-3. Wait for the presentation to receive the initial Python runtime state.
+1. From the repository root, run `.\start-criterivox.ps1`.
+2. Let the launcher start Python and Flutter automatically.
+3. Wait until the Criterivox presentation is connected to the Python runtime.
 4. Enter synthetic JSON data.
 5. Enter synthetic JSON context.
 6. Enter the task.
 7. Select **Send analysis request to Python**.
 8. Observe Dharen transition through `RECEIVE → WORK → COMMUNICATE → COMPLETE → IDLE`.
-9. Confirm the status message is generated by the Python application.
-10. Confirm the Flutter character changes without any local timer/state sequence controlling the lifecycle.
+9. Confirm the status originates from Python.
+10. Confirm Flutter changes only in response to the received semantic presentation state.
+11. If startup or a critical runtime failure occurs, inspect the newest `diagnostics/incident-*` directory.
 
 ## Known limitations
 
@@ -161,8 +164,8 @@ The default is `8000`.
 - Syvax → Dharen orchestration is future work.
 - The current analysis operation is deterministic and synthetic.
 - Full 15-character runtime integration is future work.
-- Production Rive/3D/WebGL/Spline character assets are future work.
-- The local runtime manager is intentionally in-process and is not a production distributed messaging system.
+- Production Rive/3D/WebGL/Spline assets are future work.
+- The local runtime host is a development supervisor, not a production distributed process manager.
 
 ## Research position
 
