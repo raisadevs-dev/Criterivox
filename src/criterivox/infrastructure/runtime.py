@@ -30,15 +30,25 @@ class RuntimeConnectionManager:
     """Small in-process WebSocket broadcaster for the local S2 runtime."""
 
     clients: set[Any] = field(default_factory=set)
+    latest: PresentationContract = field(
+        default_factory=lambda: PresentationContract.from_state(
+            "Dharen",
+            CharacterState.IDLE,
+            active=False,
+            prominence=0.25,
+        )
+    )
 
     async def connect(self, websocket: Any) -> None:
         await websocket.accept()
         self.clients.add(websocket)
+        await websocket.send_text(json.dumps(self.latest.to_dict()))
 
     def disconnect(self, websocket: Any) -> None:
         self.clients.discard(websocket)
 
     async def publish(self, contract: PresentationContract) -> None:
+        self.latest = contract
         message = json.dumps(contract.to_dict())
         disconnected: list[Any] = []
         for client in tuple(self.clients):
