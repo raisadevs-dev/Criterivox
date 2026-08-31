@@ -1,7 +1,6 @@
 """Criterivox application entry point."""
 
 import asyncio
-import json
 import logging
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -33,21 +32,6 @@ async def character_runtime(websocket: WebSocket) -> None:
     """Bridge validated user actions and Python character state to Flutter."""
     await runtime_connections.connect(websocket)
     try:
-        await websocket.send_text(
-            json.dumps(
-                {
-                    "contract_version": 1,
-                    "character_id": "Dharen",
-                    "character_state": "idle",
-                    "animation": "idle",
-                    "active": False,
-                    "prominence": 0.25,
-                    "reduced_motion": False,
-                    "message": None,
-                    "event": None,
-                }
-            )
-        )
         while True:
             payload = await websocket.receive_json()
             request = parse_analysis_request(payload)
