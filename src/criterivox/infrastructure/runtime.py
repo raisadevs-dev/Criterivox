@@ -5,7 +5,7 @@ import json
 from dataclasses import dataclass, field
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from criterivox.domain.characters import (
     CHARACTER_REGISTRY,
@@ -23,6 +23,14 @@ class AnalysisRequest(BaseModel):
     data: dict[str, Any] = Field(default_factory=dict)
     context: dict[str, Any] = Field(default_factory=dict)
     task: str = Field(min_length=1, max_length=500)
+
+    @model_validator(mode="after")
+    def validate_payload_size(self) -> "AnalysisRequest":
+        if len(self.data) > 1000 or len(self.context) > 1000:
+            raise ValueError("Runtime payload contains too many top-level fields.")
+        if len(json.dumps(self.model_dump(), default=str)) > 32_000:
+            raise ValueError("Runtime payload is too large.")
+        return self
 
 
 @dataclass
