@@ -2,12 +2,14 @@
 
 ## Status
 
-This document records the runtime integration on `s2-integration-hardening`. S2 is complete only after the local test suites and the real manual demonstration pass.
+**S2 runtime integration is complete.** The local automated validation and real manual runtime demonstration have both passed on `s2-integration-hardening`.
 
-## Runtime boundary
+The completed proof is the live path:
 
 ```text
-Flutter
+User action
+  ↓
+Flutter presentation
   ↓ WebSocket command
 Python application
   ↓
@@ -27,8 +29,28 @@ CharacterVisualState
   ↓
 CharacterPresentation
   ↓
-visible Dharen
+visible Dharen lifecycle
 ```
+
+The demonstrated Dharen lifecycle is:
+
+```text
+IDLE
+ ↓
+RECEIVE
+ ↓
+WORK
+ ↓
+COMMUNICATE
+ ↓
+COMPLETE
+ ↓
+IDLE
+```
+
+Flutter does not invent this sequence. Python emits the semantic character state and Flutter renders it.
+
+## Runtime boundary
 
 The runtime transport is a **local WebSocket boundary**. Python owns semantic character behavior; Flutter consumes the versioned presentation contract and chooses the visual representation.
 
@@ -106,24 +128,6 @@ task
 
 The current operation performs a real deterministic application calculation over the supplied data/context. Its purpose is to prove the runtime lifecycle, not to simulate sophisticated intelligence.
 
-Lifecycle:
-
-```text
-IDLE
- ↓
-RECEIVE
- ↓
-WORK
- ↓
-COMMUNICATE
- ↓
-COMPLETE
- ↓
-IDLE
-```
-
-Flutter does not create this sequence. Python emits each state over the runtime boundary.
-
 ## Renderer independence
 
 ```text
@@ -144,21 +148,24 @@ The Python boundary validates request fields, task size, data/context limits and
 
 The runtime boundary must never become an arbitrary command-execution channel.
 
-## Manual proof
+## Verification evidence
 
-1. From the repository root, run `.\start-criterivox.ps1`.
-2. Let the launcher start Python and Flutter automatically.
-3. Wait until the Criterivox presentation is connected to the Python runtime.
-4. Enter synthetic JSON data.
-5. Enter synthetic JSON context.
-6. Enter the task.
-7. Select **Send analysis request to Python**.
-8. Observe Dharen transition through `RECEIVE → WORK → COMMUNICATE → COMPLETE → IDLE`.
-9. Confirm the status originates from Python.
-10. Confirm Flutter changes only in response to the received semantic presentation state.
-11. If startup or a critical runtime failure occurs, inspect the newest `diagnostics/incident-*` directory.
+Automated presentation/runtime coverage passed, including runtime contract decoding, runtime character presentation, accessibility semantics, character state mapping, reduced-motion behavior, communication, handoff, responsiveness and widget rendering. The final manual demonstration also passed.
 
-## Known limitations
+The real manual proof was:
+
+1. Run `.\start-criterivox.ps1` from the repository root.
+2. The launcher started Python and Flutter automatically.
+3. Python became ready through `/health`.
+4. The presentation connected to the Python runtime.
+5. Synthetic JSON data, context and a task were supplied.
+6. **Send analysis request to Python** was invoked.
+7. Dharen visibly transitioned through `RECEIVE → WORK → COMMUNICATE → COMPLETE → IDLE`.
+8. The visible lifecycle was driven by the Python runtime boundary.
+
+This is the S2 integration proof.
+
+## Known limitations carried forward
 
 - Direct user → Dharen input is a temporary S2 source boundary.
 - Syvax → Dharen orchestration is future work.
