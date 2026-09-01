@@ -114,11 +114,21 @@ class _BloomConnections extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height * .44);
     final radius = size.width * .32;
-    canvas.drawCircle(center, radius, Paint()..style = PaintingStyle.stroke..strokeWidth = 1..color = const Color(0x263A4D92));
+    final orbitPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1
+      ..color = const Color(0x263A4D92);
+    canvas.drawCircle(center, radius, orbitPaint);
     for (var i = 0; i < BloomCapability.values.length; i++) {
-      final capability = BloomCapability.values[i]; final angle = -math.pi / 2 + i * math.pi / 3;
-      final end = center + Offset(math.cos(angle) * radius, math.sin(angle) * radius); final accent = Bloom.accents[capability]!;
-      canvas.drawLine(center, end, Paint()..style = PaintingStyle.stroke..strokeWidth = selected == capability ? 2 : 1..color = accent.withOpacity(selected == capability ? .85 : .38));
+      final capability = BloomCapability.values[i];
+      final angle = -math.pi / 2 + i * math.pi / 3;
+      final end = center + Offset(math.cos(angle) * radius, math.sin(angle) * radius);
+      final accent = Bloom.accents[capability]!;
+      final linePaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = selected == capability ? 2 : 1
+        ..color = accent.withOpacity(selected == capability ? .85 : .38);
+      canvas.drawLine(center, end, linePaint);
       canvas.drawCircle(end, 3.5, Paint()..color = accent);
     }
   }
