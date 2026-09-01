@@ -4,17 +4,17 @@ Criterivox is a research-driven, context-aware intelligence and decision-support
 
 ## Project Status
 
-S2 runtime integration is being hardened on `s2-integration-hardening`.
+**S2 runtime integration is complete.** The verified S2 baseline is preserved on `s2-integration-hardening` and is ready to merge into `main`.
 
 ## Current Sprint
 
 **S2 — Runtime Character Integration**
 
-The current S2 foundation connects Python application behavior to Flutter/Dart presentation through a versioned local WebSocket presentation contract. The first functional character slice is Dharen. The Python side owns semantic character state; Flutter renders that state without inventing the lifecycle.
+The S2 foundation connects Python application behavior to Flutter/Dart presentation through a versioned local WebSocket presentation contract. The first functional character slice is Dharen. The Python side owns semantic character state; Flutter renders that state without inventing the lifecycle.
 
 ## Runtime Host
 
-Criterivox now has a single development entry point:
+Criterivox has a single development entry point:
 
 ```powershell
 .\start-criterivox.ps1
@@ -112,7 +112,7 @@ cd ..
 .\start-criterivox.ps1
 ```
 
-See `docs/sprints/s2/S2-RUNTIME-INTEGRATION.md` for the runtime contract and S2 demonstration details.
+See `docs/sprints/s2/S2-RUNTIME-INTEGRATION.md` for the runtime contract and verified S2 demonstration.
 
 ## Project Structure
 
@@ -125,4 +125,4 @@ See `docs/sprints/s2/S2-RUNTIME-INTEGRATION.md` for the runtime contract and S2 
 
 ## Scope Boundary
 
-S2 does not claim full intelligence, XAI, production Rive/3D assets, all 15 characters, production databases, authentication, social-media APIs, or the complete research loop. Those remain future roadmap work. The S2 proof is the real runtime connection and Dharen lifecycle.
+S2 does not claim full intelligence, XAI, production Rive/3D assets, all 15 characters, production databases, authentication, social-media APIs, or the complete research loop. Those remain future roadmap work. The S2 engineering proof is the real managed runtime connection and Dharen lifecycle.
