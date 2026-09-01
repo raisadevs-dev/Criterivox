@@ -25,7 +25,6 @@ app.mount(
     StaticFiles(directory="src/criterivox/ui/static"),
     name="static",
 )
-app.include_router(router)
 
 
 @app.get("/health")
@@ -38,6 +37,13 @@ def health() -> JSONResponse:
             "runtime": "python",
         }
     )
+
+
+# Register the UI router after infrastructure/readiness routes. The UI router
+# contains a parameterized /{page_name} route, which must not be allowed to
+# intercept /health on FastAPI/Starlette versions that retain included routers
+# as lazy route wrappers.
+app.include_router(router)
 
 
 @app.websocket("/runtime/characters")
