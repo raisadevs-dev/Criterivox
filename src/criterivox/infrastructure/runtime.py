@@ -7,6 +7,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
+from criterivox.application.contracts import ApplicationRequest
+from criterivox.application.service import UnsupportedCapabilityError, application_service
 from criterivox.domain.characters import (
     CHARACTER_REGISTRY,
     CharacterActivityManager,
@@ -16,7 +18,7 @@ from criterivox.presentation.contract import PresentationContract
 
 
 class AnalysisRequest(BaseModel):
-    """Validated user input crossing the Flutter → Python boundary."""
+    """Legacy S2 request kept for runtime compatibility."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -35,15 +37,12 @@ class AnalysisRequest(BaseModel):
 
 @dataclass
 class RuntimeConnectionManager:
-    """Small in-process WebSocket broadcaster for the local S2 runtime."""
+    """Permanent local WebSocket runtime boundary for Criterivox."""
 
     clients: set[Any] = field(default_factory=set)
     latest: PresentationContract = field(
         default_factory=lambda: PresentationContract.from_state(
-            "Dharen",
-            CharacterState.IDLE,
-            active=False,
-            prominence=0.25,
+            "Dharen", CharacterState.IDLE, active=False, prominence=0.25
         )
     )
 
@@ -69,14 +68,19 @@ class RuntimeConnectionManager:
 
 
 class DharenRuntime:
-    """Executes the first real Python → presentation character slice."""
+    """Executes the permanent Python → presentation character slice."""
 
     def __init__(self, connection_manager: RuntimeConnectionManager) -> None:
         self._connections = connection_manager
         self._activity = CharacterActivityManager(CHARACTER_REGISTRY.get_all())
         self._lock = asyncio.Lock()
 
-    async def run_analysis(self, request: AnalysisRequest) -> None:
+    async def run_analysis(
+        self,
+        request: AnalysisRequest,
+        *,
+        result: dict[str, Any] | None = None,
+    ) -> None:
         async with self._lock:
             await self._transition(
                 CharacterState.RECEIVE,
@@ -90,7 +94,8 @@ class DharenRuntime:
                 event="ANALYSIS_STARTED",
                 message="Dharen is analyzing the supplied data in context.",
             )
-            result = self._perform_synthetic_analysis(request)
+            if result is None:
+                result = self._perform_synthetic_analysis(request)
             await asyncio.sleep(0.75)
 
             await self._transition(
@@ -104,14 +109,12 @@ class DharenRuntime:
                 ),
             )
             await asyncio.sleep(0.35)
-
             await self._transition(
                 CharacterState.COMPLETE,
                 event="ANALYSIS_COMPLETED",
                 message="Dharen completed the requested analysis.",
             )
             await asyncio.sleep(0.35)
-
             await self._transition(
                 CharacterState.IDLE,
                 active=False,
@@ -120,11 +123,8 @@ class DharenRuntime:
                 message=None,
             )
 
-    def _perform_synthetic_analysis(
-        self,
-        request: AnalysisRequest,
-    ) -> dict[str, int]:
-        """Perform real deterministic work without claiming intelligence."""
+    @staticmethod
+    def _perform_synthetic_analysis(request: AnalysisRequest) -> dict[str, int]:
         data_items = len(request.data)
         data_fields = sum(
             len(item) if isinstance(item, dict) else 1
@@ -166,3 +166,34 @@ def parse_analysis_request(payload: Any) -> AnalysisRequest:
         return AnalysisRequest.model_validate(payload)
     except ValidationError as exc:
         raise ValueError("Invalid analysis request.") from exc
+
+
+def parse_application_request(payload: Any) -> ApplicationRequest:
+    try:
+        return ApplicationRequest.model_validate(payload)
+    except ValidationError as exc:
+        raise ValueError("Invalid application request.") from exc
+
+
+async def handle_application_request(payload: Any) -> None:
+    request = parse_application_request(payload)
+    result = application_service.handle(request)
+    analysis_request = AnalysisRequest(
+        data=request.data,
+        context=request.context,
+        task=request.task,
+    )
+    await dharen_runtime.run_analysis(analysis_request, result=result.data)
+
+
+__all__ = [
+    "AnalysisRequest",
+    "DharenRuntime",
+    "RuntimeConnectionManager",
+    "dharen_runtime",
+    "handle_application_request",
+    "parse_analysis_request",
+    "parse_application_request",
+    "runtime_connections",
+    "UnsupportedCapabilityError",
+]
