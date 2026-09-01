@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Callable
+from uuid import uuid4
 
 from .contracts import (
     ApplicationError,
@@ -26,33 +27,29 @@ class ApplicationService:
     event_sink: Callable[[ApplicationEvent], None] | None = None
 
     def handle(self, request: ApplicationRequest) -> ApplicationResult:
+        request_id = self._request_id(request)
         if request.intent.value != "analyze":
             raise UnsupportedCapabilityError(
                 f"Capability '{request.intent.value}' is reserved for a future sprint."
             )
 
+        self._emit(ApplicationEvent(
+            event_type=ApplicationEventType.ANALYSIS_STARTED,
+            intent=request.intent,
+            request_id=request_id,
+        ))
         result = self.provider.analyze(
             data=request.data,
             context=request.context,
             task=request.task,
         )
-        request_id = self._request_id(request)
-        self._emit(
-            ApplicationEvent(
-                event_type=ApplicationEventType.ANALYSIS_STARTED,
-                intent=request.intent,
-                request_id=request_id,
-            )
-        )
-        self._emit(
-            ApplicationEvent(
-                event_type=ApplicationEventType.ANALYSIS_COMPLETED,
-                intent=request.intent,
-                request_id=request_id,
-                character_id="Dharen",
-                result=result,
-            )
-        )
+        self._emit(ApplicationEvent(
+            event_type=ApplicationEventType.ANALYSIS_COMPLETED,
+            intent=request.intent,
+            request_id=request_id,
+            character_id="Dharen",
+            result=result,
+        ))
         return ApplicationResult(
             request_id=request_id,
             intent=request.intent,
@@ -69,16 +66,14 @@ class ApplicationService:
 
     @staticmethod
     def _request_id(request: ApplicationRequest) -> str:
-        return f"{request.source}-{abs(hash(request.model_dump_json())):x}"
+        return f"{request.source}-{uuid4().hex[:12]}"
 
     def _emit(self, event: ApplicationEvent) -> None:
         if self.event_sink is not None:
             self.event_sink(event)
 
 
-application_service = ApplicationService(
-    provider=DeterministicAnalysisProvider(),
-)
+application_service = ApplicationService(provider=DeterministicAnalysisProvider())
 
 __all__ = [
     "ApplicationService",
