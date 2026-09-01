@@ -32,17 +32,35 @@ class CharacterRuntimeClient {
       await channel.ready;
       channel.stream.listen(
         _handleMessage,
-        onError: (Object error) {
-          _errors.add('Runtime connection error: $error');
-        },
-        onDone: () {
-          _channel = null;
-        },
+        onError: (Object error) => _errors.add('Runtime connection error: $error'),
+        onDone: () => _channel = null,
         cancelOnError: false,
       );
     } catch (error) {
-      _errors.add('Unable to connect to Python runtime: $error');
+      _errors.add('Unable to connect to Python runtime.');
     }
+  }
+
+  void requestApplication({
+    required String intent,
+    required String task,
+    required Map<String, dynamic> data,
+    required Map<String, dynamic> context,
+    required String source,
+  }) {
+    final channel = _channel;
+    if (channel == null) {
+      _errors.add('Python runtime is not connected.');
+      return;
+    }
+    channel.sink.add(jsonEncode({
+      'contract_version': 1,
+      'intent': intent,
+      'task': task,
+      'data': data,
+      'context': context,
+      'source': source,
+    }));
   }
 
   void requestAnalysis({
@@ -50,18 +68,12 @@ class CharacterRuntimeClient {
     required Map<String, dynamic> context,
     required String task,
   }) {
-    final channel = _channel;
-    if (channel == null) {
-      _errors.add('Python runtime is not connected.');
-      return;
-    }
-
-    channel.sink.add(
-      jsonEncode({
-        'data': data,
-        'context': context,
-        'task': task,
-      }),
+    requestApplication(
+      intent: 'analyze',
+      task: task,
+      data: data,
+      context: context,
+      source: 'legacy-s2',
     );
   }
 
@@ -71,17 +83,15 @@ class CharacterRuntimeClient {
       _states.add(state);
     } on FormatException catch (error) {
       _errors.add('Rejected runtime state: ${error.message}');
-    } catch (error) {
-      _errors.add('Rejected runtime state: $error');
+    } catch (_) {
+      _errors.add('Rejected runtime state.');
     }
   }
 
   Future<void> disconnect() async {
     final channel = _channel;
     _channel = null;
-    if (channel != null) {
-      await channel.sink.close();
-    }
+    if (channel != null) await channel.sink.close();
   }
 
   Future<void> dispose() async {
