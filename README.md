@@ -4,13 +4,47 @@ Criterivox is a **research-driven, context-aware intelligence and decision-suppo
 
 ## Project Status
 
-**S2 — Runtime Character Integration is complete.** The current baseline includes a managed local runtime host, a Python-to-Flutter runtime boundary, and the first functional character slice, Dharen.
+**S3 — Application Contracts + Syvax/Bloom Interaction Gateway is complete.** The current baseline preserves the permanent S2 Python ↔ Flutter runtime and adds a real application boundary through which Syvax and Bloom can initiate application work. The first functional vertical slice remains Dharen.
 
 ## Current Sprint
 
-**S2 — Runtime Character Integration — COMPLETE**
+**S3 — Application Contracts + Syvax/Bloom Interaction Gateway — COMPLETE**
 
-S2 establishes the engineering foundation for character-driven interaction. Python owns semantic character state; Flutter receives and renders that state without inventing the lifecycle.
+S3 connects the human-facing interaction layer to application services through explicit contracts. Syvax and Bloom enter the same application boundary; Python owns application behavior and semantic character state; Flutter presents the resulting state.
+
+The implemented S3 path is:
+
+```text
+USER
+  ↓
+SYVAX OR BLOOM
+  ↓
+APPLICATION INTENT
+  ↓
+APPLICATION REQUEST
+  ↓
+APPLICATION SERVICE
+  ↓
+DETERMINISTIC PROVIDER
+  ↓
+APPLICATION EVENT
+  ↓
+DHAREN RUNTIME
+  ↓
+PRESENTATION CONTRACT
+  ↓
+FLUTTER
+  ↓
+VISIBLE DHAREN RESPONSE
+```
+
+The demonstrated Dharen lifecycle remains:
+
+```text
+RECEIVE → WORK → COMMUNICATE → COMPLETE → IDLE
+```
+
+Flutter does not invent this lifecycle. Python remains authoritative for semantic character state.
 
 ## Research Foundation
 
@@ -93,20 +127,35 @@ Presentation
 → Infrastructure / Data
 ```
 
-For S2:
+S3 adds the application interaction gateway while preserving the permanent runtime boundary:
 
 ```text
-User
-→ Flutter
-→ Python application
-→ Character behavior
-→ Semantic presentation state
-→ WebSocket runtime boundary
-→ Dart
-→ Character renderer
+Syvax ───────┐
+             ├──> Application Request → Application Service → Event
+Bloom ───────┘                                      │
+                                                    ↓
+                                              Dharen Runtime
+                                                    │
+                                                    ↓
+                                          Python → WebSocket → Dart
+                                                    │
+                                                    ↓
+                                               Flutter UI
 ```
 
 The character contract remains renderer-independent and is suitable for future Rive and 3D/WebGL/Spline presentation adapters.
+
+## S3 Application Boundary
+
+`src/criterivox/application/` contains the S3 application layer:
+
+- `contracts.py` — versioned application intent, request, payload, result, event, and structured error representations.
+- `service.py` — application service boundary connecting requests to application behavior.
+- `provider.py` — provider abstraction and the current deterministic provider.
+
+Syvax is the human/system dialogue host. Bloom is the capability gateway. Neither owns character state transitions or domain intelligence.
+
+Only `Analyze` is currently implemented as the S3 vertical slice. Other Bloom capabilities are explicitly reserved rather than presented as fake backend functionality.
 
 ## Research Workflow
 
@@ -150,11 +199,18 @@ cd ..
 .\start-criterivox.ps1
 ```
 
-See `docs/sprints/s2/S2-RUNTIME-INTEGRATION.md` for the runtime contract and verified S2 demonstration.
+For S3 verification:
+
+```powershell
+.\scripts\verify-s3.ps1
+```
+
+See `docs/sprints/s3/S3-APPLICATION-BLOOM.md` for the S3 application boundary, runtime integration, verification and known limitations. The earlier S2 runtime contract remains documented in `docs/sprints/s2/S2-RUNTIME-INTEGRATION.md`.
 
 ## Project Structure
 
 - `src/criterivox/` — Python application source
+- `src/criterivox/application/` — application contracts, service, and provider boundary
 - `presentation/` — Flutter presentation source
 - `tests/` — automated Python tests
 - `experiments/` — research experimentation
@@ -163,6 +219,20 @@ See `docs/sprints/s2/S2-RUNTIME-INTEGRATION.md` for the runtime contract and ver
 - `start-criterivox.ps1` — canonical local runtime host
 - `diagnostics/` — local generated runtime evidence; ignored by Git
 
+## Deferred Product / Engineering Backlog
+
+The following items are intentionally carried into the next sprint rather than being treated as S3 completion blockers:
+
+- Fix Bloom and character **overflow** across constrained layouts.
+- Resolve **overlay/layering** issues between interface elements.
+- Improve **responsive resizing** behavior across viewport sizes.
+- Investigate and reduce **long application startup/loading time**.
+- Replace remaining decorative/placeholder visuals with real functional components as their underlying capabilities become available.
+- Evolve Bloom so capability nodes such as **Analyze can bloom into sub-capabilities**.
+- Provide dedicated capability pages/routes where a capability requires a deeper workflow.
+
+These are product hardening and evolution tasks, not evidence that the S3 application boundary is missing.
+
 ## Scope Boundary
 
-S2 does not claim full intelligence, XAI, production Rive/3D assets, all 15 characters, production databases, authentication, social-media APIs, or completion of the broader research loop. Those remain future roadmap work. S2 proves the managed runtime connection and Dharen lifecycle that the next research/product iterations can build upon.
+S3 does not claim full intelligence, XAI, production Rive/3D assets, all 15 characters, production databases, authentication, social-media APIs, or completion of the broader research loop. The current deterministic provider exists to prove the application boundary and runtime vertical slice. Future intelligence providers and richer character workflows must connect through the established boundaries rather than being embedded into Bloom or Syvax.
