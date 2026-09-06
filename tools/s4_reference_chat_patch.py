@@ -5,21 +5,43 @@ MAIN = ROOT / 'presentation/lib/main.dart'
 PUBSPEC = ROOT / 'presentation/pubspec.yaml'
 
 main = MAIN.read_text(encoding='utf-8')
-main = main.replace(
-    "import 'package:flutter/material.dart';\n",
-    "import 'package:flutter/material.dart';\nimport 'chat/reference_attachment_picker.dart';\n",
-    1,
-)
-main = main.replace(
-    "  final chatController = TextEditingController();\n",
-    "  final chatController = TextEditingController();\n  List<ChatReference> chatReferences = const [];\n",
-    1,
-)
-main = main.replace(
-    "      context: {'description': contextController.text.trim(), 'origin': 'Dharen Inbox'},\n    );\n",
-    "      context: {'description': contextController.text.trim(), 'origin': 'Dharen Inbox'},\n      references: chatReferences.map((reference) => reference.toPayload()).toList(growable: false),\n    );\n    setState(() => chatReferences = const []);\n",
-    1,
-)
+
+# Normalize artifacts from earlier repeated patch application before applying
+# the integration once. This keeps the automation safe to rerun.
+while "import 'chat/reference_attachment_picker.dart';\nimport 'chat/reference_attachment_picker.dart';\n" in main:
+    main = main.replace(
+        "import 'chat/reference_attachment_picker.dart';\nimport 'chat/reference_attachment_picker.dart';\n",
+        "import 'chat/reference_attachment_picker.dart';\n",
+        1,
+    )
+while "  List<ChatReference> chatReferences = const [];\n  List<ChatReference> chatReferences = const [];\n" in main:
+    main = main.replace(
+        "  List<ChatReference> chatReferences = const [];\n  List<ChatReference> chatReferences = const [];\n",
+        "  List<ChatReference> chatReferences = const [];\n",
+        1,
+    )
+
+if "import 'chat/reference_attachment_picker.dart';\n" not in main:
+    main = main.replace(
+        "import 'package:flutter/material.dart';\n",
+        "import 'package:flutter/material.dart';\nimport 'chat/reference_attachment_picker.dart';\n",
+        1,
+    )
+
+if "  List<ChatReference> chatReferences = const [];\n" not in main:
+    main = main.replace(
+        "  final chatController = TextEditingController();\n",
+        "  final chatController = TextEditingController();\n  List<ChatReference> chatReferences = const [];\n",
+        1,
+    )
+
+if "references: chatReferences.map((reference) => reference.toPayload()).toList(growable: false)," not in main:
+    main = main.replace(
+        "      context: {'description': contextController.text.trim(), 'origin': 'Dharen Inbox'},\n    );\n",
+        "      context: {'description': contextController.text.trim(), 'origin': 'Dharen Inbox'},\n      references: chatReferences.map((reference) => reference.toPayload()).toList(growable: false),\n    );\n    setState(() => chatReferences = const []);\n",
+        1,
+    )
+
 old_followup = """    chatController.clear();
     runtime.sendChat(taskId: id, message: message);
 """
@@ -31,26 +53,10 @@ new_followup = """    chatController.clear();
     );
     setState(() => chatReferences = const []);
 """
-if old_followup not in main:
-    raise SystemExit('Expected follow-up send block was not found')
-main = main.replace(old_followup, new_followup, 1)
-old = """        Row(children: [
-          Expanded(child: TextField(
-            controller: chatController,
-            minLines: 1,
-            maxLines: 3,
-            onSubmitted: (_) => state?.taskId == null ? startChatTask() : sendFollowup(),
-            decoration: InputDecoration(
-              hintText: state?.taskId == null ? 'Start a task with Dharen…' : 'Ask Dharen about this task…',
-              filled: true,
-              fillColor: const Color(0x6610142E),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-            ),
-          )),
-          const SizedBox(width: 7),
-          IconButton.filled(onPressed: state?.taskId == null ? startChatTask : sendFollowup, icon: const Icon(Icons.arrow_upward_rounded)),
-        ]),"""
-new = """        ReferenceAttachmentPicker(
+if old_followup in main:
+    main = main.replace(old_followup, new_followup, 1)
+
+picker = """        ReferenceAttachmentPicker(
           references: chatReferences,
           onChanged: (next) => setState(() => chatReferences = next),
           onAddLink: () async {
@@ -59,25 +65,15 @@ new = """        ReferenceAttachmentPicker(
           },
         ),
         const SizedBox(height: 9),
-        Row(children: [
-          Expanded(child: TextField(
-            controller: chatController,
-            minLines: 1,
-            maxLines: 3,
-            onSubmitted: (_) => state?.taskId == null ? startChatTask() : sendFollowup(),
-            decoration: InputDecoration(
-              hintText: state?.taskId == null ? 'Start a task with Dharen…' : 'Ask Dharen about this task…',
-              filled: true,
-              fillColor: const Color(0x6610142E),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-            ),
-          )),
-          const SizedBox(width: 7),
-          IconButton.filled(onPressed: state?.taskId == null ? startChatTask : sendFollowup, icon: const Icon(Icons.arrow_upward_rounded)),
-        ]),"""
-if old not in main:
-    raise SystemExit('Expected Dharen Inbox chat input block was not found')
-main = main.replace(old, new, 1)
+"""
+# Collapse repeated picker blocks, then ensure one picker exists before the chat field.
+while main.count(picker) > 1:
+    main = main.replace(picker + picker, picker, 1)
+
+if picker not in main:
+    anchor = "        Row(children: [\n          Expanded(child: TextField(\n            controller: chatController,"
+    main = main.replace(anchor, picker + anchor, 1)
+
 MAIN.write_text(main, encoding='utf-8')
 
 pubspec = PUBSPEC.read_text(encoding='utf-8')
