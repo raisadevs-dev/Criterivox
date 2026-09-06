@@ -9,7 +9,7 @@ from criterivox.presentation.states import VisualPresentation
 
 @dataclass(frozen=True, slots=True)
 class PresentationContract:
-    """Versioned, renderer-independent state sent to a presentation client."""
+    """Versioned renderer-independent state sent to a presentation client."""
 
     contract_version: int
     character_id: str
@@ -20,6 +20,17 @@ class PresentationContract:
     reduced_motion: bool
     message: str | None = None
     event: str | None = None
+    task_id: str | None = None
+    task_state: str | None = None
+    task_source: str | None = None
+    task: str | None = None
+    task_data_fields: int | None = None
+    task_context_fields: int | None = None
+    observations: tuple[dict[str, str], ...] = ()
+    findings: tuple[dict[str, str], ...] = ()
+    evidence: tuple[dict[str, str], ...] = ()
+    activity: tuple[str, ...] = ()
+    error: str | None = None
 
     @classmethod
     def from_visual_presentation(
@@ -31,6 +42,7 @@ class PresentationContract:
         reduced_motion: bool = False,
         message: str | None = None,
         event: str | None = None,
+        **task_fields: Any,
     ) -> "PresentationContract":
         return cls(
             contract_version=1,
@@ -42,6 +54,7 @@ class PresentationContract:
             reduced_motion=reduced_motion,
             message=message,
             event=event,
+            **task_fields,
         )
 
     @classmethod
@@ -55,6 +68,7 @@ class PresentationContract:
         reduced_motion: bool = False,
         message: str | None = None,
         event: str | None = None,
+        **task_fields: Any,
     ) -> "PresentationContract":
         from criterivox.presentation.states import present_state
 
@@ -65,6 +79,7 @@ class PresentationContract:
             reduced_motion=reduced_motion,
             message=message,
             event=event,
+            **task_fields,
         )
 
     def to_dict(self) -> dict[str, Any]:
