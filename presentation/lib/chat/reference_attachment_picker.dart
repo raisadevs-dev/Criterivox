@@ -53,8 +53,7 @@ class ReferenceAttachmentPicker extends StatelessWidget {
     final additions = <ChatReference>[];
     for (final file in result.files) {
       final bytes = file.bytes;
-      if (bytes == null) continue;
-      if (bytes.length > 4 * 1024 * 1024) continue;
+      if (bytes == null || bytes.isEmpty || bytes.length > 4 * 1024 * 1024) continue;
       final item = ChatReference(
         label: file.name,
         kind: _kindFor(file.extension),
@@ -94,34 +93,35 @@ class ReferenceAttachmentPicker extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 7,
-      runSpacing: 7,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        OutlinedButton.icon(
-          onPressed: _pickFiles,
-          icon: const Icon(Icons.attach_file_rounded, size: 17),
-          label: const Text('Add reference'),
-        ),
-        if (onAddLink != null)
+  Widget build(BuildContext context) => Wrap(
+        spacing: 7,
+        runSpacing: 7,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
           OutlinedButton.icon(
-            onPressed: onAddLink,
-            icon: const Icon(Icons.link_rounded, size: 17),
-            label: const Text('Add link'),
+            onPressed: _pickFiles,
+            icon: const Icon(Icons.attach_file_rounded, size: 17),
+            label: const Text('Add reference'),
           ),
-        for (final reference in references)
-          InputChip(
-            avatar: Icon(_iconFor(reference.kind), size: 16),
-            label: Text(reference.label, overflow: TextOverflow.ellipsis),
-            onDeleted: () => onChanged(
-              references.where((item) => item != reference).toList(growable: false),
+          if (onAddLink != null)
+            OutlinedButton.icon(
+              onPressed: onAddLink,
+              icon: const Icon(Icons.link_rounded, size: 17),
+              label: const Text('Add link'),
             ),
-          ),
-      ],
-    );
-  }
+          for (final reference in references)
+            InputChip(
+              avatar: Icon(_iconFor(reference.kind), size: 16),
+              label: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 180),
+                child: Text(reference.label, overflow: TextOverflow.ellipsis),
+              ),
+              onDeleted: () => onChanged(
+                references.where((item) => item != reference).toList(growable: false),
+              ),
+            ),
+        ],
+      );
 
   IconData _iconFor(String kind) {
     switch (kind) {
@@ -163,5 +163,7 @@ Future<ChatReference?> showReferenceLinkDialog(BuildContext context) async {
   );
   controller.dispose();
   if (value == null || value.isEmpty) return null;
+  final uri = Uri.tryParse(value);
+  if (uri == null || (uri.scheme != 'http' && uri.scheme != 'https') || uri.host.isEmpty) return null;
   return ChatReference(label: value, kind: 'link', sizeBytes: 0);
 }
