@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import base64
+import binascii
 import json
 from dataclasses import dataclass, field
 from typing import Any
@@ -9,9 +11,13 @@ from criterivox.application.analysis_tasks import analysis_tasks
 from criterivox.application.contracts import ApplicationRequest
 from criterivox.application.conversation import interpret_message
 from criterivox.application.service import UnsupportedCapabilityError
-from criterivox.domain.analysis import AnalysisTask, AnalysisTaskSource, AnalysisTaskState
+from criterivox.domain.analysis import AnalysisReference, AnalysisTask, AnalysisTaskSource, AnalysisTaskState
 from criterivox.domain.characters import CharacterActivityManager, CharacterState, CHARACTER_REGISTRY
 from criterivox.presentation.contract import PresentationContract
+
+MAX_REFERENCE_BYTES = 4 * 1024 * 1024
+MAX_REFERENCE_COUNT = 50
+MAX_REFERENCE_BATCH_BYTES = 8 * 1024 * 1024
 
 class AnalysisRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -73,6 +79,46 @@ def _task_source(source:str)->AnalysisTaskSource:
     try:return AnalysisTaskSource(normalized)
     except ValueError as exc:raise ValueError("Invalid analysis task source.") from exc
 
+def _parse_chat_references(raw: Any) -> tuple[tuple[str, ...], tuple[AnalysisReference, ...]]:
+    if raw is None: return (), ()
+    if not isinstance(raw, list) or len(raw) > MAX_REFERENCE_COUNT:
+        raise ValueError("Invalid reference list.")
+    names: list[str] = []
+    details: list[AnalysisReference] = []
+    total = 0
+    for index, item in enumerate(raw):
+        if isinstance(item, str):
+            name = item.strip()
+            if not name or len(name) > 500: raise ValueError("Invalid reference.")
+            names.append(name)
+            details.append(AnalysisReference(f"ref-{index+1}", name, "link", url=name))
+            continue
+        if not isinstance(item, dict): raise ValueError("Invalid reference payload.")
+        name = item.get("name")
+        kind = item.get("kind", "file")
+        size = item.get("size_bytes", 0)
+        encoded = item.get("content_base64")
+        if not isinstance(name, str) or not name.strip() or len(name) > 500:
+            raise ValueError("Reference name is invalid.")
+        if not isinstance(kind, str) or kind not in {"document", "dataset", "image", "file"}:
+            raise ValueError("Reference kind is invalid.")
+        if not isinstance(size, int) or size < 0 or size > MAX_REFERENCE_BYTES:
+            raise ValueError("Reference size is invalid.")
+        if not isinstance(encoded, str) or not encoded:
+            raise ValueError("Attached file content is missing.")
+        try:
+            decoded = base64.b64decode(encoded, validate=True)
+        except (ValueError, binascii.Error) as exc:
+            raise ValueError("Attached reference content is not valid base64.") from exc
+        if len(decoded) != size or len(decoded) > MAX_REFERENCE_BYTES:
+            raise ValueError("Attached reference size does not match its payload.")
+        total += len(decoded)
+        if total > MAX_REFERENCE_BATCH_BYTES:
+            raise ValueError("Attached references exceed the 8 MB chat batch limit.")
+        names.append(name.strip())
+        details.append(AnalysisReference(f"ref-{index+1}", name.strip(), kind, size, encoded))
+    return tuple(names), tuple(details)
+
 async def handle_application_request(payload:Any)->None:
     request=parse_application_request(payload)
     if request.intent.value!="analyze": raise UnsupportedCapabilityError(f"Capability '{request.intent.value}' is reserved for a future sprint.")
@@ -85,8 +131,9 @@ async def handle_chat_message(payload:Any)->None:
     if not isinstance(message,str) or not message.strip() or len(message)>2000: raise ValueError("Chat message is invalid.")
     interpretation=interpret_message(message)
     if task_id is None:
-        data=payload.get("data") if isinstance(payload.get("data"),dict) else {}; context=payload.get("context") if isinstance(payload.get("context"),dict) else {}; raw_refs=payload.get("references",[]); refs=tuple(x for x in raw_refs if isinstance(x,str)) if isinstance(raw_refs,list) else ()
-        task=analysis_tasks.create_task(task=interpretation.normalized_text,data=data,context=context,source=AnalysisTaskSource.CHAT,references=refs); await dharen_runtime.publish_task(task,message="Dharen received your analysis request from chat.",event="CHAT_ANALYSIS_REQUESTED"); asyncio.create_task(analysis_tasks.execute(task.task_id)); return
+        data=payload.get("data") if isinstance(payload.get("data"),dict) else {}; context=payload.get("context") if isinstance(payload.get("context"),dict) else {}
+        refs, details = _parse_chat_references(payload.get("references", []))
+        task=analysis_tasks.create_task(task=interpretation.normalized_text,data=data,context=context,source=AnalysisTaskSource.CHAT,references=refs,reference_details=details); await dharen_runtime.publish_task(task,message=f"Dharen received your analysis request from chat with {len(details)} reference(s).",event="CHAT_ANALYSIS_REQUESTED"); asyncio.create_task(analysis_tasks.execute(task.task_id)); return
     try: task=analysis_tasks.get_task(str(task_id))
     except Exception as exc: raise ValueError("Unknown analysis task.") from exc
     task.add_activity(f"User asked Dharen: {interpretation.normalized_text}")
@@ -96,6 +143,6 @@ async def handle_chat_message(payload:Any)->None:
         await dharen_runtime.publish_task(task,message="The current analysis remains active. Dharen is continuing from the same task state and recorded evidence.",event="TASK_CONTINUE_REQUESTED")
     else:
         task.add_activity("Follow-up received. The current S4 deterministic analysis does not mutate the recorded result from conversational text.")
-        await dharen_runtime.publish_task(task,message="I received that follow-up. The task remains grounded in its recorded data, context, and state.",event="TASK_FOLLOWUP_RECEIVED")
+        await dharen_runtime.publish_task(task,message="I received that follow-up. The task remains grounded in its recorded data, context, and references.",event="TASK_FOLLOWUP_RECEIVED")
 
 __all__=["AnalysisRequest","DharenRuntime","RuntimeConnectionManager","dharen_runtime","handle_application_request","handle_chat_message","parse_analysis_request","parse_application_request","runtime_connections","UnsupportedCapabilityError"]
