@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'chat/reference_attachment_picker.dart';
 import 'character/character_presentation.dart';
 import 'interaction/bloom.dart';
 import 'presentation/presentation_state.dart';
@@ -35,6 +36,7 @@ class _CriterivoxScreenState extends State<CriterivoxScreen> {
   final dataController = TextEditingController(text: 'Local sample dataset for structural analysis');
   final contextController = TextEditingController(text: 'Synthetic local research data');
   final chatController = TextEditingController();
+  List<ChatReference> chatReferences = const [];
   PresentationState? state;
   BloomCapability? selected;
   String surface = 'bloom';
@@ -106,7 +108,9 @@ class _CriterivoxScreenState extends State<CriterivoxScreen> {
       message: message,
       data: {'dataset': dataController.text.trim(), 'records': 3},
       context: {'description': contextController.text.trim(), 'origin': 'Dharen Inbox'},
+      references: chatReferences.map((reference) => reference.toPayload()).toList(growable: false),
     );
+    setState(() => chatReferences = const []);
   }
 
   void sendFollowup() {
@@ -271,6 +275,15 @@ class _CriterivoxScreenState extends State<CriterivoxScreen> {
           ],
         ],
         const SizedBox(height: 12),
+        ReferenceAttachmentPicker(
+          references: chatReferences,
+          onChanged: (next) => setState(() => chatReferences = next),
+          onAddLink: () async {
+            final link = await showReferenceLinkDialog(context);
+            if (link != null) setState(() => chatReferences = [...chatReferences, link]);
+          },
+        ),
+        const SizedBox(height: 9),
         Row(children: [
           Expanded(child: TextField(
             controller: chatController,
