@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable
 
 from criterivox.domain.analysis import (
+    AnalysisReference,
     AnalysisResult,
     AnalysisTask,
     AnalysisTaskSource,
@@ -21,8 +22,8 @@ class AnalysisTaskStore:
 
     tasks: dict[str, AnalysisTask] = field(default_factory=dict)
 
-    def create(self, *, task: str, data: dict[str, Any], context: dict[str, Any], source: AnalysisTaskSource, references: tuple[str, ...] = ()) -> AnalysisTask:
-        item = AnalysisTask.create(task=task, data=data, context=context, source=source, references=references)
+    def create(self, *, task: str, data: dict[str, Any], context: dict[str, Any], source: AnalysisTaskSource, references: tuple[str, ...] = (), reference_details: tuple[AnalysisReference, ...] = ()) -> AnalysisTask:
+        item = AnalysisTask.create(task=task, data=data, context=context, source=source, references=references, reference_details=reference_details)
         self.tasks[item.task_id] = item
         return item
 
@@ -43,9 +44,11 @@ class AnalysisTaskService:
     publish: Callable[[AnalysisTask], Any] | None = None
     _locks: dict[str, asyncio.Lock] = field(default_factory=dict)
 
-    def create_task(self, *, task: str, data: dict[str, Any], context: dict[str, Any], source: AnalysisTaskSource, references: tuple[str, ...] = ()) -> AnalysisTask:
-        item = self.store.create(task=task, data=data, context=context, source=source, references=references)
+    def create_task(self, *, task: str, data: dict[str, Any], context: dict[str, Any], source: AnalysisTaskSource, references: tuple[str, ...] = (), reference_details: tuple[AnalysisReference, ...] = ()) -> AnalysisTask:
+        item = self.store.create(task=task, data=data, context=context, source=source, references=references, reference_details=reference_details)
         item.add_activity(f"Task created from {source.value}.")
+        if reference_details:
+            item.add_activity(f"Attached {len(reference_details)} reference(s) to the task.")
         return item
 
     def get_task(self, task_id: str) -> AnalysisTask:
@@ -97,19 +100,21 @@ class AnalysisTaskService:
     def _deterministic_result(task: AnalysisTask) -> AnalysisResult:
         data_fields = len(task.data)
         context_fields = len(task.context)
+        reference_count = len(task.reference_details)
         observations = (
             Observation("obs-1", f"The task contains {data_fields} top-level data fields.", "measured"),
             Observation("obs-2", f"The task provides {context_fields} contextual fields.", "measured"),
+            Observation("obs-3", f"The task carries {reference_count} attached reference(s).", "measured"),
         )
         findings = (
             Finding("finding-1", "The supplied task can be processed with the currently available deterministic analysis provider."),
             Finding("finding-2", "Interpretation remains bounded by the supplied data and context; no unsupported intelligence claim is made."),
         )
         evidence = (
-            Evidence("evidence-1", "Input structure", "analysis_task", f"{data_fields} data fields; {context_fields} context fields"),
+            Evidence("evidence-1", "Input structure", "analysis_task", f"{data_fields} data fields; {context_fields} context fields; {reference_count} references"),
         )
         return AnalysisResult(
-            summary=f"Deterministic analysis completed using {data_fields} data fields and {context_fields} context fields.",
+            summary=f"Deterministic analysis completed using {data_fields} data fields, {context_fields} context fields, and {reference_count} references.",
             observations=observations,
             findings=findings,
             evidence=evidence,
