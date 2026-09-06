@@ -7,6 +7,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 from criterivox.application.analysis_tasks import analysis_tasks
 from criterivox.application.contracts import ApplicationRequest
+from criterivox.application.conversation import interpret_message
 from criterivox.application.service import UnsupportedCapabilityError
 from criterivox.domain.analysis import AnalysisTask, AnalysisTaskSource, AnalysisTaskState
 from criterivox.domain.characters import CharacterActivityManager, CharacterState, CHARACTER_REGISTRY
@@ -42,7 +43,7 @@ class DharenRuntime:
         await self._connections.publish(PresentationContract.from_state(activity.character_id,activity.state,active=active,prominence=.9 if active else .25,message=message or self._task_message(task),event=event or f"TASK_{task.state.value}",task_id=task.task_id,task_state=task.state.value,task_source=task.source.value,task=task.task,task_data_fields=len(task.data),task_context_fields=len(task.context),observations=tuple({"id":o.identifier,"text":o.text,"significance":o.significance} for o in (result.observations if result else ())),findings=tuple({"id":f.identifier,"statement":f.statement,"confidence":f.confidence} for f in (result.findings if result else ())),evidence=tuple({"id":e.identifier,"label":e.label,"source":e.source,"detail":e.detail} for e in (result.evidence if result else ())),activity=tuple(task.activity[-12:]),error=task.error))
         if task.state is AnalysisTaskState.COMPLETED: await asyncio.sleep(.30); await self._publish_idle(task)
     async def _publish_idle(self, task: AnalysisTask) -> None:
-        activity=self._activity.set_state("Dharen",CharacterState.IDLE); await self._connections.publish(PresentationContract.from_state(activity.character_id,activity.state,active=False,prominence=.25,message="Dharen is idle. The completed analysis remains available in this workspace.",event="CHARACTER_IDLE",task_id=task.task_id,task_state=task.state.value,task_source=task.source.value,task=task.task,task_data_fields=len(task.data),task_context_fields=len(task.context),observations=tuple({"id":o.identifier,"text":o.text,"significance":o.significance} for o in (task.result.observations if task.result else ())),findings=tuple({"id":f.identifier,"statement":f.statement,"confidence":f.confidence} for f in (task.result.findings if task.result else ())),evidence=tuple({"id":e.identifier,"label":e.label,"source":e.source,"detail":e.detail} for e in (task.result.evidence if task.result else ())),activity=tuple(task.activity[-12:]),error=task.error))
+        activity=self._activity.set_state("Dharen",CharacterState.IDLE); await self._connections.publish(PresentationContract.from_state(activity.character_id,activity.state,active=False,prominence=.25,message="Dharen is idle. The completed analysis remains available in this workspace.",event="CHARACTER_IDLE",task_id=task.task_id,task_state=task.state.value,task_source=task.source.value,task=task.task,task_data_fields=len(task.data),task_context_fields=len(task.context),observations=tuple({"id":o.identifier,"text":o.text,"significance":o.significance} for o in (task.result.observations if task.result else ())),findings=tuple({"id":f.identifier,"statement":f.statement,"confidence":f.confidence} for f in (task.result.findings if f else ())),evidence=tuple({"id":e.identifier,"label":e.label,"source":e.source,"detail":e.detail} for e in (task.result.evidence if task.result else ())),activity=tuple(task.activity[-12:]),error=task.error))
     @staticmethod
     def _task_message(task: AnalysisTask) -> str: return {AnalysisTaskState.CREATED:"Analysis task created.",AnalysisTaskState.RECEIVED:"Dharen received the analysis task.",AnalysisTaskState.VALIDATING:"Validating the supplied data, context, and references.",AnalysisTaskState.PROCESSING:"Preparing the supplied information for analysis.",AnalysisTaskState.ANALYZING:"Dharen is analyzing the supplied information and establishing contextual findings.",AnalysisTaskState.RESULT_READY:"The analysis result is ready for communication.",AnalysisTaskState.COMPLETED:"Dharen completed the analysis.",AnalysisTaskState.WAITING:"The analysis is waiting for required information.",AnalysisTaskState.FAILED:task.error or "The analysis failed.",AnalysisTaskState.CANCELLED:"The analysis task was cancelled."}[task.state]
     async def run_analysis(self, request: AnalysisRequest, *, result: dict[str,Any]|None=None) -> None:
@@ -81,13 +82,19 @@ async def handle_chat_message(payload:Any)->None:
     if not isinstance(payload,dict): raise ValueError("Malformed chat message.")
     task_id=payload.get("task_id"); message=payload.get("message")
     if not isinstance(message,str) or not message.strip() or len(message)>2000: raise ValueError("Chat message is invalid.")
+    interpretation=interpret_message(message)
     if task_id is None:
         data=payload.get("data") if isinstance(payload.get("data"),dict) else {}; context=payload.get("context") if isinstance(payload.get("context"),dict) else {}; raw_refs=payload.get("references",[]); refs=tuple(x for x in raw_refs if isinstance(x,str)) if isinstance(raw_refs,list) else ()
-        task=analysis_tasks.create_task(task=message.strip(),data=data,context=context,source=AnalysisTaskSource.CHAT,references=refs); await dharen_runtime.publish_task(task,message="Dharen received your analysis request from chat.",event="CHAT_ANALYSIS_REQUESTED"); asyncio.create_task(analysis_tasks.execute(task.task_id)); return
+        task=analysis_tasks.create_task(task=interpretation.normalized_text,data=data,context=context,source=AnalysisTaskSource.CHAT,references=refs); await dharen_runtime.publish_task(task,message="Dharen received your analysis request from chat.",event="CHAT_ANALYSIS_REQUESTED"); asyncio.create_task(analysis_tasks.execute(task.task_id)); return
     try: task=analysis_tasks.get_task(str(task_id))
     except Exception as exc: raise ValueError("Unknown analysis task.") from exc
-    task.add_activity(f"User asked Dharen: {message.strip()}"); lowered=message.lower()
-    if any(x in lowered for x in ("current state","status","what's happening","whats happening","how is my analysis")): await dharen_runtime.publish_task(task,message=f"The analysis is currently {task.state.value}. Dharen reports the authoritative task state.",event="TASK_STATUS_REQUESTED")
-    else: task.add_activity("Follow-up received. The current S4 deterministic analysis does not mutate the recorded result from conversational text."); await dharen_runtime.publish_task(task,message="I received that follow-up. The task remains grounded in its recorded data, context, and state.",event="TASK_FOLLOWUP_RECEIVED")
+    task.add_activity(f"User asked Dharen: {interpretation.normalized_text}")
+    if interpretation.intent == "status":
+        await dharen_runtime.publish_task(task,message=f"The analysis is currently {task.state.value}. Dharen reports the authoritative task state.",event="TASK_STATUS_REQUESTED")
+    elif interpretation.intent == "continue":
+        await dharen_runtime.publish_task(task,message="The current analysis remains active. Dharen is continuing from the same task state and recorded evidence.",event="TASK_CONTINUE_REQUESTED")
+    else:
+        task.add_activity("Follow-up received. The current S4 deterministic analysis does not mutate the recorded result from conversational text.")
+        await dharen_runtime.publish_task(task,message="I received that follow-up. The task remains grounded in its recorded data, context, and state.",event="TASK_FOLLOWUP_RECEIVED")
 
 __all__=["AnalysisRequest","DharenRuntime","RuntimeConnectionManager","dharen_runtime","handle_application_request","handle_chat_message","parse_analysis_request","parse_application_request","runtime_connections","UnsupportedCapabilityError"]
