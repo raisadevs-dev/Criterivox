@@ -1,0 +1,9 @@
+name: dharen_rive_generator
+description: Build the authored Dharen Rive character asset for Criterivox.
+publish_to: none
+
+environment:
+  sdk: '>=3.8.0 <4.0.0'
+
+dependencies:
+  co_rive: ^0.1.0
