@@ -1,5 +1,5 @@
 name: presentation
-description: "A new Flutter project."
+description: "Criterivox Flutter presentation layer."
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
+  rive: ^0.14.11
   web_socket_channel: ^3.0.3
 
 dev_dependencies:
@@ -19,3 +20,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  # Add the authored Dharen Rive asset here when the .riv file is available.
+  # The renderer has a Flutter fallback so the application remains runnable
+  # while the authored asset is being produced.
+  assets:
+    - assets/characters/
