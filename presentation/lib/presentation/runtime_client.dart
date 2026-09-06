@@ -28,7 +28,7 @@ class CharacterRuntimeClient {
     _send({'contract_version': 1, 'intent': intent, 'task': task, 'data': data, 'context': context, 'source': source, 'references': references});
   }
   void requestAnalysis({required Map<String, dynamic> data, required Map<String, dynamic> context, required String task}) => requestApplication(intent: 'analyze', task: task, data: data, context: context, source: 'legacy-s2');
-  void sendChat({String? taskId, required String message, Map<String, dynamic> data = const {}, Map<String, dynamic> context = const {}, List<String> references = const []}) {
+  void sendChat({String? taskId, required String message, Map<String, dynamic> data = const {}, Map<String, dynamic> context = const {}, List<Map<String, dynamic>> references = const []}) {
     _send({'type': 'chat_message', if (taskId != null) 'task_id': taskId, 'message': message, 'data': data, 'context': context, 'references': references});
   }
   void _send(Map<String, dynamic> payload) {
