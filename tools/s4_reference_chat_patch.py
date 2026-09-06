@@ -20,6 +20,20 @@ main = main.replace(
     "      context: {'description': contextController.text.trim(), 'origin': 'Dharen Inbox'},\n      references: chatReferences.map((reference) => reference.toPayload()).toList(growable: false),\n    );\n    setState(() => chatReferences = const []);\n",
     1,
 )
+old_followup = """    chatController.clear();
+    runtime.sendChat(taskId: id, message: message);
+"""
+new_followup = """    chatController.clear();
+    runtime.sendChat(
+      taskId: id,
+      message: message,
+      references: chatReferences.map((reference) => reference.toPayload()).toList(growable: false),
+    );
+    setState(() => chatReferences = const []);
+"""
+if old_followup not in main:
+    raise SystemExit('Expected follow-up send block was not found')
+main = main.replace(old_followup, new_followup, 1)
 old = """        Row(children: [
           Expanded(child: TextField(
             controller: chatController,
