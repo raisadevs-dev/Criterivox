@@ -26,6 +26,16 @@ class AnalysisTaskSource(str, Enum):
 
 
 @dataclass(frozen=True, slots=True)
+class AnalysisReference:
+    identifier: str
+    name: str
+    kind: str
+    size_bytes: int = 0
+    content_base64: str | None = None
+    url: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class Evidence:
     identifier: str
     label: str
@@ -83,6 +93,7 @@ class AnalysisTask:
     context: dict[str, object]
     source: AnalysisTaskSource
     references: tuple[str, ...] = ()
+    reference_details: tuple[AnalysisReference, ...] = ()
     state: AnalysisTaskState = AnalysisTaskState.CREATED
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
@@ -99,6 +110,7 @@ class AnalysisTask:
         context: dict[str, object],
         source: AnalysisTaskSource,
         references: tuple[str, ...] = (),
+        reference_details: tuple[AnalysisReference, ...] = (),
     ) -> "AnalysisTask":
         if not task.strip():
             raise ValueError("Analysis task must not be empty.")
@@ -106,8 +118,10 @@ class AnalysisTask:
             raise ValueError("Analysis task is too long.")
         if len(data) > 1000 or len(context) > 1000:
             raise ValueError("Analysis data or context contains too many fields.")
-        if len(references) > 50:
+        if len(references) > 50 or len(reference_details) > 50:
             raise ValueError("Too many references.")
+        if any(ref.size_bytes < 0 or ref.size_bytes > 4 * 1024 * 1024 for ref in reference_details):
+            raise ValueError("Reference exceeds the 4 MB per-reference limit.")
         return cls(
             task_id=f"AN-{uuid4().hex[:8].upper()}",
             task=task.strip(),
@@ -115,6 +129,7 @@ class AnalysisTask:
             context=dict(context),
             source=source,
             references=tuple(ref.strip() for ref in references if ref.strip()),
+            reference_details=tuple(reference_details),
         )
 
     def transition(self, target: AnalysisTaskState) -> None:
@@ -147,6 +162,7 @@ class AnalysisTask:
 
 
 __all__ = [
+    "AnalysisReference",
     "AnalysisResult",
     "AnalysisTask",
     "AnalysisTaskSource",
