@@ -90,33 +90,19 @@ def _parse_chat_references(raw: Any) -> tuple[tuple[str, ...], tuple[AnalysisRef
         if isinstance(item, str):
             name = item.strip()
             if not name or len(name) > 500: raise ValueError("Invalid reference.")
-            names.append(name)
-            details.append(AnalysisReference(f"ref-{index+1}", name, "link", url=name))
-            continue
+            names.append(name); details.append(AnalysisReference(f"ref-{index+1}", name, "link", url=name)); continue
         if not isinstance(item, dict): raise ValueError("Invalid reference payload.")
-        name = item.get("name")
-        kind = item.get("kind", "file")
-        size = item.get("size_bytes", 0)
-        encoded = item.get("content_base64")
-        if not isinstance(name, str) or not name.strip() or len(name) > 500:
-            raise ValueError("Reference name is invalid.")
-        if not isinstance(kind, str) or kind not in {"document", "dataset", "image", "file"}:
-            raise ValueError("Reference kind is invalid.")
-        if not isinstance(size, int) or size < 0 or size > MAX_REFERENCE_BYTES:
-            raise ValueError("Reference size is invalid.")
-        if not isinstance(encoded, str) or not encoded:
-            raise ValueError("Attached file content is missing.")
-        try:
-            decoded = base64.b64decode(encoded, validate=True)
-        except (ValueError, binascii.Error) as exc:
-            raise ValueError("Attached reference content is not valid base64.") from exc
-        if len(decoded) != size or len(decoded) > MAX_REFERENCE_BYTES:
-            raise ValueError("Attached reference size does not match its payload.")
+        name = item.get("name"); kind = item.get("kind", "file"); size = item.get("size_bytes", 0); encoded = item.get("content_base64")
+        if not isinstance(name, str) or not name.strip() or len(name) > 500: raise ValueError("Reference name is invalid.")
+        if not isinstance(kind, str) or kind not in {"document", "dataset", "image", "file"}: raise ValueError("Reference kind is invalid.")
+        if not isinstance(size, int) or size < 0 or size > MAX_REFERENCE_BYTES: raise ValueError("Reference size is invalid.")
+        if not isinstance(encoded, str) or not encoded: raise ValueError("Attached file content is missing.")
+        try: decoded = base64.b64decode(encoded, validate=True)
+        except (ValueError, binascii.Error) as exc: raise ValueError("Attached reference content is not valid base64.") from exc
+        if len(decoded) != size or len(decoded) > MAX_REFERENCE_BYTES: raise ValueError("Attached reference size does not match its payload.")
         total += len(decoded)
-        if total > MAX_REFERENCE_BATCH_BYTES:
-            raise ValueError("Attached references exceed the 8 MB chat batch limit.")
-        names.append(name.strip())
-        details.append(AnalysisReference(f"ref-{index+1}", name.strip(), kind, size, encoded))
+        if total > MAX_REFERENCE_BATCH_BYTES: raise ValueError("Attached references exceed the 8 MB chat batch limit.")
+        names.append(name.strip()); details.append(AnalysisReference(f"ref-{index+1}", name.strip(), kind, size, encoded))
     return tuple(names), tuple(details)
 
 async def handle_application_request(payload:Any)->None:
@@ -130,12 +116,16 @@ async def handle_chat_message(payload:Any)->None:
     task_id=payload.get("task_id"); message=payload.get("message")
     if not isinstance(message,str) or not message.strip() or len(message)>2000: raise ValueError("Chat message is invalid.")
     interpretation=interpret_message(message)
+    refs, details = _parse_chat_references(payload.get("references", []))
     if task_id is None:
         data=payload.get("data") if isinstance(payload.get("data"),dict) else {}; context=payload.get("context") if isinstance(payload.get("context"),dict) else {}
-        refs, details = _parse_chat_references(payload.get("references", []))
         task=analysis_tasks.create_task(task=interpretation.normalized_text,data=data,context=context,source=AnalysisTaskSource.CHAT,references=refs,reference_details=details); await dharen_runtime.publish_task(task,message=f"Dharen received your analysis request from chat with {len(details)} reference(s).",event="CHAT_ANALYSIS_REQUESTED"); asyncio.create_task(analysis_tasks.execute(task.task_id)); return
     try: task=analysis_tasks.get_task(str(task_id))
     except Exception as exc: raise ValueError("Unknown analysis task.") from exc
+    if details:
+        task.references = tuple(dict.fromkeys((*task.references, *refs)))
+        task.reference_details = (*task.reference_details, *details)
+        task.add_activity(f"Attached {len(details)} additional reference(s) to the task.")
     task.add_activity(f"User asked Dharen: {interpretation.normalized_text}")
     if interpretation.intent == "status":
         await dharen_runtime.publish_task(task,message=f"The analysis is currently {task.state.value}. Dharen reports the authoritative task state.",event="TASK_STATUS_REQUESTED")
