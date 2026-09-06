@@ -25,11 +25,13 @@ class DharenRiveLayer extends StatefulWidget {
 
 class _DharenRiveLayerState extends State<DharenRiveLayer> {
   late final rive.FileLoader _fileLoader;
+  late final Future<void> _riveReady;
   String? _lastState;
 
   @override
   void initState() {
     super.initState();
+    _riveReady = rive.RiveNative.init();
     _fileLoader = rive.FileLoader.fromAsset(
       'assets/characters/dharen.riv',
       riveFactory: rive.Factory.rive,
@@ -46,38 +48,42 @@ class _DharenRiveLayerState extends State<DharenRiveLayer> {
     final semanticState = widget.visualState.characterState;
     if (_lastState == semanticState) return;
     _lastState = semanticState;
-
-    // The authored state machine uses one trigger per semantic lifecycle
-    // state. Missing triggers are intentionally ignored so the Rive asset can
-    // evolve without breaking the application runtime.
     controller.stateMachine?.trigger(semanticState)?.fire();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 238,
-      height: 286,
-      child: rive.RiveWidgetBuilder(
-        fileLoader: _fileLoader,
-        builder: (context, state) => switch (state) {
-          rive.RiveLoading() => widget.fallback,
-          rive.RiveFailed() => widget.fallback,
-          rive.RiveLoaded() => Builder(
-              builder: (context) {
-                _syncSemanticState(state.controller);
-                return Semantics(
-                  label: 'Dharen advanced character animation',
-                  value: widget.visualState.characterState,
-                  child: rive.RiveWidget(
-                    controller: state.controller,
-                    fit: rive.Fit.contain,
-                  ),
-                );
-              },
-            ),
-        },
-      ),
+    return FutureBuilder<void>(
+      future: _riveReady,
+      builder: (context, ready) {
+        if (ready.connectionState != ConnectionState.done || ready.hasError) {
+          return widget.fallback;
+        }
+        return SizedBox(
+          width: 238,
+          height: 286,
+          child: rive.RiveWidgetBuilder(
+            fileLoader: _fileLoader,
+            builder: (context, state) => switch (state) {
+              rive.RiveLoading() => widget.fallback,
+              rive.RiveFailed() => widget.fallback,
+              rive.RiveLoaded() => Builder(
+                  builder: (context) {
+                    _syncSemanticState(state.controller);
+                    return Semantics(
+                      label: 'Dharen advanced character animation',
+                      value: widget.visualState.characterState,
+                      child: rive.RiveWidget(
+                        controller: state.controller,
+                        fit: rive.Fit.contain,
+                      ),
+                    );
+                  },
+                ),
+            },
+          ),
+        );
+      },
     );
   }
 }
