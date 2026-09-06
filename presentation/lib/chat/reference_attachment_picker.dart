@@ -39,7 +39,7 @@ class ReferenceAttachmentPicker extends StatelessWidget {
   });
 
   Future<void> _pickFiles() async {
-    final files = await FilePicker.pickFiles(
+    final result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       withData: true,
       type: FileType.custom,
@@ -48,10 +48,10 @@ class ReferenceAttachmentPicker extends StatelessWidget {
         'png', 'jpg', 'jpeg', 'webp', 'xlsx',
       ],
     );
-    if (files.isEmpty) return;
+    if (result == null || result.files.isEmpty) return;
 
     final additions = <ChatReference>[];
-    for (final file in files.files) {
+    for (final file in result.files) {
       final bytes = file.bytes;
       if (bytes == null) continue;
       if (bytes.length > 4 * 1024 * 1024) continue;
