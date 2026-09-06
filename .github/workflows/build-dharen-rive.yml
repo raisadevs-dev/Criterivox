@@ -1,0 +1,37 @@
+name: Build Dharen Rive Asset
+
+on:
+  push:
+    branches: [s4-domain-analysis-workspace]
+    paths-ignore:
+      - presentation/assets/characters/dharen.riv
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-dharen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Generate authored Dharen asset
+        working-directory: tools/dharen_rive_generator
+        run: |
+          dart pub get
+          dart run bin/generate.dart
+
+      - name: Commit generated Rive asset
+        run: |
+          git config user.name "criterivox-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add presentation/assets/characters/dharen.riv
+          git diff --cached --quiet || git commit -m "S4: generate authored Dharen Rive asset"
+          git push
