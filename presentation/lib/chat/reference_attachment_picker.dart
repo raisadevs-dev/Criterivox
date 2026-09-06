@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
@@ -6,15 +8,22 @@ class ChatReference {
   final String kind;
   final int sizeBytes;
   final String? path;
+  final String? contentBase64;
 
   const ChatReference({
     required this.label,
     required this.kind,
     required this.sizeBytes,
     this.path,
+    this.contentBase64,
   });
 
-  String get wireValue => 'file:$label|kind=$kind|bytes=$sizeBytes';
+  Map<String, dynamic> toPayload() => {
+        'name': label,
+        'kind': kind,
+        'size_bytes': sizeBytes,
+        if (contentBase64 != null) 'content_base64': contentBase64,
+      };
 }
 
 class ReferenceAttachmentPicker extends StatelessWidget {
@@ -32,6 +41,7 @@ class ReferenceAttachmentPicker extends StatelessWidget {
   Future<void> _pickFiles() async {
     final files = await FilePicker.pickFiles(
       allowMultiple: true,
+      withData: true,
       type: FileType.custom,
       allowedExtensions: const [
         'pdf', 'csv', 'json', 'txt', 'md', 'doc', 'docx',
@@ -40,15 +50,23 @@ class ReferenceAttachmentPicker extends StatelessWidget {
     );
     if (files.isEmpty) return;
 
-    final additions = files
-        .map((file) => ChatReference(
-              label: file.name,
-              kind: _kindFor(file.extension),
-              sizeBytes: file.size,
-              path: file.path,
-            ))
-        .where((item) => !references.any((existing) => existing.label == item.label))
-        .toList(growable: false);
+    final additions = <ChatReference>[];
+    for (final file in files.files) {
+      final bytes = file.bytes;
+      if (bytes == null) continue;
+      if (bytes.length > 4 * 1024 * 1024) continue;
+      final item = ChatReference(
+        label: file.name,
+        kind: _kindFor(file.extension),
+        sizeBytes: bytes.length,
+        path: file.path,
+        contentBase64: base64Encode(bytes),
+      );
+      if (!references.any((existing) => existing.label == item.label) &&
+          !additions.any((existing) => existing.label == item.label)) {
+        additions.add(item);
+      }
+    }
 
     if (additions.isNotEmpty) onChanged([...references, ...additions]);
   }
@@ -113,6 +131,8 @@ class ReferenceAttachmentPicker extends StatelessWidget {
         return Icons.table_chart_outlined;
       case 'image':
         return Icons.image_outlined;
+      case 'link':
+        return Icons.link_rounded;
       default:
         return Icons.insert_drive_file_outlined;
     }
