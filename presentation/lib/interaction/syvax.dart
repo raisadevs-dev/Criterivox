@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class Syvax extends StatefulWidget {
   final ValueChanged<String> onSubmit;
@@ -41,21 +42,20 @@ class _SyvaxState extends State<Syvax> {
 class _SyvaxAvatar extends StatelessWidget {
   final bool busy;
   const _SyvaxAvatar({required this.busy});
-  @override Widget build(BuildContext context) => Container(width: 58, height: 58,
-    decoration: BoxDecoration(shape: BoxShape.circle, gradient: const RadialGradient(colors: [Color(0xFF514AAB), Color(0xFF171A3D)]), border: Border.all(color: const Color(0xFF9B83FF), width: 1.5), boxShadow: const [BoxShadow(color: Color(0x665E4EFF), blurRadius: 20, spreadRadius: 2)]),
-    child: CustomPaint(painter: _SyvaxFacePainter(busy: busy)));
-}
-
-class _SyvaxFacePainter extends CustomPainter {
-  final bool busy;
-  _SyvaxFacePainter({required this.busy});
-  @override void paint(Canvas canvas, Size size) {
-    final eye = Paint()..color = const Color(0xFFF1EEFF); final pupil = Paint()..color = const Color(0xFF17152E);
-    canvas.drawOval(Rect.fromLTWH(size.width * .27, size.height * .30, 9, 15), eye); canvas.drawOval(Rect.fromLTWH(size.width * .58, size.height * .30, 9, 15), eye);
-    canvas.drawCircle(Offset(size.width * .335, size.height * .42), 3.7, pupil); canvas.drawCircle(Offset(size.width * .645, size.height * .42), 3.7, pupil);
-    final feature = Paint()..color = const Color(0xFFDCD6FA)..style = PaintingStyle.stroke..strokeWidth = 2..strokeCap = StrokeCap.round;
-    canvas.drawLine(Offset(size.width * .24, size.height * .25), Offset(size.width * .39, size.height * .22), feature); canvas.drawLine(Offset(size.width * .56, size.height * .22), Offset(size.width * .71, size.height * .25), feature);
-    final mouth = Path()..moveTo(size.width * .34, size.height * .67)..quadraticBezierTo(size.width * .50, size.height * (busy ? .78 : .75), size.width * .66, size.height * .67); canvas.drawPath(mouth, feature);
-  }
-  @override bool shouldRepaint(covariant _SyvaxFacePainter oldDelegate) => oldDelegate.busy != busy;
+  @override Widget build(BuildContext context) => SizedBox(
+    width: 58,
+    height: 58,
+    child: AnimatedScale(
+      scale: busy ? 1.05 : 1,
+      duration: const Duration(milliseconds: 280),
+      child: AnimatedRotation(
+        turns: busy ? .01 : 0,
+        duration: const Duration(milliseconds: 280),
+        child: SvgPicture.asset(
+          'assets/characters/syvax.svg',
+          semanticsLabel: 'Syvax character artwork',
+        ),
+      ),
+    ),
+  );
 }
