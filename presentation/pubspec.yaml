@@ -11,7 +11,7 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   file_picker: ^10.3.3
-  rive: ^0.14.11
+  flutter_svg: ^2.3.0
   web_socket_channel: ^3.0.3
 
 dev_dependencies:
@@ -21,8 +21,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  # Add the authored Dharen Rive asset here when the .riv file is available.
-  # The renderer has a Flutter fallback so the application remains runnable
-  # while the authored asset is being produced.
+  # Character artwork is authored as vector animation source in Glaxnimate,
+  # exported to SVG, and rendered/animated by Flutter.
   assets:
     - assets/characters/
