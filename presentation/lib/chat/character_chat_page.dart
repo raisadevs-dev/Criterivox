@@ -1,41 +1,224 @@
 import 'package:flutter/material.dart';
 import '../presentation/presentation_state.dart';
+import '../presentation/criterivox_theme.dart';
 
-class CharacterChatPage extends StatelessWidget {
+class CharacterChatPage extends StatefulWidget {
   final PresentationState? state;
   final bool busy;
-  final ValueChanged<String> onSend;
+  final String selectedAgent;
+  final ValueChanged<String> onSelectAgent;
+  final void Function(String message, String agent) onSend;
   final VoidCallback onOpenTask;
-  const CharacterChatPage({super.key, required this.state, required this.busy, required this.onSend, required this.onOpenTask});
+
+  const CharacterChatPage({
+    super.key,
+    required this.state,
+    required this.busy,
+    required this.selectedAgent,
+    required this.onSelectAgent,
+    required this.onSend,
+    required this.onOpenTask,
+  });
 
   @override
-  Widget build(BuildContext context) => Container(
-    color: const Color(0xFF050712),
-    child: Row(children: [
-      const SizedBox(width: 220, child: _AgentRail()),
-      Expanded(child: _Conversation(state: state, busy: busy, onSend: onSend, onOpenTask: onOpenTask)),
-      SizedBox(width: 280, child: _Context(state: state)),
-    ]),
-  );
+  State<CharacterChatPage> createState() => _CharacterChatPageState();
 }
 
-class _AgentRail extends StatelessWidget {
-  const _AgentRail();
-  @override Widget build(BuildContext context) => Container(
-    decoration: const BoxDecoration(border: Border(right: BorderSide(color: Color(0x241E2441)))),
-    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Padding(padding: EdgeInsets.fromLTRB(18,24,18,16), child: Text('CHARACTER NETWORK', style: TextStyle(color: Color(0xFF858DAA),fontSize:10,fontWeight:FontWeight.w700,letterSpacing:1.2))),
-      _Agent('Syvax', 'Dialogue + routing', Icons.hub_rounded, true),
-      _Agent('Dharen', 'Structural analysis', Icons.analytics_rounded, false),
+class _CharacterChatPageState extends State<CharacterChatPage> {
+  final input = TextEditingController();
+
+  @override
+  void dispose() {
+    input.dispose();
+    super.dispose();
+  }
+
+  void _send() {
+    final text = input.text.trim();
+    if (text.isEmpty || widget.busy) return;
+    input.clear();
+    widget.onSend(text, widget.selectedAgent);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+    return LayoutBuilder(builder: (context, constraints) {
+      final narrow = constraints.maxWidth < 900;
+      return Container(
+        color: t.page,
+        child: Row(children: [
+          if (!narrow) SizedBox(width: 235, child: _CharacterPicker(selected: widget.selectedAgent, onSelect: widget.onSelectAgent)),
+          Expanded(child: _Conversation(
+            state: widget.state,
+            busy: widget.busy,
+            target: widget.selectedAgent,
+            input: input,
+            onSend: _send,
+            onOpenTask: widget.onOpenTask,
+            onSelectAgent: widget.onSelectAgent,
+          )),
+          if (!narrow) SizedBox(width: 290, child: _Context(state: widget.state, target: widget.selectedAgent)),
+        ]),
+      );
+    });
+  }
+}
+
+class _CharacterPicker extends StatelessWidget {
+  final String selected;
+  final ValueChanged<String> onSelect;
+  const _CharacterPicker({required this.selected, required this.onSelect});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+    return Container(
+      decoration: BoxDecoration(border: Border(right: BorderSide(color: t.border))),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Padding(padding: const EdgeInsets.fromLTRB(18, 24, 18, 16), child: Text('CHARACTER NETWORK', style: TextStyle(color: t.mutedText, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.2))),
+        _Agent(name: 'Syvax', role: 'Dialogue + routing', icon: Icons.hub_rounded, selected: selected == 'syvax', onTap: () => onSelect('syvax')),
+        _Agent(name: 'Dharen', role: 'Structural analysis', icon: Icons.analytics_rounded, selected: selected == 'dharen', onTap: () => onSelect('dharen')),
+        const Spacer(),
+        Padding(padding: const EdgeInsets.all(18), child: Text('The chat is independent as a surface, not isolated from the application. Every conversation can open or continue the same analysis task.', style: TextStyle(color: t.mutedText, fontSize: 10, height: 1.45))),
+      ]),
+    );
+  }
+}
+
+class _Agent extends StatelessWidget {
+  final String name, role;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+  const _Agent({required this.name, required this.role, required this.icon, required this.selected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+    return ListTile(
+      onTap: onTap,
+      selected: selected,
+      selectedTileColor: t.primary.withValues(alpha: .12),
+      leading: CircleAvatar(backgroundColor: t.surfaceStrong, child: Icon(icon, color: t.primary, size: 18)),
+      title: Text(name, style: TextStyle(color: t.text, fontSize: 13, fontWeight: FontWeight.w600)),
+      subtitle: Text(role, style: TextStyle(color: t.mutedText, fontSize: 9)),
+    );
+  }
+}
+
+class _Conversation extends StatelessWidget {
+  final PresentationState? state;
+  final bool busy;
+  final String target;
+  final TextEditingController input;
+  final VoidCallback onSend;
+  final VoidCallback onOpenTask;
+  final ValueChanged<String> onSelectAgent;
+
+  const _Conversation({required this.state, required this.busy, required this.target, required this.input, required this.onSend, required this.onOpenTask, required this.onSelectAgent});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+    final name = target == 'dharen' ? 'Dharen' : 'Syvax';
+    final role = target == 'dharen' ? 'Structural analysis + task execution' : 'Human-system dialogue + routing';
+    return Column(children: [
+      Container(
+        height: 78,
+        padding: const EdgeInsets.symmetric(horizontal: 22),
+        decoration: BoxDecoration(border: Border(bottom: BorderSide(color: t.border))),
+        child: Row(children: [
+          CircleAvatar(backgroundColor: t.surfaceStrong, child: Icon(target == 'dharen' ? Icons.analytics_rounded : Icons.hub_rounded, color: t.primary, size: 19)),
+          const SizedBox(width: 12),
+          Expanded(child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Chat with $name', style: TextStyle(color: t.text, fontSize: 18, fontWeight: FontWeight.w700)), Text(role, style: TextStyle(color: t.mutedText, fontSize: 10))])),
+          if (MediaQuery.sizeOf(context).width < 900) PopupMenuButton<String>(initialValue: target, onSelected: onSelectAgent, itemBuilder: (_) => const [PopupMenuItem(value: 'syvax', child: Text('Syvax · Route work')), PopupMenuItem(value: 'dharen', child: Text('Dharen · Analyze directly'))]),
+          Icon(Icons.more_horiz_rounded, color: t.mutedText),
+        ]),
+      ),
+      Expanded(child: ListView(padding: const EdgeInsets.all(24), children: [
+        _Welcome(target: target),
+        if (state?.message != null) _Bubble(who: name, text: state!.message!),
+        if (state?.taskId != null) _Task(state!, onOpenTask),
+      ])),
+      Container(
+        padding: const EdgeInsets.fromLTRB(18, 10, 18, 18),
+        decoration: BoxDecoration(border: Border(top: BorderSide(color: t.border))),
+        child: Row(children: [
+          Expanded(child: TextField(controller: input, minLines: 1, maxLines: 5, onSubmitted: (_) => onSend(), decoration: InputDecoration(hintText: 'Message $name…'))),
+          const SizedBox(width: 8),
+          IconButton.filled(onPressed: busy ? null : onSend, icon: const Icon(Icons.arrow_upward_rounded)),
+        ]),
+      ),
+    ]);
+  }
+}
+
+class _Welcome extends StatelessWidget {
+  final String target;
+  const _Welcome({required this.target});
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+    final direct = target == 'dharen';
+    return Container(
+      margin: const EdgeInsets.only(bottom: 18), padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(color: t.surfaceStrong, borderRadius: BorderRadius.circular(18), border: Border.all(color: t.border)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(direct ? 'Direct analysis with Dharen' : 'Start with Syvax', style: TextStyle(color: t.text, fontSize: 19, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 7),
+        Text(direct ? 'Give Dharen a task, data, context, or a question about the current analysis.' : 'Tell Syvax what you want. He keeps the task context and routes work to the appropriate character.', style: TextStyle(color: t.mutedText, fontSize: 11.5, height: 1.5)),
+      ]),
+    );
+  }
+}
+
+class _Bubble extends StatelessWidget {
+  final String who, text;
+  const _Bubble({required this.who, required this.text});
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+    return Container(margin: const EdgeInsets.only(bottom: 12), padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: t.surfaceStrong, borderRadius: BorderRadius.circular(16), border: Border.all(color: t.border)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(who, style: TextStyle(color: t.primary, fontSize: 10, fontWeight: FontWeight.w700)), const SizedBox(height: 5), Text(text, style: TextStyle(color: t.text, fontSize: 12.5, height: 1.45))]));
+  }
+}
+
+class _Task extends StatelessWidget {
+  final PresentationState state;
+  final VoidCallback open;
+  const _Task(this.state, this.open);
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+    return Container(margin: const EdgeInsets.only(bottom: 12), padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: t.surfaceStrong, borderRadius: BorderRadius.circular(14), border: Border.all(color: t.border)), child: Row(children: [Expanded(child: Text('${state.taskId} • ${state.taskState ?? 'ACTIVE'}', style: TextStyle(color: t.text, fontSize: 11))), TextButton(onPressed: open, child: const Text('Open workspace'))]));
+  }
+}
+
+class _Context extends StatelessWidget {
+  final PresentationState? state;
+  final String target;
+  const _Context({required this.state, required this.target});
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+    final name = target == 'dharen' ? 'Dharen' : 'Syvax';
+    return Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(border: Border(left: BorderSide(color: t.border))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text('ACTIVE CONTEXT', style: TextStyle(color: t.mutedText, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.2)),
+      const SizedBox(height: 16), Text(name, style: TextStyle(color: t.text, fontSize: 20, fontWeight: FontWeight.w700)),
+      Text(target == 'dharen' ? 'Structural analysis' : 'Dialogue + routing', style: TextStyle(color: t.mutedText, fontSize: 10)),
+      const SizedBox(height: 25),
+      _line('Connection', 'LIVE', t), _line('Task', state?.taskId ?? 'None', t), _line('State', state?.taskState ?? 'IDLE', t),
+      const SizedBox(height: 25), Text('TASK RELATIONSHIP', style: TextStyle(color: t.mutedText, fontSize: 10, fontWeight: FontWeight.w700)),
+      const SizedBox(height: 10), Text('Chat and Analysis Workspace share the same authoritative runtime state. Opening the workspace never creates a second task.', style: TextStyle(color: t.mutedText, fontSize: 11, height: 1.5)),
       const Spacer(),
-      const Padding(padding: EdgeInsets.all(18), child: Text('Future character members appear here as their capabilities become operational.',style:TextStyle(color:Color(0xFF656D8B),fontSize:10,height:1.45))),
-    ]),
-  );
-}
-class _Agent extends StatelessWidget { final String name,role; final IconData icon; final bool active; const _Agent(this.name,this.role,this.icon,this.active); @override Widget build(BuildContext context)=>ListTile(leading:CircleAvatar(backgroundColor:const Color(0xFF211A52),child:Icon(icon,color:const Color(0xFFB19CFF),size:18)),title:Text(name,style:const TextStyle(color:Colors.white,fontSize:13,fontWeight:FontWeight.w600)),subtitle:Text(role,style:const TextStyle(color:Color(0xFF777F9E),fontSize:9)),selected:active,selectedTileColor:const Color(0x331E194A)); }
+      if (state?.taskId != null) FilledButton.icon(onPressed: openTask(context), icon: const Icon(Icons.dashboard_customize_rounded, size: 16), label: const Text('Open current task')),
+    ]));
+  }
 
-class _Conversation extends StatefulWidget { final PresentationState? state; final bool busy; final ValueChanged<String> onSend; final VoidCallback onOpenTask; const _Conversation({required this.state,required this.busy,required this.onSend,required this.onOpenTask}); @override State<_Conversation> createState()=>_ConversationState(); }
-class _ConversationState extends State<_Conversation>{ final input=TextEditingController(); @override void dispose(){input.dispose();super.dispose();} void send(){final text=input.text.trim();if(text.isEmpty||widget.busy)return;input.clear();widget.onSend(text);} @override Widget build(BuildContext context){final s=widget.state;return Column(children:[Container(height:72,padding:const EdgeInsets.symmetric(horizontal:22),decoration:const BoxDecoration(border:Border(bottom:BorderSide(color:Color(0x241E2441)))),child:const Row(children:[Icon(Icons.forum_rounded,color:Color(0xFF9A83FF)),SizedBox(width:12),Column(mainAxisAlignment:MainAxisAlignment.center,crossAxisAlignment:CrossAxisAlignment.start,children:[Text('Character Chat',style:TextStyle(color:Colors.white,fontSize:18,fontWeight:FontWeight.w700)),Text('Conversations, handoffs and notifications',style:TextStyle(color:Color(0xFF777F9E),fontSize:10))]),Spacer(),Icon(Icons.notifications_none_rounded)])),Expanded(child:ListView(padding:const EdgeInsets.all(24),children:[if(s==null)const Padding(padding:EdgeInsets.only(top:80),child:Column(children:[Icon(Icons.hub_rounded,color:Color(0xFF9A83FF),size:54),SizedBox(height:16),Text('Talk with Syvax',style:TextStyle(color:Colors.white,fontSize:22,fontWeight:FontWeight.w700)),SizedBox(height:7),Text('Tell Criterivox what you want. Syvax routes work to the appropriate character.',textAlign:TextAlign.center,style:TextStyle(color:Color(0xFF858DAA),fontSize:12))])),if(s?.message!=null)_Bubble(s!.agentId,s.message!),if(s?.taskId!=null)_Task(s!,widget.onOpenTask)])),Padding(padding:const EdgeInsets.fromLTRB(18,0,18,18),child:Row(children:[Expanded(child:TextField(controller:input,minLines:1,maxLines:5,onSubmitted:(_)=>send(),decoration:InputDecoration(hintText:'Message Syvax…',filled:true,fillColor:const Color(0xFF10142A),border:OutlineInputBorder(borderRadius:BorderRadius.circular(16),borderSide:BorderSide.none)))),const SizedBox(width:8),IconButton.filled(onPressed:widget.busy?null:send,icon:const Icon(Icons.arrow_upward_rounded))]))]);}}
-class _Bubble extends StatelessWidget{final String who,text;const _Bubble(this.who,this.text);@override Widget build(BuildContext context)=>Container(margin:const EdgeInsets.only(bottom:12),padding:const EdgeInsets.all(14),decoration:BoxDecoration(color:const Color(0xFF10142A),borderRadius:BorderRadius.circular(16)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(who,style:const TextStyle(color:Color(0xFF9E91FF),fontSize:10,fontWeight:FontWeight.w700)),const SizedBox(height:5),Text(text,style:const TextStyle(color:Color(0xFFD2D5E2),fontSize:12.5,height:1.45))]));}
-class _Task extends StatelessWidget{final PresentationState state;final VoidCallback open;const _Task(this.state,this.open);@override Widget build(BuildContext context)=>Container(margin:const EdgeInsets.only(bottom:12),padding:const EdgeInsets.all(12),decoration:BoxDecoration(color:const Color(0x121F1A4C),borderRadius:BorderRadius.circular(14),border:Border.all(color:const Color(0x453D337F))),child:Row(children:[Expanded(child:Text('${state.taskId} • ${state.taskState??'ACTIVE'}',style:const TextStyle(color:Color(0xFFC8C2E9),fontSize:11))),TextButton(onPressed:open,child:const Text('Open task'))]));}
-class _Context extends StatelessWidget{final PresentationState? state;const _Context({required this.state});@override Widget build(BuildContext context)=>Container(padding:const EdgeInsets.all(20),decoration:const BoxDecoration(border:Border(left:BorderSide(color:Color(0x241E2441)))),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[const Text('AGENT CONTEXT',style:TextStyle(color:Color(0xFF858DAA),fontSize:10,fontWeight:FontWeight.w700,letterSpacing:1.2)),const SizedBox(height:16),const Text('Syvax',style:TextStyle(color:Colors.white,fontSize:20,fontWeight:FontWeight.w700)),const Text('Human-system dialogue + routing',style:TextStyle(color:Color(0xFF7D86A4),fontSize:10)),const SizedBox(height:25),Text('Connection     LIVE',style:const TextStyle(color:Color(0xFFC6CAD8),fontSize:10)),Text('Task              ${state?.taskId??'None'}',style:const TextStyle(color:Color(0xFFC6CAD8),fontSize:10)),Text('State             ${state?.taskState??'IDLE'}',style:const TextStyle(color:Color(0xFFC6CAD8),fontSize:10)),const SizedBox(height:25),const Text('NOTIFICATIONS',style:TextStyle(color:Color(0xFF858DAA),fontSize:10,fontWeight:FontWeight.w700)),const SizedBox(height:10),Text(state?.message??'No new runtime notification.',style:const TextStyle(color:Color(0xFF9299B4),fontSize:11,height:1.5))]));}
+  VoidCallback openTask(BuildContext context) => () {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    messenger?.showSnackBar(const SnackBar(content: Text('Use the task card above to open the shared workspace.')));
+  };
+
+  Widget _line(String label, String value, CriterivoxTheme t) => Padding(padding: const EdgeInsets.only(bottom: 8), child: Row(children: [SizedBox(width: 80, child: Text(label, style: TextStyle(color: t.mutedText, fontSize: 10))), Expanded(child: Text(value, style: TextStyle(color: t.text, fontSize: 10, fontWeight: FontWeight.w600)))]));
+}
