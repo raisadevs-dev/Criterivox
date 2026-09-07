@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 /// Crops one state from the supplied six-frame character sheet SVG.
 /// Frame order: IDLE, RECEIVE, WORK, COMMUNICATE, HANDOFF, COMPLETE.
@@ -33,11 +34,12 @@ class CharacterFrame extends StatelessWidget {
           child: Transform.scale(
             alignment: Alignment.topLeft,
             scale: scale,
-            child: Image.asset(
+            child: SvgPicture.asset(
               asset,
               width: 192,
               height: 188,
               fit: BoxFit.fill,
+              semanticsLabel: 'Character animation frame',
             ),
           ),
         ),
