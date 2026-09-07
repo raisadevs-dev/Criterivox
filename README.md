@@ -8,11 +8,9 @@ Criterivox is a **research-driven, context-aware intelligence and decision-suppo
 
 ## Current Sprint
 
-**S3 — Application Contracts + Syvax/Bloom Interaction Gateway — COMPLETE**
+**S4 — Domain Analysis Workspace**
 
-S3 connects the human-facing interaction layer to application services through explicit contracts. Syvax and Bloom enter the same application boundary; Python owns application behavior and semantic character state; Flutter presents the resulting state.
-
-The implemented S3 path is:
+S4 builds a living, research-oriented analysis workspace around the existing Python application boundary and Flutter presentation layer. The implemented path is:
 
 ```text
 USER
@@ -21,30 +19,66 @@ SYVAX OR BLOOM
   ↓
 APPLICATION INTENT
   ↓
-APPLICATION REQUEST
+ANALYSIS TASK
   ↓
-APPLICATION SERVICE
-  ↓
-DETERMINISTIC PROVIDER
+PYTHON APPLICATION / DOMAIN
   ↓
 APPLICATION EVENT
   ↓
-DHAREN RUNTIME
+DHAREN SEMANTIC STATE
   ↓
-PRESENTATION CONTRACT
+WEBSOCKET RUNTIME
   ↓
-FLUTTER
+DART PRESENTATION STATE
   ↓
-VISIBLE DHAREN RESPONSE
+FLUTTER SVG CHARACTER RENDERING
+  ↓
+VISIBLE CHARACTER RESPONSE
 ```
 
-The demonstrated Dharen lifecycle remains:
+Python remains authoritative for semantic character state. Flutter presents that state and does not invent the lifecycle.
+
+## Character Animation Stack
+
+Criterivox uses a vector-first character presentation pipeline:
+
+- **Flutter / Dart** — application presentation, state-driven motion, responsive layout and accessibility.
+- **SVG** — portable vector artwork for characters and interface animation assets.
+- **Glaxnimate** — authoring workflow for vector character artwork and animation source.
+
+The practical pipeline is:
 
 ```text
-RECEIVE → WORK → COMMUNICATE → COMPLETE → IDLE
+Character design
+      ↓
+Glaxnimate
+      ↓
+SVG assets
+      ↓
+Flutter SVG rendering
+      ↓
+Flutter state-driven animation
+      ↓
+Visible character
 ```
 
-Flutter does not invent this lifecycle. Python remains authoritative for semantic character state.
+Dharen and Syvax use this same vector approach. The animation implementation remains downstream of the semantic character contract, so artwork technology cannot become the owner of application behavior.
+
+## Character State Vocabulary
+
+The shared character state vocabulary remains:
+
+```text
+IDLE
+RECEIVE
+WORK
+COMMUNICATE
+HANDOFF
+COMPLETE
+WARNING
+```
+
+The Python/domain/application layers emit semantic state. Flutter maps that state to visual motion, emphasis and accessibility semantics.
 
 ## Research Foundation
 
@@ -112,10 +146,6 @@ The runtime host:
 
 Normal development should not require manually starting `server.py`, Uvicorn, or a second Flutter command.
 
-### Developer diagnostics
-
-Critical runtime failures are recorded locally under `diagnostics/`. These reports are developer-facing evidence for investigating failures and are intentionally ignored by Git. They are not part of the end-user product experience.
-
 ## Architecture Direction
 
 ```text
@@ -127,11 +157,11 @@ Presentation
 → Infrastructure / Data
 ```
 
-S3 adds the application interaction gateway while preserving the permanent runtime boundary:
+S4 preserves the application interaction gateway and permanent runtime boundary:
 
 ```text
 Syvax ───────┐
-             ├──> Application Request → Application Service → Event
+             ├──> Application Request → Analysis Task → Event
 Bloom ───────┘                                      │
                                                     ↓
                                               Dharen Runtime
@@ -140,14 +170,14 @@ Bloom ───────┘                                      │
                                           Python → WebSocket → Dart
                                                     │
                                                     ↓
-                                               Flutter UI
+                                         Flutter + SVG Characters
 ```
 
-The character contract remains renderer-independent and is suitable for future Rive and 3D/WebGL/Spline presentation adapters.
+The character contract remains renderer-independent and suitable for vector-based character presentation.
 
-## S3 Application Boundary
+## Application Boundary
 
-`src/criterivox/application/` contains the S3 application layer:
+`src/criterivox/application/` contains the application layer:
 
 - `contracts.py` — versioned application intent, request, payload, result, event, and structured error representations.
 - `service.py` — application service boundary connecting requests to application behavior.
@@ -155,35 +185,18 @@ The character contract remains renderer-independent and is suitable for future R
 
 Syvax is the human/system dialogue host. Bloom is the capability gateway. Neither owns character state transitions or domain intelligence.
 
-Only `Analyze` is currently implemented as the S3 vertical slice. Other Bloom capabilities are explicitly reserved rather than presented as fake backend functionality.
-
-## Research Workflow
-
-Research experimentation remains separate from production implementation.
-
-- `src/` contains product code.
-- `presentation/` contains the Flutter presentation application.
-- `tests/` contains automated tests.
-- `experiments/` contains research experimentation.
-- `docs/research/` contains research records and hypotheses.
-- `docs/` contains engineering, architecture, security, sprint, UX, and research documentation.
+Only `Analyze` is currently implemented as the application vertical slice. Other Bloom capabilities are explicitly reserved rather than presented as fake backend functionality.
 
 ## Development Environment
 
 - Python 3.13+
 - Flutter / Dart
+- SVG vector assets
+- Glaxnimate for vector animation authoring
 - Chrome for Flutter web development
 - VS Code
 - Git
 - Jupyter / IPython for research experimentation
-
-Create the project environment and install dependencies:
-
-```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-pip install -e ".[dev]"
-```
 
 For the presentation application:
 
@@ -199,40 +212,31 @@ cd ..
 .\start-criterivox.ps1
 ```
 
-For S3 verification:
-
-```powershell
-.\scripts\verify-s3.ps1
-```
-
-See `docs/sprints/s3/S3-APPLICATION-BLOOM.md` for the S3 application boundary, runtime integration, verification and known limitations. The earlier S2 runtime contract remains documented in `docs/sprints/s2/S2-RUNTIME-INTEGRATION.md`.
-
 ## Project Structure
 
 - `src/criterivox/` — Python application source
 - `src/criterivox/application/` — application contracts, service, and provider boundary
-- `presentation/` — Flutter presentation source
+- `presentation/` — Flutter presentation source and vector character assets
 - `tests/` — automated Python tests
 - `experiments/` — research experimentation
 - `docs/research/` — research records and hypotheses
-- `docs/` — architecture, security, UX, research, and sprint documentation
+- `docs/` — architecture, security, UX, research, sprint, and engineering documentation
 - `start-criterivox.ps1` — canonical local runtime host
 - `diagnostics/` — local generated runtime evidence; ignored by Git
 
 ## Deferred Product / Engineering Backlog
 
-The following items are intentionally carried into the next sprint rather than being treated as S3 completion blockers:
+The following items remain product hardening and evolution work:
 
-- Fix Bloom and character **overflow** across constrained layouts.
-- Resolve **overlay/layering** issues between interface elements.
-- Improve **responsive resizing** behavior across viewport sizes.
-- Investigate and reduce **long application startup/loading time**.
+- Fix Bloom and character overflow across constrained layouts.
+- Resolve overlay/layering issues between interface elements.
+- Improve responsive resizing behavior across viewport sizes.
+- Investigate and reduce long application startup/loading time.
 - Replace remaining decorative/placeholder visuals with real functional components as their underlying capabilities become available.
 - Evolve Bloom so capability nodes such as **Analyze can bloom into sub-capabilities**.
 - Provide dedicated capability pages/routes where a capability requires a deeper workflow.
-
-These are product hardening and evolution tasks, not evidence that the S3 application boundary is missing.
+- Continue enriching vector character artwork and state-specific motion in Glaxnimate/SVG.
 
 ## Scope Boundary
 
-S3 does not claim full intelligence, XAI, production Rive/3D assets, all 15 characters, production databases, authentication, social-media APIs, or completion of the broader research loop. The current deterministic provider exists to prove the application boundary and runtime vertical slice. Future intelligence providers and richer character workflows must connect through the established boundaries rather than being embedded into Bloom or Syvax.
+S4 does not claim full intelligence, XAI, all 15 characters, production databases, authentication, social-media APIs, or completion of the broader research loop. The deterministic provider exists to prove the application boundary and runtime vertical slice. Future intelligence providers and richer character workflows must connect through the established boundaries rather than being embedded into Bloom or Syvax.
