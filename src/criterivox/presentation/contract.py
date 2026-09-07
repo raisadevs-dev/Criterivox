@@ -26,6 +26,8 @@ class PresentationContract:
     task: str | None = None
     task_data_fields: int | None = None
     task_context_fields: int | None = None
+    task_created_at: str | None = None
+    task_updated_at: str | None = None
     observations: tuple[dict[str, str], ...] = ()
     findings: tuple[dict[str, str], ...] = ()
     evidence: tuple[dict[str, str], ...] = ()
