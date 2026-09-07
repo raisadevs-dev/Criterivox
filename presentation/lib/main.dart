@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app_shell.dart';
+import 'presentation/criterivox_theme.dart';
 
 class CriterivoxApp extends StatefulWidget {
   const CriterivoxApp({super.key});
@@ -13,10 +14,43 @@ class _CriterivoxAppState extends State<CriterivoxApp> {
 
   void _toggleTheme() {
     setState(() {
-      _themeMode = _themeMode == ThemeMode.dark
-          ? ThemeMode.light
-          : ThemeMode.dark;
+      _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
     });
+  }
+
+  ThemeData _theme(Brightness brightness, CriterivoxTheme tokens) {
+    return ThemeData(
+      brightness: brightness,
+      useMaterial3: true,
+      scaffoldBackgroundColor: tokens.page,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: tokens.primary,
+        brightness: brightness,
+        surface: tokens.surface,
+      ),
+      textTheme: ThemeData(brightness: brightness).textTheme.apply(
+        bodyColor: tokens.text,
+        displayColor: tokens.text,
+      ),
+      extensions: <ThemeExtension<dynamic>>[tokens],
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: tokens.surfaceStrong,
+        hintStyle: TextStyle(color: tokens.mutedText),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: tokens.border),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: tokens.border),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: tokens.primary, width: 1.4),
+        ),
+      ),
+    );
   }
 
   @override
@@ -25,18 +59,8 @@ class _CriterivoxAppState extends State<CriterivoxApp> {
       title: 'Criterivox',
       debugShowCheckedModeBanner: false,
       themeMode: _themeMode,
-      theme: ThemeData(
-        brightness: Brightness.light,
-        colorSchemeSeed: const Color(0xFF6F5AEF),
-        scaffoldBackgroundColor: const Color(0xFFF5F6FA),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        colorSchemeSeed: const Color(0xFF8D78FF),
-        scaffoldBackgroundColor: const Color(0xFF050712),
-        useMaterial3: true,
-      ),
+      theme: _theme(Brightness.light, CriterivoxTheme.light),
+      darkTheme: _theme(Brightness.dark, CriterivoxTheme.dark),
       home: CriterivoxShell(
         isDarkMode: _themeMode == ThemeMode.dark,
         onToggleTheme: _toggleTheme,
