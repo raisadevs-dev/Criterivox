@@ -68,7 +68,15 @@ class _Node extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = CriterivoxTheme.of(context); final accent = Bloom.accents[capability]!; final d = compact ? 94.0 : 138.0;
-    return Semantics(button: true, label: '${Bloom.labels[capability]} capability', child: InkWell(onTap: onTap, borderRadius: BorderRadius.circular(d), child: AnimatedContainer(duration: const Duration(milliseconds: 240), width: d, height: d, decoration: BoxDecoration(shape: BoxShape.circle, gradient: RadialGradient(colors: [accent.withValues(alpha: selected ? .35 : .12), t.surfaceStrong]), border: Border.all(color: accent.withValues(alpha: selected ? 1 : .58), width: selected ? 2.4 : 1.2), boxShadow: [BoxShadow(color: accent.withValues(alpha: selected ? .35 : .10), blurRadius: selected ? 30 : 18, spreadRadius: selected ? 4 : 1)]), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Bloom.icons[capability], color: accent, size: compact ? 23 : 28), const SizedBox(height: 6), Text(Bloom.labels[capability]!, style: TextStyle(color: t.text, fontSize: compact ? 12 : 15, fontWeight: FontWeight.w700)), if (!compact) ...[const SizedBox(height: 4), SizedBox(width: d - 34, child: Text(Bloom.subtitles[capability]!, textAlign: TextAlign.center, style: TextStyle(color: t.mutedText, fontSize: 9.5, height: 1.25)))]]))));
+    final reserved = capability != BloomCapability.analyze;
+    return Material(
+      color: Colors.transparent,
+      child: Semantics(
+        button: true,
+        label: '${Bloom.labels[capability]} capability${reserved ? ', reserved' : ''}',
+        child: InkWell(onTap: onTap, borderRadius: BorderRadius.circular(d), child: AnimatedContainer(duration: const Duration(milliseconds: 240), width: d, height: d, decoration: BoxDecoration(shape: BoxShape.circle, gradient: RadialGradient(colors: [accent.withValues(alpha: selected ? .35 : .12), t.surfaceStrong]), border: Border.all(color: accent.withValues(alpha: selected ? 1 : .58), width: selected ? 2.4 : 1.2), boxShadow: [BoxShadow(color: accent.withValues(alpha: selected ? .35 : .10), blurRadius: selected ? 30 : 18, spreadRadius: selected ? 4 : 1)]), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Bloom.icons[capability], color: accent, size: compact ? 23 : 28), const SizedBox(height: 6), Text(Bloom.labels[capability]!, style: TextStyle(color: t.text, fontSize: compact ? 12 : 15, fontWeight: FontWeight.w700)), if (!compact) ...[const SizedBox(height: 4), SizedBox(width: d - 34, child: Text(Bloom.subtitles[capability]!, textAlign: TextAlign.center, style: TextStyle(color: t.mutedText, fontSize: 9.5, height: 1.25)))]]))));
+      ),
+    );
   }
 }
 
