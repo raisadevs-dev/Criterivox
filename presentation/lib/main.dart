@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'app_shell.dart';
 import 'presentation/criterivox_theme.dart';
 
@@ -10,12 +11,26 @@ class CriterivoxApp extends StatefulWidget {
 }
 
 class _CriterivoxAppState extends State<CriterivoxApp> {
+  static const _themeKey = 'criterivox.theme.dark';
+  final SharedPreferencesAsync _preferences = SharedPreferencesAsync();
   ThemeMode _themeMode = ThemeMode.dark;
 
-  void _toggleTheme() {
-    setState(() {
-      _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _restoreTheme();
+  }
+
+  Future<void> _restoreTheme() async {
+    final dark = await _preferences.getBool(_themeKey);
+    if (!mounted || dark == null) return;
+    setState(() => _themeMode = dark ? ThemeMode.dark : ThemeMode.light);
+  }
+
+  Future<void> _toggleTheme() async {
+    final dark = _themeMode != ThemeMode.dark;
+    setState(() => _themeMode = dark ? ThemeMode.light : ThemeMode.dark);
+    await _preferences.setBool(_themeKey, _themeMode == ThemeMode.dark);
   }
 
   ThemeData _theme(Brightness brightness, CriterivoxTheme tokens) {
