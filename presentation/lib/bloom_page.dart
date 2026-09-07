@@ -32,7 +32,7 @@ class _BloomPageState extends State<BloomPage> {
           const SizedBox(height: 14),
           if (compact)
             Column(mainAxisSize: MainAxisSize.min, children: [
-              _BloomCard(state: widget.state, selected: selected, onCapability: _select, onSub: widget.onSub),
+              _BloomCard(state: widget.state, selected: selected, onCapability: _select, onSub: widget.onSub, height: 560),
               const SizedBox(height: 14),
               Syvax(onSubmit: widget.onSyvax, busy: widget.busy),
               const SizedBox(height: 14),
@@ -40,7 +40,7 @@ class _BloomPageState extends State<BloomPage> {
             ])
           else
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Expanded(child: SizedBox(height: 600, child: _BloomCard(state: widget.state, selected: selected, onCapability: _select, onSub: widget.onSub))),
+              Expanded(child: _BloomCard(state: widget.state, selected: selected, onCapability: _select, onSub: widget.onSub, height: 600)),
               const SizedBox(width: 16),
               SizedBox(width: 320, child: Column(mainAxisSize: MainAxisSize.min, children: [Syvax(onSubmit: widget.onSyvax, busy: widget.busy), const SizedBox(height: 14), _ActivityPanel(state: widget.state)])),
             ]),
@@ -79,11 +79,13 @@ class _BloomCard extends StatelessWidget {
   final BloomCapability? selected;
   final ValueChanged<BloomCapability> onCapability;
   final ValueChanged<BloomSuboption> onSub;
-  const _BloomCard({required this.state, required this.selected, required this.onCapability, required this.onSub});
+  final double height;
+  const _BloomCard({required this.state, required this.selected, required this.onCapability, required this.onSub, required this.height});
   @override
   Widget build(BuildContext context) {
     final t = CriterivoxTheme.of(context);
     return Container(
+      height: height,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(color: t.surface.withValues(alpha: .72), borderRadius: BorderRadius.circular(24), border: Border.all(color: t.border)),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
