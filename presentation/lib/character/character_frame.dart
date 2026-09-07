@@ -19,7 +19,7 @@ class CharacterFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final safeIndex = index.clamp(0, 5);
+    final safeIndex = index.clamp(0, 5).toInt();
     final column = safeIndex % 3;
     final row = safeIndex ~/ 3;
     final scale = width / 64;
