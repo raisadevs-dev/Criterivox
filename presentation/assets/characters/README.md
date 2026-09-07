@@ -1,14 +1,23 @@
-# Dharen Rive Character Asset
+# Character Vector Assets
 
-This directory is the authored animation boundary for Dharen.
+This directory contains character artwork authored as vector assets for Flutter.
 
-Expected production asset:
+## Animation pipeline
 
-- `dharen.riv`
-- Artboard: `Dharen`
-- State machine: `DharenLifecycle`
-- Runtime states: `IDLE`, `RECEIVE`, `WORK`, `COMMUNICATE`, `HANDOFF`, `COMPLETE`, `WARNING`
+```text
+Character design
+      ↓
+Glaxnimate
+      ↓
+SVG artwork / animation source
+      ↓
+Flutter SVG renderer + Flutter motion
+      ↓
+Visible character
+```
 
-The Flutter renderer maps the application-owned semantic character state to this animation layer. Rive owns motion, posing, facial expression, transitions, and continuous character animation. Python/application/domain code does not control animation frames.
+Dharen and Syvax use SVG artwork while semantic character state remains owned by the Python/application runtime. Flutter maps those states to presentation motion, visibility, emphasis, and reduced-motion behavior.
 
-Until the authored `.riv` asset is added, Criterivox uses the deterministic Flutter renderer as a graceful fallback.
+Shared character states remain:
+
+`IDLE`, `RECEIVE`, `WORK`, `COMMUNICATE`, `HANDOFF`, `COMPLETE`, `WARNING`.
