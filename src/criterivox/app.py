@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from .config import settings
+from .domain.characters import CharacterState
 from .infrastructure.runtime import (
     dharen_runtime,
     handle_application_request,
@@ -16,6 +17,7 @@ from .infrastructure.runtime import (
     runtime_connections,
 )
 from .logging_config import configure_logging
+from .presentation.contract import PresentationContract
 from .ui.routes import router
 
 logger = logging.getLogger(__name__)
@@ -31,6 +33,23 @@ def health() -> JSONResponse:
 app.include_router(router)
 
 
+async def _safe_request(handler, payload: dict) -> None:
+    try:
+        await handler(payload)
+    except Exception as exc:
+        logger.exception("Runtime request failed.")
+        await runtime_connections.publish(
+            PresentationContract.from_state(
+                "Dharen",
+                CharacterState.WARNING,
+                active=True,
+                prominence=.85,
+                message=f"Runtime could not complete that request: {exc}",
+                event="RUNTIME_ERROR",
+            )
+        )
+
+
 @app.websocket("/runtime/characters")
 async def character_runtime(websocket: WebSocket) -> None:
     """Permanent runtime boundary shared by S2, S3, and the S4 workspace/chat surfaces."""
@@ -39,9 +58,9 @@ async def character_runtime(websocket: WebSocket) -> None:
         while True:
             payload = await websocket.receive_json()
             if isinstance(payload, dict) and payload.get("type") == "chat_message":
-                asyncio.create_task(handle_chat_message(payload))
+                asyncio.create_task(_safe_request(handle_chat_message, payload))
             elif isinstance(payload, dict) and "intent" in payload:
-                asyncio.create_task(handle_application_request(payload))
+                asyncio.create_task(_safe_request(handle_application_request, payload))
             else:
                 request = parse_analysis_request(payload)
                 asyncio.create_task(dharen_runtime.run_analysis(request))
