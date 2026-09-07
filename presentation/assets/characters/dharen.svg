@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 250" role="img" aria-labelledby="title desc">
+  <title id="title">Dharen</title>
+  <desc id="desc">Vector character artwork for the Criterivox analysis character.</desc>
+  <defs>
+    <radialGradient id="head" cx="30%" cy="25%">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#c0bfda"/>
+    </radialGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8c7bff"/>
+      <stop offset="1" stop-color="#33276f"/>
+    </linearGradient>
+  </defs>
+  <g>
+    <path d="M40 218 Q90 190 140 218 L148 244 H32 Z" fill="#17143a" opacity=".9"/>
+    <rect x="38" y="118" width="104" height="104" rx="34" fill="url(#body)"/>
+    <circle cx="90" cy="92" r="67" fill="url(#head)" stroke="#8e7bef" stroke-width="7"/>
+    <ellipse cx="65" cy="90" rx="8" ry="13" fill="#25213d"/>
+    <ellipse cx="115" cy="90" rx="8" ry="13" fill="#25213d"/>
+    <circle cx="68" cy="87" r="3" fill="#f8f5ff"/>
+    <circle cx="118" cy="87" r="3" fill="#f8f5ff"/>
+    <path d="M57 63 Q68 55 78 61" fill="none" stroke="#403866" stroke-width="5" stroke-linecap="round"/>
+    <path d="M102 61 Q112 55 123 63" fill="none" stroke="#403866" stroke-width="5" stroke-linecap="round"/>
+    <path d="M66 119 Q90 132 114 119" fill="none" stroke="#403866" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="90" cy="166" r="13" fill="#e6e2ff" opacity=".75"/>
+    <path d="M75 207 Q90 216 105 207" fill="none" stroke="#b7b1d9" stroke-width="4" stroke-linecap="round"/>
+  </g>
+</svg>
