@@ -86,10 +86,18 @@ class _BloomState extends State<Bloom> with SingleTickerProviderStateMixin {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final available = math.min(constraints.maxWidth, 820.0);
-        final compact = available < 600;
-        final size = math.max(280.0, available);
-        final height = compact ? size * .98 : size * .82;
+        final availableWidth = math.min(constraints.maxWidth, 820.0);
+        final hasBoundedHeight = constraints.hasBoundedHeight;
+        final compact = availableWidth < 600;
+        final ratio = compact ? .98 : .82;
+        final heightLimitedSize = hasBoundedHeight
+            ? constraints.maxHeight / ratio
+            : double.infinity;
+        final size = math.max(
+          240.0,
+          math.min(availableWidth, heightLimitedSize),
+        );
+        final height = size * ratio;
 
         return SizedBox(
           width: size,
@@ -111,7 +119,8 @@ class _BloomState extends State<Bloom> with SingleTickerProviderStateMixin {
               ),
               _center(size, compact, t),
               ..._nodes(size, compact),
-              if (expanded != null) _suboptions(size, compact),
+              if (expanded == BloomCapability.analyze)
+                _suboptions(size, compact),
             ],
           ),
         );
