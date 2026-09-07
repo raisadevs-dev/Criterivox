@@ -2,7 +2,7 @@
 
 ## Status
 
-S4 establishes the first domain-backed Criterivox product workspace on top of the S3 application boundary. The branch is based directly on `main`, as required for the sprint.
+S4 establishes the first domain-backed Criterivox product workspace on top of the S3 application boundary.
 
 ## Product decision
 
@@ -156,6 +156,28 @@ S4 maps authoritative analysis task state to Dharen state:
 
 Flutter receives the semantic state. It does not invent the lifecycle.
 
+## Character animation stack
+
+The character presentation stack is intentionally lightweight and vector-first:
+
+```text
+Python semantic character state
+        ↓
+WebSocket runtime contract
+        ↓
+Dart PresentationState
+        ↓
+Flutter character renderer
+        ↓
+SVG artwork
+        ↓
+Visible character motion
+```
+
+Character artwork is authored/animated as vector source in **Glaxnimate**, exported as SVG assets, and rendered in Flutter. Flutter owns state-driven presentation motion, responsive layout and reduced-motion behavior. SVG artwork remains presentation data and does not own application behavior.
+
+Dharen and Syvax are the first characters on this vector pipeline. The surrounding workspace, Bloom, chat, task state and runtime contract remain unchanged.
+
 ## Chat status behavior
 
 A status question such as `What's the current state?` is answered from the stored task state. The response does not invent progress percentages, completion times, or unsupported internal operations.
@@ -196,7 +218,7 @@ Criterivox content is intentionally not copied from the reference's social-media
 
 ## Accessibility
 
-The existing character renderer remains semantic and state-labelled. The workspace uses readable labels and controls rather than making animation the sole state channel. The existing reduced-motion character path remains preserved through the presentation state contract.
+The character renderer remains semantic and state-labelled. The workspace uses readable labels and controls rather than making animation the sole state channel. The existing reduced-motion character path remains preserved through the presentation state contract.
 
 ## Security and validation
 
@@ -213,6 +235,7 @@ S4 adds tests for:
 - deterministic task execution
 - publish/state synchronization
 - application request compatibility
+- character presentation state rendering
 
 Existing S2/S3 tests remain part of the regression suite.
 
