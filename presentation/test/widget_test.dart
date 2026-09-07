@@ -13,6 +13,7 @@ void main() {
     expect(find.text('Bloom'), findsOneWidget);
     expect(find.text('Analysis Workspace'), findsOneWidget);
     expect(find.text('Character Chat'), findsOneWidget);
+    expect(find.text('App Introduction'), findsOneWidget);
   });
 
   testWidgets('navigation moves to the real workspace and chat surfaces', (tester) async {
@@ -42,5 +43,21 @@ void main() {
     await tester.pump();
     expect(find.text('Workspace'), findsOneWidget);
     expect(find.text('Chat'), findsOneWidget);
+  });
+
+  testWidgets('App Introduction explains both characters and implemented capabilities', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: CriterivoxShell(isDarkMode: true, connectRuntime: false),
+    ));
+    await tester.pump();
+
+    await tester.tap(find.text('App Introduction'));
+    await tester.pump();
+    expect(find.text('MEET THE MINDS'), findsOneWidget);
+    expect(find.text('SYVAX'), findsWidgets);
+    expect(find.text('DHAREN'), findsWidgets);
+    expect(find.text('WHAT YOU CAN DO'), findsOneWidget);
+    expect(find.text('Available now'), findsWidgets);
+    expect(find.text('Future'), findsWidgets);
   });
 }
