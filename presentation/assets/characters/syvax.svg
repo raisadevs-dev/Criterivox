@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Syvax</title>
+  <desc id="desc">Vector character artwork for the Criterivox dialogue character.</desc>
+  <defs>
+    <radialGradient id="orb" cx="30%" cy="25%">
+      <stop offset="0" stop-color="#514aab"/>
+      <stop offset="1" stop-color="#171a3d"/>
+    </radialGradient>
+  </defs>
+  <circle cx="60" cy="60" r="54" fill="url(#orb)" stroke="#9b83ff" stroke-width="3"/>
+  <path d="M29 44 Q39 38 48 43 M72 43 Q81 38 91 44" fill="none" stroke="#dcd6fa" stroke-width="3" stroke-linecap="round"/>
+  <ellipse cx="42" cy="55" rx="8" ry="13" fill="#f1eeff"/>
+  <ellipse cx="78" cy="55" rx="8" ry="13" fill="#f1eeff"/>
+  <circle cx="44" cy="58" r="4" fill="#17152e"/>
+  <circle cx="76" cy="58" r="4" fill="#17152e"/>
+  <path d="M39 78 Q60 92 81 78" fill="none" stroke="#dcd6fa" stroke-width="3" stroke-linecap="round"/>
+</svg>
