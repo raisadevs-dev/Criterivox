@@ -18,6 +18,7 @@ from criterivox.presentation.contract import PresentationContract
 MAX_REFERENCE_BYTES = 4 * 1024 * 1024
 MAX_REFERENCE_COUNT = 50
 MAX_REFERENCE_BATCH_BYTES = 8 * 1024 * 1024
+ALLOWED_CHAT_CHARACTERS = {"syvax", "dharen"}
 
 class AnalysisRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -58,7 +59,7 @@ class DharenRuntime:
             await self._transition(CharacterState.RECEIVE,event="ANALYSIS_REQUESTED",message="Dharen received the analysis request."); await asyncio.sleep(.25); await self._transition(CharacterState.WORK,event="ANALYSIS_STARTED",message="Dharen is analyzing the supplied data in context."); result=result or self._perform_synthetic_analysis(request); await asyncio.sleep(.75); await self._transition(CharacterState.COMMUNICATE,event="ANALYSIS_COMPLETED",message=f"Analysis completed: {result['data_items']} data items across {result['data_fields']} fields; {result['context_fields']} context fields considered."); await asyncio.sleep(.35); await self._transition(CharacterState.COMPLETE,event="ANALYSIS_COMPLETED",message="Dharen completed the requested analysis."); await asyncio.sleep(.35); await self._transition(CharacterState.IDLE,active=False,prominence=.25,event=None,message=None)
     @staticmethod
     def _perform_synthetic_analysis(request: AnalysisRequest)->dict[str,int]: return {"data_items":len(request.data),"data_fields":sum(len(x) if isinstance(x,dict) else 1 for x in request.data.values()),"context_fields":len(request.context)}
-    async def _transition(self,state:CharacterState,*,active:bool=True,prominence:float=.75,event:str|None,message:str|None)->None:
+    async def _transition(self,state:CharacterState,*,active:bool=True,prominence:float=.75,event:str|None=None,message:str|None=None)->None:
         activity=self._activity.set_state("Dharen",state); await self._connections.publish(PresentationContract.from_state(activity.character_id,activity.state,active=active,prominence=prominence,message=message,event=event))
 
 runtime_connections=RuntimeConnectionManager(); dharen_runtime=DharenRuntime(runtime_connections)
@@ -81,11 +82,8 @@ def _task_source(source:str)->AnalysisTaskSource:
 
 def _parse_chat_references(raw: Any) -> tuple[tuple[str, ...], tuple[AnalysisReference, ...]]:
     if raw is None: return (), ()
-    if not isinstance(raw, list) or len(raw) > MAX_REFERENCE_COUNT:
-        raise ValueError("Invalid reference list.")
-    names: list[str] = []
-    details: list[AnalysisReference] = []
-    total = 0
+    if not isinstance(raw, list) or len(raw) > MAX_REFERENCE_COUNT: raise ValueError("Invalid reference list.")
+    names: list[str] = []; details: list[AnalysisReference] = []; total = 0
     for index, item in enumerate(raw):
         if isinstance(item, str):
             name = item.strip()
@@ -113,26 +111,27 @@ async def handle_application_request(payload:Any)->None:
 
 async def handle_chat_message(payload:Any)->None:
     if not isinstance(payload,dict): raise ValueError("Malformed chat message.")
+    target = str(payload.get("target_character", "syvax")).strip().lower()
+    if target not in ALLOWED_CHAT_CHARACTERS: raise ValueError("Unknown chat character.")
     task_id=payload.get("task_id"); message=payload.get("message")
     if not isinstance(message,str) or not message.strip() or len(message)>2000: raise ValueError("Chat message is invalid.")
     interpretation=interpret_message(message)
     refs, details = _parse_chat_references(payload.get("references", []))
+    speaker = "Dharen" if target == "dharen" else "Syvax"
+    route_note = "Dharen is receiving this request directly." if target == "dharen" else "Syvax received this request and is routing analysis work to Dharen."
     if task_id is None:
         data=payload.get("data") if isinstance(payload.get("data"),dict) else {}; context=payload.get("context") if isinstance(payload.get("context"),dict) else {}
-        task=analysis_tasks.create_task(task=interpretation.normalized_text,data=data,context=context,source=AnalysisTaskSource.CHAT,references=refs,reference_details=details); await dharen_runtime.publish_task(task,message=f"Dharen received your analysis request from chat with {len(details)} reference(s).",event="CHAT_ANALYSIS_REQUESTED"); asyncio.create_task(analysis_tasks.execute(task.task_id)); return
+        task=analysis_tasks.create_task(task=interpretation.normalized_text,data=data,context=context,source=AnalysisTaskSource.CHAT,references=refs,reference_details=details); await dharen_runtime.publish_task(task,message=f"{speaker} received your request. {route_note}",event="CHAT_ANALYSIS_REQUESTED"); asyncio.create_task(analysis_tasks.execute(task.task_id)); return
     try: task=analysis_tasks.get_task(str(task_id))
     except Exception as exc: raise ValueError("Unknown analysis task.") from exc
     if details:
-        task.references = tuple(dict.fromkeys((*task.references, *refs)))
-        task.reference_details = (*task.reference_details, *details)
-        task.add_activity(f"Attached {len(details)} additional reference(s) to the task.")
-    task.add_activity(f"User asked Dharen: {interpretation.normalized_text}")
+        task.references = tuple(dict.fromkeys((*task.references, *refs))); task.reference_details = (*task.reference_details, *details); task.add_activity(f"Attached {len(details)} additional reference(s) to the task.")
+    task.add_activity(f"User asked {speaker}: {interpretation.normalized_text}")
     if interpretation.intent == "status":
-        await dharen_runtime.publish_task(task,message=f"The analysis is currently {task.state.value}. Dharen reports the authoritative task state.",event="TASK_STATUS_REQUESTED")
+        await dharen_runtime.publish_task(task,message=f"{speaker} reports the authoritative analysis state: {task.state.value}.",event="TASK_STATUS_REQUESTED")
     elif interpretation.intent == "continue":
-        await dharen_runtime.publish_task(task,message="The current analysis remains active. Dharen is continuing from the same task state and recorded evidence.",event="TASK_CONTINUE_REQUESTED")
+        await dharen_runtime.publish_task(task,message=f"{speaker} confirms the current analysis remains active. The same task state and evidence are preserved.",event="TASK_CONTINUE_REQUESTED")
     else:
-        task.add_activity("Follow-up received. The current S4 deterministic analysis does not mutate the recorded result from conversational text.")
-        await dharen_runtime.publish_task(task,message="I received that follow-up. The task remains grounded in its recorded data, context, and references.",event="TASK_FOLLOWUP_RECEIVED")
+        await dharen_runtime.publish_task(task,message=f"{speaker} received the follow-up. The task remains grounded in its recorded data, context, and references.",event="TASK_FOLLOWUP_RECEIVED")
 
 __all__=["AnalysisRequest","DharenRuntime","RuntimeConnectionManager","dharen_runtime","handle_application_request","handle_chat_message","parse_analysis_request","parse_application_request","runtime_connections","UnsupportedCapabilityError"]
