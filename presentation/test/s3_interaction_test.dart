@@ -11,8 +11,8 @@ void main() {
       home: Bloom(onSelected: (value) => selected = value),
     ));
 
-    expect(find.text('BLOOM'), findsOneWidget);
     expect(find.text('Analyze'), findsOneWidget);
+    expect(find.text('Compare'), findsOneWidget);
     await tester.tap(find.text('Analyze'));
     expect(selected, BloomCapability.analyze);
   });
