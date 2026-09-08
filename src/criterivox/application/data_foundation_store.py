@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
+
 from .data_foundation import DataFoundationService
-from .data_intake import ingest_sources
-from criterivox.domain.data_foundation import ConfirmationStatus, DataFoundation
+from .data_intake import ingest_folder_path, ingest_sources
+from criterivox.domain.data_foundation import DataFoundation
 
 
 @dataclass
@@ -19,6 +20,11 @@ class DataFoundationStore:
         self.items[item.foundation_id] = item
         return item
 
+    def ingest_folder(self, payload: dict) -> DataFoundation:
+        item = ingest_folder_path(payload)
+        self.items[item.foundation_id] = item
+        return item
+
     def confirm(self, foundation_id: str, action: str, candidate_ids: tuple[str, ...] = ()) -> DataFoundation:
         item = self.get(foundation_id)
         item = DataFoundationService().confirm(item, action=action, candidate_ids=candidate_ids)
@@ -28,7 +34,7 @@ class DataFoundationStore:
     def handoff(self, foundation_id: str, recipient: str = "dharen"):
         item = self.get(foundation_id)
         handoff = DataFoundationService().handoff(item, recipient)
-        self.items[foundation_id] = replace(item, handoff_ready=True)
+        self.items[foundation_id] = item.__class__(**{**item.__dict__, "handoff_ready": True}) if hasattr(item, "__dict__") else item
         return handoff
 
     def get(self, foundation_id: str) -> DataFoundation:
