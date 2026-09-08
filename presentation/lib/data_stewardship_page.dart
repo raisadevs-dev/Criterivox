@@ -1,0 +1,74 @@
+import 'dart:convert';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'presentation/criterivox_theme.dart';
+import 'presentation/presentation_state.dart';
+import 'presentation/runtime_client.dart';
+
+class DataStewardshipPage extends StatefulWidget {
+  final PresentationState? state;
+  final CharacterRuntimeClient runtime;
+  const DataStewardshipPage({super.key, required this.state, required this.runtime});
+  @override State<DataStewardshipPage> createState() => _DataStewardshipPageState();
+}
+
+class _DataStewardshipPageState extends State<DataStewardshipPage> {
+  final _text = TextEditingController();
+  final List<Map<String,dynamic>> _sources = [];
+  String? _foundationId;
+
+  @override void dispose(){_text.dispose();super.dispose();}
+
+  Future<void> _files() async {
+    final result = await FilePicker.platform.pickFiles(withData: true, allowMultiple: true);
+    if (result == null) return;
+    setState(() {
+      _sources.addAll(result.files.map((file) => {
+        'name': file.name, 'source_type': 'file', 'channel': 'file',
+        'content': file.bytes == null ? null : utf8.decode(file.bytes!, allowMalformed: true),
+      }));
+    });
+  }
+
+  Future<void> _folder() async {
+    final path = await FilePicker.platform.getDirectoryPath();
+    if (path == null) return;
+    setState(() => _sources.add({'name': path.split(RegExp(r'[/\\]')).last, 'source_type': 'folder_collection', 'channel': 'folder', 'location': path}));
+  }
+
+  void _textSource(){
+    final value=_text.text.trim(); if(value.isEmpty)return;
+    setState((){_sources.add({'name':'Direct text input ${_sources.length+1}','source_type':'text','channel':'text','content':value});_text.clear();});
+  }
+
+  void _ingest(){if(_sources.isEmpty)return;widget.runtime.ingestData(sources:List<Map<String,dynamic>>.from(_sources),suppliedContext:{'entered_through':'Data Stewardship'});}
+  void _action(String action){final id=_foundationId??widget.state?.foundationId;if(id==null)return;widget.runtime.dataAction(foundationId:id,action:action);}
+
+  @override Widget build(BuildContext context){
+    final t=CriterivoxTheme.of(context); final s=widget.state;
+    if(s?.foundationId!=null)_foundationId=s!.foundationId;
+    final isSandre=s?.agentId.toLowerCase()=='sandre';
+    final confirm=s?.foundationConfirmation??'uncertain';
+    return LayoutBuilder(builder:(context,c){final narrow=c.maxWidth<1050;return SingleChildScrollView(padding:const EdgeInsets.fromLTRB(22,20,22,30),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+      Row(children:[Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('Data Stewardship',style:TextStyle(color:t.text,fontSize:25,fontWeight:FontWeight.w800)),const SizedBox(height:4),Text("Sandre's home • safeguard the foundation before downstream work",style:TextStyle(color:t.mutedText,fontSize:11))])),if(isSandre)_StatePill(s!.characterState,t)],),const SizedBox(height:16),
+      _Pipeline(state:s,t:t),const SizedBox(height:14),
+      if(narrow) ...[_Intake(sources:_sources,onFiles:_files,onFolder:_folder,onText:_textSource,text:_text,onIngest:_ingest,t:t),const SizedBox(height:12),_Review(s:s,confirm:confirm,onAction:_action,t:t)] else Row(crossAxisAlignment:CrossAxisAlignment.start,children:[Expanded(child:_Intake(sources:_sources,onFiles:_files,onFolder:_folder,onText:_textSource,text:_text,onIngest:_ingest,t:t)),const SizedBox(width:12),Expanded(child:_Review(s:s,confirm:confirm,onAction:_action,t:t))]),
+      const SizedBox(height:14),_Quality(s:s,t:t),const SizedBox(height:14),_Sandre(s:s,t:t),
+    ]));});
+  }
+}
+
+class _Pipeline extends StatelessWidget{final PresentationState? state;final CriterivoxTheme t;const _Pipeline({required this.state,required this.t});@override Widget build(BuildContext context){final steps=['MATERIAL','EXTRACT','INSPECT','CONFIRM','VALIDATE','PREPARE','SAFEGUARD'];final current=(state?.characterState??'IDLE').toUpperCase();final active=current=='RECEIVE'?1:current=='WORK'?2:current=='COMMUNICATE'?3:current=='HANDOFF'?7:current=='COMPLETE'?7:0;return Wrap(spacing:7,runSpacing:7,children:[for(var i=0;i<steps.length;i++)Container(width:110,height:58,padding:const EdgeInsets.all(9),decoration:BoxDecoration(color:i<=active?t.primary.withValues(alpha:.13):t.surface,borderRadius:BorderRadius.circular(10),border:Border.all(color:i<=active?t.primary:t.border)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Icon(i<=active?Icons.check_circle_outline:Icons.radio_button_unchecked,size:16,color:i<=active?t.primary:t.mutedText),const SizedBox(height:5),Text(steps[i],style:TextStyle(color:t.text,fontSize:8,fontWeight:FontWeight.w800,letterSpacing:.6))]))]);}}
+
+class _Intake extends StatelessWidget{final List<Map<String,dynamic>> sources;final VoidCallback onFiles,onFolder,onText,onIngest;final TextEditingController text;final CriterivoxTheme t;const _Intake({required this.sources,required this.onFiles,required this.onFolder,required this.onText,required this.text,required this.onIngest,required this.t});@override Widget build(BuildContext context)=>_Panel('Material Intake',t,Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Wrap(spacing:7,runSpacing:7,children:[_Button('Upload Files',Icons.upload_file,onFiles,t),_Button('Add Folder',Icons.folder_open,onFolder,t)]),const SizedBox(height:10),TextField(controller:text,maxLines:3,decoration:const InputDecoration(labelText:'Direct text / context',hintText:'Paste material or user-supplied context here')),const SizedBox(height:7),Row(children:[OutlinedButton.icon(onPressed:onText,icon:const Icon(Icons.add,size:15),label:const Text('Add text')),const Spacer(),FilledButton.icon(onPressed:sources.isEmpty?null:onIngest,icon:const Icon(Icons.play_arrow,size:15),label:const Text('Receive material'))]),const SizedBox(height:12),Text('${sources.length} source(s) staged',style:TextStyle(color:t.mutedText,fontSize:10)),for(final source in sources.take(8))ListTile(dense:true,contentPadding:EdgeInsets.zero,leading:Icon(source['source_type']=='folder_collection'?Icons.folder:Icons.description_outlined,size:18,color:t.primary),title:Text('${source['name']}',style:TextStyle(color:t.text,fontSize:10)),subtitle:Text('${source['channel']} • original preserved',style:TextStyle(color:t.mutedText,fontSize:8)))]));}
+
+class _Review extends StatelessWidget{final PresentationState? s;final String confirm;final void Function(String) onAction;final CriterivoxTheme t;const _Review({required this.s,required this.confirm,required this.onAction,required this.t});@override Widget build(BuildContext context){final count=s?.foundationCandidateCount??0;final ready=s?.foundationId!=null;return _Panel('User Reconfirmation',t,Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(ready?'Sandre found $count candidate item(s). Review what was extracted before handoff.':'No material has reached extraction yet.',style:TextStyle(color:t.text,fontSize:12,height:1.4)),const SizedBox(height:12),_Meta('Foundation',s?.foundationId??'Waiting',t),_Meta('Confirmation',confirm,t),_Meta('Sources','${s?.foundationSourceCount??0}',t),const SizedBox(height:12),Wrap(spacing:6,runSpacing:6,children:[OutlinedButton(onPressed:ready?()=>onAction('confirm'):null,child:const Text('Confirm')),OutlinedButton(onPressed:ready?()=>onAction('correct'):null,child:const Text('Correct')),OutlinedButton(onPressed:ready?()=>onAction('exclude'):null,child:const Text('Exclude')),FilledButton.icon(onPressed:confirm=='user-confirmed'||confirm=='user-corrected'?()=>onAction('handoff'):null,icon:const Icon(Icons.send,size:15),label:const Text('Handoff to Dharen'))]) ]));}}
+
+class _Quality extends StatelessWidget{final PresentationState? s;final CriterivoxTheme t;const _Quality({required this.s,required this.t});@override Widget build(BuildContext context)=>_Panel('Data Quality',t,Row(children:[Icon(s?.event=='EXTRACTION_FAILED'?Icons.warning_amber_rounded:Icons.verified_outlined,color:s?.event=='EXTRACTION_FAILED'?t.warning:t.success,size:20),const SizedBox(width:9),Expanded(child:Text(s?.message??'Waiting for material. Raw source and lineage are preserved before transformation.',style:TextStyle(color:t.mutedText,fontSize:10,height:1.4)))]));}
+
+class _Sandre extends StatelessWidget{final PresentationState? s;final CriterivoxTheme t;const _Sandre({required this.s,required this.t});@override Widget build(BuildContext context)=>_Panel('Sandre',t,Row(children:[Container(width:90,height:90,decoration:BoxDecoration(borderRadius:BorderRadius.circular(14),border:Border.all(color:t.border)),child:Icon(Icons.person_outline_rounded,size:45,color:t.primary)),const SizedBox(width:16),Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('SANDRE',style:TextStyle(color:t.text,fontSize:16,fontWeight:FontWeight.w800)),Text('Data Stewardship • House Owner',style:TextStyle(color:t.primary,fontSize:10)),const SizedBox(height:8),Text(s?.agentId.toLowerCase()=='sandre'?(s?.message??'Safeguarding the foundation.'):'Sandre is ready to receive foundational material.',style:TextStyle(color:t.mutedText,fontSize:10,height:1.4))]))]));}
+
+class _StatePill extends StatelessWidget{final String state;final CriterivoxTheme t;const _StatePill(this.state,this.t);@override Widget build(BuildContext context)=>Container(padding:const EdgeInsets.symmetric(horizontal:10,vertical:6),decoration:BoxDecoration(borderRadius:BorderRadius.circular(20),border:Border.all(color:t.primary)),child:Text(state,style:TextStyle(color:t.primary,fontSize:9,fontWeight:FontWeight.w800)));}
+class _Panel extends StatelessWidget{final String title;final CriterivoxTheme t;final Widget child;const _Panel(this.title,this.t,this.child);@override Widget build(BuildContext context)=>Container(padding:const EdgeInsets.all(14),decoration:BoxDecoration(color:t.surface,borderRadius:BorderRadius.circular(14),border:Border.all(color:t.border)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(title,style:TextStyle(color:t.text,fontSize:12,fontWeight:FontWeight.w700)),const SizedBox(height:11),child]));}
+class _Meta extends StatelessWidget{final String a,b;final CriterivoxTheme t;const _Meta(this.a,this.b,this.t);@override Widget build(BuildContext context)=>Padding(padding:const EdgeInsets.only(bottom:8),child:Row(children:[SizedBox(width:90,child:Text(a,style:TextStyle(color:t.mutedText,fontSize:9))),Expanded(child:Text(b,style:TextStyle(color:t.text,fontSize:10,fontWeight:FontWeight.w700)))]));}
+class _Button extends StatelessWidget{final String label;final IconData icon;final VoidCallback onTap;final CriterivoxTheme t;const _Button(this.label,this.icon,this.onTap,this.t);@override Widget build(BuildContext context)=>OutlinedButton.icon(onPressed:onTap,icon:Icon(icon,size:15),label:Text(label));}
