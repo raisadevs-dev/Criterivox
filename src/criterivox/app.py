@@ -8,11 +8,10 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from .config import settings
+from .domain.analysis import AnalysisTaskSource
 from .domain.characters import CharacterState
-from .domain.data_foundation import ConfirmationStatus
 from .application.analysis_tasks import analysis_tasks
 from .application.data_foundation_store import data_foundations
-from .application.data_intake import ingest_folder_path
 from .infrastructure.runtime import dharen_runtime, handle_application_request, handle_chat_message, parse_analysis_request, runtime_connections
 from .logging_config import configure_logging
 from .presentation.contract import PresentationContract
@@ -36,20 +35,11 @@ async def _safe_request(handler, payload: dict) -> None:
         await runtime_connections.publish(PresentationContract.from_state("Dharen", CharacterState.WARNING, active=True, prominence=.85, message=f"Runtime could not complete that request: {exc}", event="RUNTIME_ERROR"))
 
 async def _publish_foundation_state(character: str, state: CharacterState, message: str, event: str, foundation) -> None:
-    await runtime_connections.publish(PresentationContract.from_state(
-        character, state, active=True, prominence=.9, message=message, event=event,
-        foundation_id=foundation.foundation_id,
-        foundation_source_count=len(foundation.sources),
-        foundation_candidate_count=len(foundation.candidates),
-        foundation_confirmation=foundation.confirmation_status.value,
-    ))
+    await runtime_connections.publish(PresentationContract.from_state(character, state, active=True, prominence=.9, message=message, event=event, foundation_id=foundation.foundation_id, foundation_source_count=len(foundation.sources), foundation_candidate_count=len(foundation.candidates), foundation_confirmation=foundation.confirmation_status.value))
 
 async def _safe_data_intake(payload: dict) -> None:
     try:
-        if payload.get("folder_path"):
-            foundation = data_foundations.ingest(ingest_folder_path(payload).to_dict())
-        else:
-            foundation = data_foundations.ingest(payload)
+        foundation = data_foundations.ingest_folder(payload) if payload.get("folder_path") else data_foundations.ingest(payload)
         await _publish_foundation_state("sandre", CharacterState.RECEIVE, f"Received {len(foundation.sources)} source(s). Python preserved the selected material before extraction.", "MATERIAL_RECEIVED", foundation)
         await asyncio.sleep(.12)
         await _publish_foundation_state("sandre", CharacterState.WORK, f"Extracted {len(foundation.candidates)} candidate item(s) with source lineage preserved.", "EXTRACTION_COMPLETED", foundation)
@@ -63,7 +53,6 @@ async def _safe_data_action(payload: dict) -> None:
     try:
         foundation_id = payload.get("foundation_id")
         action = payload.get("action")
-        foundation = data_foundations.get(str(foundation_id))
         if action in {"confirm", "correct", "exclude", "add", "irrelevant", "clarify"}:
             foundation = data_foundations.confirm(str(foundation_id), action, tuple(payload.get("candidate_ids", ())))
             await _publish_foundation_state("sandre", CharacterState.COMMUNICATE, f"Recorded user review as {foundation.confirmation_status.value}. The source remains preserved.", f"USER_INFORMATION_{action.upper()}", foundation)
@@ -71,14 +60,7 @@ async def _safe_data_action(payload: dict) -> None:
         if action == "handoff":
             handoff = data_foundations.handoff(str(foundation_id), str(payload.get("recipient", "dharen")))
             foundation = data_foundations.get(str(foundation_id))
-            task = analysis_tasks.create_task(
-                task="Analyze the curated S5 foundation in its supplied research context.",
-                data={"foundation_id": foundation.foundation_id, "canonical_rows": len(foundation.canonical_data)},
-                context=foundation.supplied_context,
-                source=__import__("criterivox.domain.analysis", fromlist=["AnalysisTaskSource"]).AnalysisTaskSource.BLOOM,
-                references=tuple(s.source_id for s in foundation.sources),
-                data_foundation=foundation,
-            )
+            task = analysis_tasks.create_task(task="Analyze the curated S5 foundation in its supplied research context.", data={"foundation_id": foundation.foundation_id, "canonical_rows": len(foundation.canonical_data)}, context=foundation.supplied_context, source=AnalysisTaskSource.BLOOM, references=tuple(s.source_id for s in foundation.sources), data_foundation=foundation)
             await _publish_foundation_state("sandre", CharacterState.HANDOFF, f"Safeguarded foundation {handoff.foundation_id} is ready for Dharen as task {task.task_id}.", "SANDRE_HANDOFF_READY", foundation)
             await asyncio.sleep(.15)
             await dharen_runtime.publish_task(task, message="Dharen received the curated S5 foundation from Sandre.", event="DHAREN_HANDOFF_READY")
@@ -97,9 +79,7 @@ async def character_runtime(websocket: WebSocket) -> None:
             payload = await websocket.receive_json()
             if isinstance(payload, dict) and payload.get("type") == "chat_message":
                 asyncio.create_task(_safe_request(handle_chat_message, payload))
-            elif isinstance(payload, dict) and payload.get("type") == "data_intake":
-                asyncio.create_task(_safe_data_intake(payload))
-            elif isinstance(payload, dict) and payload.get("type") == "data_folder":
+            elif isinstance(payload, dict) and payload.get("type") in {"data_intake", "data_folder"}:
                 asyncio.create_task(_safe_data_intake(payload))
             elif isinstance(payload, dict) and payload.get("type") == "data_action":
                 asyncio.create_task(_safe_data_action(payload))
