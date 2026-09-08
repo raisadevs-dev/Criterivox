@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-/// Crops one state from the supplied six-frame character sheet SVG.
+/// Renders one state from a supplied six-frame character sheet.
 /// Frame order: IDLE, RECEIVE, WORK, COMMUNICATE, HANDOFF, COMPLETE.
 class CharacterFrame extends StatelessWidget {
   final String asset;
   final int index;
   final double width;
   final double height;
+  final String? fallbackAsset;
 
   const CharacterFrame({
     super.key,
@@ -15,6 +16,7 @@ class CharacterFrame extends StatelessWidget {
     required this.index,
     this.width = 64,
     this.height = 94,
+    this.fallbackAsset,
   });
 
   @override
@@ -23,6 +25,22 @@ class CharacterFrame extends StatelessWidget {
     final column = safeIndex % 3;
     final row = safeIndex ~/ 3;
     final scale = width / 64;
+
+    Widget image(String source, {bool fallback = false}) => SvgPicture.asset(
+          source,
+          width: 192,
+          height: 188,
+          fit: BoxFit.fill,
+          semanticsLabel: fallback
+              ? 'Character idle fallback frame'
+              : 'Character animation frame',
+          errorBuilder: (context, error, stackTrace) {
+            if (!fallback && fallbackAsset != null && fallbackAsset != source) {
+              return image(fallbackAsset!, fallback: true);
+            }
+            return const Center(child: Icon(Icons.person_outline_rounded));
+          },
+        );
 
     return SizedBox(
       width: width,
@@ -34,13 +52,7 @@ class CharacterFrame extends StatelessWidget {
           child: Transform.scale(
             alignment: Alignment.topLeft,
             scale: scale,
-            child: SvgPicture.asset(
-              asset,
-              width: 192,
-              height: 188,
-              fit: BoxFit.fill,
-              semanticsLabel: 'Character animation frame',
-            ),
+            child: image(asset),
           ),
         ),
       ),
