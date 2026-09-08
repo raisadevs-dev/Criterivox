@@ -4,25 +4,20 @@ from criterivox.domain.data_foundation import ConfirmationStatus, SourceType
 
 
 def test_ingest_preserves_source_and_candidate_provenance():
-    foundation = DataFoundationService().ingest(
-        name="sample.txt", channel="file", source_type=SourceType.FILE,
-        raw_content="alpha\n beta ", supplied_context={"purpose": "synthetic"},
-    )
+    foundation = DataFoundationService().ingest(name="sample.txt", channel="file", source_type=SourceType.FILE, raw_content="alpha\n beta ", supplied_context={"purpose": "synthetic"})
     assert len(foundation.sources) == 1
     assert foundation.sources[0].raw_content == "alpha\n beta "
     assert len(foundation.candidates) == 2
     assert foundation.candidates[0].provenance.source_id == foundation.sources[0].source_id
-    assert foundation.transformed if False else True
+    assert foundation.transformation_count if False else len(foundation.transformations) > 0
     assert foundation.confirmation_status is ConfirmationStatus.SYSTEM_EXTRACTED
 
 
 def test_collection_preserves_multiple_sources():
-    foundation = ingest_sources({
-        "sources": [
-            {"name": "a.txt", "source_type": "file", "channel": "file", "content": "one"},
-            {"name": "b.txt", "source_type": "file", "channel": "file", "content": "two"},
-        ]
-    })
+    foundation = ingest_sources({"sources": [
+        {"name": "a.txt", "source_type": "file", "channel": "file", "content": "one"},
+        {"name": "b.txt", "source_type": "file", "channel": "file", "content": "two"},
+    ]})
     assert len(foundation.sources) == 2
     assert foundation.sources[0].provenance.source_id == foundation.sources[0].source_id
     assert foundation.sources[0].parent_source_id is not None
