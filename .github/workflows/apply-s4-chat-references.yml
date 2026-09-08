@@ -1,0 +1,33 @@
+name: Apply S4 chat reference integration
+
+on:
+  push:
+    branches:
+      - s4-domain-analysis-workspace
+    paths:
+      - 'tools/s4_reference_chat_patch.py'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: s4-domain-analysis-workspace
+          fetch-depth: 0
+      - name: Apply integration patch
+        run: python tools/s4_reference_chat_patch.py
+      - name: Commit integration
+        run: |
+          if git diff --quiet; then
+            echo 'Chat reference integration is already applied.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add presentation/lib/main.dart presentation/pubspec.yaml
+          git commit -m 'S4: connect chatbox reference attachments'
+          git push origin HEAD:s4-domain-analysis-workspace

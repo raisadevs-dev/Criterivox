@@ -7,9 +7,21 @@ name = "criterivox"
 version = "0.1.0"
 description = "Research-driven, context-aware intelligence and decision-support system."
 requires-python = ">=3.13,<3.14"
-dependencies = ["pydantic-settings>=2,<3","fastapi[standard]",]
+dependencies = [
+    "fastapi[standard]>=0.115,<1",
+    "pydantic>=2,<3",
+    "pydantic-settings>=2,<3",
+]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=8,<10"
+    "pytest>=8,<10",
 ]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.setuptools.packages.find]
+where = ["src"]

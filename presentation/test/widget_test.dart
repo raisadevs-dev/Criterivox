@@ -1,47 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:presentation/main.dart';
+import 'package:presentation/app_shell.dart';
 
 void main() {
-  testWidgets(
-    'Criterivox presentation renders the runtime character shell',
-    (WidgetTester tester) async {
-      await tester.pumpWidget(const CriterivoxApp());
+  testWidgets('Criterivox opens on Bloom and exposes navigation', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: CriterivoxShell(isDarkMode: true, connectRuntime: false),
+    ));
+    await tester.pump();
 
-      expect(find.text('Criterivox'), findsOneWidget);
-      expect(find.text('Runtime Character Interaction'), findsOneWidget);
-      expect(find.text('Synthetic data (JSON object)'), findsOneWidget);
-      expect(find.text('Synthetic context (JSON object)'), findsOneWidget);
-      expect(find.text('Task'), findsOneWidget);
-      expect(find.text('Send analysis request to Python'), findsOneWidget);
-      expect(
-        find.textContaining('Waiting for the Python runtime connection'),
-        findsOneWidget,
-      );
-    },
-  );
+    expect(find.text('Criterivox'), findsOneWidget);
+    expect(find.text('Bloom'), findsOneWidget);
+    expect(find.text('Analysis Workspace'), findsOneWidget);
+    expect(find.text('Character Chat'), findsOneWidget);
+    expect(find.text('App Introduction'), findsOneWidget);
+  });
 
-  testWidgets(
-    'Criterivox presentation exposes the runtime analysis action',
-    (WidgetTester tester) async {
-      await tester.pumpWidget(const CriterivoxApp());
+  testWidgets('navigation moves to the real workspace and chat surfaces', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: CriterivoxShell(isDarkMode: true, connectRuntime: false),
+    ));
+    await tester.pump();
 
-      final button = find.widgetWithText(
-        FilledButton,
-        'Send analysis request to Python',
-      );
-      expect(button, findsOneWidget);
-    },
-  );
+    await tester.tap(find.text('Analysis Workspace'));
+    await tester.pumpAndSettle();
+    expect(find.text('Analysis Workspace'), findsWidgets);
+    expect(find.text('Start Analysis'), findsOneWidget);
 
-  testWidgets(
-    'Criterivox presentation provides accessible runtime status',
-    (WidgetTester tester) async {
-      await tester.pumpWidget(const CriterivoxApp());
+    await tester.tap(find.text('Character Chat'));
+    await tester.pumpAndSettle();
+    expect(find.text('Chat with Syvax'), findsOneWidget);
+    expect(find.text('CHARACTER NETWORK'), findsOneWidget);
+  });
 
-      expect(find.bySemanticsLabel('Dharen status'), findsNothing);
-      expect(find.bySemanticsLabel('Runtime error'), findsNothing);
-    },
-  );
+  testWidgets('Bloom Analyze expands only its relevant paths', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: CriterivoxShell(isDarkMode: true, connectRuntime: false),
+    ));
+    await tester.pump();
+
+    await tester.tap(find.text('Analyze').first);
+    await tester.pump();
+    expect(find.text('Workspace'), findsOneWidget);
+    expect(find.text('Chat'), findsOneWidget);
+  });
+
+  testWidgets('App Introduction explains both characters and implemented capabilities', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: CriterivoxShell(isDarkMode: true, connectRuntime: false),
+    ));
+    await tester.pump();
+
+    await tester.tap(find.text('App Introduction'));
+    await tester.pump();
+    expect(find.text('MEET THE MINDS'), findsOneWidget);
+    expect(find.text('SYVAX'), findsWidgets);
+    expect(find.text('DHAREN'), findsWidgets);
+    expect(find.text('WHAT YOU CAN DO'), findsOneWidget);
+    expect(find.text('Available now'), findsWidgets);
+    expect(find.text('Future'), findsWidgets);
+  });
 }

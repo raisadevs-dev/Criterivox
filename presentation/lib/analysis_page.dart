@@ -1,0 +1,77 @@
+import 'package:flutter/material.dart';
+import 'character/character_presentation.dart';
+import 'presentation/presentation_state.dart';
+import 'presentation/criterivox_theme.dart';
+
+class AnalysisPage extends StatelessWidget {
+  final PresentationState? state;
+  final bool busy;
+  final TextEditingController task, data, contextText;
+  final VoidCallback onStart, onChat;
+  const AnalysisPage({super.key, required this.state, required this.busy, required this.task, required this.data, required this.contextText, required this.onStart, required this.onChat});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context); final s = state;
+    return LayoutBuilder(builder: (context, constraints) {
+      final narrow = constraints.maxWidth < 1000;
+      return SingleChildScrollView(padding: const EdgeInsets.fromLTRB(22, 20, 22, 30), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        _Header(s: s, onChat: onChat), const SizedBox(height: 18),
+        if (s == null) _Form(task: task, data: data, ctx: contextText, busy: busy, start: onStart) else ...[
+          _TaskHeader(s), const SizedBox(height: 14), _Kpis(s), const SizedBox(height: 14),
+          if (narrow) Column(children: [
+            _Panel('Data & Context', _DataContext(s)), const SizedBox(height: 12),
+            _Panel('Analysis Overview', _ObservationChart(s)), const SizedBox(height: 12),
+            _Panel('Recent Observations', _Observations(s)),
+          ]) else Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Expanded(child: _Panel('Data & Context', _DataContext(s))), const SizedBox(width: 12),
+            Expanded(flex: 2, child: _Panel('Analysis Overview', _ObservationChart(s))), const SizedBox(width: 12),
+            Expanded(child: _Panel('Recent Observations', _Observations(s))),
+          ]),
+          const SizedBox(height: 14), _Dharen(s, onChat: onChat), const SizedBox(height: 14),
+          Wrap(spacing: 12, runSpacing: 12, children: [
+            SizedBox(width: narrow ? constraints.maxWidth : (constraints.maxWidth - 24) / 3, child: _Panel('Task Lifecycle', _Lifecycle(s))),
+            SizedBox(width: narrow ? constraints.maxWidth : (constraints.maxWidth - 24) / 3, child: _Panel('Activity Feed', _Activity(s))),
+            SizedBox(width: narrow ? constraints.maxWidth : (constraints.maxWidth - 24) / 3, child: _Panel('Quick Stats', _QuickStats(s))),
+            SizedBox(width: narrow ? constraints.maxWidth : (constraints.maxWidth - 24) / 3, child: _Panel('Data Quality', _Quality(s))),
+          ]),
+        ],
+      ]));
+    });
+  }
+}
+
+class _Header extends StatelessWidget {
+  final PresentationState? s; final VoidCallback onChat;
+  const _Header({required this.s, required this.onChat});
+  @override Widget build(BuildContext context) { final t=CriterivoxTheme.of(context); return Row(children: [Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Analysis Workspace',style:TextStyle(color:t.text,fontSize:23,fontWeight:FontWeight.w700)),const SizedBox(height:4),Text("Dharen's Home  •  One task, shared across Workspace and Chat",style:TextStyle(color:t.mutedText,fontSize:11))])), OutlinedButton.icon(onPressed:onChat,icon:const Icon(Icons.forum_outlined,size:16),label:const Text('Chat with Dharen'))]); }
+}
+
+class _TaskHeader extends StatelessWidget {
+  final PresentationState s; const _TaskHeader(this.s);
+  @override Widget build(BuildContext context) { final t=CriterivoxTheme.of(context); return Container(padding:const EdgeInsets.all(16),decoration:BoxDecoration(color:t.surfaceStrong,borderRadius:BorderRadius.circular(16),border:Border.all(color:t.border)),child:Wrap(spacing:28,runSpacing:12,children:[_item('TASK ID',s.taskId??'UNKNOWN',t),_item('TASK',s.task??'Unnamed task',t),_item('STATUS',s.taskState??'UNKNOWN',t),_item('CREATED',_time(s.taskCreatedAt),t),_item('LAST UPDATE',_time(s.taskUpdatedAt),t)])); }
+  Widget _item(String label,String value,CriterivoxTheme t)=>SizedBox(width:145,child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(label,style:TextStyle(color:t.mutedText,fontSize:8,fontWeight:FontWeight.w700,letterSpacing:.8)),const SizedBox(height:5),Text(value,overflow:TextOverflow.ellipsis,maxLines:2,style:TextStyle(color:t.text,fontSize:11,fontWeight:FontWeight.w700))]));
+  String _time(String? raw){if(raw==null)return 'Not available';final parsed=DateTime.tryParse(raw);return parsed==null?raw:parsed.toLocal().toString().split('.').first;}
+}
+
+class _Kpis extends StatelessWidget { final PresentationState s; const _Kpis(this.s); @override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);final p=_progress(s.taskState);return Container(padding:const EdgeInsets.all(15),decoration:BoxDecoration(color:t.surface,borderRadius:BorderRadius.circular(14),border:Border.all(color:t.border)),child:Wrap(spacing:24,runSpacing:12,children:[_k('Overall Progress','${(p*100).round()}%',t),_k('Current Stage',s.taskState??'READY',t),_k('Data Items','${s.taskDataFields??0}',t),_k('Observations','${s.observations.length}',t),_k('Findings','${s.findings.length}',t),_k('References','${s.evidence.length}',t)]));} Widget _k(String a,String b,CriterivoxTheme t)=>SizedBox(width:120,child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(a,style:TextStyle(color:t.mutedText,fontSize:8)),const SizedBox(height:5),Text(b,overflow:TextOverflow.ellipsis,style:TextStyle(color:t.text,fontSize:14,fontWeight:FontWeight.w700))]));}
+
+double _progress(String? state){switch(state){case 'CREATED':return .05;case 'RECEIVED':return .15;case 'VALIDATING':return .30;case 'PROCESSING':return .50;case 'ANALYZING':return .70;case 'RESULT_READY':return .90;case 'COMPLETED':return 1;default:return 0;}}
+
+class _DataContext extends StatelessWidget { final PresentationState s; const _DataContext(this.s); @override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);return Column(crossAxisAlignment:CrossAxisAlignment.start,children:[_line('Data source',s.taskSource??'unknown',t),_line('Data fields','${s.taskDataFields??0}',t),_line('Context fields','${s.taskContextFields??0}',t),_line('References','${s.evidence.length}',t),_line('Task context',s.task??'not supplied',t)]);} Widget _line(String a,String b,CriterivoxTheme t)=>Padding(padding:const EdgeInsets.only(bottom:9),child:Row(crossAxisAlignment:CrossAxisAlignment.start,children:[SizedBox(width:92,child:Text(a,style:TextStyle(color:t.mutedText,fontSize:9))),Expanded(child:Text(b,style:TextStyle(color:t.text,fontSize:10,fontWeight:FontWeight.w600)))]));}
+
+class _ObservationChart extends StatelessWidget { final PresentationState s; const _ObservationChart(this.s); @override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);final values=[s.observations.length,s.findings.length,s.evidence.length];final max=values.fold<int>(1,(a,b)=>a>b?a:b);return Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[SizedBox(height:150,child:Row(crossAxisAlignment:CrossAxisAlignment.end,children:[for(var i=0;i<values.length;i++)Expanded(child:Padding(padding:const EdgeInsets.symmetric(horizontal:12),child:Column(mainAxisAlignment:MainAxisAlignment.end,children:[Text('${values[i]}',style:TextStyle(color:t.text,fontSize:12,fontWeight:FontWeight.w700)),const SizedBox(height:5),AnimatedContainer(duration:const Duration(milliseconds:300),height:90*values[i]/max,decoration:BoxDecoration(color:t.primary.withValues(alpha:.65),borderRadius:BorderRadius.circular(8))),const SizedBox(height:7),Text(['Observations','Findings','Evidence'][i],textAlign:TextAlign.center,style:TextStyle(color:t.mutedText,fontSize:8.5))])))])),const SizedBox(height:6),Text('Counts are derived from the authoritative runtime result, not generated chart values.',style:TextStyle(color:t.mutedText,fontSize:9))]);}}
+
+class _Observations extends StatelessWidget { final PresentationState s; const _Observations(this.s); @override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);if(s.observations.isEmpty)return Text('No observations have arrived yet.',style:TextStyle(color:t.mutedText,fontSize:10));return Column(crossAxisAlignment:CrossAxisAlignment.start,children:[for(final o in s.observations.take(6))Padding(padding:const EdgeInsets.only(bottom:9),child:Text('• ${o['text']??''}',style:TextStyle(color:t.mutedText,fontSize:9.5,height:1.35)))]);}}
+
+class _Dharen extends StatelessWidget { final PresentationState s; final VoidCallback onChat; const _Dharen(this.s,{required this.onChat}); @override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);return Container(padding:const EdgeInsets.all(18),constraints:const BoxConstraints(minHeight:330),decoration:BoxDecoration(color:t.surface,borderRadius:BorderRadius.circular(16),border:Border.all(color:t.border),boxShadow:[BoxShadow(color:Color(0x12000000),blurRadius:30)]),child:LayoutBuilder(builder:(context,c){final narrow=c.maxWidth<760;final character=CharacterPresentation(state:s);final info=Column(crossAxisAlignment:CrossAxisAlignment.start,mainAxisAlignment:MainAxisAlignment.center,children:[Text(s.characterState,style:TextStyle(color:t.primary,fontSize:12,fontWeight:FontWeight.w800,letterSpacing:1.1)),const SizedBox(height:15),Text(s.message??'Dharen is ready for the task.',style:TextStyle(color:t.text,fontSize:14,height:1.45)),const SizedBox(height:14),Text('Task ${s.taskId??'unknown'}  •  ${s.taskState??'READY'}',style:TextStyle(color:t.mutedText,fontSize:11)),const SizedBox(height:15),OutlinedButton.icon(onPressed:onChat,icon:const Icon(Icons.chat_bubble_outline_rounded),label:const Text('Ask Dharen'))]);return narrow?Column(children:[character,const SizedBox(height:16),Align(alignment:Alignment.centerLeft,child:info)]):Row(children:[SizedBox(width:360,child:character),const SizedBox(width:22),Expanded(child:info)]);}),);}}
+
+class _Lifecycle extends StatelessWidget { final PresentationState s; const _Lifecycle(this.s); @override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);final stages=['CREATED','RECEIVED','VALIDATING','PROCESSING','ANALYZING','RESULT_READY','COMPLETED'];final current=stages.indexOf((s.taskState??'').toUpperCase());return Column(crossAxisAlignment:CrossAxisAlignment.start,children:[LinearProgressIndicator(value:_progress(s.taskState),minHeight:7),const SizedBox(height:12),Wrap(spacing:9,runSpacing:8,children:[for(var i=0;i<stages.length;i++)Text(stages[i].replaceAll('_',' '),style:TextStyle(color:i==current?t.text:(i<current?t.primary:t.mutedText),fontSize:8,fontWeight:FontWeight.w600))])]);}}
+
+class _Activity extends StatelessWidget { final PresentationState s; const _Activity(this.s); @override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);return Column(crossAxisAlignment:CrossAxisAlignment.start,children:[for(final a in s.activity.take(8))Padding(padding:const EdgeInsets.only(bottom:8),child:Text(a,style:TextStyle(color:t.mutedText,fontSize:9.5,height:1.35)))]);}}
+class _QuickStats extends StatelessWidget { final PresentationState s; const _QuickStats(this.s); @override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);return Wrap(spacing:18,runSpacing:12,children:[_stat('Observations',s.observations.length,t),_stat('Findings',s.findings.length,t),_stat('Evidence',s.evidence.length,t)]);} Widget _stat(String a,int n,CriterivoxTheme t)=>Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('$n',style:TextStyle(color:t.text,fontSize:20,fontWeight:FontWeight.w800)),Text(a,style:TextStyle(color:t.mutedText,fontSize:9))]);}
+class _Quality extends StatelessWidget { final PresentationState s; const _Quality(this.s); @override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);final good=s.error==null&&((s.taskDataFields??0)>0||s.taskState=='COMPLETED');return Row(children:[Icon(good?Icons.verified_rounded:Icons.warning_amber_rounded,color:good?t.success:t.warning,size:20),const SizedBox(width:8),Expanded(child:Text(good?'Input structure accepted by the runtime.':'Check task input or runtime warning before interpreting results.',style:TextStyle(color:t.mutedText,fontSize:9.5,height:1.35)))]);}}
+
+class _Panel extends StatelessWidget { final String title; final Widget child; const _Panel(this.title,this.child); @override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);return Container(padding:const EdgeInsets.all(14),decoration:BoxDecoration(color:t.surface,borderRadius:BorderRadius.circular(14),border:Border.all(color:t.border)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(title,style:TextStyle(color:t.text,fontSize:12,fontWeight:FontWeight.w700)),const SizedBox(height:11),child]);}}
+
+class _Form extends StatelessWidget { final TextEditingController task,data,ctx; final bool busy; final VoidCallback start; const _Form({required this.task,required this.data,required this.ctx,required this.busy,required this.start}); @override Widget build(BuildContext context)=>_Panel('Start Analysis',Column(children:[TextField(controller:task,maxLines:2,decoration:const InputDecoration(labelText:'Task')),const SizedBox(height:9),TextField(controller:data,decoration:const InputDecoration(labelText:'Data')),const SizedBox(height:9),TextField(controller:ctx,decoration:const InputDecoration(labelText:'Context')),const SizedBox(height:14),Align(alignment:Alignment.centerRight,child:FilledButton.icon(onPressed:busy?null:start,icon:const Icon(Icons.play_arrow_rounded),label:Text(busy?'Starting…':'Start Analysis')))]));

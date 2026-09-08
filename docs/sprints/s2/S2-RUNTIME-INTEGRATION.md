@@ -2,7 +2,7 @@
 
 ## Status
 
-**S2 runtime integration is complete.** The local automated validation and real manual runtime demonstration have both passed on `s2-integration-hardening`.
+**S2 runtime integration is complete.** The local automated validation and real manual runtime demonstration passed on the S2 integration work.
 
 The completed proof is the live path:
 
@@ -54,52 +54,27 @@ Flutter does not invent this sequence. Python emits the semantic character state
 
 The runtime transport is a **local WebSocket boundary**. Python owns semantic character behavior; Flutter consumes the versioned presentation contract and chooses the visual representation.
 
-## Runtime host
+## Renderer pipeline
 
-Normal local development uses the repository-level launcher:
-
-```powershell
-.\start-criterivox.ps1
-```
-
-The launcher is the local Criterivox runtime host. It validates the environment, starts the project `.venv` Python runtime, waits for `/health`, starts Flutter Web, supervises both processes, and stops the managed processes together.
-
-This replaces the normal need to manually start `server.py`, Uvicorn, and Flutter in separate terminals. Low-level commands remain valid troubleshooting tools, but they are not the canonical startup path.
-
-### Readiness
-
-Python exposes:
+Character artwork and motion are now implemented with a lightweight vector pipeline:
 
 ```text
-GET /health
+Character artwork
+      ↓
+Glaxnimate source / SVG
+      ↓
+Flutter SVG rendering
+      ↓
+Flutter state-driven motion
+      ↓
+Visible animated character
 ```
 
-The launcher does not start Flutter until the Python runtime reports readiness. This prevents the presentation from being opened into an avoidable `WAITING_FOR_PYTHON_CONNECTION` state during normal startup.
-
-## Developer diagnostics
-
-Critical launcher/runtime failures produce a local incident directory:
-
-```text
-diagnostics/
-└── incident-CVX-YYYYMMDD-HHMMSS/
-    ├── incident.md
-    └── incident.json
-```
-
-The Markdown report explains the failure story, expected versus observed behavior, affected boundary, evidence and recommended investigation. The JSON report provides structured incident data for developer tooling or AI-assisted diagnosis. Runtime stdout/stderr logs are referenced from the incident and remain local.
-
-Generated diagnostics are intentionally ignored by Git.
-
-## End-user error boundary
-
-The technical incident artifact is developer-facing. The presentation should expose only a concise runtime error and an incident identifier when appropriate. It should not expose stack traces, local filesystem paths, credentials, or internal transport details.
-
-A future user-facing `Copy diagnostics` action may package the safe incident identifier and approved diagnostic information without exposing internal secrets.
+The semantic renderer contract remains independent of the artwork format. Dharen and Syvax use SVG assets; Flutter handles responsive placement, state emphasis, transitions and reduced-motion behavior.
 
 ## Contract
 
-`PresentationContract` is versioned at `contract_version = 1` and carries renderer-independent semantic information:
+`PresentationContract` remains versioned at `contract_version = 1` and carries renderer-independent semantic information:
 
 - character identity
 - semantic character state
@@ -110,7 +85,7 @@ A future user-facing `Copy diagnostics` action may package the safe incident ide
 - optional communication message
 - optional originating event
 
-The renderer receives semantic state such as `work`, not technology-specific commands.
+The renderer receives semantic state such as `WORK`, not technology-specific commands.
 
 ## Current Dharen slice
 
@@ -128,20 +103,6 @@ task
 
 The current operation performs a real deterministic application calculation over the supplied data/context. Its purpose is to prove the runtime lifecycle, not to simulate sophisticated intelligence.
 
-## Renderer independence
-
-```text
-PresentationContract
-        ↓
-Dart presentation state
-        ↓
-CharacterRenderer
-       / \
-     Rive   3D/WebGL/Spline
-```
-
-The current Flutter renderer is a functional S2 renderer. Production Rive and 3D assets remain future work.
-
 ## Validation and security
 
 The Python boundary validates request fields, task size, data/context limits and serialized payload size. The Dart receiver validates contract version, character identity, character state, activation, prominence, message and event values.
@@ -150,20 +111,18 @@ The runtime boundary must never become an arbitrary command-execution channel.
 
 ## Verification evidence
 
-Automated presentation/runtime coverage passed, including runtime contract decoding, runtime character presentation, accessibility semantics, character state mapping, reduced-motion behavior, communication, handoff, responsiveness and widget rendering. The final manual demonstration also passed.
+Automated presentation/runtime coverage includes runtime contract decoding, runtime character presentation, accessibility semantics, character state mapping, reduced-motion behavior, communication, handoff, responsiveness and widget rendering.
 
-The real manual proof was:
+The manual proof is:
 
 1. Run `.\start-criterivox.ps1` from the repository root.
-2. The launcher started Python and Flutter automatically.
-3. Python became ready through `/health`.
-4. The presentation connected to the Python runtime.
-5. Synthetic JSON data, context and a task were supplied.
-6. **Send analysis request to Python** was invoked.
-7. Dharen visibly transitioned through `RECEIVE → WORK → COMMUNICATE → COMPLETE → IDLE`.
-8. The visible lifecycle was driven by the Python runtime boundary.
-
-This is the S2 integration proof.
+2. The launcher starts Python and Flutter automatically.
+3. Python becomes ready through `/health`.
+4. The presentation connects to the Python runtime.
+5. Synthetic JSON data, context and a task are supplied.
+6. **Send analysis request to Python** is invoked.
+7. Dharen visibly transitions through `RECEIVE → WORK → COMMUNICATE → COMPLETE → IDLE`.
+8. The visible lifecycle is driven by the Python runtime boundary.
 
 ## Known limitations carried forward
 
@@ -171,7 +130,7 @@ This is the S2 integration proof.
 - Syvax → Dharen orchestration is future work.
 - The current analysis operation is deterministic and synthetic.
 - Full 15-character runtime integration is future work.
-- Production Rive/3D/WebGL/Spline assets are future work.
+- The vector artwork pipeline will continue to evolve as character animation assets become richer.
 - The local runtime host is a development supervisor, not a production distributed process manager.
 
 ## Research position

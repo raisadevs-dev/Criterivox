@@ -1,23 +1,58 @@
 import 'package:flutter/material.dart';
-import 'character/character_presentation.dart';
-import 'interaction/bloom.dart';
-import 'interaction/syvax.dart';
-import 'presentation/presentation_state.dart';
-import 'presentation/runtime_client.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'app_shell.dart';
+import 'presentation/criterivox_theme.dart';
 
-void main()=>runApp(const CriterivoxApp());
-class CriterivoxApp extends StatelessWidget{const CriterivoxApp({super.key});@override Widget build(BuildContext c)=>MaterialApp(title:'Criterivox',debugShowCheckedModeBanner:false,theme:ThemeData.dark(useMaterial3:true).copyWith(scaffoldBackgroundColor:const Color(0xFF06081A),colorScheme:ColorScheme.fromSeed(seedColor:const Color(0xFF7865F4),brightness:Brightness.dark)),home:const CriterivoxScreen());}
-class CriterivoxScreen extends StatefulWidget{const CriterivoxScreen({super.key});@override State<CriterivoxScreen> createState()=>_State();}
-class _State extends State<CriterivoxScreen>{final _runtime=CharacterRuntimeClient();PresentationState? _ps;BloomCapability? _selected;String _status='Syvax is ready. Choose a capability or describe what you want to do.';String? _error;bool _busy=false;static const _data={'views':1200,'likes':84,'comments':17};static const _ctx={'platform':'synthetic','audience':'students'};
-@override void initState(){super.initState();_runtime.states.listen((s){if(!mounted)return;setState((){_ps=s;_busy=s.characterState!='IDLE';_error=null;if(s.message!=null)_status=s.message!;});});_runtime.errors.listen((e){if(!mounted)return;setState((){_error=e;_busy=false;_status='Syvax could not complete that request.';});});_runtime.connect();}
-void _send(String task,String source){if(_busy)return;setState((){_busy=true;_error=null;_status='Syvax is sending your intent into the application system.';});_runtime.requestApplication(intent:'analyze',task:task,data:_data,context:_ctx,source:source);}
-@override void dispose(){_runtime.dispose();super.dispose();}
-@override Widget build(BuildContext c)=>Scaffold(body:Stack(children:[const Positioned.fill(child:_Backdrop()),SafeArea(child:Column(children:[const _Header(),Expanded(child:LayoutBuilder(builder:(c,x){final wide=x.maxWidth>=1100;final bloom=Bloom(selected:_selected,onSelected:(cap){setState(()=>_selected=cap);if(cap==BloomCapability.analyze)_send('Analyze the supplied data in the provided context.','bloom');else setState(()=>_status='${Bloom.labels[cap]} is reserved for a future sprint.');});final right=Column(children:[Syvax(onSubmit:(t)=>_send(t,'syvax'),busy:_busy),const SizedBox(height:16),_Status(text:_status,error:_error),if(_ps!=null)...[const SizedBox(height:14),_CharacterPanel(state:_ps!)],const SizedBox(height:14),const _FocusCard()]);return SingleChildScrollView(padding:const EdgeInsets.fromLTRB(22,18,22,28),child:wide?Row(crossAxisAlignment:CrossAxisAlignment.start,children:[Expanded(child:bloom),const SizedBox(width:20),SizedBox(width:370,child:right)]):Column(children:[bloom,const SizedBox(height:14),right]));}))]))]));}
+class CriterivoxApp extends StatefulWidget {
+  const CriterivoxApp({super.key});
+  @override State<CriterivoxApp> createState() => _CriterivoxAppState();
 }
-class _Backdrop extends StatelessWidget{const _Backdrop();@override Widget build(BuildContext c)=>CustomPaint(painter:_BackdropPainter());}
-class _BackdropPainter extends CustomPainter{@override void paint(Canvas c,Size s){final p=Paint()..shader=const RadialGradient(center:Alignment(0,-.08),radius:1.15,colors:[Color(0xFF181B4B),Color(0xFF0A0C25),Color(0xFF050618)],stops:[0,.5,1]).createShader(Offset.zero&s);c.drawRect(Offset.zero&s,p);final g=Paint()..color=const Color(0x181E49FF)..maskFilter=const MaskFilter.blur(BlurStyle.normal,100);c.drawCircle(Offset(s.width*.48,s.height*.47),s.width*.16,g);}@override bool shouldRepaint(covariant _BackdropPainter o)=>false;}
-class _Header extends StatelessWidget{const _Header();@override Widget build(BuildContext c)=>Container(height:68,padding:const EdgeInsets.symmetric(horizontal:22),decoration:const BoxDecoration(color:Color(0xB507091B),border:Border(bottom:BorderSide(color:Color(0x222E3568)))),child:Row(children:[const Icon(Icons.hub_rounded,color:Color(0xFF8875FF),size:32),const SizedBox(width:11),const Text('Criterivox',style:TextStyle(color:Colors.white,fontSize:22,fontWeight:FontWeight.w600)),const Spacer(),Container(width:390,height:40,padding:const EdgeInsets.symmetric(horizontal:14),decoration:BoxDecoration(color:Color(0x5510142F),borderRadius:BorderRadius.all(Radius.circular(20)),border:Border.fromBorderSide(BorderSide(color:Color(0x26384A86)))),child:const Row(children:[Icon(Icons.search_rounded,color:Color(0xFF9299BB),size:19),SizedBox(width:9),Text('Search anything or press /',style:TextStyle(color:Color(0xFF8188AA),fontSize:12.5)),Spacer(),Text('⌘ K',style:TextStyle(color:Color(0xFF9DA4C7),fontSize:11))])),const SizedBox(width:22),const Icon(Icons.notifications_none_rounded,color:Color(0xFFD5D7EA)),const SizedBox(width:19),const Icon(Icons.help_outline_rounded,color:Color(0xFFD5D7EA)),const SizedBox(width:18),const CircleAvatar(radius:18,backgroundColor:Color(0xFF343A67),child:Icon(Icons.person_rounded,color:Colors.white,size:20)),const SizedBox(width:9),const Text('Alex Morgan',style:TextStyle(color:Colors.white,fontSize:12.5))]));}
-class _Status extends StatelessWidget{final String text;final String? error;const _Status({required this.text,this.error});@override Widget build(BuildContext c)=>Semantics(liveRegion:true,label:'Syvax system status',child:Container(width:double.infinity,padding:const EdgeInsets.all(14),decoration:BoxDecoration(color:const Color(0xAA10132E),borderRadius:BorderRadius.circular(17),border:Border.all(color:const Color(0x223E477F))),child:Row(children:[const Icon(Icons.auto_awesome,color:Color(0xFF8D7BFF),size:17),const SizedBox(width:10),Expanded(child:Text(error??text,style:TextStyle(color:error==null?const Color(0xFFC9CDE1):const Color(0xFFFF9D9D),fontSize:12)))])));}
-class _CharacterPanel extends StatelessWidget{final PresentationState state;const _CharacterPanel({required this.state});@override Widget build(BuildContext c)=>Container(padding:const EdgeInsets.all(10),decoration:BoxDecoration(color:const Color(0x66101430),borderRadius:BorderRadius.circular(22),border:Border.all(color:const Color(0x223C457D))),child:CharacterPresentation(state:state));}
-class _FocusCard extends StatelessWidget{const _FocusCard();@override Widget build(BuildContext c)=>Container(width:double.infinity,padding:const EdgeInsets.all(19),decoration:BoxDecoration(color:const Color(0x9910142E),borderRadius:BorderRadius.circular(18),border:Border.all(color:const Color(0x223B4677))),child:const Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('Your Focus',style:TextStyle(color:Colors.white,fontSize:16,fontWeight:FontWeight.w600)),SizedBox(height:18),Center(child:Icon(Icons.radio_button_checked_rounded,color:Color(0xFF9B70FF),size:70)),SizedBox(height:14),Text('Define success criteria',style:TextStyle(color:Colors.white,fontSize:14,fontWeight:FontWeight.w600)),SizedBox(height:7),Text('Clarify what good looks like for your current project.',style:TextStyle(color:Color(0xFFA9B0C8),fontSize:12,height:1.5)),SizedBox(height:14),_Button() ]));}
-class _Button extends StatelessWidget{const _Button();@override Widget build(BuildContext c)=>Container(padding:const EdgeInsets.symmetric(horizontal:15,vertical:10),decoration:BoxDecoration(color:const Color(0xFF6E55F5),borderRadius:BorderRadius.circular(9)),child:const Text('Continue  →',style:TextStyle(color:Colors.white,fontSize:12,fontWeight:FontWeight.w600)));}
+
+class _CriterivoxAppState extends State<CriterivoxApp> {
+  static const _themeKey = 'criterivox.theme.dark';
+  final SharedPreferencesAsync _preferences = SharedPreferencesAsync();
+  ThemeMode _themeMode = ThemeMode.dark;
+
+  @override void initState() { super.initState(); _restoreTheme(); }
+  Future<void> _restoreTheme() async {
+    final dark = await _preferences.getBool(_themeKey);
+    if (!mounted || dark == null) return;
+    setState(() => _themeMode = dark ? ThemeMode.dark : ThemeMode.light);
+  }
+  Future<void> _toggleTheme() async {
+    final dark = _themeMode != ThemeMode.dark;
+    setState(() => _themeMode = dark ? ThemeMode.dark : ThemeMode.light);
+    await _preferences.setBool(_themeKey, dark);
+  }
+
+  ThemeData _theme(Brightness brightness, CriterivoxTheme tokens) {
+    final scheme = ColorScheme.fromSeed(seedColor: tokens.primary, brightness: brightness, surface: tokens.surface);
+    return ThemeData(
+      brightness: brightness,
+      useMaterial3: true,
+      scaffoldBackgroundColor: tokens.page,
+      canvasColor: tokens.page,
+      cardColor: tokens.surface,
+      dividerColor: tokens.border,
+      colorScheme: scheme,
+      iconTheme: IconThemeData(color: tokens.text),
+      appBarTheme: AppBarTheme(backgroundColor: tokens.page, foregroundColor: tokens.text, surfaceTintColor: Colors.transparent),
+      navigationRailTheme: NavigationRailThemeData(backgroundColor: tokens.surface, indicatorColor: tokens.primary.withValues(alpha: .14), selectedIconTheme: IconThemeData(color: tokens.primary), selectedLabelTextStyle: TextStyle(color: tokens.text), unselectedIconTheme: IconThemeData(color: tokens.mutedText), unselectedLabelTextStyle: TextStyle(color: tokens.mutedText)),
+      textTheme: ThemeData(brightness: brightness).textTheme.apply(bodyColor: tokens.text, displayColor: tokens.text),
+      extensions: <ThemeExtension<dynamic>>[tokens],
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true, fillColor: tokens.surfaceStrong, hintStyle: TextStyle(color: tokens.mutedText),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: tokens.border)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: tokens.border)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: tokens.primary, width: 1.4)),
+      ),
+    );
+  }
+
+  @override Widget build(BuildContext context) => MaterialApp(
+    title: 'Criterivox', debugShowCheckedModeBanner: false, themeMode: _themeMode,
+    theme: _theme(Brightness.light, CriterivoxTheme.light), darkTheme: _theme(Brightness.dark, CriterivoxTheme.dark),
+    home: CriterivoxShell(isDarkMode: _themeMode == ThemeMode.dark, onToggleTheme: _toggleTheme),
+  );
+}
+void main() => runApp(const CriterivoxApp());

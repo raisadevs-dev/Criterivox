@@ -2,153 +2,512 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../presentation/criterivox_theme.dart';
+
 enum BloomCapability { analyze, compare, explore, plan, insights, explain }
+enum BloomSuboption { workspace, chat }
 
-class Bloom extends StatelessWidget {
+class Bloom extends StatefulWidget {
   final ValueChanged<BloomCapability> onSelected;
+  final ValueChanged<BloomSuboption>? onSuboption;
   final BloomCapability? selected;
-  const Bloom({super.key, required this.onSelected, this.selected});
 
-  static const labels = {
-    BloomCapability.analyze: 'Analyze', BloomCapability.compare: 'Compare', BloomCapability.explore: 'Explore',
-    BloomCapability.plan: 'Plan', BloomCapability.insights: 'Insights', BloomCapability.explain: 'Explain',
+  const Bloom({
+    super.key,
+    required this.onSelected,
+    this.onSuboption,
+    this.selected,
+  });
+
+  static const labels = <BloomCapability, String>{
+    BloomCapability.analyze: 'Analyze',
+    BloomCapability.compare: 'Compare',
+    BloomCapability.explore: 'Explore',
+    BloomCapability.plan: 'Plan',
+    BloomCapability.insights: 'Insights',
+    BloomCapability.explain: 'Explain',
   };
-  static const subtitles = {
-    BloomCapability.analyze: 'Understand your data', BloomCapability.compare: 'Compare across contexts',
-    BloomCapability.explore: 'Discover patterns and insights', BloomCapability.plan: 'Plan strategies and actions',
-    BloomCapability.insights: 'Key takeaways at a glance', BloomCapability.explain: 'Get explanations and reasoning',
+
+  static const subtitles = <BloomCapability, String>{
+    BloomCapability.analyze: 'Understand your data',
+    BloomCapability.compare: 'Compare across contexts',
+    BloomCapability.explore: 'Discover patterns and insights',
+    BloomCapability.plan: 'Plan strategies and actions',
+    BloomCapability.insights: 'Key takeaways at a glance',
+    BloomCapability.explain: 'Get explanations and reasoning',
   };
-  static const icons = {
-    BloomCapability.analyze: Icons.bar_chart_rounded, BloomCapability.compare: Icons.balance_rounded,
-    BloomCapability.explore: Icons.search_rounded, BloomCapability.plan: Icons.calendar_month_rounded,
-    BloomCapability.insights: Icons.lightbulb_outline_rounded, BloomCapability.explain: Icons.chat_bubble_outline_rounded,
+
+  static const icons = <BloomCapability, IconData>{
+    BloomCapability.analyze: Icons.bar_chart_rounded,
+    BloomCapability.compare: Icons.balance_rounded,
+    BloomCapability.explore: Icons.search_rounded,
+    BloomCapability.plan: Icons.calendar_month_rounded,
+    BloomCapability.insights: Icons.lightbulb_outline_rounded,
+    BloomCapability.explain: Icons.chat_bubble_outline_rounded,
   };
+
   static const accents = <BloomCapability, Color>{
-    BloomCapability.analyze: Color(0xFF55B8FF), BloomCapability.compare: Color(0xFF40E7D0),
-    BloomCapability.explore: Color(0xFFFFC94A), BloomCapability.plan: Color(0xFFFF9850),
-    BloomCapability.insights: Color(0xFFFF58C7), BloomCapability.explain: Color(0xFFB78BFF),
+    BloomCapability.analyze: Color(0xFF55B8FF),
+    BloomCapability.compare: Color(0xFF40E7D0),
+    BloomCapability.explore: Color(0xFFFFC94A),
+    BloomCapability.plan: Color(0xFFFF9850),
+    BloomCapability.insights: Color(0xFFFF58C7),
+    BloomCapability.explain: Color(0xFFB78BFF),
   };
 
   @override
-  Widget build(BuildContext context) => Semantics(
-        container: true, label: 'Bloom capability gateway', hint: 'Choose what you want to do in Criterivox.',
-        child: LayoutBuilder(builder: (context, constraints) {
-          final size = math.min(constraints.maxWidth, 760.0);
-          final compact = size < 610;
-          final height = compact ? size * .94 : size * .88;
-          return SizedBox(width: size, height: height, child: Stack(clipBehavior: Clip.none, alignment: Alignment.center, children: [
-            CustomPaint(size: Size(size, height), painter: _BloomConnections(selected: selected)),
-            _BloomCenter(size: compact ? size * .34 : size * .30),
-            ..._nodes(size, compact),
-            Positioned(top: 2, child: _BloomHint(compact: compact)),
-          ]));
-        }),
-      );
+  State<Bloom> createState() => _BloomState();
+}
+
+class _BloomState extends State<Bloom> with SingleTickerProviderStateMixin {
+  late final AnimationController _pulse = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1100),
+  )..repeat(reverse: true);
+
+  BloomCapability? expanded;
+
+  @override
+  void dispose() {
+    _pulse.dispose();
+    super.dispose();
+  }
+
+  void _select(BloomCapability capability) {
+    setState(() {
+      expanded = expanded == capability ? null : capability;
+    });
+    widget.onSelected(capability);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = math.min(constraints.maxWidth, 820.0);
+        final hasBoundedHeight = constraints.hasBoundedHeight;
+        final compact = availableWidth < 600;
+        final ratio = compact ? .98 : .82;
+        final heightLimitedSize = hasBoundedHeight
+            ? constraints.maxHeight / ratio
+            : double.infinity;
+        final size = math.max(
+          240.0,
+          math.min(availableWidth, heightLimitedSize),
+        );
+        final height = size * ratio;
+
+        return SizedBox(
+          width: size,
+          height: height,
+          child: Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.center,
+            children: [
+              AnimatedBuilder(
+                animation: _pulse,
+                builder: (context, child) => CustomPaint(
+                  size: Size(size, height),
+                  painter: _BloomPainter(
+                    selected: widget.selected,
+                    pulse: _pulse.value,
+                    accentMap: Bloom.accents,
+                  ),
+                ),
+              ),
+              _center(size, compact, t),
+              ..._nodes(size, compact),
+              if (expanded == BloomCapability.analyze)
+                _suboptions(size, compact),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _center(double size, bool compact, CriterivoxTheme t) {
+    return AnimatedBuilder(
+      animation: _pulse,
+      builder: (context, child) => Container(
+        width: compact ? size * .34 : size * .27,
+        height: compact ? size * .34 : size * .27,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            colors: [
+              t.primary.withValues(alpha: .55),
+              t.surfaceStrong,
+              t.page,
+            ],
+          ),
+          border: Border.all(color: t.primary, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: t.primary.withValues(alpha: .26),
+              blurRadius: 34 + _pulse.value * 14,
+              spreadRadius: 5 + _pulse.value * 3,
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const _BloomMark(size: 38),
+            const SizedBox(height: 8),
+            Text(
+              'Criterivox',
+              style: TextStyle(
+                fontSize: 21,
+                fontWeight: FontWeight.w600,
+                color: t.text,
+              ),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              expanded == null
+                  ? 'What would you like\nto do today?'
+                  : '${Bloom.labels[expanded!]}\nchoose a path',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: t.text,
+                fontSize: 11.5,
+                height: 1.35,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   List<Widget> _nodes(double size, bool compact) {
-    final radius = compact ? size * .33 : size * .32;
-    final centerY = compact ? size * .48 : size * .44;
-    final diameter = compact ? 112.0 : 146.0;
-    return [for (var i = 0; i < BloomCapability.values.length; i++)
-      Positioned(
-        left: size / 2 + math.cos(-math.pi / 2 + i * math.pi / 3) * radius - diameter / 2,
-        top: centerY + math.sin(-math.pi / 2 + i * math.pi / 3) * radius - diameter / 2,
-        child: _CapabilityNode(
-          label: labels[BloomCapability.values[i]]!, subtitle: subtitles[BloomCapability.values[i]]!,
-          icon: icons[BloomCapability.values[i]]!, accent: accents[BloomCapability.values[i]]!,
-          selected: selected == BloomCapability.values[i], enabled: BloomCapability.values[i] == BloomCapability.analyze,
-          compact: compact, onTap: () => onSelected(BloomCapability.values[i]),
+    final radius = compact ? size * .34 : size * .32;
+    final cy = compact ? size * .49 : size * .44;
+    final d = compact ? 94.0 : 138.0;
+
+    return [
+      for (var i = 0; i < BloomCapability.values.length; i++)
+        Positioned(
+          left: size / 2 +
+              math.cos(-math.pi / 2 + i * math.pi / 3) * radius -
+              d / 2,
+          top: cy +
+              math.sin(-math.pi / 2 + i * math.pi / 3) * radius -
+              d / 2,
+          child: _Node(
+            capability: BloomCapability.values[i],
+            compact: compact,
+            selected: expanded == BloomCapability.values[i],
+            onTap: () => _select(BloomCapability.values[i]),
+          ),
         ),
-      )];
+    ];
+  }
+
+  Widget _suboptions(double size, bool compact) {
+    final center = Offset(size / 2, compact ? size * .49 : size * .44);
+    final radius = compact ? size * .21 : size * .22;
+
+    return Stack(
+      children: [
+        Positioned(
+          left: center.dx - radius - 70,
+          top: center.dy + (compact ? 2 : 10),
+          child: _Suboption(
+            icon: Icons.dashboard_customize_rounded,
+            title: 'Workspace',
+            subtitle: 'Deep analysis',
+            accent: Bloom.accents[BloomCapability.analyze]!,
+            onTap: () => widget.onSuboption?.call(BloomSuboption.workspace),
+          ),
+        ),
+        Positioned(
+          left: center.dx + radius - 70,
+          top: center.dy + (compact ? 2 : 10),
+          child: _Suboption(
+            icon: Icons.forum_rounded,
+            title: 'Chat',
+            subtitle: 'Choose a character',
+            accent: Bloom.accents[BloomCapability.explain]!,
+            onTap: () => widget.onSuboption?.call(BloomSuboption.chat),
+          ),
+        ),
+      ],
+    );
   }
 }
 
-class _BloomHint extends StatelessWidget {
+class _Node extends StatelessWidget {
+  final BloomCapability capability;
   final bool compact;
-  const _BloomHint({required this.compact});
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _Node({
+    required this.capability,
+    required this.compact,
+    required this.selected,
+    required this.onTap,
+  });
+
   @override
-  Widget build(BuildContext context) => Container(
-        padding: EdgeInsets.symmetric(horizontal: compact ? 13 : 19, vertical: compact ? 8 : 11),
-        decoration: BoxDecoration(color: const Color(0xD911142F), borderRadius: BorderRadius.circular(22), border: Border.all(color: const Color(0x332E4A9B)), boxShadow: const [BoxShadow(color: Color(0x331A3DFF), blurRadius: 24, spreadRadius: 2)]),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.auto_awesome, color: Color(0xFF8E7CFF), size: 17), const SizedBox(width: 9),
-          Text('Click a primary option to explore capabilities', style: TextStyle(color: Colors.white.withOpacity(.82), fontSize: compact ? 10.5 : 12.5)),
-        ]),
-      );
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+    final accent = Bloom.accents[capability]!;
+    final d = compact ? 94.0 : 138.0;
+    final reserved = capability != BloomCapability.analyze;
+
+    return Material(
+      color: Colors.transparent,
+      child: Semantics(
+        button: true,
+        label: '${Bloom.labels[capability]} capability${reserved ? ', reserved' : ''}',
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(d),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 240),
+            width: d,
+            height: d,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [
+                  accent.withValues(alpha: selected ? .35 : .12),
+                  t.surfaceStrong,
+                ],
+              ),
+              border: Border.all(
+                color: accent.withValues(alpha: selected ? 1 : .58),
+                width: selected ? 2.4 : 1.2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: accent.withValues(alpha: selected ? .35 : .10),
+                  blurRadius: selected ? 30 : 18,
+                  spreadRadius: selected ? 4 : 1,
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Bloom.icons[capability],
+                  color: accent,
+                  size: compact ? 23 : 28,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  Bloom.labels[capability]!,
+                  style: TextStyle(
+                    color: t.text,
+                    fontSize: compact ? 12 : 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                if (!compact) ...[
+                  const SizedBox(height: 4),
+                  SizedBox(
+                    width: d - 34,
+                    child: Text(
+                      Bloom.subtitles[capability]!,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: t.mutedText,
+                        fontSize: 9.5,
+                        height: 1.25,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class _BloomCenter extends StatelessWidget {
-  final double size;
-  const _BloomCenter({required this.size});
+class _Suboption extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color accent;
+  final VoidCallback onTap;
+
+  const _Suboption({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.accent,
+    required this.onTap,
+  });
+
   @override
-  Widget build(BuildContext context) => Container(
-        width: size, height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: const RadialGradient(colors: [Color(0xFF352675), Color(0xFF18163E), Color(0xFF0A0C23)], stops: [0, .58, 1]),
-          border: Border.all(color: const Color(0xFFB69AFF), width: 2),
-          boxShadow: const [BoxShadow(color: Color(0x775B4CFF), blurRadius: 44, spreadRadius: 10), BoxShadow(color: Color(0x3387CFFF), blurRadius: 90, spreadRadius: 18)],
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(17),
+        child: Container(
+          width: 140,
+          height: 68,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            color: t.surfaceStrong.withValues(alpha: .97),
+            borderRadius: BorderRadius.circular(17),
+            border: Border.all(color: accent.withValues(alpha: .72)),
+            boxShadow: [
+              BoxShadow(
+                color: accent.withValues(alpha: .16),
+                blurRadius: 22,
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: accent.withValues(alpha: .13),
+                ),
+                child: Icon(icon, color: accent, size: 19),
+              ),
+              const SizedBox(width: 8),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: t.text,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: t.mutedText,
+                      fontSize: 8.8,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          const _BloomMark(size: 39), const SizedBox(height: 9),
-          const Text('Criterivox', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w500)), const SizedBox(height: 7),
-          Text('What would you like\nto do today?', textAlign: TextAlign.center, style: TextStyle(color: Colors.white.withOpacity(.86), fontSize: 12, height: 1.4)),
-        ]),
-      );
+      ),
+    );
+  }
 }
 
 class _BloomMark extends StatelessWidget {
   final double size;
+
   const _BloomMark({required this.size});
+
   @override
-  Widget build(BuildContext context) => SizedBox(width: size, height: size, child: Stack(alignment: Alignment.center, children: [
-        for (var i = 0; i < 8; i++) Transform.rotate(angle: i * math.pi / 4, child: Container(width: size * .22, height: size * .48, decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), gradient: const LinearGradient(colors: [Color(0xFF9A7BFF), Color(0xFF6654E8)])))),
-        Container(width: size * .24, height: size * .24, decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFF7D68F7))),
-      ]));
+  Widget build(BuildContext context) => SizedBox(
+        width: size,
+        height: size,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            for (var i = 0; i < 8; i++)
+              Transform.rotate(
+                angle: i * math.pi / 4,
+                child: Container(
+                  width: size * .22,
+                  height: size * .48,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF9A7BFF), Color(0xFF6654E8)],
+                    ),
+                  ),
+                ),
+              ),
+            Container(
+              width: size * .24,
+              height: size * .24,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0xFF7D68F7),
+              ),
+            ),
+          ],
+        ),
+      );
 }
 
-class _BloomConnections extends CustomPainter {
+class _BloomPainter extends CustomPainter {
   final BloomCapability? selected;
-  _BloomConnections({required this.selected});
+  final double pulse;
+  final Map<BloomCapability, Color> accentMap;
+
+  _BloomPainter({
+    required this.selected,
+    required this.pulse,
+    required this.accentMap,
+  });
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height * .44);
     final radius = size.width * .32;
-    final orbitPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1
-      ..color = const Color(0x263A4D92);
-    canvas.drawCircle(center, radius, orbitPaint);
-    for (var i = 0; i < BloomCapability.values.length; i++) {
-      final capability = BloomCapability.values[i];
-      final angle = -math.pi / 2 + i * math.pi / 3;
-      final end = center + Offset(math.cos(angle) * radius, math.sin(angle) * radius);
-      final accent = Bloom.accents[capability]!;
-      final linePaint = Paint()
+
+    canvas.drawCircle(
+      center,
+      radius,
+      Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = selected == capability ? 2 : 1
-        ..color = accent.withOpacity(selected == capability ? .85 : .38);
-      canvas.drawLine(center, end, linePaint);
-      canvas.drawCircle(end, 3.5, Paint()..color = accent);
+        ..strokeWidth = 1
+        ..color = const Color(0x263A4D92),
+    );
+
+    for (var i = 0; i < BloomCapability.values.length; i++) {
+      final cap = BloomCapability.values[i];
+      final angle = -math.pi / 2 + i * math.pi / 3;
+      final end = center +
+          Offset(
+            math.cos(angle) * radius,
+            math.sin(angle) * radius,
+          );
+      final accent = accentMap[cap]!;
+
+      canvas.drawLine(
+        center,
+        end,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = selected == cap ? 2.2 : 1
+          ..color = accent.withValues(
+            alpha: selected == cap ? .88 : .30,
+          ),
+      );
+
+      canvas.drawCircle(
+        end,
+        selected == cap ? 4 + pulse * 2 : 3.2,
+        Paint()..color = accent,
+      );
     }
   }
-  @override bool shouldRepaint(covariant _BloomConnections oldDelegate) => oldDelegate.selected != selected;
-}
 
-class _CapabilityNode extends StatelessWidget {
-  final String label, subtitle; final IconData icon; final Color accent; final bool selected, enabled, compact; final VoidCallback onTap;
-  const _CapabilityNode({required this.label, required this.subtitle, required this.icon, required this.accent, required this.selected, required this.enabled, required this.compact, required this.onTap});
   @override
-  Widget build(BuildContext context) {
-    final diameter = compact ? 112.0 : 146.0;
-    return Semantics(button: true, enabled: enabled, label: '$label capability${enabled ? '' : ', reserved for a future sprint'}', hint: enabled ? 'Activate $label' : 'Not implemented yet', child: Tooltip(
-      message: enabled ? 'Activate $label' : '$label is reserved for a future sprint',
-      child: InkWell(onTap: enabled ? onTap : null, borderRadius: BorderRadius.circular(diameter), child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220), width: diameter, height: diameter, padding: EdgeInsets.all(compact ? 14 : 18),
-        decoration: BoxDecoration(shape: BoxShape.circle, gradient: RadialGradient(colors: [accent.withOpacity(selected ? .34 : .18), const Color(0xFF10132E)]), border: Border.all(color: accent.withOpacity(selected ? .98 : .70), width: selected ? 2.2 : 1.3), boxShadow: [BoxShadow(color: accent.withOpacity(selected ? .46 : .19), blurRadius: selected ? 36 : 25, spreadRadius: selected ? 5 : 1)]),
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(icon, color: enabled ? accent : accent.withOpacity(.55), size: compact ? 25 : 30), SizedBox(height: compact ? 5 : 8), Text(label, textAlign: TextAlign.center, style: TextStyle(color: Colors.white.withOpacity(enabled ? 1 : .72), fontSize: compact ? 13 : 16, fontWeight: FontWeight.w600)), if (!compact) ...[const SizedBox(height: 5), Text(subtitle, textAlign: TextAlign.center, style: TextStyle(color: Colors.white.withOpacity(.66), fontSize: 10.5, height: 1.25))]],
-        ),
-      )),
-    ));
-  }
+  bool shouldRepaint(covariant _BloomPainter old) =>
+      old.selected != selected || old.pulse != pulse;
 }
