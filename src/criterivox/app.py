@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import settings
 from .domain.characters import CharacterState
-from .application.data_intake import ingest_sources
+from .application.data_foundation_store import data_foundations
 from .infrastructure.runtime import (
     dharen_runtime,
     handle_application_request,
@@ -39,41 +39,86 @@ async def _safe_request(handler, payload: dict) -> None:
         await handler(payload)
     except Exception as exc:
         logger.exception("Runtime request failed.")
-        await runtime_connections.publish(
-            PresentationContract.from_state(
-                "Dharen", CharacterState.WARNING, active=True, prominence=.85,
-                message=f"Runtime could not complete that request: {exc}", event="RUNTIME_ERROR",
-            )
-        )
+        await runtime_connections.publish(PresentationContract.from_state(
+            "Dharen", CharacterState.WARNING, active=True, prominence=.85,
+            message=f"Runtime could not complete that request: {exc}", event="RUNTIME_ERROR",
+        ))
 
 
 async def _safe_data_intake(payload: dict) -> None:
     """Run S5 intake and publish truthful Sandre stewardship state."""
     try:
-        foundation = ingest_sources(payload)
+        foundation = data_foundations.ingest(payload)
         await runtime_connections.publish(PresentationContract.from_state(
             "Sandre", CharacterState.RECEIVE, active=True, prominence=.9,
             message=f"Received {len(foundation.sources)} source(s). Preserving the originals before extraction.",
-            event="MATERIAL_RECEIVED", task_id=foundation.foundation_id,
+            event="MATERIAL_RECEIVED", foundation_id=foundation.foundation_id,
+            foundation_source_count=len(foundation.sources), foundation_candidate_count=len(foundation.candidates),
+            foundation_confirmation=foundation.confirmation_status.value,
         ))
         await asyncio.sleep(.12)
         await runtime_connections.publish(PresentationContract.from_state(
             "Sandre", CharacterState.WORK, active=True, prominence=.9,
             message=f"Extracted {len(foundation.candidates)} candidate item(s) with source lineage preserved.",
-            event="EXTRACTION_COMPLETED", task_id=foundation.foundation_id,
+            event="EXTRACTION_COMPLETED", foundation_id=foundation.foundation_id,
+            foundation_source_count=len(foundation.sources), foundation_candidate_count=len(foundation.candidates),
+            foundation_confirmation=foundation.confirmation_status.value,
         ))
         await asyncio.sleep(.12)
         await runtime_connections.publish(PresentationContract.from_state(
             "Sandre", CharacterState.COMMUNICATE, active=True, prominence=.9,
             message=(f"Review required before handoff. {foundation.quality.anomaly_count} anomaly flag(s), "
                      f"{foundation.quality.missing_count} missingness flag(s), and {foundation.quality.duplicate_count} duplicate candidate(s) detected."),
-            event="USER_CONFIRMATION_REQUIRED", task_id=foundation.foundation_id,
+            event="USER_CONFIRMATION_REQUIRED", foundation_id=foundation.foundation_id,
+            foundation_source_count=len(foundation.sources), foundation_candidate_count=len(foundation.candidates),
+            foundation_confirmation=foundation.confirmation_status.value,
         ))
     except Exception as exc:
         logger.exception("S5 data intake failed.")
         await runtime_connections.publish(PresentationContract.from_state(
             "Sandre", CharacterState.WARNING, active=True, prominence=.9,
             message=f"Data intake could not be completed: {exc}", event="EXTRACTION_FAILED",
+        ))
+
+
+async def _safe_data_action(payload: dict) -> None:
+    try:
+        foundation_id = payload.get("foundation_id")
+        action = payload.get("action")
+        if action in {"confirm", "correct", "exclude", "add", "irrelevant", "clarify"}:
+            foundation = data_foundations.confirm(str(foundation_id), action, tuple(payload.get("candidate_ids", ())))
+            await runtime_connections.publish(PresentationContract.from_state(
+                "Sandre", CharacterState.COMMUNICATE, active=True, prominence=.9,
+                message=f"Recorded user review as {foundation.confirmation_status.value}. The source remains preserved.",
+                event=f"USER_INFORMATION_{action.upper()}", foundation_id=foundation.foundation_id,
+                foundation_source_count=len(foundation.sources), foundation_candidate_count=len(foundation.candidates),
+                foundation_confirmation=foundation.confirmation_status.value,
+            ))
+            return
+        if action == "handoff":
+            handoff = data_foundations.handoff(str(foundation_id), str(payload.get("recipient", "dharen")))
+            await runtime_connections.publish(PresentationContract.from_state(
+                "Sandre", CharacterState.HANDOFF, active=True, prominence=.9,
+                message=f"Safeguarded foundation {handoff.foundation_id} is ready for {handoff.recipient}.",
+                event="SANDRE_HANDOFF_READY", foundation_id=handoff.foundation_id,
+                foundation_source_count=len(handoff.source_ids), foundation_candidate_count=len(handoff.canonical_data),
+                foundation_confirmation=handoff.confirmation_status.value,
+            ))
+            await asyncio.sleep(.15)
+            await runtime_connections.publish(PresentationContract.from_state(
+                "Dharen", CharacterState.RECEIVE, active=True, prominence=.9,
+                message="Dharen received the curated S5 foundation. No unsupported information was added.",
+                event="DHAREN_HANDOFF_READY", foundation_id=handoff.foundation_id,
+                foundation_source_count=len(handoff.source_ids), foundation_candidate_count=len(handoff.canonical_data),
+                foundation_confirmation=handoff.confirmation_status.value,
+            ))
+            return
+        raise ValueError("Unsupported S5 data action.")
+    except Exception as exc:
+        logger.exception("S5 data action failed.")
+        await runtime_connections.publish(PresentationContract.from_state(
+            "Sandre", CharacterState.WARNING, active=True, prominence=.9,
+            message=f"Sandre could not complete that stewardship action: {exc}", event="DATA_ACTION_FAILED",
         ))
 
 
@@ -88,6 +133,8 @@ async def character_runtime(websocket: WebSocket) -> None:
                 asyncio.create_task(_safe_request(handle_chat_message, payload))
             elif isinstance(payload, dict) and payload.get("type") == "data_intake":
                 asyncio.create_task(_safe_data_intake(payload))
+            elif isinstance(payload, dict) and payload.get("type") == "data_action":
+                asyncio.create_task(_safe_data_action(payload))
             elif isinstance(payload, dict) and "intent" in payload:
                 asyncio.create_task(_safe_request(handle_application_request, payload))
             else:
