@@ -24,6 +24,10 @@ class PresentationContract:
     task_created_at: str | None = None
     task_updated_at: str | None = None
     task_references: tuple[str, ...] = ()
+    foundation_id: str | None = None
+    foundation_source_count: int | None = None
+    foundation_candidate_count: int | None = None
+    foundation_confirmation: str | None = None
     execution_engine: str | None = None
     execution_tier: str | None = None
     fallback_used: bool | None = None
