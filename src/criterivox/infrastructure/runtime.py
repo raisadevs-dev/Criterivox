@@ -64,7 +64,7 @@ def _parse_chat_references(raw):
  if not isinstance(raw,list) or len(raw)>MAX_REFERENCE_COUNT:raise ValueError('Invalid reference list.')
  names=[];details=[];total=0
  for i,item in enumerate(raw):
-  if isinstance(item,str):name=item.strip();
+  if isinstance(item,str):name=item.strip()
   else:
    if not isinstance(item,dict):raise ValueError('Invalid reference payload.')
    name=item.get('name');kind=item.get('kind','file');size=item.get('size_bytes',0);encoded=item.get('content_base64')
@@ -78,8 +78,18 @@ def _parse_chat_references(raw):
    total+=len(decoded)
    if total>MAX_REFERENCE_BATCH_BYTES:raise ValueError('Attached references exceed the 8 MB chat batch limit.')
    name=name.strip();details.append(AnalysisReference(f'ref-{i+1}',name,kind,size,encoded))
-  if not name or len(name)>500:raise ValueError('Invalid reference.');names.append(name);details.append(AnalysisReference(f'ref-{i+1}',name,'link',url=name))
+  if not name or len(name)>500:raise ValueError('Invalid reference.')
+  names.append(name)
+  if len(details)<len(names):details.append(AnalysisReference(f'ref-{i+1}',name,'link',url=name))
  return tuple(names),tuple(details)
+async def _publish_character(character_id,state,*,message,event,task=None,active=True,prominence=.85):
+ activity_manager=dharen_runtime._activity
+ activity=activity_manager.set_state(character_id,state)
+ fields={}
+ if task is not None:
+  result=task.result;refs=tuple(r.name for r in task.reference_details) or tuple(task.references)
+  fields=dict(task_id=task.task_id,task_state=task.state.value,task_source=task.source.value,task=task.task,task_data_fields=len(task.data),task_context_fields=len(task.context),task_created_at=task.created_at.isoformat(),task_updated_at=task.updated_at.isoformat(),task_references=refs,observations=tuple({'id':o.identifier,'text':o.text,'significance':o.significance} for o in (result.observations if result else ())),findings=tuple({'id':f.identifier,'statement':f.statement,'confidence':f.confidence} for f in (result.findings if result else ())),evidence=tuple({'id':e.identifier,'label':e.label,'source':e.source,'detail':e.detail} for e in (result.evidence if result else ())),activity=tuple(task.activity[-12:]),error=task.error)
+ await runtime_connections.publish(PresentationContract.from_state(character_id,activity.state,active=active,prominence=prominence,message=message,event=event,**fields))
 async def handle_application_request(payload):
  request=parse_application_request(payload)
  if request.intent.value!='analyze':raise UnsupportedCapabilityError(f"Capability '{request.intent.value}' is reserved for a future sprint.")
@@ -94,13 +104,42 @@ async def handle_chat_message(payload):
  if target not in ALLOWED_CHAT_CHARACTERS:raise ValueError('Unknown chat character.')
  task_id=payload.get('task_id');message=payload.get('message')
  if not isinstance(message,str) or not message.strip() or len(message)>2000:raise ValueError('Chat message is invalid.')
- interpretation=interpret_message(message);refs,details=_parse_chat_references(payload.get('references',[]));speaker='Dharen' if target=='dharen' else 'Syvax';route='Dharen is receiving this request directly.' if target=='dharen' else 'Syvax received this request and is routing analysis work to Dharen.'
- if task_id is None:
-  data=payload.get('data') if isinstance(payload.get('data'),dict) else {};context=payload.get('context') if isinstance(payload.get('context'),dict) else {};task=analysis_tasks.create_task(task=interpretation.normalized_text,data=data,context=context,source=AnalysisTaskSource.CHAT,references=refs,reference_details=details);await dharen_runtime.publish_task(task,message=f'{speaker} received your request. {route}',event='CHAT_ANALYSIS_REQUESTED');asyncio.create_task(analysis_tasks.execute(task.task_id));return
- task=analysis_tasks.get_task(str(task_id))
+ interpretation=interpret_message(message);refs,details=_parse_chat_references(payload.get('references',[]));speaker='Dharen' if target=='dharen' else 'Syvax'
+ if target=='syvax':
+  if interpretation.intent=='handoff':
+   if task_id is None:
+    task=analysis_tasks.create_task(task=interpretation.normalized_text,data={},context={},source=AnalysisTaskSource.CHAT,references=refs,reference_details=details);task_id=task.task_id
+   else: task=analysis_tasks.get_task(str(task_id))
+   await _publish_character('Syvax',CharacterState.RECEIVE,message='Syvax received your handoff instruction.',event='SYVAX_RECEIVED',task=task)
+   await asyncio.sleep(.12)
+   await _publish_character('Syvax',CharacterState.WORK,message='Syvax is preparing the handoff context for Dharen.',event='HANDOFF_PREPARING',task=task)
+   await asyncio.sleep(.12)
+   await _publish_character('Syvax',CharacterState.HANDOFF,message='Syvax can hand this task to Dharen. The current task, data, context, and references will remain attached.',event='HANDOFF_ACCEPTED',task=task)
+   await asyncio.sleep(.12)
+   await _publish_character('Dharen',CharacterState.RECEIVE,message='Dharen received the task from Syvax.',event='HANDOFF_COMPLETED',task=task)
+   if not task.is_terminal:asyncio.create_task(analysis_tasks.execute(task.task_id))
+   return
+  if interpretation.intent=='user_continue':
+   if task_id is None:
+    await _publish_character('Syvax',CharacterState.RECEIVE,message='Syvax received your choice to continue yourself.',event='SYVAX_RECEIVED')
+   else:
+    task=analysis_tasks.get_task(str(task_id));await _publish_character('Syvax',CharacterState.COMMUNICATE,message='Syvax will keep the current task with you. No handoff was performed.',event='USER_CONTINUES',task=task)
+   return
+  if interpretation.intent=='analyze':
+   if task_id is None:
+    task=analysis_tasks.create_task(task=interpretation.normalized_text,data=payload.get('data') if isinstance(payload.get('data'),dict) else {},context=payload.get('context') if isinstance(payload.get('context'),dict) else {},source=AnalysisTaskSource.CHAT,references=refs,reference_details=details);task_id=task.task_id
+   else: task=analysis_tasks.get_task(str(task_id))
+   await _publish_character('Syvax',CharacterState.RECEIVE,message='Syvax received your analysis request.',event='SYVAX_RECEIVED',task=task);await asyncio.sleep(.12);await _publish_character('Syvax',CharacterState.COMMUNICATE,message='This is an analysis task. Syvax recommends Dharen for the structural analysis. You can hand it over to Dharen or continue yourself.',event='HANDOFF_PROPOSED',task=task);return
+  if task_id is None:
+   task=analysis_tasks.create_task(task=interpretation.normalized_text,data=payload.get('data') if isinstance(payload.get('data'),dict) else {},context=payload.get('context') if isinstance(payload.get('context'),dict) else {},source=AnalysisTaskSource.CHAT,references=refs,reference_details=details);task_id=task.task_id
+  else: task=analysis_tasks.get_task(str(task_id))
+  await _publish_character('Syvax',CharacterState.RECEIVE,message='Syvax received your request and is interpreting what you need.',event='SYVAX_RECEIVED',task=task);await asyncio.sleep(.12);await _publish_character('Syvax',CharacterState.COMMUNICATE,message='I can route analysis work to Dharen, or you can continue the task yourself. Tell me which you prefer.',event='HANDOFF_PROPOSED',task=task);return
+ task=analysis_tasks.get_task(str(task_id)) if task_id is not None else None
+ if task is None:
+  data=payload.get('data') if isinstance(payload.get('data'),dict) else {};context=payload.get('context') if isinstance(payload.get('context'),dict) else {};task=analysis_tasks.create_task(task=interpretation.normalized_text,data=data,context=context,source=AnalysisTaskSource.CHAT,references=refs,reference_details=details);await dharen_runtime.publish_task(task,message='Dharen received your request directly.',event='CHAT_ANALYSIS_REQUESTED');asyncio.create_task(analysis_tasks.execute(task.task_id));return
  if details:task.references=tuple(dict.fromkeys((*task.references,*refs)));task.reference_details=(*task.reference_details,*details);task.add_activity(f'Attached {len(details)} additional reference(s) to the task.')
- task.add_activity(f'User asked {speaker}: {interpretation.normalized_text}')
- if interpretation.intent=='status':await dharen_runtime.publish_task(task,message=f'{speaker} reports the authoritative analysis state: {task.state.value}.',event='TASK_STATUS_REQUESTED')
- elif interpretation.intent=='continue':await dharen_runtime.publish_task(task,message=f'{speaker} confirms the current analysis remains active. The same task state and evidence are preserved.',event='TASK_CONTINUE_REQUESTED')
- else:await dharen_runtime.publish_task(task,message=f'{speaker} received the follow-up. The task remains grounded in its recorded data, context, and references.',event='TASK_FOLLOWUP_RECEIVED')
+ task.add_activity(f'User asked Dharen: {interpretation.normalized_text}')
+ if interpretation.intent=='status':await dharen_runtime.publish_task(task,message=f'Dharen reports the authoritative analysis state: {task.state.value}.',event='TASK_STATUS_REQUESTED')
+ elif interpretation.intent=='continue':await dharen_runtime.publish_task(task,message='Dharen confirms the current analysis remains active. The same task state and evidence are preserved.',event='TASK_CONTINUE_REQUESTED')
+ else:await dharen_runtime.publish_task(task,message='Dharen received the follow-up. The task remains grounded in its recorded data, context, and references.',event='TASK_FOLLOWUP_RECEIVED')
 __all__=['AnalysisRequest','DharenRuntime','RuntimeConnectionManager','dharen_runtime','handle_application_request','handle_chat_message','parse_analysis_request','parse_application_request','runtime_connections','UnsupportedCapabilityError']
