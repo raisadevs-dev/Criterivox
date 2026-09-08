@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from .data_foundation import DataFoundationService
 from .data_intake import ingest_folder_path, ingest_sources
@@ -34,7 +34,7 @@ class DataFoundationStore:
     def handoff(self, foundation_id: str, recipient: str = "dharen"):
         item = self.get(foundation_id)
         handoff = DataFoundationService().handoff(item, recipient)
-        self.items[foundation_id] = item.__class__(**{**item.__dict__, "handoff_ready": True}) if hasattr(item, "__dict__") else item
+        self.items[foundation_id] = replace(item, handoff_ready=True)
         return handoff
 
     def get(self, foundation_id: str) -> DataFoundation:
