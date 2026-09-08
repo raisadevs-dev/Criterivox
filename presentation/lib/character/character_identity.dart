@@ -2,101 +2,27 @@ class CharacterIdentity {
   final String id;
   final String displayName;
   final String role;
-
-  const CharacterIdentity({
-    required this.id,
-    required this.displayName,
-    required this.role,
-  });
+  const CharacterIdentity({required this.id, required this.displayName, required this.role});
 }
 
 class CharacterIdentities {
   CharacterIdentities._();
-
   static const Map<String, CharacterIdentity> all = {
-    'Dharen': CharacterIdentity(
-      id: 'Dharen',
-      displayName: 'Dharen',
-      role: 'Analysis',
-    ),
-    'Vivren': CharacterIdentity(
-      id: 'Vivren',
-      displayName: 'Vivren',
-      role: 'Context',
-    ),
-    'Tarkis': CharacterIdentity(
-      id: 'Tarkis',
-      displayName: 'Tarkis',
-      role: 'Reasoning',
-    ),
-    'Sandre': CharacterIdentity(
-      id: 'Sandre',
-      displayName: 'Sandre',
-      role: 'Comparison',
-    ),
-    'Pramon': CharacterIdentity(
-      id: 'Pramon',
-      displayName: 'Pramon',
-      role: 'Planning',
-    ),
-    'Syvax': CharacterIdentity(
-      id: 'Syvax',
-      displayName: 'Syvax',
-      role: 'Pattern Analysis',
-    ),
-    'Bodhex': CharacterIdentity(
-      id: 'Bodhex',
-      displayName: 'Bodhex',
-      role: 'Evidence',
-    ),
-    'Medrus': CharacterIdentity(
-      id: 'Medrus',
-      displayName: 'Medrus',
-      role: 'Measurement',
-    ),
-    'Epistre': CharacterIdentity(
-      id: 'Epistre',
-      displayName: 'Epistre',
-      role: 'Explanation',
-    ),
-    'Manis': CharacterIdentity(
-      id: 'Manis',
-      displayName: 'Manis',
-      role: 'Human Interaction',
-    ),
-    'Anuka': CharacterIdentity(
-      id: 'Anuka',
-      displayName: 'Anuka',
-      role: 'Exploration',
-    ),
-    'Veridat': CharacterIdentity(
-      id: 'Veridat',
-      displayName: 'Veridat',
-      role: 'Verification',
-    ),
-    'Viveda': CharacterIdentity(
-      id: 'Viveda',
-      displayName: 'Viveda',
-      role: 'Knowledge',
-    ),
-    'Kaelen': CharacterIdentity(
-      id: 'Kaelen',
-      displayName: 'Kaelen',
-      role: 'Experimentation',
-    ),
-    'Anukor': CharacterIdentity(
-      id: 'Anukor',
-      displayName: 'Anukor',
-      role: 'Transfer',
-    ),
+    'dharen': CharacterIdentity(id: 'dharen', displayName: 'Dharen', role: 'Analysis'),
+    'vivren': CharacterIdentity(id: 'vivren', displayName: 'Vivren', role: 'Context'),
+    'tarkis': CharacterIdentity(id: 'tarkis', displayName: 'Tarkis', role: 'Reasoning'),
+    'sandre': CharacterIdentity(id: 'sandre', displayName: 'Sandre', role: 'Comparison'),
+    'pramon': CharacterIdentity(id: 'pramon', displayName: 'Pramon', role: 'Planning'),
+    'syvax': CharacterIdentity(id: 'syvax', displayName: 'Syvax', role: 'Pattern Analysis'),
+    'bodhex': CharacterIdentity(id: 'bodhex', displayName: 'Bodhex', role: 'Evidence'),
+    'medrus': CharacterIdentity(id: 'medrus', displayName: 'Medrus', role: 'Measurement'),
+    'epistre': CharacterIdentity(id: 'epistre', displayName: 'Epistre', role: 'Explanation'),
+    'manis': CharacterIdentity(id: 'manis', displayName: 'Manis', role: 'Human Interaction'),
+    'anuka': CharacterIdentity(id: 'anuka', displayName: 'Anuka', role: 'Exploration'),
+    'veridat': CharacterIdentity(id: 'veridat', displayName: 'Veridat', role: 'Verification'),
+    'viveda': CharacterIdentity(id: 'viveda', displayName: 'Viveda', role: 'Knowledge'),
+    'kaelen': CharacterIdentity(id: 'kaelen', displayName: 'Kaelen', role: 'Experimentation'),
+    'anukor': CharacterIdentity(id: 'anukor', displayName: 'Anukor', role: 'Transfer'),
   };
-
-  static CharacterIdentity resolve(String id) {
-    return all[id] ??
-        CharacterIdentity(
-          id: id,
-          displayName: id,
-          role: 'Criterivox Agent',
-        );
-  }
+  static CharacterIdentity resolve(String id) => all[id.trim().toLowerCase()] ?? CharacterIdentity(id: id, displayName: id, role: 'Criterivox Agent');
 }
