@@ -12,6 +12,7 @@ from criterivox.domain.data_foundation import (
 
 MAX_SOURCES = 50
 MAX_TEXT_BYTES = 4 * 1024 * 1024
+MAX_BINARY_BYTES = 4 * 1024 * 1024
 
 
 @dataclass
@@ -25,23 +26,31 @@ class DataFoundationService:
         channel: str,
         source_type: SourceType = SourceType.FILE,
         raw_content: str | None = None,
+        raw_content_base64: str | None = None,
         location: str | None = None,
         parent_source_id: str | None = None,
         supplied_context: dict[str, Any] | None = None,
+        extraction_status: ExtractionStatus | None = None,
+        processing_status: str = "received",
+        error: str | None = None,
     ) -> DataFoundation:
         if not name.strip() or len(name) > 500:
             raise ValueError("Source name is invalid.")
         if raw_content is not None and len(raw_content.encode("utf-8")) > MAX_TEXT_BYTES:
             raise ValueError("Source exceeds the 4 MB text limit.")
+        if raw_content_base64 is not None and len(raw_content_base64) > MAX_BINARY_BYTES * 2:
+            raise ValueError("Encoded source exceeds the 4 MB binary limit.")
         foundation = DataFoundation.create()
         source_id = f"SRC-{foundation.foundation_id[3:]}"
         provenance = Provenance(source_id, source_type, name.strip(), parent_source_id)
+        status = extraction_status or (ExtractionStatus.COMPLETED if raw_content else ExtractionStatus.UNSUPPORTED if raw_content_base64 else ExtractionStatus.COMPLETED)
         source = SourceRecord(
             source_id=source_id, name=name.strip(), source_type=source_type,
             channel=channel.strip() or "unknown", provided_at=provenance.created_at,
             location=location, parent_source_id=parent_source_id,
-            raw_content=raw_content, extraction_status=ExtractionStatus.COMPLETED,
-            processing_status="received", provenance=provenance,
+            raw_content=raw_content, raw_content_base64=raw_content_base64,
+            extraction_status=status, processing_status=processing_status,
+            error=error, provenance=provenance,
         )
         candidates = self._extract_candidates(source)
         raw_rows = self._rows_from_source(source)
@@ -142,6 +151,8 @@ class DataFoundationService:
 
     @staticmethod
     def _rows_from_source(source: SourceRecord) -> tuple[dict[str, Any], ...]:
+        if source.raw_content_base64 and not source.raw_content:
+            return ({"source": source.name, "content": Missingness.EXTRACTION_FAILED.value},)
         if not source.raw_content:
             return ({"source": source.name, "content": Missingness.NOT_PROVIDED.value},)
         lines = [line.strip() for line in source.raw_content.splitlines() if line.strip()]
@@ -151,10 +162,10 @@ class DataFoundationService:
 
     @staticmethod
     def _extract_candidates(source: SourceRecord) -> tuple[CandidateInformation, ...]:
-        if not source.raw_content:
+        if not source.raw_content or source.extraction_status not in {ExtractionStatus.COMPLETED, ExtractionStatus.PARTIAL}:
             return ()
         lines = [line.strip() for line in source.raw_content.splitlines() if line.strip()]
-        return tuple(CandidateInformation(f"CAND-{i+1}", line, source.source_id, "content", 1.0, ConfirmationStatus.SYSTEM_EXTRACTED, provenance=source.provenance) for i, line in enumerate(lines[:500]))
+        return tuple(CandidateInformation(f"CAND-{source.source_id}-{i+1}", line, source.source_id, "content", 1.0, ConfirmationStatus.SYSTEM_EXTRACTED, provenance=source.provenance) for i, line in enumerate(lines[:500]))
 
     @staticmethod
     def _missingness(rows: Iterable[dict[str, Any]]) -> dict[str, Missingness]:
