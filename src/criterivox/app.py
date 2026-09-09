@@ -12,6 +12,7 @@ from .domain.analysis import AnalysisTaskSource
 from .domain.characters import CharacterState
 from .application.analysis_tasks import analysis_tasks
 from .application.data_foundation_store import data_foundations
+from .application.sandre_stewardship import SandreStewardship
 from .application import foundation_runtime_bridge  # noqa: F401
 from .infrastructure.runtime import dharen_runtime, handle_application_request, handle_chat_message, parse_analysis_request, runtime_connections
 from .logging_config import configure_logging
@@ -21,6 +22,8 @@ from .ui.routes import router
 logger = logging.getLogger(__name__)
 app = FastAPI(title="Criterivox")
 app.mount("/static", StaticFiles(directory="src/criterivox/ui/static"), name="static")
+
+stewardship = SandreStewardship()
 
 @app.get("/health")
 def health() -> JSONResponse:
@@ -35,17 +38,41 @@ async def _safe_request(handler, payload: dict) -> None:
         logger.exception("Runtime request failed.")
         await runtime_connections.publish(PresentationContract.from_state("Dharen", CharacterState.WARNING, active=True, prominence=.85, message=f"Runtime could not complete that request: {exc}", event="RUNTIME_ERROR"))
 
-async def _publish_foundation_state(character: str, state: CharacterState, message: str, event: str, foundation) -> None:
-    await runtime_connections.publish(PresentationContract.from_state(character, state, active=True, prominence=.9, message=message, event=event, foundation_id=foundation.foundation_id, foundation_source_count=len(foundation.sources), foundation_candidate_count=len(foundation.candidates), foundation_confirmation=foundation.confirmation_status.value))
+async def _publish_foundation_state(character: str, state: CharacterState, message: str, event: str, foundation, *, preview=None) -> None:
+    kwargs = dict(
+        foundation_id=foundation.foundation_id,
+        foundation_source_count=len(foundation.sources),
+        foundation_candidate_count=len(foundation.candidates),
+        foundation_confirmation=foundation.confirmation_status.value,
+    )
+    if preview is not None:
+        kwargs.update(
+            foundation_preview_question=preview.question,
+            foundation_match_ratio=preview.schema_preflight.match_ratio if preview.schema_preflight else None,
+            foundation_auto_fill=preview.schema_preflight.auto_fill if preview.schema_preflight else False,
+            foundation_intent_guesses=tuple(item.label for item in preview.intent_guesses),
+        )
+    await runtime_connections.publish(PresentationContract.from_state(character, state, active=True, prominence=.9, message=message, event=event, **kwargs))
 
 async def _safe_data_intake(payload: dict) -> None:
     try:
         foundation = data_foundations.ingest_folder(payload) if payload.get("folder_path") else data_foundations.ingest(payload)
-        await _publish_foundation_state("sandre", CharacterState.RECEIVE, f"Received {len(foundation.sources)} source(s). Python preserved the selected material before extraction.", "MATERIAL_RECEIVED", foundation)
+        task_ids = tuple(str(v) for v in payload.get("recent_task_ids", ()) if str(v).strip()) if isinstance(payload.get("recent_task_ids", ()), (list, tuple)) else ()
+        prompts = tuple(str(v) for v in payload.get("prompt_history", ()) if str(v).strip()) if isinstance(payload.get("prompt_history", ()), (list, tuple)) else ()
+        first = foundation.sources[0] if foundation.sources else None
+        guesses = stewardship.predict_intent(source_name=first.name if first else "material", source_type=first.source_type.value if first else "unknown", recent_task_ids=task_ids, prompt_history=prompts)
+        preview = stewardship.preview(foundation, intent_guesses=guesses)
+        stewardship.record(foundation, task_ids=task_ids, event="MATERIAL_RECEIVED", detail=f"{len(foundation.sources)} source(s) received; {len(foundation.candidates)} candidate(s) extracted.")
+        await _publish_foundation_state("sandre", CharacterState.RECEIVE, f"Received {len(foundation.sources)} source(s). Python preserved the selected material before extraction.", "MATERIAL_RECEIVED", foundation, preview=preview)
         await asyncio.sleep(.12)
-        await _publish_foundation_state("sandre", CharacterState.WORK, f"Extracted {len(foundation.candidates)} candidate item(s) with source lineage preserved.", "EXTRACTION_COMPLETED", foundation)
+        await _publish_foundation_state("sandre", CharacterState.WORK, f"Extracted {len(foundation.candidates)} candidate item(s) with source lineage preserved.", "EXTRACTION_COMPLETED", foundation, preview=preview)
         await asyncio.sleep(.12)
-        await _publish_foundation_state("sandre", CharacterState.COMMUNICATE, f"Review required before handoff. {foundation.quality.anomaly_count} anomaly flag(s), {foundation.quality.missing_count} missingness flag(s), and {foundation.quality.duplicate_count} duplicate candidate(s) detected.", "USER_CONFIRMATION_REQUIRED", foundation)
+        if preview.schema_preflight and preview.schema_preflight.requires_clarification:
+            prompt = 'What is this material, and why are you providing it?'
+            message = f"{prompt} Sandre could not establish the required schema match automatically ({preview.schema_preflight.match_ratio:.0%})."
+        else:
+            message = f"Preview ready. {preview.question} Top inferred purpose: {preview.intent_guesses[0].label if preview.intent_guesses else 'unclassified'}."
+        await _publish_foundation_state("sandre", CharacterState.COMMUNICATE, message, "USER_CONFIRMATION_REQUIRED", foundation, preview=preview)
     except Exception as exc:
         logger.exception("S5 data intake failed.")
         await runtime_connections.publish(PresentationContract.from_state("sandre", CharacterState.WARNING, active=True, prominence=.9, message=f"Data intake could not be completed: {exc}", event="EXTRACTION_FAILED"))
@@ -56,16 +83,27 @@ async def _safe_data_action(payload: dict) -> None:
         action = payload.get("action")
         if action in {"confirm", "correct", "exclude", "add", "irrelevant", "clarify"}:
             foundation = data_foundations.confirm(str(foundation_id), action, tuple(payload.get("candidate_ids", ())))
-            await _publish_foundation_state("sandre", CharacterState.COMMUNICATE, f"Recorded user review as {foundation.confirmation_status.value}. The source remains preserved.", f"USER_INFORMATION_{action.upper()}", foundation)
+            stewardship.record(foundation, event=f"USER_INFORMATION_{action.upper()}", detail="User review recorded; source remains preserved.")
+            await _publish_foundation_state("sandre", CharacterState.COMMUNICATE, f"Recorded user review as {foundation.confirmation_status.value}. The source remains preserved.", f"USER_INFORMATION_{action.upper()}", foundation, preview=stewardship.preview(foundation))
             return
         if action == "handoff":
-            handoff = data_foundations.handoff(str(foundation_id), str(payload.get("recipient", "dharen")))
+            recipient = stewardship.route(str(payload.get("recipient", "dharen")))
+            handoff = data_foundations.handoff(str(foundation_id), recipient)
             foundation = data_foundations.get(str(foundation_id))
             task = analysis_tasks.create_task(task="Analyze the curated S5 foundation in its supplied research context.", data={"foundation_id": foundation.foundation_id, "canonical_rows": len(foundation.canonical_data)}, context=foundation.supplied_context, source=AnalysisTaskSource.BLOOM, references=tuple(s.source_id for s in foundation.sources), data_foundation=foundation)
-            await _publish_foundation_state("sandre", CharacterState.HANDOFF, f"Safeguarded foundation {handoff.foundation_id} is ready for Dharen as task {task.task_id}.", "SANDRE_HANDOFF_READY", foundation)
-            await asyncio.sleep(.15)
-            await dharen_runtime.publish_task(task, message="Dharen received the curated S5 foundation from Sandre.", event="DHAREN_HANDOFF_READY")
-            asyncio.create_task(analysis_tasks.execute(task.task_id))
+            stewardship.record(foundation, task_ids=(task.task_id,), event="SANDRE_HANDOFF_READY", detail=f"Routed curated foundation to {recipient}.")
+            await _publish_foundation_state("sandre", CharacterState.HANDOFF, f"Safeguarded foundation {handoff.foundation_id} is ready for {recipient} as task {task.task_id}.", "SANDRE_HANDOFF_READY", foundation)
+            if recipient == "dharen":
+                await asyncio.sleep(.15)
+                await dharen_runtime.publish_task(task, message="Dharen received the curated S5 foundation from Sandre.", event="DHAREN_HANDOFF_READY")
+                asyncio.create_task(analysis_tasks.execute(task.task_id))
+            return
+        if action == "log_search":
+            query = str(payload.get("query", ""))
+            entries = stewardship.search_logs(query)
+            latest = data_foundations.get(str(foundation_id)) if foundation_id else None
+            if latest:
+                await _publish_foundation_state("sandre", CharacterState.COMMUNICATE, f"Found {len(entries)} stewardship log record(s).", "STEWARD_LOG_SEARCH", latest)
             return
         raise ValueError("Unsupported S5 data action.")
     except Exception as exc:
