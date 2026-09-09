@@ -1,8 +1,4 @@
-"""Sprint 5 orchestration contracts for Syvax and Dharen.
-
-This module keeps orchestration deterministic and bounded. It does not invent
-research findings or implement later intelligence sprints.
-"""
+"""Sprint 5 orchestration contracts for Syvax and Dharen."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -20,7 +16,6 @@ class DoorAddress:
     character: str
     path: str
     state: tuple[tuple[str, str], ...] = ()
-
     @property
     def url(self) -> str:
         query = "&".join(f"{k}={v}" for k, v in self.state)
@@ -31,13 +26,8 @@ class LineageSnapshot:
     material_set_id: str
     timestamp: str
     user_intent_context: dict[str, Any]
-
     def to_dict(self) -> dict[str, Any]:
-        return {
-            "material_set_id": self.material_set_id,
-            "timestamp": self.timestamp,
-            "user_intent_context": dict(self.user_intent_context),
-        }
+        return {"material_set_id": self.material_set_id, "timestamp": self.timestamp, "user_intent_context": dict(self.user_intent_context)}
 
 def is_past_analysis_query(message: str) -> bool:
     return bool(PAST_QUERY.search(message.strip()))
@@ -52,34 +42,18 @@ def stewardship_door(material_set_id: str) -> DoorAddress:
     return DoorAddress("sandre", "/workspace/sandre", (("highlight", material_set_id),))
 
 def lineage_snapshot(foundation: Any, *, intent_context: dict[str, Any] | None = None) -> LineageSnapshot:
-    return LineageSnapshot(
-        material_set_id=foundation.foundation_id,
-        timestamp=datetime.now(timezone.utc).isoformat(),
-        user_intent_context=dict(intent_context or foundation.supplied_context or {}),
-    )
+    return LineageSnapshot(foundation.foundation_id, datetime.now(timezone.utc).isoformat(), dict(intent_context or foundation.supplied_context or {}))
 
 def past_analysis_summary(query: str = "") -> tuple[dict[str, Any], ...]:
     results = analysis_tasks.find_tasks(query)
-    return tuple({
-        "task_id": task.task_id,
-        "task": task.task,
-        "state": task.state.value,
-        "updated_at": task.updated_at.isoformat(),
-        "foundation_id": task.foundation_id,
-        "summary": task.result.summary if task.result else "No completed analytical result is stored for this task.",
-    } for task in results[:10])
+    return tuple({"task_id": task.task_id, "task": task.task, "state": task.state.value, "updated_at": task.updated_at.isoformat(), "foundation_id": task.foundation_id, "summary": task.result.summary if task.result else "No completed analytical result is stored for this task."} for task in results[:10])
+
+DELIVERY_PACKAGES: dict[str, dict[str, Any]] = {}
 
 def delivery_package(task: Any) -> dict[str, Any]:
-    """Create a formal downstream inspection package without executing Viveda."""
-    return {
-        "delivery_id": f"delivery-{task.task_id}",
-        "task_id": task.task_id,
-        "recipient": "viveda",
-        "status": "READY_FOR_INSPECTION",
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "result_summary": task.result.summary if task.result else None,
-        "observations": [o.text for o in (task.result.observations if task.result else ())],
-        "findings": [f.statement for f in (task.result.findings if task.result else ())],
-        "evidence": [e.detail for e in (task.result.evidence if task.result else ())],
-        "references": list(task.references),
-    }
+    package = {"delivery_id": f"delivery-{task.task_id}", "task_id": task.task_id, "recipient": "viveda", "status": "READY_FOR_INSPECTION", "created_at": datetime.now(timezone.utc).isoformat(), "result_summary": task.result.summary if task.result else None, "observations": [o.text for o in (task.result.observations if task.result else ())], "findings": [f.statement for f in (task.result.findings if task.result else ())], "evidence": [e.detail for e in (task.result.evidence if task.result else ())], "references": list(task.references)}
+    DELIVERY_PACKAGES[task.task_id] = package
+    return package
+
+def get_delivery_package(task_id: str) -> dict[str, Any] | None:
+    return DELIVERY_PACKAGES.get(task_id)
