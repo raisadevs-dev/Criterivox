@@ -6,7 +6,6 @@ from typing import Any
 from criterivox.domain.characters import CharacterState
 from criterivox.presentation.states import VisualPresentation
 
-
 @dataclass(frozen=True, slots=True)
 class PresentationContract:
     contract_version: int
@@ -38,7 +37,9 @@ class PresentationContract:
     foundation_intent_guesses: tuple[str, ...] = ()
     foundation_recipient: str | None = None
     foundation_log_count: int | None = None
+    foundation_log_entries: tuple[str, ...] = ()
     foundation_conflict_fields: tuple[str, ...] = ()
+    foundation_conditional_provenance: tuple[str, ...] = ()
     execution_engine: str | None = None
     execution_tier: str | None = None
     fallback_used: bool | None = None
