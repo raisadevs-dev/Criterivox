@@ -3,30 +3,26 @@ from criterivox.domain.data_foundation import ConfirmationStatus, DataFoundation
 
 
 def test_schema_preflight_auto_fills_at_eighty_percent():
-    result = SandreStewardship.schema_preflight(["name", "age", "platform", "extra"], ["name", "age", "platform", "country"])
-    assert result.match_ratio == 0.75
-    assert result.auto_fill is False
-    assert result.requires_clarification is True
-
-
-def test_schema_preflight_uses_threshold_for_confirmation_path():
     result = SandreStewardship.schema_preflight(["name", "age", "platform", "country"], ["name", "age", "platform", "country", "region"])
     assert result.match_ratio == 0.8
     assert result.auto_fill is True
     assert result.requires_clarification is False
 
 
+def test_schema_preflight_requires_clarification_below_threshold():
+    result = SandreStewardship.schema_preflight(["name", "age", "extra"], ["name", "age", "platform", "country"])
+    assert result.auto_fill is False
+    assert result.requires_clarification is True
+
+
 def test_preview_has_explicit_user_confirmation_question():
-    foundation = DataFoundation.create()
-    report = SandreStewardship().preview(foundation)
+    report = SandreStewardship().preview(DataFoundation.create())
     assert report.question == "Is this what you intended to submit?"
 
 
 def test_routing_only_allows_known_downstream_agents():
     steward = SandreStewardship()
-    assert steward.route("syvax") == "syvax"
-    assert steward.route("dharen") == "dharen"
-    assert steward.route("kaelen") == "kaelen"
+    assert {steward.route(x) for x in ("syvax", "dharen", "kaelen")} == {"syvax", "dharen", "kaelen"}
 
 
 def test_handoff_requires_user_confirmation_or_correction():
@@ -44,9 +40,25 @@ def test_stewardship_logs_are_searchable_by_recipient_and_task():
     assert len(steward.search_logs("TASK-123")) == 1
 
 
-def test_conflict_merge_requires_field_level_winner():
+def test_intent_must_be_explicitly_approved_from_presented_choices():
     steward = SandreStewardship()
-    merged, resolutions = steward.merge_conflicts(
+    assert steward.approve_intent("DF-1", "research evidence", ("research evidence", "analysis material")) == "research evidence"
+    try:
+        steward.approve_intent("DF-1", "invented purpose", ("research evidence", "analysis material"))
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Intent outside presented choices must be rejected.")
+
+
+def test_conditional_provenance_requires_explicit_boolean_choices():
+    steward = SandreStewardship()
+    choices = steward.set_conditional_provenance("DF-1", {"source_location": True, "page_or_section": False})
+    assert choices == {"source_location": True, "page_or_section": False}
+
+
+def test_conflict_merge_requires_field_level_winner():
+    merged, resolutions = SandreStewardship().merge_conflicts(
         {"purpose": "analysis", "format": "csv"},
         {"purpose": "research", "format": "csv"},
         {"purpose": "chat"},
