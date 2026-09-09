@@ -118,9 +118,8 @@ class _ShellState extends State<CriterivoxShell> {
 
   @override Widget build(BuildContext context) {
     final t = CriterivoxTheme.of(context);
-    final workspaceState = state?.agentId == 'dharen'
-        ? state
-        : _history.where((item) => item.agentId == 'dharen').cast<PresentationState?>().firstOrNull;
+    final dharenStates = _history.where((item) => item.agentId == 'dharen').toList();
+    final workspaceState = state?.agentId == 'dharen' ? state : (dharenStates.isEmpty ? null : dharenStates.first);
     return Scaffold(backgroundColor: t.page,body: SafeArea(child: Row(children:[
       _Sidebar(page: page,expanded: railOpen,onOpen: open,onReserved: showReserved,onToggle: () => setState(() => railOpen = !railOpen)),
       Expanded(child: Column(children:[
