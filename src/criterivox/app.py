@@ -37,8 +37,8 @@ async def _safe_request(handler, payload: dict) -> None:
         logger.exception("Runtime request failed.")
         await runtime_connections.publish(PresentationContract.from_state("Dharen", CharacterState.WARNING, active=True, prominence=.85, message=f"Runtime could not complete that request: {exc}", event="RUNTIME_ERROR"))
 
-async def _publish_foundation_state(character: str, state: CharacterState, message: str, event: str, foundation, *, preview=None, recipient=None, conflict_fields=(), log_count=None) -> None:
-    kwargs = dict(foundation_id=foundation.foundation_id, foundation_material_set_id=foundation.foundation_id, foundation_source_count=len(foundation.sources), foundation_candidate_count=len(foundation.candidates), foundation_confirmation=foundation.confirmation_status.value, foundation_recipient=recipient, foundation_log_count=len(stewardship.logs) if log_count is None else log_count, foundation_conflict_fields=tuple(conflict_fields))
+async def _publish_foundation_state(character: str, state: CharacterState, message: str, event: str, foundation, *, preview=None, recipient=None, conflict_fields=(), log_count=None, log_entries=(), conditional_provenance=()) -> None:
+    kwargs = dict(foundation_id=foundation.foundation_id, foundation_material_set_id=foundation.foundation_id, foundation_source_count=len(foundation.sources), foundation_candidate_count=len(foundation.candidates), foundation_confirmation=foundation.confirmation_status.value, foundation_recipient=recipient, foundation_log_count=len(stewardship.logs) if log_count is None else log_count, foundation_log_entries=tuple(log_entries), foundation_conflict_fields=tuple(conflict_fields), foundation_conditional_provenance=tuple(conditional_provenance))
     if preview is not None:
         kwargs.update(foundation_preview_question=preview.question, foundation_match_ratio=preview.schema_preflight.match_ratio if preview.schema_preflight else None, foundation_auto_fill=preview.schema_preflight.auto_fill if preview.schema_preflight else False, foundation_intent_guesses=tuple(item.label for item in preview.intent_guesses))
     await runtime_connections.publish(PresentationContract.from_state(character, state, active=True, prominence=.9, message=message, event=event, **kwargs))
@@ -71,6 +71,22 @@ async def _safe_data_action(payload: dict) -> None:
             stewardship.record(foundation, event=f"USER_INFORMATION_{action.upper()}", detail="User review recorded; source remains preserved.")
             await _publish_foundation_state("sandre", CharacterState.COMMUNICATE, f"Recorded user review as {foundation.confirmation_status.value}. The source remains preserved.", f"USER_INFORMATION_{action.upper()}", foundation, preview=stewardship.preview(foundation))
             return
+        if action == "approve_intent":
+            foundation = data_foundations.get(foundation_id)
+            label = stewardship.approve_intent(foundation_id, str(payload.get("intent", "")), payload.get("allowed_intents", ()))
+            stewardship.record(foundation, event="INTENT_APPROVED", detail=f"User approved inferred purpose: {label}.")
+            await _publish_foundation_state("sandre", CharacterState.COMMUNICATE, f"Recorded your intent as {label}. The heuristic remains a user-approved routing hint, not a research finding.", "INTENT_APPROVED", foundation, preview=stewardship.preview(foundation))
+            return
+        if action == "provenance_choices":
+            foundation = data_foundations.get(foundation_id)
+            choices = payload.get("choices")
+            if not isinstance(choices, dict):
+                raise ValueError("Conditional provenance choices must be an object of Yes/No values.")
+            stored = stewardship.set_conditional_provenance(foundation_id, {str(k): bool(v) for k, v in choices.items()})
+            stewardship.record(foundation, event="PROVENANCE_CHOICES_RECORDED", detail=f"User explicitly selected {len(stored)} conditional provenance option(s).")
+            enabled = tuple(key for key, value in stored.items() if value)
+            await _publish_foundation_state("sandre", CharacterState.COMPLETE, f"Recorded {len(stored)} conditional provenance choice(s). Retained: {', '.join(enabled) if enabled else 'none'}.", "PROVENANCE_CHOICES_RECORDED", foundation, conditional_provenance=enabled)
+            return
         if action == "handoff":
             recipient = stewardship.route(str(payload.get("recipient", "dharen")))
             foundation = data_foundations.get(foundation_id)
@@ -94,17 +110,18 @@ async def _safe_data_action(payload: dict) -> None:
             entries = stewardship.search_logs(str(payload.get("query", "")))
             latest = data_foundations.get(foundation_id) if foundation_id else None
             if latest:
-                await _publish_foundation_state("sandre", CharacterState.COMMUNICATE, f"Found {len(entries)} stewardship log record(s).", "STEWARD_LOG_SEARCH", latest, log_count=len(entries))
+                formatted = tuple(f"{entry.timestamp} • {entry.event} • {entry.material_set_id} • tasks={','.join(entry.task_ids) or 'none'} • {entry.detail}" for entry in entries[:20])
+                await _publish_foundation_state("sandre", CharacterState.COMMUNICATE, f"Found {len(entries)} stewardship log record(s).", "STEWARD_LOG_SEARCH", latest, log_count=len(entries), log_entries=formatted)
             return
         if action == "merge_conflicts":
             home, chat, winners = payload.get("home"), payload.get("chat"), payload.get("winners")
             if not isinstance(home, dict) or not isinstance(chat, dict) or not isinstance(winners, dict):
                 raise ValueError("Conflict merge requires home, chat, and per-field winners objects.")
-            _, resolutions = stewardship.merge_conflicts(home, chat, {str(k): str(v) for k, v in winners.items()})
+            merged, resolutions = stewardship.merge_conflicts(home, chat, {str(k): str(v) for k, v in winners.items()})
             foundation = data_foundations.get(foundation_id)
             fields = tuple(item.field for item in resolutions)
             stewardship.record(foundation, event="CONFLICTS_RESOLVED", detail=f"Resolved {len(resolutions)} field conflict(s) explicitly.")
-            await _publish_foundation_state("sandre", CharacterState.COMPLETE, f"Merged {len(resolutions)} conflicting field(s) using explicit user choices. No hard overwrite was applied.", "CONFLICTS_RESOLVED", foundation, conflict_fields=fields)
+            await _publish_foundation_state("sandre", CharacterState.COMPLETE, f"Merged {len(resolutions)} conflicting field(s) using explicit user choices. No hard overwrite was applied.", "CONFLICTS_RESOLVED", foundation, conflict_fields=fields, log_entries=tuple(f"{k}: {v!r}" for k, v in merged.items()))
             return
         raise ValueError("Unsupported S5 data action.")
     except Exception as exc:
