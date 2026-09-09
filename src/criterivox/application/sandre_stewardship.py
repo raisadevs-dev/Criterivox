@@ -9,6 +9,7 @@ from criterivox.domain.data_foundation import ConfirmationStatus, DataFoundation
 
 
 ALLOWED_RECIPIENTS = frozenset({"syvax", "dharen", "kaelen"})
+CONFIRMED_STATUSES = frozenset({ConfirmationStatus.USER_CONFIRMED, ConfirmationStatus.USER_CORRECTED})
 
 
 @dataclass(frozen=True, slots=True)
@@ -50,6 +51,7 @@ class StewardshipLogEntry:
     task_ids: tuple[str, ...] = ()
     event: str = "MATERIAL_RECEIVED"
     detail: str = ""
+    recipient: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -63,18 +65,11 @@ class ConflictResolution:
 
 @dataclass
 class SandreStewardship:
-    """Generic Sandre policies layered on the existing S5 foundation contracts."""
+    """Engineering policies for Sandre's S5 stewardship workflow."""
 
     logs: list[StewardshipLogEntry] = field(default_factory=list)
 
-    def predict_intent(
-        self,
-        *,
-        source_name: str,
-        source_type: str,
-        recent_task_ids: Iterable[str] = (),
-        prompt_history: Iterable[str] = (),
-    ) -> tuple[IntentGuess, ...]:
+    def predict_intent(self, *, source_name: str, source_type: str, recent_task_ids: Iterable[str] = (), prompt_history: Iterable[str] = ()) -> tuple[IntentGuess, ...]:
         text = " ".join((source_name, source_type, *recent_task_ids, *prompt_history)).lower()
         rules = {
             "analysis material": ("analysis", "analyze", "dataset", "data", "csv", "excel"),
@@ -91,12 +86,7 @@ class SandreStewardship:
         return tuple(sorted(scored, key=lambda item: (-item.score, item.label))[:3])
 
     @staticmethod
-    def schema_preflight(
-        supplied_fields: Iterable[str],
-        expected_fields: Iterable[str],
-        *,
-        threshold: float = 0.80,
-    ) -> SchemaPreflight:
+    def schema_preflight(supplied_fields: Iterable[str], expected_fields: Iterable[str], *, threshold: float = 0.80) -> SchemaPreflight:
         supplied = {str(v).strip() for v in supplied_fields if str(v).strip()}
         expected = {str(v).strip() for v in expected_fields if str(v).strip()}
         if not expected:
@@ -112,14 +102,7 @@ class SandreStewardship:
         ratio = len(matched) / len(expected)
         return SchemaPreflight(tuple(sorted(matched)), tuple(sorted(expected - matched)), round(ratio, 3), ratio >= threshold, ratio < threshold)
 
-    def preview(
-        self,
-        foundation: DataFoundation,
-        *,
-        material_set_id: str | None = None,
-        intent_guesses: tuple[IntentGuess, ...] = (),
-        schema_preflight: SchemaPreflight | None = None,
-    ) -> PreviewReport:
+    def preview(self, foundation: DataFoundation, *, material_set_id: str | None = None, intent_guesses: tuple[IntentGuess, ...] = (), schema_preflight: SchemaPreflight | None = None) -> PreviewReport:
         fields = tuple(sorted({key for row in foundation.canonical_data for key in row}))
         return PreviewReport(
             foundation_id=foundation.foundation_id,
@@ -142,7 +125,11 @@ class SandreStewardship:
             raise ValueError("Unsupported stewardship recipient.")
         return target
 
-    def record(self, foundation: DataFoundation, *, task_ids: Iterable[str] = (), event: str = "MATERIAL_RECEIVED", detail: str = "") -> StewardshipLogEntry:
+    @staticmethod
+    def can_handoff(foundation: DataFoundation) -> bool:
+        return foundation.confirmation_status in CONFIRMED_STATUSES
+
+    def record(self, foundation: DataFoundation, *, task_ids: Iterable[str] = (), event: str = "MATERIAL_RECEIVED", detail: str = "", recipient: str | None = None) -> StewardshipLogEntry:
         entry = StewardshipLogEntry(
             material_set_id=foundation.foundation_id,
             foundation_id=foundation.foundation_id,
@@ -150,6 +137,7 @@ class SandreStewardship:
             task_ids=tuple(str(v) for v in task_ids if str(v).strip()),
             event=event,
             detail=detail,
+            recipient=self.route(recipient) if recipient else None,
         )
         self.logs.append(entry)
         return entry
@@ -158,7 +146,7 @@ class SandreStewardship:
         needle = query.strip().lower()
         if not needle:
             return tuple(reversed(self.logs))
-        return tuple(entry for entry in reversed(self.logs) if needle in " ".join((entry.material_set_id, entry.foundation_id, entry.timestamp, entry.event, entry.detail, *entry.task_ids)).lower())
+        return tuple(entry for entry in reversed(self.logs) if needle in " ".join((entry.material_set_id, entry.foundation_id, entry.timestamp, entry.event, entry.detail, entry.recipient or "", *entry.task_ids)).lower())
 
     @staticmethod
     def merge_conflicts(home: dict[str, Any], chat: dict[str, Any], winners: dict[str, str]) -> tuple[dict[str, Any], tuple[ConflictResolution, ...]]:
@@ -179,12 +167,4 @@ class SandreStewardship:
         return merged, tuple(resolutions)
 
 
-__all__ = [
-    "ALLOWED_RECIPIENTS",
-    "ConflictResolution",
-    "IntentGuess",
-    "PreviewReport",
-    "SandreStewardship",
-    "SchemaPreflight",
-    "StewardshipLogEntry",
-]
+__all__ = ["ALLOWED_RECIPIENTS", "CONFIRMED_STATUSES", "ConflictResolution", "IntentGuess", "PreviewReport", "SandreStewardship", "SchemaPreflight", "StewardshipLogEntry"]
