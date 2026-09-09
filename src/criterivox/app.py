@@ -37,8 +37,8 @@ async def _safe_request(handler, payload: dict) -> None:
         logger.exception("Runtime request failed.")
         await runtime_connections.publish(PresentationContract.from_state("Dharen", CharacterState.WARNING, active=True, prominence=.85, message=f"Runtime could not complete that request: {exc}", event="RUNTIME_ERROR"))
 
-async def _publish_foundation_state(character: str, state: CharacterState, message: str, event: str, foundation, *, preview=None, recipient=None, conflict_fields=()) -> None:
-    kwargs = dict(foundation_id=foundation.foundation_id, foundation_material_set_id=foundation.foundation_id, foundation_source_count=len(foundation.sources), foundation_candidate_count=len(foundation.candidates), foundation_confirmation=foundation.confirmation_status.value, foundation_recipient=recipient, foundation_log_count=len(stewardship.logs), foundation_conflict_fields=tuple(conflict_fields))
+async def _publish_foundation_state(character: str, state: CharacterState, message: str, event: str, foundation, *, preview=None, recipient=None, conflict_fields=(), log_count=None) -> None:
+    kwargs = dict(foundation_id=foundation.foundation_id, foundation_material_set_id=foundation.foundation_id, foundation_source_count=len(foundation.sources), foundation_candidate_count=len(foundation.candidates), foundation_confirmation=foundation.confirmation_status.value, foundation_recipient=recipient, foundation_log_count=len(stewardship.logs) if log_count is None else log_count, foundation_conflict_fields=tuple(conflict_fields))
     if preview is not None:
         kwargs.update(foundation_preview_question=preview.question, foundation_match_ratio=preview.schema_preflight.match_ratio if preview.schema_preflight else None, foundation_auto_fill=preview.schema_preflight.auto_fill if preview.schema_preflight else False, foundation_intent_guesses=tuple(item.label for item in preview.intent_guesses))
     await runtime_connections.publish(PresentationContract.from_state(character, state, active=True, prominence=.9, message=message, event=event, **kwargs))
