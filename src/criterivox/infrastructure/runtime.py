@@ -6,6 +6,7 @@ from pydantic import BaseModel,ConfigDict,Field,ValidationError,model_validator
 from criterivox.application.analysis_tasks import analysis_tasks
 from criterivox.application.contracts import ApplicationRequest
 from criterivox.application.conversation import interpret_message
+from criterivox.application.data_foundation_store import data_foundations
 from criterivox.application.service import UnsupportedCapabilityError
 from criterivox.domain.analysis import AnalysisReference,AnalysisTask,AnalysisTaskSource,AnalysisTaskState
 from criterivox.domain.characters import CharacterActivityManager,CharacterState,CHARACTER_REGISTRY
@@ -20,11 +21,17 @@ class AnalysisRequest(BaseModel):
   return self
 @dataclass
 class RuntimeConnectionManager:
- clients:set[Any]=field(default_factory=set);latest:PresentationContract=field(default_factory=lambda:PresentationContract.from_state('Dharen',CharacterState.IDLE,active=False,prominence=.25))
- async def connect(self,websocket):await websocket.accept();self.clients.add(websocket);await websocket.send_text(json.dumps(self.latest.to_dict()))
+ clients:set[Any]=field(default_factory=set);latest:PresentationContract=field(default_factory=lambda:PresentationContract.from_state('Dharen',CharacterState.IDLE,active=False,prominence=.25));latest_foundation:dict[str,Any]=field(default_factory=dict)
+ async def connect(self,websocket):await websocket.accept();self.clients.add(websocket);await websocket.send_text(json.dumps(self._with_foundation(self.latest).to_dict()))
  def disconnect(self,websocket):self.clients.discard(websocket)
+ def _with_foundation(self,contract):
+  if not self.latest_foundation:return contract
+  values={key:value for key,value in self.latest_foundation.items() if getattr(contract,key,None) in (None,(),[])}
+  return PresentationContract(**{**contract.to_dict(),**values})
  async def publish(self,contract):
-  self.latest=contract;message=json.dumps(contract.to_dict());dead=[]
+  foundation_fields={key:value for key,value in contract.to_dict().items() if key.startswith('foundation_') and value not in (None,(),[])}
+  if foundation_fields:self.latest_foundation=foundation_fields
+  contract=self._with_foundation(contract);self.latest=contract;message=json.dumps(contract.to_dict());dead=[]
   for client in tuple(self.clients):
    try:await client.send_text(message)
    except Exception:dead.append(client)
@@ -82,14 +89,18 @@ def _parse_chat_references(raw):
   names.append(name)
   if len(details)<len(names):details.append(AnalysisReference(f'ref-{i+1}',name,'link',url=name))
  return tuple(names),tuple(details)
-async def _publish_character(character_id,state,*,message,event,task=None,active=True,prominence=.85):
- activity_manager=dharen_runtime._activity
- activity=activity_manager.set_state(character_id,state)
- fields={}
- if task is not None:
-  result=task.result;refs=tuple(r.name for r in task.reference_details) or tuple(task.references)
-  fields=dict(task_id=task.task_id,task_state=task.state.value,task_source=task.source.value,task=task.task,task_data_fields=len(task.data),task_context_fields=len(task.context),task_created_at=task.created_at.isoformat(),task_updated_at=task.updated_at.isoformat(),task_references=refs,observations=tuple({'id':o.identifier,'text':o.text,'significance':o.significance} for o in (result.observations if result else ())),findings=tuple({'id':f.identifier,'statement':f.statement,'confidence':f.confidence} for f in (result.findings if result else ())),evidence=tuple({'id':e.identifier,'label':e.label,'source':e.source,'detail':e.detail} for e in (result.evidence if result else ())),activity=tuple(task.activity[-12:]),error=task.error)
- await runtime_connections.publish(PresentationContract.from_state(character_id,activity.state,active=active,prominence=prominence,message=message,event=event,**fields))
+def _foundation_payload(refs,details,message,task_id):
+ sources=[]
+ for name,detail in zip(refs,details):sources.append({'name':name,'source_type':'file','channel':'chat','content_base64':detail.content_base64,'collection_id':task_id})
+ return {'sources':sources,'collection_id':task_id or f'chat-{id(message)}','supplied_context':{'entered_through':'Syvax Chatbox','chat_message':message[:500],'task_id':task_id,'material_origin':'chat_reference'}}
+async def _sync_chat_material(refs,details,message,task_id):
+ if not details:return None
+ foundation=data_foundations.ingest(_foundation_payload(refs,details,message,task_id))
+ fields={'foundation_id':foundation.foundation_id,'foundation_material_set_id':foundation.foundation_id,'foundation_source_count':len(foundation.sources),'foundation_candidate_count':len(foundation.candidates),'foundation_confirmation':foundation.confirmation_status.value,'foundation_preview_question':'Is this what you intended to submit?','foundation_recipient':'syvax'}
+ await runtime_connections.publish(PresentationContract.from_state('Sandre',CharacterState.RECEIVE,active=True,prominence=.9,message=f'Sandre received {len(foundation.sources)} chat material source(s). Extraction is now available in Data Stewardship.',event='MATERIAL_RECEIVED',**fields))
+ await asyncio.sleep(.05)
+ await runtime_connections.publish(PresentationContract.from_state('Sandre',CharacterState.WORK,active=True,prominence=.9,message='Sandre completed the initial chat-material extraction and profiling. The same foundation is now visible to the stewardship workspace.',event='EXTRACTION_COMPLETED',**fields))
+ return foundation
 async def handle_application_request(payload):
  request=parse_application_request(payload)
  if request.intent.value!='analyze':raise UnsupportedCapabilityError(f"Capability '{request.intent.value}' is reserved for a future sprint.")
@@ -104,35 +115,24 @@ async def handle_chat_message(payload):
  if target not in ALLOWED_CHAT_CHARACTERS:raise ValueError('Unknown chat character.')
  task_id=payload.get('task_id');message=payload.get('message')
  if not isinstance(message,str) or not message.strip() or len(message)>2000:raise ValueError('Chat message is invalid.')
- interpretation=interpret_message(message);refs,details=_parse_chat_references(payload.get('references',[]));speaker='Dharen' if target=='dharen' else 'Syvax'
+ interpretation=interpret_message(message);refs,details=_parse_chat_references(payload.get('references',[]));await _sync_chat_material(refs,details,message,task_id)
  if target=='syvax':
   if interpretation.intent=='handoff':
-   if task_id is None:
-    task=analysis_tasks.create_task(task=interpretation.normalized_text,data={},context={},source=AnalysisTaskSource.CHAT,references=refs,reference_details=details);task_id=task.task_id
-   else: task=analysis_tasks.get_task(str(task_id))
-   await _publish_character('Syvax',CharacterState.RECEIVE,message='Syvax received your handoff instruction.',event='SYVAX_RECEIVED',task=task)
-   await asyncio.sleep(.12)
-   await _publish_character('Syvax',CharacterState.WORK,message='Syvax is preparing the handoff context for Dharen.',event='HANDOFF_PREPARING',task=task)
-   await asyncio.sleep(.12)
-   await _publish_character('Syvax',CharacterState.HANDOFF,message='Syvax can hand this task to Dharen. The current task, data, context, and references will remain attached.',event='HANDOFF_ACCEPTED',task=task)
-   await asyncio.sleep(.12)
-   await _publish_character('Dharen',CharacterState.RECEIVE,message='Dharen received the task from Syvax.',event='HANDOFF_COMPLETED',task=task)
+   if task_id is None:task=analysis_tasks.create_task(task=interpretation.normalized_text,data={},context={},source=AnalysisTaskSource.CHAT,references=refs,reference_details=details);task_id=task.task_id
+   else:task=analysis_tasks.get_task(str(task_id))
+   await _publish_character('Syvax',CharacterState.RECEIVE,message='Syvax received your handoff instruction.',event='SYVAX_RECEIVED',task=task);await asyncio.sleep(.12);await _publish_character('Syvax',CharacterState.WORK,message='Syvax is preparing the handoff context for Dharen.',event='HANDOFF_PREPARING',task=task);await asyncio.sleep(.12);await _publish_character('Syvax',CharacterState.HANDOFF,message='Syvax can hand this task to Dharen. The current task, data, context, and references will remain attached.',event='HANDOFF_ACCEPTED',task=task);await asyncio.sleep(.12);await _publish_character('Dharen',CharacterState.RECEIVE,message='Dharen received the task from Syvax.',event='HANDOFF_COMPLETED',task=task)
    if not task.is_terminal:asyncio.create_task(analysis_tasks.execute(task.task_id))
    return
   if interpretation.intent=='user_continue':
-   if task_id is None:
-    await _publish_character('Syvax',CharacterState.RECEIVE,message='Syvax received your choice to continue yourself.',event='SYVAX_RECEIVED')
-   else:
-    task=analysis_tasks.get_task(str(task_id));await _publish_character('Syvax',CharacterState.COMMUNICATE,message='Syvax will keep the current task with you. No handoff was performed.',event='USER_CONTINUES',task=task)
+   if task_id is None:await _publish_character('Syvax',CharacterState.RECEIVE,message='Syvax received your choice to continue yourself.',event='SYVAX_RECEIVED')
+   else:task=analysis_tasks.get_task(str(task_id));await _publish_character('Syvax',CharacterState.COMMUNICATE,message='Syvax will keep the current task with you. No handoff was performed.',event='USER_CONTINUES',task=task)
    return
   if interpretation.intent=='analyze':
-   if task_id is None:
-    task=analysis_tasks.create_task(task=interpretation.normalized_text,data=payload.get('data') if isinstance(payload.get('data'),dict) else {},context=payload.get('context') if isinstance(payload.get('context'),dict) else {},source=AnalysisTaskSource.CHAT,references=refs,reference_details=details);task_id=task.task_id
-   else: task=analysis_tasks.get_task(str(task_id))
+   if task_id is None:task=analysis_tasks.create_task(task=interpretation.normalized_text,data=payload.get('data') if isinstance(payload.get('data'),dict) else {},context=payload.get('context') if isinstance(payload.get('context'),dict) else {},source=AnalysisTaskSource.CHAT,references=refs,reference_details=details);task_id=task.task_id
+   else:task=analysis_tasks.get_task(str(task_id))
    await _publish_character('Syvax',CharacterState.RECEIVE,message='Syvax received your analysis request.',event='SYVAX_RECEIVED',task=task);await asyncio.sleep(.12);await _publish_character('Syvax',CharacterState.COMMUNICATE,message='This is an analysis task. Syvax recommends Dharen for the structural analysis. You can hand it over to Dharen or continue yourself.',event='HANDOFF_PROPOSED',task=task);return
-  if task_id is None:
-   task=analysis_tasks.create_task(task=interpretation.normalized_text,data=payload.get('data') if isinstance(payload.get('data'),dict) else {},context=payload.get('context') if isinstance(payload.get('context'),dict) else {},source=AnalysisTaskSource.CHAT,references=refs,reference_details=details);task_id=task.task_id
-  else: task=analysis_tasks.get_task(str(task_id))
+  if task_id is None:task=analysis_tasks.create_task(task=interpretation.normalized_text,data=payload.get('data') if isinstance(payload.get('data'),dict) else {},context=payload.get('context') if isinstance(payload.get('context'),dict) else {},source=AnalysisTaskSource.CHAT,references=refs,reference_details=details);task_id=task.task_id
+  else:task=analysis_tasks.get_task(str(task_id))
   await _publish_character('Syvax',CharacterState.RECEIVE,message='Syvax received your request and is interpreting what you need.',event='SYVAX_RECEIVED',task=task);await asyncio.sleep(.12);await _publish_character('Syvax',CharacterState.COMMUNICATE,message='I can route analysis work to Dharen, or you can continue the task yourself. Tell me which you prefer.',event='HANDOFF_PROPOSED',task=task);return
  task=analysis_tasks.get_task(str(task_id)) if task_id is not None else None
  if task is None:
@@ -142,4 +142,9 @@ async def handle_chat_message(payload):
  if interpretation.intent=='status':await dharen_runtime.publish_task(task,message=f'Dharen reports the authoritative analysis state: {task.state.value}.',event='TASK_STATUS_REQUESTED')
  elif interpretation.intent=='continue':await dharen_runtime.publish_task(task,message='Dharen confirms the current analysis remains active. The same task state and evidence are preserved.',event='TASK_CONTINUE_REQUESTED')
  else:await dharen_runtime.publish_task(task,message='Dharen received the follow-up. The task remains grounded in its recorded data, context, and references.',event='TASK_FOLLOWUP_RECEIVED')
+async def _publish_character(character_id,state,*,message,event,task=None,active=True,prominence=.85):
+ activity_manager=dharen_runtime._activity;activity=activity_manager.set_state(character_id,state);fields={}
+ if task is not None:
+  result=task.result;refs=tuple(r.name for r in task.reference_details) or tuple(task.references);fields=dict(task_id=task.task_id,task_state=task.state.value,task_source=task.source.value,task=task.task,task_data_fields=len(task.data),task_context_fields=len(task.context),task_created_at=task.created_at.isoformat(),task_updated_at=task.updated_at.isoformat(),task_references=refs,observations=tuple({'id':o.identifier,'text':o.text,'significance':o.significance} for o in (result.observations if result else ())),findings=tuple({'id':f.identifier,'statement':f.statement,'confidence':f.confidence} for f in (result.findings if result else ())),evidence=tuple({'id':e.identifier,'label':e.label,'source':e.source,'detail':e.detail} for e in (result.evidence if result else ())),activity=tuple(task.activity[-12:]),error=task.error)
+ await runtime_connections.publish(PresentationContract.from_state(character_id,activity.state,active=active,prominence=prominence,message=message,event=event,**fields))
 __all__=['AnalysisRequest','DharenRuntime','RuntimeConnectionManager','dharen_runtime','handle_application_request','handle_chat_message','parse_analysis_request','parse_application_request','runtime_connections','UnsupportedCapabilityError']
