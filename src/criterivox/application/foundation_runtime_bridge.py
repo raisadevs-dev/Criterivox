@@ -36,6 +36,12 @@ async def _publish_task_with_foundation(self: DharenRuntime, task: Any, *, messa
 async def _orchestrated_chat(payload: dict[str, Any]) -> None:
     message = str(payload.get('message', '')).strip()
     task_id = payload.get('task_id')
+    target = str(payload.get('target_character', 'syvax')).lower()
+    if target == 'sandre':
+        await runtime_connections.publish(PresentationContract.from_state('Sandre', CharacterState.RECEIVE, active=True, prominence=.9, message='Sandre received the stewardship conversation. The current foundation remains the authoritative data context.', event='SANDRE_CHAT_RECEIVED', foundation_id=runtime_connections.latest.foundation_id, door_address=stewardship_door(runtime_connections.latest.foundation_id).url if runtime_connections.latest.foundation_id else None, task_id=str(task_id) if task_id else None))
+        if message:
+            await runtime_connections.publish(PresentationContract.from_state('Sandre', CharacterState.COMMUNICATE, active=True, prominence=.9, message='Sandre is keeping the conversation tied to the current Data Stewardship foundation and its provenance.', event='SANDRE_CHAT_CONTEXTUALIZED', foundation_id=runtime_connections.latest.foundation_id, door_address=stewardship_door(runtime_connections.latest.foundation_id).url if runtime_connections.latest.foundation_id else None, task_id=str(task_id) if task_id else None))
+        return
     if is_past_analysis_query(message):
         rows = past_analysis_summary()
         if rows:
@@ -56,7 +62,7 @@ async def _orchestrated_chat(payload: dict[str, Any]) -> None:
     latest = runtime_connections.latest
     if latest.foundation_id:
         await runtime_connections.publish(replace(latest, message=(latest.message or '') + f" Open Sandre's Data Stewardship door: {stewardship_door(latest.foundation_id).url}", event='SYVAX_STEWARDSHIP_DOOR', door_address=stewardship_door(latest.foundation_id).url))
-    if str(payload.get('target_character', 'syvax')).lower() == 'syvax' and interpret_message(message).intent == 'analyze' and latest.task_id:
+    if target == 'syvax' and interpret_message(message).intent == 'analyze' and latest.task_id:
         task = analysis_tasks.get_task(latest.task_id)
         await runtime_connections.publish(PresentationContract.from_state('Syvax', CharacterState.HANDOFF, active=True, prominence=.9, message='Syvax assigned the analysis task to Dharen and passed the current task context automatically.', event='SYVAX_AUTO_ASSIGN_DHAREN', task_id=task.task_id, door_address=analysis_door(task.task_id).url))
         await runtime_connections.publish(PresentationContract.from_state('Dharen', CharacterState.RECEIVE, active=True, prominence=.9, message='Dharen received the task from Syvax.', event='SYVAX_HANDOFF_COMPLETED', task_id=task.task_id, door_address=analysis_door(task.task_id).url))
