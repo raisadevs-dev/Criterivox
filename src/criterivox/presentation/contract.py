@@ -28,6 +28,10 @@ class PresentationContract:
     foundation_source_count: int | None = None
     foundation_candidate_count: int | None = None
     foundation_confirmation: str | None = None
+    foundation_preview_question: str | None = None
+    foundation_match_ratio: float | None = None
+    foundation_auto_fill: bool | None = None
+    foundation_intent_guesses: tuple[str, ...] = ()
     execution_engine: str | None = None
     execution_tier: str | None = None
     fallback_used: bool | None = None
