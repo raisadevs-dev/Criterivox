@@ -43,6 +43,13 @@ class PresentationContract:
     execution_engine: str | None = None
     execution_tier: str | None = None
     fallback_used: bool | None = None
+    door_address: str | None = None
+    lineage_snapshot: dict[str, Any] | None = None
+    coordination_id: str | None = None
+    coordination_members: tuple[str, ...] = ()
+    delivery_id: str | None = None
+    delivery_recipient: str | None = None
+    delivery_status: str | None = None
     observations: tuple[dict[str, str], ...] = ()
     findings: tuple[dict[str, str], ...] = ()
     evidence: tuple[dict[str, str], ...] = ()
