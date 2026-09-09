@@ -7,17 +7,14 @@ from typing import Any, Iterable
 
 from criterivox.domain.data_foundation import ConfirmationStatus, DataFoundation
 
-
 ALLOWED_RECIPIENTS = frozenset({"syvax", "dharen", "kaelen"})
 CONFIRMED_STATUSES = frozenset({ConfirmationStatus.USER_CONFIRMED, ConfirmationStatus.USER_CORRECTED})
-
 
 @dataclass(frozen=True, slots=True)
 class IntentGuess:
     label: str
     score: float
     evidence: tuple[str, ...] = ()
-
 
 @dataclass(frozen=True, slots=True)
 class SchemaPreflight:
@@ -26,7 +23,6 @@ class SchemaPreflight:
     match_ratio: float
     auto_fill: bool
     requires_clarification: bool
-
 
 @dataclass(frozen=True, slots=True)
 class PreviewReport:
@@ -42,7 +38,6 @@ class PreviewReport:
     intent_guesses: tuple[IntentGuess, ...] = ()
     schema_preflight: SchemaPreflight | None = None
 
-
 @dataclass(frozen=True, slots=True)
 class StewardshipLogEntry:
     material_set_id: str
@@ -53,7 +48,6 @@ class StewardshipLogEntry:
     detail: str = ""
     recipient: str | None = None
 
-
 @dataclass(frozen=True, slots=True)
 class ConflictResolution:
     field: str
@@ -62,12 +56,12 @@ class ConflictResolution:
     winner: str
     result: Any
 
-
 @dataclass
 class SandreStewardship:
-    """Engineering policies for Sandre's S5 stewardship workflow."""
-
+    """S5 stewardship policies. Research semantics are never inferred here."""
     logs: list[StewardshipLogEntry] = field(default_factory=list)
+    approved_intents: dict[str, str] = field(default_factory=dict)
+    conditional_provenance: dict[str, dict[str, bool]] = field(default_factory=dict)
 
     def predict_intent(self, *, source_name: str, source_type: str, recent_task_ids: Iterable[str] = (), prompt_history: Iterable[str] = ()) -> tuple[IntentGuess, ...]:
         text = " ".join((source_name, source_type, *recent_task_ids, *prompt_history)).lower()
@@ -78,12 +72,19 @@ class SandreStewardship:
             "reference material": ("reference", "source", "citation", "url", "link"),
             "supporting material": ("file", "document", "folder", "attachment"),
         }
-        scored: list[IntentGuess] = []
+        scored = []
         for label, keywords in rules.items():
             hits = tuple(k for k in keywords if k in text)
             score = min(0.99, 0.25 + 0.12 * len(hits)) if hits else 0.05
             scored.append(IntentGuess(label, round(score, 3), hits))
         return tuple(sorted(scored, key=lambda item: (-item.score, item.label))[:3])
+
+    def approve_intent(self, foundation_id: str, label: str, allowed: Iterable[str]) -> str:
+        value = str(label).strip()
+        if value not in {str(x).strip() for x in allowed}:
+            raise ValueError("Intent approval must select one of the presented guesses.")
+        self.approved_intents[foundation_id] = value
+        return value
 
     @staticmethod
     def schema_preflight(supplied_fields: Iterable[str], expected_fields: Iterable[str], *, threshold: float = 0.80) -> SchemaPreflight:
@@ -104,19 +105,7 @@ class SandreStewardship:
 
     def preview(self, foundation: DataFoundation, *, material_set_id: str | None = None, intent_guesses: tuple[IntentGuess, ...] = (), schema_preflight: SchemaPreflight | None = None) -> PreviewReport:
         fields = tuple(sorted({key for row in foundation.canonical_data for key in row}))
-        return PreviewReport(
-            foundation_id=foundation.foundation_id,
-            material_set_id=material_set_id or foundation.foundation_id,
-            question="Is this what you intended to submit?",
-            source_count=len(foundation.sources),
-            candidate_count=len(foundation.candidates),
-            fields=fields,
-            anomalies=foundation.quality.anomaly_count,
-            missingness=foundation.quality.missing_count,
-            confirmation_status=foundation.confirmation_status.value,
-            intent_guesses=intent_guesses,
-            schema_preflight=schema_preflight,
-        )
+        return PreviewReport(foundation.foundation_id, material_set_id or foundation.foundation_id, "Is this what you intended to submit?", len(foundation.sources), len(foundation.candidates), fields, foundation.quality.anomaly_count, foundation.quality.missing_count, foundation.confirmation_status.value, intent_guesses, schema_preflight)
 
     @staticmethod
     def route(recipient: str) -> str:
@@ -129,16 +118,13 @@ class SandreStewardship:
     def can_handoff(foundation: DataFoundation) -> bool:
         return foundation.confirmation_status in CONFIRMED_STATUSES
 
+    def set_conditional_provenance(self, foundation_id: str, choices: dict[str, bool]) -> dict[str, bool]:
+        clean = {str(k).strip(): bool(v) for k, v in choices.items() if str(k).strip()}
+        self.conditional_provenance[foundation_id] = clean
+        return dict(clean)
+
     def record(self, foundation: DataFoundation, *, task_ids: Iterable[str] = (), event: str = "MATERIAL_RECEIVED", detail: str = "", recipient: str | None = None) -> StewardshipLogEntry:
-        entry = StewardshipLogEntry(
-            material_set_id=foundation.foundation_id,
-            foundation_id=foundation.foundation_id,
-            timestamp=datetime.now(timezone.utc).isoformat(),
-            task_ids=tuple(str(v) for v in task_ids if str(v).strip()),
-            event=event,
-            detail=detail,
-            recipient=self.route(recipient) if recipient else None,
-        )
+        entry = StewardshipLogEntry(foundation.foundation_id, foundation.foundation_id, datetime.now(timezone.utc).isoformat(), tuple(str(v) for v in task_ids if str(v).strip()), event, detail, self.route(recipient) if recipient else None)
         self.logs.append(entry)
         return entry
 
@@ -165,6 +151,5 @@ class SandreStewardship:
             merged[field] = result
             resolutions.append(ConflictResolution(field, hv, cv, winner, result))
         return merged, tuple(resolutions)
-
 
 __all__ = ["ALLOWED_RECIPIENTS", "CONFIRMED_STATUSES", "ConflictResolution", "IntentGuess", "PreviewReport", "SandreStewardship", "SchemaPreflight", "StewardshipLogEntry"]
