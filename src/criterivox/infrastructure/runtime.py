@@ -91,16 +91,23 @@ def _parse_chat_references(raw):
  return tuple(names),tuple(details)
 def _foundation_payload(refs,details,message,task_id):
  sources=[]
- for name,detail in zip(refs,details):sources.append({'name':name,'source_type':'file','channel':'chat','content_base64':detail.content_base64,'collection_id':task_id})
+ for name,detail in zip(refs,details):
+  decoded=None
+  try:
+   raw=base64.b64decode(detail.content_base64,validate=True)
+   decoded=raw.decode('utf-8')
+  except (UnicodeDecodeError,ValueError,binascii.Error):
+   pass
+  item={'name':name,'source_type':'file','channel':'chat','collection_id':task_id}
+  if decoded is not None:item['content']=decoded
+  else:item['content_base64']=detail.content_base64
+  sources.append(item)
  return {'sources':sources,'collection_id':task_id or f'chat-{id(message)}','supplied_context':{'entered_through':'Syvax Chatbox','chat_message':message[:500],'task_id':task_id,'material_origin':'chat_reference'}}
 async def _sync_chat_material(refs,details,message,task_id):
  if not details:return None
  foundation=data_foundations.ingest(_foundation_payload(refs,details,message,task_id))
  fields={'foundation_id':foundation.foundation_id,'foundation_material_set_id':foundation.foundation_id,'foundation_source_count':len(foundation.sources),'foundation_candidate_count':len(foundation.candidates),'foundation_confirmation':foundation.confirmation_status.value,'foundation_preview_question':'Is this what you intended to submit?','foundation_recipient':'syvax'}
- await runtime_connections.publish(PresentationContract.from_state('Sandre',CharacterState.RECEIVE,active=True,prominence=.9,message=f'Sandre received {len(foundation.sources)} chat material source(s). Extraction is now available in Data Stewardship.',event='MATERIAL_RECEIVED',**fields))
- await asyncio.sleep(.05)
- await runtime_connections.publish(PresentationContract.from_state('Sandre',CharacterState.WORK,active=True,prominence=.9,message='Sandre completed the initial chat-material extraction and profiling. The same foundation is now visible to the stewardship workspace.',event='EXTRACTION_COMPLETED',**fields))
- return foundation
+ await runtime_connections.publish(PresentationContract.from_state('Sandre',CharacterState.RECEIVE,active=True,prominence=.9,message=f'Sandre received {len(foundation.sources)} chat material source(s). Extraction is now available in Data Stewardship.',event='MATERIAL_RECEIVED',**fields));await asyncio.sleep(.05);await runtime_connections.publish(PresentationContract.from_state('Sandre',CharacterState.WORK,active=True,prominence=.9,message='Sandre completed the initial chat-material extraction and profiling. The same foundation is now visible to the stewardship workspace.',event='EXTRACTION_COMPLETED',**fields));return foundation
 async def handle_application_request(payload):
  request=parse_application_request(payload)
  if request.intent.value!='analyze':raise UnsupportedCapabilityError(f"Capability '{request.intent.value}' is reserved for a future sprint.")
