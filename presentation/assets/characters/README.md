@@ -1,22 +1,26 @@
-# Character Vector Assets
+# Character Skeletal Runtime Assets
 
-This directory contains character artwork authored as vector assets for Flutter.
+Character visuals are rendered by the local Web skeletal runtime, not by Flutter SVG assets.
 
 ## Animation pipeline
 
 ```text
-Character design
+Character reference / design
       ↓
-Glaxnimate
+2D bone + slot authoring data
       ↓
-SVG artwork / animation source
+plain JSON skeleton + animation tracks
       ↓
-Flutter SVG renderer + Flutter motion
+local HTML + standard JavaScript runtime
       ↓
-Visible character
+Flutter Web HtmlElementView boundary
+      ↓
+visible semantic character
 ```
 
-Dharen and Syvax use SVG artwork while semantic character state remains owned by the Python/application runtime. Flutter maps those states to presentation motion, visibility, emphasis, and reduced-motion behavior.
+The runtime follows a DragonBones / Spine-style skeletal model: bones, slots, character-specific skins/signatures, animation tracks and blended state transitions. The current renderer is an original Criterivox runtime and does not require a network asset service.
+
+Python remains authoritative for semantic character state. Flutter transports and exposes that state; JavaScript owns skeletal interpolation and rendering.
 
 Shared character states remain:
 
