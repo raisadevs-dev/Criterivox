@@ -109,11 +109,17 @@ class _LiveAgentPanelState extends State<LiveAgentPanel> {
                       Text(widget.workDescription, style: TextStyle(color: theme.mutedText, fontSize: 10.5, height: 1.45)),
                       if (widget.onChat != null) ...[
                         const SizedBox(height: 12),
-                        OutlinedButton.icon(onPressed: widget.onChat, icon: const Icon(Icons.forum_outlined, size: 15), label: Text('Open ${identity.displayName} chat')),
+                        OutlinedButton.icon(
+                          onPressed: widget.onChat,
+                          icon: const Icon(Icons.forum_outlined, size: 15),
+                          label: Text('Open ${identity.displayName} chat'),
+                        ),
                       ],
                     ],
                   );
-                  return narrow ? Column(children: [visual, const SizedBox(height: 10), Align(alignment: Alignment.centerLeft, child: details)]) : Row(crossAxisAlignment: CrossAxisAlignment.center, children: [SizedBox(width: 220, child: visual), const SizedBox(width: 18), Expanded(child: details)]);
+                  return narrow
+                      ? Column(children: [visual, const SizedBox(height: 10), Align(alignment: Alignment.centerLeft, child: details)])
+                      : Row(crossAxisAlignment: CrossAxisAlignment.center, children: [SizedBox(width: 220, child: visual), const SizedBox(width: 18), Expanded(child: details)]);
                 },
               ),
             ),
