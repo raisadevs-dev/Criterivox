@@ -4,14 +4,6 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any, Mapping
 
-from criterivox.application.context_intelligence import (
-    ContextDiff,
-    ContextMemoryRecord,
-    EvidenceDebt,
-    ProvenanceEdge,
-    ProvenanceGraph,
-    ProvenanceNode,
-)
 from criterivox.domain.context import (
     BaselineSpec,
     ContextDimension,
@@ -22,6 +14,15 @@ from criterivox.domain.context import (
     EvidenceStatus,
     NormalizationDecision,
 )
+from criterivox.domain.context_intelligence import (
+    ContextDiff,
+    ContextMemoryPolicy,
+    ContextProvenanceGraph,
+    EvidenceDebt,
+    build_provenance_graph,
+    calculate_evidence_debt,
+    diff_contexts,
+)
 from criterivox.domain.data_foundation import DataFoundation, DataHandoff
 
 
@@ -31,10 +32,10 @@ class ContextBuildResult:
     normalization: tuple[NormalizationDecision, ...]
     baselines: tuple[BaselineSpec, ...]
     interpretation: ContextInterpretation
-    provenance_graph: ProvenanceGraph
+    provenance_graph: ContextProvenanceGraph
     context_diff: ContextDiff
     evidence_debt: EvidenceDebt
-    memory: ContextMemoryRecord | None
+    memory: ContextMemoryPolicy
 
 
 class ContextEngine:
@@ -60,35 +61,43 @@ class ContextEngine:
             items.append(ContextItem("material.record_count", len(canonical), ContextDimension.CONTENT, source_ids=source_ids))
         else:
             items.append(ContextItem("material.record_count", None, ContextDimension.CONTENT, status=EvidenceStatus.UNKNOWN, source_ids=source_ids, limitations=("No canonical rows are available.",)))
-
         for key, value in supplied.items():
             items.append(ContextItem(key=f"supplied.{key}", value=value, dimension=ContextDimension.ENVIRONMENT, status=EvidenceStatus.OBSERVED, source_ids=source_ids))
 
-        now = datetime.now(timezone.utc).isoformat()
-        lineage = ContextLineage(material_set_id=material_id, created_at=now, user_intent_context=supplied, source_ids=source_ids, immutable=False)
-        context = ContextRecord(context_id=f"CTX-{material_id or 'UNBOUND'}", created_at=now, items=tuple(items), lineage=lineage)
+        now = datetime.now(timezone.utc)
+        lineage = ContextLineage(material_set_id=material_id, created_at=now.isoformat(), user_intent_context=supplied, source_ids=source_ids, immutable=False)
+        context = ContextRecord(context_id=f"CTX-{material_id or 'UNBOUND'}", created_at=now.isoformat(), items=tuple(items), lineage=lineage)
         normalization = self.normalize(context)
         baselines = (self.create_baseline(context),)
         interpretation = self.interpret(context)
-        current_snapshot = {item.key: item.value for item in context.items}
-        context_diff = ContextDiff.structural(previous_context, current_snapshot)
-        evidence = tuple({"id": f"CTX-EVID-{index:03d}", "status": item.status.value, "source_id": source_ids[0] if source_ids else ""} for index, item in enumerate(context.items, start=1))
-        evidence_debt = EvidenceDebt.assess(evidence, missing_dimensions=tuple(item.value for item in context.missing_dimensions()), uncertainty=interpretation.uncertainty)
-
-        source_nodes = [ProvenanceNode(f"SOURCE:{source_id}", "SOURCE", source_id, (source_id,)) for source_id in source_ids]
-        foundation_node = ProvenanceNode(f"FOUNDATION:{material_id or 'UNBOUND'}", "DATA_FOUNDATION", material_id or "UNBOUND", source_ids)
-        context_node = ProvenanceNode(context.context_id, "CONTEXT", context.context_id, source_ids)
-        interpretation_node = ProvenanceNode(interpretation.interpretation_id, "INTERPRETATION", interpretation.interpretation_id, source_ids)
-        nodes = tuple(source_nodes + [foundation_node, context_node, interpretation_node])
-        edges = tuple([ProvenanceEdge(f"SOURCE:{source_id}", foundation_node.node_id, "contributes_to") for source_id in source_ids] + [ProvenanceEdge(foundation_node.node_id, context_node.node_id, "structured_as"), ProvenanceEdge(context_node.node_id, interpretation_node.node_id, "interpreted_as")])
-        provenance_graph = ProvenanceGraph(nodes=nodes, edges=edges)
-
-        memory = None
-        if memory_recheck_seconds is not None:
+        current_fields = {item.key: item.value for item in context.items}
+        context_diff = diff_contexts(
+            previous_context.keys() if previous_context else (),
+            current_fields.keys(),
+            previous_fields=previous_context,
+            current_fields=current_fields,
+        )
+        evidence = tuple({"status": item.status.value} for item in context.items)
+        evidence_debt = calculate_evidence_debt(
+            evidence,
+            missing_context_count=len(context.missing_dimensions()),
+            uncertainty_count=len(interpretation.uncertainty),
+        )
+        provenance_graph = build_provenance_graph(
+            foundation_id=material_id,
+            context_id=context.context_id,
+            interpretation_id=interpretation.interpretation_id,
+            source_ids=source_ids,
+        )
+        if memory_recheck_seconds is None:
+            memory = ContextMemoryPolicy.disabled()
+        else:
             if not memory_recheck_reason:
                 raise ValueError("A memory recheck reason is required when a recheck interval is supplied.")
-            memory = ContextMemoryRecord.create(context.context_id, ttl=timedelta(seconds=memory_recheck_seconds), reason=memory_recheck_reason)
-
+            memory = ContextMemoryPolicy.from_created_at(
+                now,
+                ttl=timedelta(seconds=memory_recheck_seconds),
+            )
         return ContextBuildResult(context, normalization, baselines, interpretation, provenance_graph, context_diff, evidence_debt, memory)
 
     def normalize(self, context: ContextRecord) -> tuple[NormalizationDecision, ...]:
