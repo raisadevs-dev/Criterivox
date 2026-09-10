@@ -41,6 +41,15 @@ class PresentationContract:
     foundation_log_entries: tuple[str, ...] = ()
     foundation_conflict_fields: tuple[str, ...] = ()
     foundation_conditional_provenance: tuple[str, ...] = ()
+    context_id: str | None = None
+    context_dimensions: tuple[str, ...] = ()
+    context_missing_dimensions: tuple[str, ...] = ()
+    context_normalization_count: int | None = None
+    context_baseline_id: str | None = None
+    context_baseline_status: str | None = None
+    context_interpretation_id: str | None = None
+    context_uncertainty: tuple[str, ...] = ()
+    context_limitations: tuple[str, ...] = ()
     execution_engine: str | None = None
     execution_tier: str | None = None
     fallback_used: bool | None = None
