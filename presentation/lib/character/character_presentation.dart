@@ -29,6 +29,18 @@ class CharacterPresentation extends StatelessWidget {
             width: 238,
             height: 286,
           ),
+          const SizedBox(height: 4),
+          Text(
+            'Final character artwork coming soon',
+            style: TextStyle(
+              color: theme.mutedText,
+              fontSize: 9,
+              fontWeight: FontWeight.w600,
+              letterSpacing: .25,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 7),
           Text(
             identity.displayName,
             style: TextStyle(
