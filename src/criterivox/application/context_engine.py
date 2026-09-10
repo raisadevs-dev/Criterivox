@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Any, Iterable, Mapping
+from typing import Any, Mapping
 
 from criterivox.domain.context import (
     BaselineSpec,
@@ -49,65 +49,30 @@ class ContextEngine:
         if canonical:
             items.append(ContextItem("material.record_count", len(canonical), ContextDimension.CONTENT, source_ids=source_ids))
         else:
-            items.append(ContextItem(
-                "material.record_count", None, ContextDimension.CONTENT,
-                status=EvidenceStatus.UNKNOWN, source_ids=source_ids,
-                limitations=("No canonical rows are available.",),
-            ))
+            items.append(ContextItem("material.record_count", None, ContextDimension.CONTENT, status=EvidenceStatus.UNKNOWN, source_ids=source_ids, limitations=("No canonical rows are available.",)))
 
         for key, value in supplied.items():
-            items.append(ContextItem(
-                key=f"supplied.{key}",
-                value=value,
-                dimension=ContextDimension.ENVIRONMENT,
-                status=EvidenceStatus.OBSERVED,
-                source_ids=source_ids,
-            ))
+            items.append(ContextItem(key=f"supplied.{key}", value=value, dimension=ContextDimension.ENVIRONMENT, status=EvidenceStatus.OBSERVED, source_ids=source_ids))
 
         now = datetime.now(timezone.utc).isoformat()
-        lineage = ContextLineage(
-            material_set_id=material_id,
-            created_at=now,
-            user_intent_context=supplied,
-            source_ids=source_ids,
-            immutable=False,
-        )
-        context = ContextRecord(
-            context_id=f"CTX-{material_id or 'UNBOUND'}",
-            created_at=now,
-            items=tuple(items),
-            lineage=lineage,
-        )
+        lineage = ContextLineage(material_set_id=material_id, created_at=now, user_intent_context=supplied, source_ids=source_ids, immutable=False)
+        context = ContextRecord(context_id=f"CTX-{material_id or 'UNBOUND'}", created_at=now, items=tuple(items), lineage=lineage)
         normalization = self.normalize(context)
         baselines = (self.create_baseline(context),)
         interpretation = self.interpret(context)
         return ContextBuildResult(context, normalization, baselines, interpretation)
 
     def normalize(self, context: ContextRecord) -> tuple[NormalizationDecision, ...]:
-        """Perform meaning-preserving structural cleanup only."""
         decisions: list[NormalizationDecision] = []
         for item in context.items:
             if isinstance(item.value, str):
                 trimmed = item.value.strip()
                 if trimmed != item.value:
-                    decisions.append(NormalizationDecision(
-                        field=item.key,
-                        operation="trim_whitespace",
-                        result=trimmed,
-                        limitation="Representation cleanup only; semantic equivalence was not inferred.",
-                    ))
+                    decisions.append(NormalizationDecision(field=item.key, operation="trim_whitespace", result=trimmed, limitation="Representation cleanup only; semantic equivalence was not inferred."))
         return tuple(decisions)
 
     def create_baseline(self, context: ContextRecord) -> BaselineSpec:
-        return BaselineSpec(
-            baseline_id=f"BASE-{context.context_id}",
-            scope="context-specific reference representation",
-            reference_set=(context.context_id,),
-            context_dimensions=tuple(item.dimension for item in context.items),
-            provenance=context.lineage.source_ids if context.lineage else (),
-            status=EvidenceStatus.UNKNOWN,
-            limitations=("Baseline-selection methodology is not empirically validated for Criterivox.",),
-        )
+        return BaselineSpec(baseline_id=f"BASE-{context.context_id}", scope="context-specific reference representation", reference_set=(context.context_id,), context_dimensions=tuple(item.dimension for item in context.items), provenance=context.lineage.source_ids if context.lineage else (), status=EvidenceStatus.UNKNOWN, limitations=("Baseline-selection methodology is not empirically validated for Criterivox.",))
 
     def interpret(self, context: ContextRecord) -> ContextInterpretation:
         observed = tuple(item.key for item in context.items if item.status is EvidenceStatus.OBSERVED)
@@ -116,16 +81,7 @@ class ContextEngine:
         if not context.items:
             limitations.append("No contextual information is available.")
         limitations.append("This structure is not a validated causal or predictive explanation.")
-        return ContextInterpretation(
-            interpretation_id=f"INT-{context.context_id}",
-            context_id=context.context_id,
-            observed_information=observed,
-            contextual_factors=factors,
-            interpretation="Structured contextual record prepared for downstream inspection.",
-            uncertainty=("Context completeness and baseline validity may be limited.",),
-            limitations=tuple(dict.fromkeys(limitations)),
-            lineage=context.lineage,
-        )
+        return ContextInterpretation(interpretation_id=f"INT-{context.context_id}", context_id=context.context_id, observed_information=observed, contextual_factors=factors, interpretation="Structured contextual record prepared for downstream inspection.", uncertainty=("Context completeness and baseline validity may be limited.",), limitations=tuple(dict.fromkeys(limitations)), lineage=context.lineage)
 
 
 @dataclass(frozen=True, slots=True)
@@ -136,7 +92,12 @@ class ScratchpadEntry:
 
 
 class Scratchpad:
-    """Short-lived Kaelen working state, never treated as research knowledge."""
+    """Short-lived working state for implementation and experimentation.
+
+    Scratchpad contents are runtime state, not research knowledge. Entries are
+    retained across handoffs until their TTL expires or an explicit sign-off
+    occurs.
+    """
 
     def __init__(self, ttl: timedelta = timedelta(hours=24)) -> None:
         if ttl.total_seconds() <= 0:
@@ -168,5 +129,28 @@ class Scratchpad:
         entry = self._entries.get(key)
         return None if entry is None else entry.value
 
+    def snapshot(self, *, now: datetime | None = None) -> tuple[ScratchpadEntry, ...]:
+        self.cleanup(now=now)
+        return tuple(self._entries.values())
 
-__all__ = ["ContextBuildResult", "ContextEngine", "Scratchpad", "ScratchpadEntry"]
+
+class ScratchpadRegistry:
+    """Task-scoped scratchpads shared by S6 character runtime handoffs."""
+
+    def __init__(self, ttl: timedelta = timedelta(hours=24)) -> None:
+        self._ttl = ttl
+        self._pads: dict[str, Scratchpad] = {}
+
+    def for_task(self, task_id: str) -> Scratchpad:
+        key = task_id.strip() or "UNBOUND"
+        if key not in self._pads:
+            self._pads[key] = Scratchpad(ttl=self._ttl)
+        return self._pads[key]
+
+    def sign_off(self, task_id: str) -> tuple[str, ...]:
+        key = task_id.strip() or "UNBOUND"
+        pad = self._pads.pop(key, None)
+        return () if pad is None else pad.cleanup(signed_off=True)
+
+
+__all__ = ["ContextBuildResult", "ContextEngine", "Scratchpad", "ScratchpadEntry", "ScratchpadRegistry"]
