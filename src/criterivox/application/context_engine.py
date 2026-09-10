@@ -4,6 +4,14 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any, Mapping
 
+from criterivox.application.context_intelligence import (
+    ContextDiff,
+    ContextMemoryRecord,
+    EvidenceDebt,
+    ProvenanceEdge,
+    ProvenanceGraph,
+    ProvenanceNode,
+)
 from criterivox.domain.context import (
     BaselineSpec,
     ContextDimension,
@@ -23,21 +31,23 @@ class ContextBuildResult:
     normalization: tuple[NormalizationDecision, ...]
     baselines: tuple[BaselineSpec, ...]
     interpretation: ContextInterpretation
+    provenance_graph: ProvenanceGraph
+    context_diff: ContextDiff
+    evidence_debt: EvidenceDebt
+    memory: ContextMemoryRecord | None
 
 
 class ContextEngine:
-    """Research-bounded S6 context engine.
-
-    It performs structural context work only. It does not assert universal
-    cross-platform semantic equivalence, validated causal interpretation, or
-    empirically optimal baseline selection.
-    """
+    """Research-bounded S6 context engine."""
 
     def create_from_material_set(
         self,
         material: DataFoundation | DataHandoff,
         *,
         user_intent_context: Mapping[str, Any] | None = None,
+        previous_context: Mapping[str, Any] | None = None,
+        memory_recheck_seconds: int | None = None,
+        memory_recheck_reason: str | None = None,
     ) -> ContextBuildResult:
         material_id = getattr(material, "foundation_id", None)
         canonical = tuple(getattr(material, "canonical_data", ()))
@@ -60,7 +70,26 @@ class ContextEngine:
         normalization = self.normalize(context)
         baselines = (self.create_baseline(context),)
         interpretation = self.interpret(context)
-        return ContextBuildResult(context, normalization, baselines, interpretation)
+        current_snapshot = {item.key: item.value for item in context.items}
+        context_diff = ContextDiff.structural(previous_context, current_snapshot)
+        evidence = tuple({"id": f"CTX-EVID-{index:03d}", "status": item.status.value, "source_id": source_ids[0] if source_ids else ""} for index, item in enumerate(context.items, start=1))
+        evidence_debt = EvidenceDebt.assess(evidence, missing_dimensions=tuple(item.value for item in context.missing_dimensions()), uncertainty=interpretation.uncertainty)
+
+        source_nodes = [ProvenanceNode(f"SOURCE:{source_id}", "SOURCE", source_id, (source_id,)) for source_id in source_ids]
+        foundation_node = ProvenanceNode(f"FOUNDATION:{material_id or 'UNBOUND'}", "DATA_FOUNDATION", material_id or "UNBOUND", source_ids)
+        context_node = ProvenanceNode(context.context_id, "CONTEXT", context.context_id, source_ids)
+        interpretation_node = ProvenanceNode(interpretation.interpretation_id, "INTERPRETATION", interpretation.interpretation_id, source_ids)
+        nodes = tuple(source_nodes + [foundation_node, context_node, interpretation_node])
+        edges = tuple([ProvenanceEdge(f"SOURCE:{source_id}", foundation_node.node_id, "contributes_to") for source_id in source_ids] + [ProvenanceEdge(foundation_node.node_id, context_node.node_id, "structured_as"), ProvenanceEdge(context_node.node_id, interpretation_node.node_id, "interpreted_as")])
+        provenance_graph = ProvenanceGraph(nodes=nodes, edges=edges)
+
+        memory = None
+        if memory_recheck_seconds is not None:
+            if not memory_recheck_reason:
+                raise ValueError("A memory recheck reason is required when a recheck interval is supplied.")
+            memory = ContextMemoryRecord.create(context.context_id, ttl=timedelta(seconds=memory_recheck_seconds), reason=memory_recheck_reason)
+
+        return ContextBuildResult(context, normalization, baselines, interpretation, provenance_graph, context_diff, evidence_debt, memory)
 
     def normalize(self, context: ContextRecord) -> tuple[NormalizationDecision, ...]:
         decisions: list[NormalizationDecision] = []
@@ -92,12 +121,7 @@ class ScratchpadEntry:
 
 
 class Scratchpad:
-    """Short-lived working state for implementation and experimentation.
-
-    Scratchpad contents are runtime state, not research knowledge. Entries are
-    retained across handoffs until their TTL expires or an explicit sign-off
-    occurs.
-    """
+    """Short-lived working state for implementation and experimentation."""
 
     def __init__(self, ttl: timedelta = timedelta(hours=24)) -> None:
         if ttl.total_seconds() <= 0:
