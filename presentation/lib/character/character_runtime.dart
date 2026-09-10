@@ -1,2 +1,1 @@
-export 'character_runtime_stub.dart'
-    if (dart.library.js_interop) 'character_runtime_flutter.dart';
+export 'character_runtime_flutter.dart';
