@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'character/character_frame.dart';
+import 'character/character_runtime.dart';
 import 'presentation/criterivox_theme.dart';
 
 class AppIntroductionPage extends StatefulWidget {
@@ -24,6 +24,16 @@ class _AppIntroductionPageState extends State<AppIntroductionPage>
     duration: const Duration(seconds: 12),
   )..repeat();
 
+  static const _states = <String>[
+    'IDLE',
+    'RECEIVE',
+    'WORK',
+    'COMMUNICATE',
+    'HANDOFF',
+    'COMPLETE',
+    'WARNING',
+  ];
+
   @override
   void dispose() {
     _motion.dispose();
@@ -32,29 +42,24 @@ class _AppIntroductionPageState extends State<AppIntroductionPage>
 
   @override
   Widget build(BuildContext context) {
-    final t = CriterivoxTheme.of(context);
+    final theme = CriterivoxTheme.of(context);
     return LayoutBuilder(
       builder: (context, constraints) {
         final narrow = constraints.maxWidth < 820;
         return SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(
-            narrow ? 14 : 28,
-            24,
-            narrow ? 14 : 28,
-            36,
-          ),
+          padding: EdgeInsets.fromLTRB(narrow ? 14 : 28, 24, narrow ? 14 : 28, 36),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _hero(t, narrow),
+              _hero(theme, narrow),
               const SizedBox(height: 22),
-              _minds(t, narrow),
+              _minds(theme, narrow),
               const SizedBox(height: 22),
-              _workflow(t, narrow),
+              _workflow(theme, narrow),
               const SizedBox(height: 22),
-              _capabilities(t),
+              _capabilities(theme),
               const SizedBox(height: 22),
-              _start(t, narrow),
+              _start(theme, narrow),
             ],
           ),
         );
@@ -62,59 +67,34 @@ class _AppIntroductionPageState extends State<AppIntroductionPage>
     );
   }
 
-  Widget _hero(CriterivoxTheme t, bool narrow) {
+  Widget _hero(CriterivoxTheme theme, bool narrow) {
     return Container(
       padding: EdgeInsets.all(narrow ? 20 : 30),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
         gradient: LinearGradient(
-          colors: [t.surfaceStrong, t.surface],
+          colors: [theme.surfaceStrong, theme.surface],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        border: Border.all(color: t.border),
-        boxShadow: [
-          BoxShadow(color: t.primary.withValues(alpha: .12), blurRadius: 38),
-        ],
+        border: Border.all(color: theme.border),
       ),
       child: Column(
         children: [
           AnimatedBuilder(
             animation: _motion,
             builder: (_, __) {
-              final frame = (_motion.value * 6).floor() % 6;
-              final syvax = _heroCharacter(
-                t,
-                name: 'SYVAX',
-                role: 'INSIGHT SPECIALIST',
-                accent: const Color(0xFF55B8FF),
-                asset: 'assets/characters/syvax.svg',
-                frame: frame,
-              );
-              final dharen = _heroCharacter(
-                t,
-                name: 'DHAREN',
-                role: 'INSIGHT GUIDE',
-                accent: const Color(0xFFFFC777),
-                asset: 'assets/characters/dharen.svg',
-                frame: (frame + 1) % 6,
-              );
+              final state = _states[(_motion.value * _states.length).floor() % _states.length];
+              final syvax = _heroCharacter(theme, 'syvax', 'SYVAX', 'DIALOGUE + ROUTING', state);
+              final dharen = _heroCharacter(theme, 'dharen', 'DHAREN', 'CONTEXT ARCHITECTURE', _states[(_states.indexOf(state) + 1) % _states.length]);
               return narrow
                   ? Column(children: [syvax, const SizedBox(height: 12), dharen])
                   : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Expanded(child: syvax),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 22),
-                          child: Text(
-                            '×',
-                            style: TextStyle(
-                              color: t.mutedText,
-                              fontSize: 24,
-                              fontWeight: FontWeight.w300,
-                            ),
-                          ),
+                          child: Text('×', style: TextStyle(color: theme.mutedText, fontSize: 24)),
                         ),
                         Expanded(child: dharen),
                       ],
@@ -123,10 +103,10 @@ class _AppIntroductionPageState extends State<AppIntroductionPage>
           ),
           const SizedBox(height: 18),
           Text(
-            'TWO MINDS. ONE MISSION.',
+            'ONE SYSTEM. MANY MINDS.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: t.text,
+              color: theme.text,
               fontSize: narrow ? 22 : 30,
               fontWeight: FontWeight.w700,
               letterSpacing: 2.5,
@@ -136,7 +116,7 @@ class _AppIntroductionPageState extends State<AppIntroductionPage>
           Text(
             'Criterivox turns data, context and questions into understandable analysis and evidence-backed action.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: t.mutedText, fontSize: 13, height: 1.5),
+            style: TextStyle(color: theme.mutedText, fontSize: 13, height: 1.5),
           ),
         ],
       ),
@@ -144,130 +124,76 @@ class _AppIntroductionPageState extends State<AppIntroductionPage>
   }
 
   Widget _heroCharacter(
-    CriterivoxTheme t, {
-    required String name,
-    required String role,
-    required Color accent,
-    required String asset,
-    required int frame,
-  }) {
+    CriterivoxTheme theme,
+    String characterId,
+    String name,
+    String role,
+    String state,
+  ) {
     return Container(
       constraints: const BoxConstraints(minHeight: 260, maxHeight: 330),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
-        color: t.page.withValues(alpha: .72),
-        border: Border.all(color: accent.withValues(alpha: .35)),
+        color: theme.page.withValues(alpha: .72),
+        border: Border.all(color: theme.primary.withValues(alpha: .25)),
       ),
       child: Column(
         children: [
           Expanded(
-            child: CharacterFrame(
-              asset: asset,
-              index: frame,
+            child: CharacterRuntimeView(
+              characterId: characterId,
+              state: state,
               width: 180,
               height: 264,
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            name,
-            style: TextStyle(
-              color: t.text,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 2,
-            ),
-          ),
-          Text(
-            role,
-            style: TextStyle(color: accent, fontSize: 10, letterSpacing: 1.4),
-          ),
+          Text(name, style: TextStyle(color: theme.text, fontWeight: FontWeight.w800, letterSpacing: 2)),
+          Text(role, style: TextStyle(color: theme.primary, fontSize: 10, letterSpacing: 1.2)),
         ],
       ),
     );
   }
 
-  Widget _minds(CriterivoxTheme t, bool narrow) {
-    final syvax = _mindCard(
-      t,
-      'SYVAX',
-      'The question and routing specialist',
-      const Color(0xFF55B8FF),
-      'Finds patterns in complexity, connects data and context, and helps turn an intention into the right path through Criterivox.',
-      ['Analytical', 'Curious', 'Thoughtful', 'Supportive'],
-      'Direct chat • Routing • Context intake',
-    );
-    final dharen = _mindCard(
-      t,
-      'DHAREN',
-      'The insight guide',
-      const Color(0xFFFFC777),
-      'Receives the task, works through the supplied data and context, communicates findings, and brings the result back into the shared task.',
-      ['Calm', 'Focused', 'Empathetic', 'Action-oriented'],
-      'Analysis • Findings • Evidence • Task lifecycle',
-    );
-    return _section(
-      t,
-      'MEET THE MINDS',
-      'They are functional interaction entities, not decorative mascots.',
-      narrow,
-      [narrow ? syvax : Expanded(child: syvax), narrow ? dharen : Expanded(child: dharen)],
-    );
+  Widget _minds(CriterivoxTheme theme, bool narrow) {
+    final cards = [
+      _mindCard(theme, 'SYVAX', 'Dialogue + routing', 'Receives intent, clarifies direction and routes work through the shared runtime.'),
+      _mindCard(theme, 'DHAREN', 'Context architecture', 'Structures context, preserves uncertainty and returns contextual work to the task.'),
+    ];
+    return _section(theme, 'MEET THE MINDS', 'They are functional interaction entities, not decorative mascots.', narrow, cards);
   }
 
-  Widget _mindCard(
-    CriterivoxTheme t,
-    String name,
-    String title,
-    Color accent,
-    String description,
-    List<String> traits,
-    String capabilities,
-  ) {
+  Widget _mindCard(CriterivoxTheme theme, String name, String role, String description) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: t.surface,
+        color: theme.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: accent.withValues(alpha: .28)),
+        border: Border.all(color: theme.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(name, style: TextStyle(color: accent, fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: 2)),
-          Text(title, style: TextStyle(color: t.text, fontWeight: FontWeight.w600)),
+          Text(name, style: TextStyle(color: theme.primary, fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: 2)),
+          Text(role, style: TextStyle(color: theme.text, fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
-          Text(description, style: TextStyle(color: t.mutedText, height: 1.55, fontSize: 12.5)),
-          const SizedBox(height: 14),
-          Wrap(
-            spacing: 7,
-            runSpacing: 7,
-            children: [
-              for (final trait in traits)
-                Chip(
-                  label: Text(trait, style: TextStyle(color: t.text, fontSize: 10)),
-                  backgroundColor: accent.withValues(alpha: .10),
-                  side: BorderSide(color: accent.withValues(alpha: .25)),
-                ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(capabilities, style: TextStyle(color: t.mutedText, fontSize: 10.5)),
+          Text(description, style: TextStyle(color: theme.mutedText, height: 1.55, fontSize: 12.5)),
         ],
       ),
     );
   }
 
-  Widget _workflow(CriterivoxTheme t, bool narrow) {
-    final steps = [
+  Widget _workflow(CriterivoxTheme theme, bool narrow) {
+    const steps = [
       ('01', 'QUESTION', 'You bring a question, task, data and context.'),
-      ('02', 'SYVAX', 'Intent is received, clarified and routed.'),
-      ('03', 'DHAREN', 'The shared analysis task moves through its lifecycle.'),
+      ('02', 'ROUTING', 'Intent is received, clarified and routed.'),
+      ('03', 'CONTEXT', 'The shared context record is structured.'),
       ('04', 'EVIDENCE', 'Observations, findings and evidence return to the task.'),
-      ('05', 'NEXT STEP', 'Workspace and Chat stay connected to the same task.'),
+      ('05', 'NEXT STEP', 'Workspace and Character Chat stay connected.'),
     ];
     return _section(
-      t,
+      theme,
       'HOW CRITERIVOX WORKS',
       'The experience is a living flow, not a collection of disconnected screens.',
       narrow,
@@ -276,24 +202,24 @@ class _AppIntroductionPageState extends State<AppIntroductionPage>
           spacing: 10,
           runSpacing: 10,
           children: [
-            for (final s in steps)
+            for (final step in steps)
               SizedBox(
                 width: narrow ? double.infinity : 185,
                 child: Container(
                   padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
-                    color: t.surface,
+                    color: theme.surface,
                     borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: t.border),
+                    border: Border.all(color: theme.border),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(s.$1, style: TextStyle(color: t.primary, fontWeight: FontWeight.w800)),
+                      Text(step.$1, style: TextStyle(color: theme.primary, fontWeight: FontWeight.w800)),
                       const SizedBox(height: 7),
-                      Text(s.$2, style: TextStyle(color: t.text, fontWeight: FontWeight.w700, fontSize: 11)),
+                      Text(step.$2, style: TextStyle(color: theme.text, fontWeight: FontWeight.w700, fontSize: 11)),
                       const SizedBox(height: 6),
-                      Text(s.$3, style: TextStyle(color: t.mutedText, fontSize: 10.5, height: 1.4)),
+                      Text(step.$3, style: TextStyle(color: theme.mutedText, fontSize: 10.5, height: 1.4)),
                     ],
                   ),
                 ),
@@ -304,17 +230,17 @@ class _AppIntroductionPageState extends State<AppIntroductionPage>
     );
   }
 
-  Widget _capabilities(CriterivoxTheme t) {
-    final cards = [
-      ('ANALYZE', 'Available now', 'Run a synthetic/local analysis from Workspace or through the character entry flow.'),
-      ('WORKSPACE', 'Available now', 'See task lifecycle, observations, findings, evidence, activity and Dharen state.'),
-      ('CHARACTER CHAT', 'Available now', 'Choose Syvax or Dharen and continue with the current shared task context.'),
-      ('REFERENCES', 'Available now', 'Attach file references to conversation context and carry them with the task.'),
+  Widget _capabilities(CriterivoxTheme theme) {
+    const cards = [
+      ('ANALYZE', 'Available now', 'Run a synthetic/local analysis from Workspace or through Character Chat.'),
+      ('CONTEXT', 'Available now', 'Inspect the context record, uncertainty, baseline status and lineage.'),
+      ('CHARACTER CHAT', 'Available now', 'Choose any S6 chat member and keep an independent conversation.'),
+      ('PROVENANCE', 'Available now', 'Trace the current foundation-to-context lineage.'),
       ('COMPARE / EXPLORE / PLAN', 'Future', 'Reserved capability slots remain visible without pretending unfinished work exists.'),
       ('INSIGHTS / EXPLAIN', 'Future', 'Planned capability expansion after the current foundation is complete.'),
     ];
     return _section(
-      t,
+      theme,
       'WHAT YOU CAN DO',
       'This introduction describes the implemented surface honestly.',
       false,
@@ -329,25 +255,25 @@ class _AppIntroductionPageState extends State<AppIntroductionPage>
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
           ),
-          itemBuilder: (_, i) {
-            final c = cards[i];
-            final future = c.$2 == 'Future';
+          itemBuilder: (_, index) {
+            final card = cards[index];
+            final future = card.$2 == 'Future';
             return Container(
               padding: const EdgeInsets.all(15),
               decoration: BoxDecoration(
-                color: t.surface,
+                color: theme.surface,
                 borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: future ? t.border : t.primary.withValues(alpha: .28)),
+                border: Border.all(color: future ? theme.border : theme.primary.withValues(alpha: .28)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(children: [
-                    Expanded(child: Text(c.$1, style: TextStyle(color: t.text, fontWeight: FontWeight.w700, fontSize: 11))),
-                    Text(c.$2, style: TextStyle(color: future ? t.mutedText : t.success, fontSize: 9, fontWeight: FontWeight.w700)),
+                    Expanded(child: Text(card.$1, style: TextStyle(color: theme.text, fontWeight: FontWeight.w700, fontSize: 11))),
+                    Text(card.$2, style: TextStyle(color: future ? theme.mutedText : theme.success, fontSize: 9, fontWeight: FontWeight.w700)),
                   ]),
                   const SizedBox(height: 8),
-                  Text(c.$3, style: TextStyle(color: t.mutedText, fontSize: 10.5, height: 1.35)),
+                  Text(card.$3, style: TextStyle(color: theme.mutedText, fontSize: 10.5, height: 1.35)),
                 ],
               ),
             );
@@ -357,7 +283,7 @@ class _AppIntroductionPageState extends State<AppIntroductionPage>
     );
   }
 
-  Widget _start(CriterivoxTheme t, bool narrow) {
+  Widget _start(CriterivoxTheme theme, bool narrow) {
     final actions = narrow
         ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             FilledButton.icon(onPressed: widget.onOpenWorkspace, icon: const Icon(Icons.dashboard_customize_rounded), label: const Text('Open Workspace')),
@@ -369,37 +295,43 @@ class _AppIntroductionPageState extends State<AppIntroductionPage>
             const SizedBox(width: 10),
             OutlinedButton.icon(onPressed: widget.onOpenChat, icon: const Icon(Icons.forum_rounded), label: const Text('Open Chat')),
           ]);
+
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: t.surfaceStrong, borderRadius: BorderRadius.circular(22), border: Border.all(color: t.border)),
+      decoration: BoxDecoration(color: theme.surfaceStrong, borderRadius: BorderRadius.circular(22), border: Border.all(color: theme.border)),
       child: narrow
           ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              Text('Ready to work with them?', style: TextStyle(color: t.text, fontSize: 18, fontWeight: FontWeight.w700)),
+              Text('Ready to work with them?', style: TextStyle(color: theme.text, fontSize: 18, fontWeight: FontWeight.w700)),
               const SizedBox(height: 6),
-              Text('Go straight to Workspace or choose a character.', style: TextStyle(color: t.mutedText, fontSize: 11)),
+              Text('Go straight to Workspace or choose a character.', style: TextStyle(color: theme.mutedText, fontSize: 11)),
               const SizedBox(height: 14),
               actions,
             ])
           : Row(children: [
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('Ready to work with them?', style: TextStyle(color: t.text, fontSize: 18, fontWeight: FontWeight.w700)),
+                Text('Ready to work with them?', style: TextStyle(color: theme.text, fontSize: 18, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 6),
-                Text('Go straight to Workspace or Character Chat.', style: TextStyle(color: t.mutedText, fontSize: 11)),
+                Text('Go straight to Workspace or Character Chat.', style: TextStyle(color: theme.mutedText, fontSize: 11)),
               ])),
               actions,
             ]),
     );
   }
 
-  Widget _section(CriterivoxTheme t, String title, String subtitle, bool narrow, List<Widget> children) {
+  Widget _section(CriterivoxTheme theme, String title, String subtitle, bool narrow, List<Widget> children) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: TextStyle(color: t.text, fontSize: 14, fontWeight: FontWeight.w800, letterSpacing: 1.2)),
+        Text(title, style: TextStyle(color: theme.text, fontSize: 14, fontWeight: FontWeight.w800, letterSpacing: 1.2)),
         const SizedBox(height: 4),
-        Text(subtitle, style: TextStyle(color: t.mutedText, fontSize: 10.5)),
+        Text(subtitle, style: TextStyle(color: theme.mutedText, fontSize: 10.5)),
         const SizedBox(height: 12),
-        if (children.length == 1) ...children else if (narrow) Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children) else Row(crossAxisAlignment: CrossAxisAlignment.start, children: children),
+        if (children.length == 1)
+          ...children
+        else if (narrow)
+          Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children)
+        else
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [for (final child in children) Expanded(child: Padding(padding: const EdgeInsets.only(right: 10), child: child))]),
       ],
     );
   }
