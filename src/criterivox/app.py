@@ -13,6 +13,7 @@ from .domain.characters import CharacterState
 from .application.analysis_tasks import analysis_tasks
 from .application.character_chat import PROFILES, handle_character_chat
 from .application.context_engine import ContextEngine
+from .application.context_intelligence import ObservabilityTimeline
 from .application.data_foundation_store import data_foundations
 from .application.sandre_stewardship import SandreStewardship
 from .application import foundation_runtime_bridge  # noqa: F401
@@ -26,6 +27,8 @@ app = FastAPI(title="Criterivox")
 app.mount("/static", StaticFiles(directory="src/criterivox/ui/static"), name="static")
 stewardship = SandreStewardship()
 context_engine = ContextEngine()
+observability = ObservabilityTimeline()
+_context_snapshots: dict[str, dict[str, object]] = {}
 
 @app.get("/health")
 def health() -> JSONResponse:
@@ -46,44 +49,76 @@ async def _safe_context_build(payload: dict) -> None:
         if not foundation_id:
             raise ValueError("A validated S5 foundation identifier is required.")
         foundation = data_foundations.get(foundation_id)
-        result = context_engine.create_from_material_set(foundation, user_intent_context=payload.get("user_intent_context", {}))
+        supplied = payload.get("user_intent_context", {})
+        if not isinstance(supplied, dict):
+            raise ValueError("user_intent_context must be an object.")
+        previous_context = _context_snapshots.get(foundation_id)
+        memory_seconds = supplied.get("memory_recheck_seconds")
+        memory_seconds = int(memory_seconds) if memory_seconds is not None else None
+        memory_reason = str(supplied.get("memory_recheck_reason", "")).strip() or None
+        result = context_engine.create_from_material_set(
+            foundation,
+            user_intent_context=supplied,
+            previous_context=previous_context,
+            memory_recheck_seconds=memory_seconds,
+            memory_recheck_reason=memory_reason,
+        )
         context = result.context
         lineage = context.lineage
         dimensions = tuple(sorted({item.dimension.value for item in context.items}))
         missing = tuple(d.value for d in context.missing_dimensions())
         baseline = result.baselines[0]
+        task_id = str(payload.get("task_id", f"CTX-TASK-{foundation_id}"))
+        current_snapshot = {item.key: item.value for item in context.items}
+        _context_snapshots[foundation_id] = current_snapshot
+        events = []
+
+        def trace(action: str, reason: str, *, output: str | None = None) -> None:
+            event = observability.record(task_id=task_id, character_id="dharen", action=action, reason=reason, context_id=context.context_id, output=output)
+            events.append(event)
+
+        trace("RECEIVE", "Received validated S5 foundation for contextual structuring.")
         await runtime_connections.publish(PresentationContract.from_state(
             "dharen", CharacterState.RECEIVE, active=True, prominence=.9,
             message=f"Dharen received foundation {foundation_id} for contextual structuring.", event="CONTEXT_BUILD_RECEIVED",
-            foundation_id=foundation_id, foundation_material_set_id=foundation_id,
+            foundation_id=foundation_id, foundation_material_set_id=foundation_id, task_id=task_id,
+            activity=tuple(f"{item.character_id}: {item.action} • {item.reason}" for item in events),
+            observability_events=tuple(item.to_dict() for item in events),
         ))
         await asyncio.sleep(.1)
+
+        trace("WORK", "Structured dimensions while preserving S5 lineage.")
         await runtime_connections.publish(PresentationContract.from_state(
             "dharen", CharacterState.WORK, active=True, prominence=.9,
             message="Dharen is structuring contextual dimensions and preserving the S5 lineage reference.", event="CONTEXT_BUILD_WORKING",
+            foundation_id=foundation_id, foundation_material_set_id=foundation_id, task_id=task_id,
             context_id=context.context_id, context_dimensions=dimensions, context_missing_dimensions=missing,
             context_normalization_count=len(result.normalization), context_baseline_id=baseline.baseline_id,
-            context_baseline_status=baseline.status.value, lineage_snapshot={
-                "material_set_id": lineage.material_set_id if lineage else None,
-                "created_at": lineage.created_at if lineage else None,
-                "source_ids": list(lineage.source_ids) if lineage else [],
-                "immutable": lineage.immutable if lineage else False,
-            },
+            context_baseline_status=baseline.status.value, provenance_graph=result.provenance_graph.to_dict(),
+            context_diff={"added": list(result.context_diff.added), "removed": list(result.context_diff.removed), "changed": list(result.context_diff.changed), "unchanged": list(result.context_diff.unchanged), "semantic_equivalence_claimed": result.context_diff.semantic_equivalence_claimed},
+            evidence_completeness=result.evidence_debt.completeness_percent, evidence_debt_level=result.evidence_debt.level.value, evidence_tags=result.evidence_debt.tags,
+            memory_status=result.memory.status if result.memory else "UNKNOWN", memory_recheck_at=result.memory.recheck_at if result.memory else None, memory_recheck_reason=result.memory.recheck_reason if result.memory else None,
+            evidence=tuple({"id": f"CTX-EVID-{index:03d}", "status": item.status.value, "source_id": source_ids[0] if source_ids else ""} for index, item in enumerate(context.items, start=1)) if (source_ids := tuple(getattr(foundation, "source_ids", ()))) else (),
+            lineage_snapshot={"material_set_id": lineage.material_set_id if lineage else None, "created_at": lineage.created_at if lineage else None, "source_ids": list(lineage.source_ids) if lineage else [], "immutable": lineage.immutable if lineage else False},
+            activity=tuple(f"{item.character_id}: {item.action} • {item.reason}" for item in events), observability_events=tuple(item.to_dict() for item in events),
         ))
         await asyncio.sleep(.1)
+
+        trace("COMMUNICATE", "Context build completed and is ready for inspection.", output=result.interpretation.interpretation)
         await runtime_connections.publish(PresentationContract.from_state(
             "dharen", CharacterState.COMMUNICATE, active=True, prominence=.9,
             message=result.interpretation.interpretation, event="CONTEXT_BUILD_COMPLETE",
+            foundation_id=foundation_id, foundation_material_set_id=foundation_id, task_id=task_id,
             context_id=context.context_id, context_dimensions=dimensions, context_missing_dimensions=missing,
             context_normalization_count=len(result.normalization), context_baseline_id=baseline.baseline_id,
             context_baseline_status=baseline.status.value, context_interpretation_id=result.interpretation.interpretation_id,
             context_uncertainty=result.interpretation.uncertainty, context_limitations=result.interpretation.limitations,
-            lineage_snapshot={
-                "material_set_id": lineage.material_set_id if lineage else None,
-                "created_at": lineage.created_at if lineage else None,
-                "source_ids": list(lineage.source_ids) if lineage else [],
-                "immutable": lineage.immutable if lineage else False,
-            },
+            provenance_graph=result.provenance_graph.to_dict(),
+            context_diff={"added": list(result.context_diff.added), "removed": list(result.context_diff.removed), "changed": list(result.context_diff.changed), "unchanged": list(result.context_diff.unchanged), "semantic_equivalence_claimed": result.context_diff.semantic_equivalence_claimed},
+            evidence_completeness=result.evidence_debt.completeness_percent, evidence_debt_level=result.evidence_debt.level.value, evidence_tags=result.evidence_debt.tags,
+            memory_status=result.memory.status if result.memory else "UNKNOWN", memory_recheck_at=result.memory.recheck_at if result.memory else None, memory_recheck_reason=result.memory.recheck_reason if result.memory else None,
+            observability_events=tuple(item.to_dict() for item in events), activity=tuple(f"{item.character_id}: {item.action} • {item.reason}" for item in events),
+            lineage_snapshot={"material_set_id": lineage.material_set_id if lineage else None, "created_at": lineage.created_at if lineage else None, "source_ids": list(lineage.source_ids) if lineage else [], "immutable": lineage.immutable if lineage else False},
         ))
     except Exception as exc:
         logger.exception("S6 context build failed.")
