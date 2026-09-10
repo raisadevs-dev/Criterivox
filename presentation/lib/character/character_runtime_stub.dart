@@ -7,54 +7,26 @@ class CharacterRuntimeView extends StatelessWidget {
   final double width;
   final double height;
 
-  const CharacterRuntimeView({
-    super.key,
-    required this.characterId,
-    required this.state,
-    this.reducedMotion = false,
-    this.width = 180,
-    this.height = 240,
-  });
+  const CharacterRuntimeView({super.key,required this.characterId,required this.state,this.reducedMotion=false,this.width=180,this.height=240});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
+    final theme=Theme.of(context);
     return SizedBox(
-      width: width,
-      height: height,
-      child: Semantics(
-        label: '$characterId character',
-        value: state,
-        child: CustomPaint(
-          painter: _AccessibleCharacterPainter(state: state),
+      width:width,
+      height:height,
+      child:Semantics(
+        container:true,
+        label:'$characterId skeletal runtime',
+        value:state,
+        child:Center(
+          child:Text(
+            'Skeletal character runtime\nWeb presentation required',
+            textAlign:TextAlign.center,
+            style:TextStyle(color:theme.hintColor,fontSize:11),
+          ),
         ),
       ),
     );
   }
-}
-
-class _AccessibleCharacterPainter extends CustomPainter {
-  final String state;
-
-  const _AccessibleCharacterPainter({required this.state});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..style = PaintingStyle.fill;
-    final center = Offset(size.width / 2, size.height / 2);
-    paint.color = const Color(0xFF6B7280);
-    canvas.drawCircle(center.translate(0, -45), 28, paint);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromCenter(center: center.translate(0, 20), width: 64, height: 110),
-        const Radius.circular(18),
-      ),
-      paint,
-    );
-    paint.color = const Color(0xFF55B8FF);
-    canvas.drawCircle(center.translate(0, 78), 6, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _AccessibleCharacterPainter oldDelegate) =>
-      oldDelegate.state != state;
 }
