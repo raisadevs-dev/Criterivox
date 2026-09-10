@@ -1,134 +1,40 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Criterivox Character Runtime</title>
-  <style>
-    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent}
-    body{display:grid;place-items:center;font-family:system-ui,sans-serif}
-    canvas{width:100%;height:100%;display:block}
-    .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
-  </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Criterivox Character Runtime</title>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent}body{display:grid;place-items:center}canvas{width:100%;height:100%;display:block}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}</style>
 </head>
 <body>
-<canvas id="character" aria-label="Criterivox skeletal character"></canvas>
-<div id="state" class="sr" aria-live="polite"></div>
+<canvas id="character" aria-label="Criterivox skeletal character"></canvas><div id="state" class="sr" aria-live="polite"></div>
 <script>
-(() => {
-  const canvas=document.getElementById('character');
-  const ctx=canvas.getContext('2d');
-  const params=new URLSearchParams(location.search);
-  const characterId=(params.get('character')||'dharen').toLowerCase();
-  const initialState=(params.get('state')||'IDLE').toUpperCase();
-  const reducedMotion=params.get('reducedMotion')==='true';
-  const stateEl=document.getElementById('state');
-  let library=null;
-  let currentState=initialState;
-  let targetState=initialState;
-  let blend=reducedMotion?1:0;
-  let time=0;
-  let last=performance.now();
-
-  function resize(){
-    const dpr=Math.min(window.devicePixelRatio||1,2);
-    const r=canvas.getBoundingClientRect();
-    canvas.width=Math.max(1,Math.floor(r.width*dpr));
-    canvas.height=Math.max(1,Math.floor(r.height*dpr));
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-  }
-  new ResizeObserver(resize).observe(canvas);
-
-  function lerp(a,b,t){return a+(b-a)*t;}
-  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
-  function pose(character,state){
-    const p=character.animations[state]||character.animations.IDLE;
-    return {
-      lean:p.lean||0, head:p.head||0, leftArm:p.leftArm||0, rightArm:p.rightArm||0,
-      leftLeg:p.leftLeg||0, rightLeg:p.rightLeg||0, bounce:p.bounce||0, accent:p.accent||0
-    };
-  }
-  function mixedPose(character,a,b,t){
-    const x=pose(character,a),y=pose(character,b); const out={};
-    for(const k of Object.keys(x)) out[k]=lerp(x[k],y[k],t);
-    return out;
-  }
-  function segment(x,y,len,angle,width,color){
-    ctx.save();ctx.translate(x,y);ctx.rotate(angle);
-    ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(-width/2,-len*.08,width,len,Math.min(width,len*.08));ctx.fill();ctx.restore();
-  }
-  function joint(x,y,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();}
-  function limb(root,len,angle,width,color){
-    const ex=root.x+Math.cos(angle)*len,ey=root.y+Math.sin(angle)*len;
-    segment(root.x,root.y,len,angle,width,color); joint(ex,ey,width*.58,color); return {x:ex,y:ey};
-  }
-  function drawCharacter(c){
-    const r=canvas.getBoundingClientRect(); const w=r.width,h=r.height;
-    ctx.clearRect(0,0,w,h); ctx.save(); ctx.translate(w/2,h*.57); const s=Math.min(w/310,h/350);
-    ctx.scale(s,s); const p=mixedPose(c,currentState,targetState,blend);
-    const bob=Math.sin(time*(reducedMotion?0:2.2))*p.bounce;
-    ctx.translate(0,-bob); ctx.rotate(p.lean);
-    const skin=c.palette.skin,main=c.palette.main,secondary=c.palette.secondary,accent=c.palette.accent,dark=c.palette.dark;
-    const headY=-122,torsoY=-62;
-    ctx.shadowColor=accent;ctx.shadowBlur=8+Math.abs(p.accent)*6;
-    ctx.fillStyle=accent;ctx.globalAlpha=.08;ctx.beginPath();ctx.ellipse(0,42,82,18,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;ctx.shadowBlur=0;
-
-    // Legs are bones first, then clothing skins over them.
-    const hipL={x:-c.proportions.hip/2,y:torsoY+70},hipR={x:c.proportions.hip/2,y:torsoY+70};
-    const lFoot=limb(hipL,72,-Math.PI/2+p.leftLeg,.18,dark),rFoot=limb(hipR,72,-Math.PI/2+p.rightLeg,.18,dark);
-    ctx.fillStyle=secondary;ctx.beginPath();ctx.roundRect(-35,5,25,54,9);ctx.roundRect(10,5,25,54,9);ctx.fill();
-    ctx.fillStyle=dark;ctx.beginPath();ctx.ellipse(lFoot.x,lFoot.y+5,17,7,0,0,Math.PI*2);ctx.ellipse(rFoot.x,rFoot.y+5,17,7,0,0,Math.PI*2);ctx.fill();
-
-    // Torso / outfit slot.
-    ctx.fillStyle=main;ctx.beginPath();ctx.roundRect(-c.proportions.torso/2,torsoY,c.proportions.torso,c.proportions.torso*1.15,18);ctx.fill();
-    ctx.fillStyle=secondary;ctx.beginPath();ctx.moveTo(-25,torsoY+8);ctx.lineTo(0,torsoY+28);ctx.lineTo(25,torsoY+8);ctx.lineTo(18,torsoY+92);ctx.lineTo(-18,torsoY+92);ctx.closePath();ctx.fill();
-    ctx.fillStyle=accent;ctx.fillRect(-3,torsoY+12,6,72);
-
-    // Arms as bone chains.
-    const shoulderL={x:-c.proportions.shoulder,y:torsoY+18},shoulderR={x:c.proportions.shoulder,y:torsoY+18};
-    const armL=limb(shoulderL,58,Math.PI/2+p.leftArm,.16,main),armR=limb(shoulderR,58,Math.PI/2-p.rightArm,.16,main);
-    joint(armL.x,armL.y,9,skin);joint(armR.x,armR.y,9,skin);
-    ctx.fillStyle=accent;ctx.fillRect(armL.x-4,armL.y-3,8,12);ctx.fillRect(armR.x-4,armR.y-3,8,12);
-
-    // Neck and head.
-    ctx.fillStyle=skin;ctx.fillRect(-10,headY+37,20,24);
-    ctx.save();ctx.translate(0,headY);ctx.rotate(p.head);ctx.fillStyle=skin;ctx.beginPath();ctx.ellipse(0,0,c.proportions.head,c.proportions.head*1.12,0,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle=dark;ctx.beginPath();ctx.ellipse(0,-c.proportions.head*.82,c.proportions.head*1.02,c.proportions.head*.48,0,Math.PI,Math.PI*2);ctx.fill();
-    if(c.hair==='twin-buns'){ctx.beginPath();ctx.arc(-24,-27,16,0,Math.PI*2);ctx.arc(24,-27,16,0,Math.PI*2);ctx.fill();}
-    if(c.hair==='silver-lilac'){ctx.fillStyle=secondary;ctx.beginPath();ctx.ellipse(0,-34,c.proportions.head*1.06,24,0,Math.PI,Math.PI*2);ctx.fill();ctx.fillRect(-c.proportions.head-3,-28,11,50);ctx.fillRect(c.proportions.head-8,-28,11,50);}
-    ctx.fillStyle=dark;ctx.beginPath();ctx.arc(-10,-1,2.2,0,Math.PI*2);ctx.arc(10,-1,2.2,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle=dark;ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,7,8,0.1,Math.PI-.1);ctx.stroke();ctx.restore();
-
-    // Role-specific visual signature slots.
-    ctx.fillStyle=accent;
-    if(c.signature==='orb'){ctx.beginPath();ctx.arc(52,-112,13+Math.sin(time*2)*2,0,Math.PI*2);ctx.fill();ctx.globalAlpha=.25;ctx.beginPath();ctx.arc(52,-112,22,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}
-    if(c.signature==='star'){ctx.save();ctx.translate(48,-116);ctx.rotate(time*.2);ctx.beginPath();for(let i=0;i<8;i++){const a=i*Math.PI/4,r=i%2?5:14;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}ctx.closePath();ctx.fill();ctx.restore();}
-    if(c.signature==='visor'){ctx.globalAlpha=.85;ctx.fillRect(-35,-129,70,9);ctx.globalAlpha=1;}
-    if(c.signature==='headphones'){ctx.strokeStyle=accent;ctx.lineWidth=5;ctx.beginPath();ctx.arc(0,-121,39,Math.PI*1.05,Math.PI*1.95);ctx.stroke();}
-    if(c.signature==='coat'){ctx.strokeStyle=accent;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-31,-57);ctx.lineTo(-42,57);ctx.moveTo(31,-57);ctx.lineTo(42,57);ctx.stroke();}
-    if(c.signature==='notebook'){ctx.fillStyle=accent;ctx.fillRect(-53,-3,24,31);ctx.fillStyle=dark;ctx.fillRect(-49,2,16,3);ctx.fillRect(-49,10,12,3);}
-    if(c.signature==='crown'){ctx.beginPath();ctx.moveTo(-25,-151);ctx.lineTo(-12,-164);ctx.lineTo(0,-151);ctx.lineTo(13,-164);ctx.lineTo(25,-151);ctx.closePath();ctx.fill();}
-    ctx.restore();
-  }
-
-  function loop(now){
-    const dt=Math.min(.05,(now-last)/1000);last=now;time+=dt;
-    if(blend<1) blend=reducedMotion?1:clamp(blend+dt*4.5,0,1);
-    if(library) drawCharacter(library.characters[characterId]||library.characters.dharen);
-    requestAnimationFrame(loop);
-  }
-  window.addEventListener('message',event=>{
-    const data=event.data||{};
-    if(data.type!=='criterivox-character-state')return;
-    const next=String(data.state||'IDLE').toUpperCase();
-    if(!library||!library.characters[characterId]||!library.characters[characterId].animations[next])return;
-    currentState=targetState;targetState=next;blend=0;stateEl.textContent=next;
-  });
-
-  fetch('character_runtime/characters.json').then(r=>r.json()).then(data=>{
-    library=data;stateEl.textContent=initialState;requestAnimationFrame(loop);
-  }).catch(error=>{console.error('Criterivox character runtime failed',error);stateEl.textContent='Character runtime unavailable';});
+(()=>{
+'use strict';
+const canvas=document.getElementById('character'),ctx=canvas.getContext('2d'),stateEl=document.getElementById('state');
+const q=new URLSearchParams(location.search),characterId=(q.get('character')||'dharen').toLowerCase();
+let reducedMotion=q.get('reducedMotion')==='true',library=null,currentState=(q.get('state')||'IDLE').toUpperCase(),targetState=currentState,transition=1,time=0,last=performance.now();
+const TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t*t*(3-2*t);
+function resize(){const dpr=Math.min(devicePixelRatio||1,2),r=canvas.getBoundingClientRect();canvas.width=Math.max(1,r.width*dpr);canvas.height=Math.max(1,r.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)}
+new ResizeObserver(resize).observe(canvas);resize();
+function sample(track,t){const out={};for(const [bone,props] of Object.entries(track.bones||{})){out[bone]={};for(const [name,values] of Object.entries(props)){if(!Array.isArray(values)||!values.length)continue;if(values.length===1){out[bone][name]=values[0];continue}const u=clamp(t/Math.max(.001,track.duration||1),0,1)*(values.length-1),i=Math.min(values.length-2,Math.floor(u)),f=u-i;out[bone][name]=lerp(Number(values[i])||0,Number(values[i+1])||0,f)}}return out}
+function pose(state,t){return sample(library.animationTracks[state]||library.animationTracks.IDLE,t)}
+function mix(a,b,t){const out={},bones=new Set([...Object.keys(a||{}),...Object.keys(b||{})]);for(const bone of bones){out[bone]={};const props=new Set([...Object.keys(a?.[bone]||{}),...Object.keys(b?.[bone]||{})]);for(const p of props)out[bone][p]=lerp(Number(a?.[bone]?.[p]||0),Number(b?.[bone]?.[p]||0),t)}return out}
+function worldBones(rig,poseData){const result=new Map(),defs=new Map(rig.bones.map(b=>[b.name,b]));function resolve(name){if(result.has(name))return result.get(name);const b=defs.get(name);if(!b)return{x:0,y:0,rotation:0};const p=poseData[name]||{},x=(b.x||0)+(p.x||0),y=(b.y||0)+(p.y||0),r=(b.rotation||0)+(p.rotation||0);if(!b.parent){const v={x,y,rotation:r};result.set(name,v);return v}const parent=resolve(b.parent),c=Math.cos(parent.rotation),s=Math.sin(parent.rotation),v={x:parent.x+x*c-y*s,y:parent.y+x*s+y*c,rotation:parent.rotation+r};result.set(name,v);return v}for(const b of rig.bones)resolve(b.name);return result}
+function C(c,k){return c.skin[k]}
+function bone(world,fn){ctx.save();ctx.translate(world.x,world.y);ctx.rotate(world.rotation);fn();ctx.restore()}
+function capsule(len,w,fill){ctx.fillStyle=fill;ctx.beginPath();ctx.roundRect(-w/2,-4,w,len+8,Math.min(w/2,10));ctx.fill()}
+function circle(r,fill){ctx.fillStyle=fill;ctx.beginPath();ctx.arc(0,0,r,0,TAU);ctx.fill()}
+function ellipse(rx,ry,fill){ctx.fillStyle=fill;ctx.beginPath();ctx.ellipse(0,0,rx,ry,0,0,TAU);ctx.fill()}
+function hair(c){const d=C(c,'dark'),s=C(c,'secondary');ctx.fillStyle=d;if(c.hair==='twin-buns'){ellipse(30,24,d);ctx.beginPath();ctx.arc(-23,-28,16,0,TAU);ctx.arc(23,-28,16,0,TAU);ctx.fill()}else if(c.hair==='silver-lilac'){ctx.fillStyle=s;ellipse(32,24,s);ctx.fillRect(-34,-4,12,48);ctx.fillRect(22,-4,12,48)}else if(c.hair==='messy'){ctx.beginPath();ctx.moveTo(-30,-8);ctx.lineTo(-37,-34);ctx.lineTo(-18,-24);ctx.lineTo(-8,-43);ctx.lineTo(4,-25);ctx.lineTo(20,-42);ctx.lineTo(22,-21);ctx.lineTo(37,-28);ctx.lineTo(30,5);ctx.closePath();ctx.fill()}else if(c.hair==='swept'){ctx.beginPath();ctx.moveTo(-31,-9);ctx.quadraticCurveTo(-8,-47,34,-26);ctx.lineTo(22,5);ctx.lineTo(-31,7);ctx.closePath();ctx.fill()}else{ctx.beginPath();ctx.ellipse(0,-17,31,23,0,Math.PI,TAU);ctx.fill()}}
+function accessory(c){const a=C(c,'accent'),d=C(c,'dark'),s=C(c,'secondary');if(c.accessory==='visor'){ctx.fillStyle=a;ctx.globalAlpha=.9;ctx.fillRect(-31,-8,62,9);ctx.globalAlpha=1;ctx.strokeStyle=s;ctx.strokeRect(-28,-6,56,5)}else if(c.accessory==='headphones'){ctx.strokeStyle=a;ctx.lineWidth=5;ctx.beginPath();ctx.arc(0,-10,37,Math.PI*1.05,Math.PI*1.95);ctx.stroke();ctx.fillStyle=d;ctx.fillRect(-38,-3,8,17);ctx.fillRect(30,-3,8,17)}else if(c.accessory==='coat'){ctx.strokeStyle=a;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-31,20);ctx.lineTo(-41,94);ctx.moveTo(31,20);ctx.lineTo(41,94);ctx.stroke()}else if(c.accessory==='notebook'){ctx.fillStyle=a;ctx.roundRect(36,8,25,34,4);ctx.fill();ctx.fillStyle=d;ctx.fillRect(40,15,16,3);ctx.fillRect(40,23,13,3)}else if(c.accessory==='orb'){const p=reducedMotion?0:Math.sin(time*3)*2;ctx.globalAlpha=.18;circle(24+p,a);ctx.globalAlpha=1;circle(12+p,a);circle(4,C(c,'highlight'))}else if(c.accessory==='star'){ctx.fillStyle=a;ctx.save();ctx.translate(43,18);ctx.rotate(time*.25);ctx.beginPath();for(let i=0;i<10;i++){const ang=i*Math.PI/5,r=i%2?6:15;ctx.lineTo(Math.cos(ang)*r,Math.sin(ang)*r)}ctx.closePath();ctx.fill();ctx.restore()}}
+function draw(c,poseData){const r=canvas.getBoundingClientRect(),w=r.width,h=r.height;ctx.clearRect(0,0,w,h);ctx.save();ctx.translate(w/2,h*.54);const scale=Math.min(w/250,h/330)*(c.scale||1);ctx.scale(scale,scale);const world=worldBones(c.rig,poseData),main=C(c,'main'),sec=C(c,'secondary'),skin=C(c,'skin'),dark=C(c,'dark');
+for(const n of ['thigh_l','shin_l','foot_l','thigh_r','shin_r','foot_r','upper_arm_l','forearm_l','hand_l','upper_arm_r','forearm_r','hand_r']){const b=world.get(n);if(!b)continue;bone(b,()=>{if(n.startsWith('thigh'))capsule(58,18,main);else if(n.startsWith('shin'))capsule(58,16,sec);else if(n.startsWith('foot'))ellipse(18,7,dark);else if(n.startsWith('upper'))capsule(48,16,main);else if(n.startsWith('forearm'))capsule(42,14,sec);else circle(9,skin)})}
+const torso=world.get('torso');if(torso)bone(torso,()=>{ctx.fillStyle=main;ctx.beginPath();ctx.roundRect(-34,-4,68,96,16);ctx.fill();ctx.fillStyle=sec;ctx.beginPath();ctx.moveTo(-23,5);ctx.lineTo(0,27);ctx.lineTo(23,5);ctx.lineTo(17,84);ctx.lineTo(-17,84);ctx.closePath();ctx.fill();ctx.fillStyle=C(c,'accent');ctx.fillRect(-3,10,6,68)});
+const neck=world.get('neck');if(neck)bone(neck,()=>{ctx.fillStyle=skin;ctx.roundRect(-10,-1,20,24,8);ctx.fill()});const head=world.get('head');if(head)bone(head,()=>{ellipse(31,35,skin);hair(c);ctx.fillStyle=dark;ctx.beginPath();ctx.arc(-10,-1,2.2,0,TAU);ctx.arc(10,-1,2.2,0,TAU);ctx.fill();ctx.strokeStyle=dark;ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,7,8,.1,Math.PI-.1);ctx.stroke();accessory(c)});
+ctx.fillStyle=C(c,'highlight');ctx.globalAlpha=.08;ctx.beginPath();ctx.ellipse(0,118,82,18,0,0,TAU);ctx.fill();ctx.restore()}
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;time+=dt;if(library){const c=library.characters[characterId]||library.characters.dharen,ct=library.animationTracks[currentState]||library.animationTracks.IDLE,tt=library.animationTracks[targetState]||ct;if(transition<1&&!reducedMotion)transition=clamp(transition+dt*4.8,0,1);else transition=1;const ctTime=reducedMotion?0:(ct.loop?time%(ct.duration||1):Math.min(time,ct.duration||1)),ttTime=reducedMotion?0:(tt.loop?time%(tt.duration||1):Math.min(time,tt.duration||1));draw(c,mix(pose(currentState,ctTime),pose(targetState,ttTime),ease(transition)))}requestAnimationFrame(loop)}
+window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='criterivox-character-state')return;reducedMotion=d.reducedMotion===true;const next=String(d.state||'IDLE').toUpperCase();if(!library?.animationTracks?.[next]||next===targetState)return;currentState=targetState;targetState=next;transition=reducedMotion?1:0;stateEl.textContent=next});
+fetch('character_runtime/characters.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()}).then(d=>{library=d;stateEl.textContent=initialState;requestAnimationFrame(loop)}).catch(e=>{console.error(e);stateEl.textContent='Character runtime unavailable'})
 })();
 </script>
-</body>
-</html>
+</body></html>
