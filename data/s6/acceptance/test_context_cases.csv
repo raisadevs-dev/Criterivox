@@ -1,0 +1,7 @@
+case_id,source_id,platform,period,region,audience,language_mode,records,evidence_status,expected_context_change
+TE01,SRC-E01,video,2026-Q4,IN,young_adult,en,25,OBSERVED,none
+TE02,SRC-E02,microblog,2026-Q4,IN,general,hi,16,OBSERVED,platform_language
+TE03,SRC-E03,image,2026-Q4,IN,professional,en,,UNKNOWN,records_unknown
+TE04,SRC-E04,forum,2026-Q4,IN,technical,en,8,OBSERVED,none
+TE05,SRC-E05,video,2027-Q1,IN,technical,en,8,OBSERVED,period
+TE06,SRC-E06,video,2027-Q1,IN,technical,en,8,ASSUMED,assumption
