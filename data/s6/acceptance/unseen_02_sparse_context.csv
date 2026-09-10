@@ -1,0 +1,7 @@
+case_id,source_id,surface,window,locale,segment,items_seen,evidence
+U11,SRC-U11,community,2027-W06,,developers,4,OBSERVED
+U12,SRC-U12,short_video,2027-W06,hi-IN,,12,OBSERVED
+U13,SRC-U13,,2027-W06,en-IN,students,8,UNKNOWN
+U14,SRC-U14,photo,,en-IN,professionals,15,UNKNOWN
+U15,SRC-U15,discussion,2027-W07,en-IN,mixed,,UNKNOWN
+U16,SRC-U16,newsletter,2027-W07,,founders,,UNKNOWN

@@ -1,0 +1,6 @@
+case_id,source_id,content_id,platform,period,region,audience,language_mode,records,evidence_status,prior_platform,prior_period
+CP01,SRC-CP01,C001,video,2026-Q3,IN,young_adult,en,42,OBSERVED,,, 
+CP02,SRC-CP02,C001,microblog,2026-Q3,IN,young_adult,en,19,OBSERVED,video,2026-Q3
+CP03,SRC-CP03,C001,image,2026-Q3,IN,young_adult,en,27,OBSERVED,microblog,2026-Q3
+CP04,SRC-CP04,C001,forum,2026-Q3,IN,technical,en,11,OBSERVED,image,2026-Q3
+CP05,SRC-CP05,C001,video,2026-Q4,IN,technical,hi,35,OBSERVED,forum,2026-Q3

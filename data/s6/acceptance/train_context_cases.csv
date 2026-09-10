@@ -1,0 +1,11 @@
+case_id,source_id,platform,period,region,audience,language_mode,records,evidence_status,expected_context_change
+TR01,SRC-T01,video,2026-Q1,IN,young_adult,en,12,OBSERVED,none
+TR02,SRC-T02,video,2026-Q2,IN,young_adult,en,18,OBSERVED,period
+TR03,SRC-T03,microblog,2026-Q2,IN,general,en,9,OBSERVED,platform
+TR04,SRC-T04,microblog,2026-Q2,IN,general,hi,9,OBSERVED,language_mode
+TR05,SRC-T05,image,2026-Q2,IN,professional,en,15,OBSERVED,audience
+TR06,SRC-T06,image,2026-Q3,IN,professional,en,22,OBSERVED,period
+TR07,SRC-T07,forum,2026-Q3,IN,technical,en,7,OBSERVED,platform
+TR08,SRC-T08,forum,2026-Q3,IN,technical,hi,7,OBSERVED,language_mode
+TR09,SRC-T09,video,2026-Q3,US,general,en,31,OBSERVED,region
+TR10,SRC-T10,video,2026-Q3,US,general,en,31,OBSERVED,none

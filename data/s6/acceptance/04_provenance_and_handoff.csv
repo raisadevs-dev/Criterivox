@@ -1,0 +1,6 @@
+case_id,source_id,secondary_source_id,foundation_id,context_id,from_agent,to_agent,reason,evidence_status,expected_trace
+PH01,SRC-PH01,SRC-PH01-B,DF-PH01,CTX-DF-PH01,Sandre,Kaelen,extract foundation material,OBSERVED,SOURCE>FOUNDATION>CONTEXT
+PH02,SRC-PH02,SRC-PH02-B,DF-PH02,CTX-DF-PH02,Kaelen,Dharen,structure extracted context,OBSERVED,SOURCE>FOUNDATION>CONTEXT>INTERPRETATION
+PH03,SRC-PH03,,DF-PH03,CTX-DF-PH03,Dharen,Vivren,review contextual uncertainty,UNKNOWN,SOURCE>FOUNDATION>CONTEXT>INTERPRETATION
+PH04,SRC-PH04,SRC-PH04-B,DF-PH04,CTX-DF-PH04,Dharen,Anuka,adaptive intervention after context mismatch,OBSERVED,SOURCE>FOUNDATION>CONTEXT
+PH05,SRC-PH05,SRC-PH05-B,DF-PH05,CTX-DF-PH05,Kaelen,Dharen,hypothesis failure recovery,OBSERVED,SOURCE>FOUNDATION>CONTEXT>INTERPRETATION

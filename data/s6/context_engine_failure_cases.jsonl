@@ -1,0 +1,4 @@
+{"case_id":"S6-FL-001","failure":"memory-recheck-without-reason","material_id":"DF-FL-001","canonical_data":[{"id":1}],"source_ids":["SRC-F1"],"supplied_context":{},"memory_recheck_seconds":60,"memory_recheck_reason":null,"expected":"ValueError"}
+{"case_id":"S6-FL-002","failure":"empty-foundation","material_id":"DF-FL-002","canonical_data":[],"source_ids":[],"supplied_context":{},"expected":{"record_count":null,"status":"UNKNOWN","no_false_zero":true}}
+{"case_id":"S6-FL-003","failure":"expired-memory","material_id":"DF-FL-003","canonical_data":[{"id":1}],"source_ids":["SRC-F3"],"supplied_context":{},"memory_recheck_seconds":1,"memory_recheck_reason":"test expiration","expected":{"must_require_revalidation":true}}
+{"case_id":"S6-FL-004","failure":"semantic-equivalence-trap","material_id":"DF-FL-004","canonical_data":[{"id":1}],"source_ids":["SRC-F4"],"supplied_context":{"label":"  same-looking  "},"expected":{"normalization_must_not_assert_equivalence":true}}

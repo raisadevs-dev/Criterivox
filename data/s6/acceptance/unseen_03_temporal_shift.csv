@@ -1,0 +1,6 @@
+case_id,source_id,surface,window,locale,segment,items_seen,evidence,previous_window,expected_check
+U21,SRC-U21,short_video,2028-Q1,en-IN,students,33,OBSERVED,2027-Q4,recheck_temporal_context
+U22,SRC-U22,community,2028-Q1,en-IN,developers,4,OBSERVED,2027-Q4,recheck_temporal_context
+U23,SRC-U23,photo,2028-Q2,hi-IN,professionals,19,OBSERVED,2028-Q1,recheck_temporal_context
+U24,SRC-U24,discussion,2028-Q2,,mixed,11,UNKNOWN,2028-Q1,preserve_uncertainty
+U25,SRC-U25,newsletter,2028-Q3,en-IN,founders,,UNKNOWN,2028-Q2,preserve_missingness
