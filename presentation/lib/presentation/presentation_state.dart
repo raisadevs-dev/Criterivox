@@ -50,6 +50,8 @@ class PresentationState {
   final String? memoryRecheckAt;
   final String? memoryRecheckReason;
   final List<Map<String,dynamic>> observabilityEvents;
+  final String? failureId;
+  final String? failureType;
   final String? executionEngine;
   final String? executionTier;
   final bool? fallbackUsed;
@@ -67,83 +69,28 @@ class PresentationState {
   final String? error;
 
   const PresentationState({
-    required this.agentId,
-    required this.characterState,
-    required this.active,
-    this.reducedMotion=false,
-    this.prominence,
-    this.message,
-    this.event,
-    this.taskId,
-    this.taskState,
-    this.taskSource,
-    this.task,
-    this.taskDataFields,
-    this.taskContextFields,
-    this.taskCreatedAt,
-    this.taskUpdatedAt,
-    this.foundationId,
-    this.foundationMaterialSetId,
-    this.foundationSourceCount,
-    this.foundationCandidateCount,
-    this.foundationConfirmation,
-    this.foundationPreviewQuestion,
-    this.foundationMatchRatio,
-    this.foundationAutoFill,
-    this.foundationIntentGuesses=const [],
-    this.foundationRecipient,
-    this.foundationLogCount,
-    this.foundationLogEntries=const [],
-    this.foundationConflictFields=const [],
-    this.foundationConditionalProvenance=const [],
-    this.contextId,
-    this.contextDimensions=const [],
-    this.contextMissingDimensions=const [],
-    this.contextNormalizationCount,
-    this.contextBaselineId,
-    this.contextBaselineStatus,
-    this.contextInterpretationId,
-    this.contextUncertainty=const [],
-    this.contextLimitations=const [],
-    this.provenanceGraph,
-    this.contextDiff,
-    this.evidenceCompleteness,
-    this.evidenceDebtLevel,
-    this.evidenceTags=const [],
-    this.memoryStatus,
-    this.memoryRecheckAt,
-    this.memoryRecheckReason,
-    this.observabilityEvents=const [],
-    this.executionEngine,
-    this.executionTier,
-    this.fallbackUsed,
-    this.doorAddress,
-    this.lineageSnapshot,
-    this.coordinationId,
-    this.coordinationMembers=const [],
-    this.deliveryId,
-    this.deliveryRecipient,
-    this.deliveryStatus,
-    this.observations=const [],
-    this.findings=const [],
-    this.evidence=const [],
-    this.activity=const [],
-    this.error,
+    required this.agentId, required this.characterState, required this.active, this.reducedMotion=false, this.prominence, this.message, this.event,
+    this.taskId, this.taskState, this.taskSource, this.task, this.taskDataFields, this.taskContextFields, this.taskCreatedAt, this.taskUpdatedAt,
+    this.foundationId, this.foundationMaterialSetId, this.foundationSourceCount, this.foundationCandidateCount, this.foundationConfirmation,
+    this.foundationPreviewQuestion, this.foundationMatchRatio, this.foundationAutoFill, this.foundationIntentGuesses=const [], this.foundationRecipient,
+    this.foundationLogCount, this.foundationLogEntries=const [], this.foundationConflictFields=const [], this.foundationConditionalProvenance=const [],
+    this.contextId, this.contextDimensions=const [], this.contextMissingDimensions=const [], this.contextNormalizationCount, this.contextBaselineId,
+    this.contextBaselineStatus, this.contextInterpretationId, this.contextUncertainty=const [], this.contextLimitations=const [], this.provenanceGraph,
+    this.contextDiff, this.evidenceCompleteness, this.evidenceDebtLevel, this.evidenceTags=const [], this.memoryStatus, this.memoryRecheckAt,
+    this.memoryRecheckReason, this.observabilityEvents=const [], this.failureId, this.failureType, this.executionEngine, this.executionTier,
+    this.fallbackUsed, this.doorAddress, this.lineageSnapshot, this.coordinationId, this.coordinationMembers=const [], this.deliveryId,
+    this.deliveryRecipient, this.deliveryStatus, this.observations=const [], this.findings=const [], this.evidence=const [], this.activity=const [], this.error,
   });
 
   factory PresentationState.fromJson(String raw){
     final decoded=jsonDecode(raw);
     if(decoded is! Map<String,dynamic>) throw const FormatException('Runtime message must be an object.');
     if(decoded['contract_version']!=1) throw const FormatException('Unsupported presentation contract version.');
-    final agentId=decoded['character_id'];
-    final stateValue=decoded['character_state'];
-    final active=decoded['active'];
-    final prominence=decoded['prominence'];
+    final agentId=decoded['character_id']; final stateValue=decoded['character_state']; final active=decoded['active']; final prominence=decoded['prominence'];
     if(agentId is! String || agentId.trim().isEmpty || !CharacterIdentities.all.containsKey(agentId)) throw const FormatException('Runtime message has an unknown character.');
     if(stateValue is! String || !allowedStates.contains(stateValue.toUpperCase())) throw const FormatException('Runtime message has an unsupported state.');
     if(active is! bool || prominence is! num || prominence<0 || prominence>1) throw const FormatException('Runtime message has invalid character state.');
-    final message=decoded['message'];
-    final event=decoded['event'];
+    final message=decoded['message']; final event=decoded['event'];
     if(message!=null && message is! String) throw const FormatException('Runtime message has invalid message.');
     if(event!=null && event is! String) throw const FormatException('Runtime message has invalid event.');
     List<Map<String,dynamic>> maps(dynamic value)=>value is List?value.whereType<Map>().map((x)=>Map<String,dynamic>.from(x)).toList():const [];
@@ -154,87 +101,31 @@ class PresentationState {
     bool? optionalBool(dynamic value)=>value is bool?value:null;
     double? decimal(dynamic value)=>value is num?value.toDouble():null;
     return PresentationState(
-      agentId:agentId,
-      characterState:stateValue.toUpperCase(),
-      active:active,
-      reducedMotion:decoded['reduced_motion']==true,
-      prominence:prominence.toDouble(),
-      message:message as String?,
-      event:event as String?,
-      taskId:optionalString(decoded['task_id']),
-      taskState:optionalString(decoded['task_state']),
-      taskSource:optionalString(decoded['task_source']),
-      task:optionalString(decoded['task']),
-      taskDataFields:integer(decoded['task_data_fields']),
-      taskContextFields:integer(decoded['task_context_fields']),
-      taskCreatedAt:optionalString(decoded['task_created_at']),
-      taskUpdatedAt:optionalString(decoded['task_updated_at']),
-      foundationId:optionalString(decoded['foundation_id']),
-      foundationMaterialSetId:optionalString(decoded['foundation_material_set_id']),
-      foundationSourceCount:integer(decoded['foundation_source_count']),
-      foundationCandidateCount:integer(decoded['foundation_candidate_count']),
-      foundationConfirmation:optionalString(decoded['foundation_confirmation']),
-      foundationPreviewQuestion:optionalString(decoded['foundation_preview_question']),
-      foundationMatchRatio:decimal(decoded['foundation_match_ratio']),
-      foundationAutoFill:optionalBool(decoded['foundation_auto_fill']),
-      foundationIntentGuesses:strings(decoded['foundation_intent_guesses']),
-      foundationRecipient:optionalString(decoded['foundation_recipient']),
-      foundationLogCount:integer(decoded['foundation_log_count']),
-      foundationLogEntries:strings(decoded['foundation_log_entries']),
-      foundationConflictFields:strings(decoded['foundation_conflict_fields']),
-      foundationConditionalProvenance:strings(decoded['foundation_conditional_provenance']),
-      contextId:optionalString(decoded['context_id']),
-      contextDimensions:strings(decoded['context_dimensions']),
-      contextMissingDimensions:strings(decoded['context_missing_dimensions']),
-      contextNormalizationCount:integer(decoded['context_normalization_count']),
-      contextBaselineId:optionalString(decoded['context_baseline_id']),
-      contextBaselineStatus:optionalString(decoded['context_baseline_status']),
-      contextInterpretationId:optionalString(decoded['context_interpretation_id']),
-      contextUncertainty:strings(decoded['context_uncertainty']),
-      contextLimitations:strings(decoded['context_limitations']),
-      provenanceGraph:map(decoded['provenance_graph']),
-      contextDiff:map(decoded['context_diff']),
-      evidenceCompleteness:integer(decoded['evidence_completeness']),
-      evidenceDebtLevel:optionalString(decoded['evidence_debt_level']),
-      evidenceTags:strings(decoded['evidence_tags']),
-      memoryStatus:optionalString(decoded['memory_status']),
-      memoryRecheckAt:optionalString(decoded['memory_recheck_at']),
-      memoryRecheckReason:optionalString(decoded['memory_recheck_reason']),
-      observabilityEvents:maps(decoded['observability_events']),
-      executionEngine:optionalString(decoded['execution_engine']),
-      executionTier:optionalString(decoded['execution_tier']),
-      fallbackUsed:optionalBool(decoded['fallback_used']),
-      doorAddress:optionalString(decoded['door_address']),
-      lineageSnapshot:map(decoded['lineage_snapshot']),
-      coordinationId:optionalString(decoded['coordination_id']),
-      coordinationMembers:strings(decoded['coordination_members']),
-      deliveryId:optionalString(decoded['delivery_id']),
-      deliveryRecipient:optionalString(decoded['delivery_recipient']),
-      deliveryStatus:optionalString(decoded['delivery_status']),
-      observations:maps(decoded['observations']),
-      findings:maps(decoded['findings']),
-      evidence:maps(decoded['evidence']),
-      activity:strings(decoded['activity']),
-      error:optionalString(decoded['error']),
+      agentId:agentId, characterState:stateValue.toUpperCase(), active:active, reducedMotion:decoded['reduced_motion']==true, prominence:prominence.toDouble(), message:message as String?, event:event as String?,
+      taskId:optionalString(decoded['task_id']), taskState:optionalString(decoded['task_state']), taskSource:optionalString(decoded['task_source']), task:optionalString(decoded['task']),
+      taskDataFields:integer(decoded['task_data_fields']), taskContextFields:integer(decoded['task_context_fields']), taskCreatedAt:optionalString(decoded['task_created_at']), taskUpdatedAt:optionalString(decoded['task_updated_at']),
+      foundationId:optionalString(decoded['foundation_id']), foundationMaterialSetId:optionalString(decoded['foundation_material_set_id']), foundationSourceCount:integer(decoded['foundation_source_count']), foundationCandidateCount:integer(decoded['foundation_candidate_count']),
+      foundationConfirmation:optionalString(decoded['foundation_confirmation']), foundationPreviewQuestion:optionalString(decoded['foundation_preview_question']), foundationMatchRatio:decimal(decoded['foundation_match_ratio']), foundationAutoFill:optionalBool(decoded['foundation_auto_fill']),
+      foundationIntentGuesses:strings(decoded['foundation_intent_guesses']), foundationRecipient:optionalString(decoded['foundation_recipient']), foundationLogCount:integer(decoded['foundation_log_count']), foundationLogEntries:strings(decoded['foundation_log_entries']),
+      foundationConflictFields:strings(decoded['foundation_conflict_fields']), foundationConditionalProvenance:strings(decoded['foundation_conditional_provenance']), contextId:optionalString(decoded['context_id']), contextDimensions:strings(decoded['context_dimensions']),
+      contextMissingDimensions:strings(decoded['context_missing_dimensions']), contextNormalizationCount:integer(decoded['context_normalization_count']), contextBaselineId:optionalString(decoded['context_baseline_id']), contextBaselineStatus:optionalString(decoded['context_baseline_status']),
+      contextInterpretationId:optionalString(decoded['context_interpretation_id']), contextUncertainty:strings(decoded['context_uncertainty']), contextLimitations:strings(decoded['context_limitations']), provenanceGraph:map(decoded['provenance_graph']), contextDiff:map(decoded['context_diff']),
+      evidenceCompleteness:integer(decoded['evidence_completeness']), evidenceDebtLevel:optionalString(decoded['evidence_debt_level']), evidenceTags:strings(decoded['evidence_tags']), memoryStatus:optionalString(decoded['memory_status']), memoryRecheckAt:optionalString(decoded['memory_recheck_at']), memoryRecheckReason:optionalString(decoded['memory_recheck_reason']),
+      observabilityEvents:maps(decoded['observability_events']), failureId:optionalString(decoded['failure_id']), failureType:optionalString(decoded['failure_type']), executionEngine:optionalString(decoded['execution_engine']), executionTier:optionalString(decoded['execution_tier']), fallbackUsed:optionalBool(decoded['fallback_used']),
+      doorAddress:optionalString(decoded['door_address']), lineageSnapshot:map(decoded['lineage_snapshot']), coordinationId:optionalString(decoded['coordination_id']), coordinationMembers:strings(decoded['coordination_members']), deliveryId:optionalString(decoded['delivery_id']), deliveryRecipient:optionalString(decoded['delivery_recipient']), deliveryStatus:optionalString(decoded['delivery_status']),
+      observations:maps(decoded['observations']), findings:maps(decoded['findings']), evidence:maps(decoded['evidence']), activity:strings(decoded['activity']), error:optionalString(decoded['error']),
     );
   }
 
   Map<String,dynamic> toJson()=>{
-    'contract_version':1,'character_id':agentId,'character_state':characterState,'active':active,'reduced_motion':reducedMotion,
-    'prominence':prominence,'message':message,'event':event,'task_id':taskId,'task_state':taskState,'task_source':taskSource,'task':task,
-    'task_data_fields':taskDataFields,'task_context_fields':taskContextFields,'task_created_at':taskCreatedAt,'task_updated_at':taskUpdatedAt,
-    'foundation_id':foundationId,'foundation_material_set_id':foundationMaterialSetId,'foundation_source_count':foundationSourceCount,
-    'foundation_candidate_count':foundationCandidateCount,'foundation_confirmation':foundationConfirmation,'foundation_preview_question':foundationPreviewQuestion,
-    'foundation_match_ratio':foundationMatchRatio,'foundation_auto_fill':foundationAutoFill,'foundation_intent_guesses':foundationIntentGuesses,
-    'foundation_recipient':foundationRecipient,'foundation_log_count':foundationLogCount,'foundation_log_entries':foundationLogEntries,
-    'foundation_conflict_fields':foundationConflictFields,'foundation_conditional_provenance':foundationConditionalProvenance,
-    'context_id':contextId,'context_dimensions':contextDimensions,'context_missing_dimensions':contextMissingDimensions,'context_normalization_count':contextNormalizationCount,
-    'context_baseline_id':contextBaselineId,'context_baseline_status':contextBaselineStatus,'context_interpretation_id':contextInterpretationId,
-    'context_uncertainty':contextUncertainty,'context_limitations':contextLimitations,'provenance_graph':provenanceGraph,'context_diff':contextDiff,
-    'evidence_completeness':evidenceCompleteness,'evidence_debt_level':evidenceDebtLevel,'evidence_tags':evidenceTags,'memory_status':memoryStatus,
-    'memory_recheck_at':memoryRecheckAt,'memory_recheck_reason':memoryRecheckReason,'observability_events':observabilityEvents,
-    'execution_engine':executionEngine,'execution_tier':executionTier,'fallback_used':fallbackUsed,'door_address':doorAddress,'lineage_snapshot':lineageSnapshot,
-    'coordination_id':coordinationId,'coordination_members':coordinationMembers,'delivery_id':deliveryId,'delivery_recipient':deliveryRecipient,'delivery_status':deliveryStatus,
-    'observations':observations,'findings':findings,'evidence':evidence,'activity':activity,'error':error,
+    'contract_version':1,'character_id':agentId,'character_state':characterState,'active':active,'reduced_motion':reducedMotion,'prominence':prominence,'message':message,'event':event,
+    'task_id':taskId,'task_state':taskState,'task_source':taskSource,'task':task,'task_data_fields':taskDataFields,'task_context_fields':taskContextFields,'task_created_at':taskCreatedAt,'task_updated_at':taskUpdatedAt,
+    'foundation_id':foundationId,'foundation_material_set_id':foundationMaterialSetId,'foundation_source_count':foundationSourceCount,'foundation_candidate_count':foundationCandidateCount,'foundation_confirmation':foundationConfirmation,
+    'foundation_preview_question':foundationPreviewQuestion,'foundation_match_ratio':foundationMatchRatio,'foundation_auto_fill':foundationAutoFill,'foundation_intent_guesses':foundationIntentGuesses,'foundation_recipient':foundationRecipient,
+    'foundation_log_count':foundationLogCount,'foundation_log_entries':foundationLogEntries,'foundation_conflict_fields':foundationConflictFields,'foundation_conditional_provenance':foundationConditionalProvenance,'context_id':contextId,
+    'context_dimensions':contextDimensions,'context_missing_dimensions':contextMissingDimensions,'context_normalization_count':contextNormalizationCount,'context_baseline_id':contextBaselineId,'context_baseline_status':contextBaselineStatus,'context_interpretation_id':contextInterpretationId,
+    'context_uncertainty':contextUncertainty,'context_limitations':contextLimitations,'provenance_graph':provenanceGraph,'context_diff':contextDiff,'evidence_completeness':evidenceCompleteness,'evidence_debt_level':evidenceDebtLevel,'evidence_tags':evidenceTags,
+    'memory_status':memoryStatus,'memory_recheck_at':memoryRecheckAt,'memory_recheck_reason':memoryRecheckReason,'observability_events':observabilityEvents,'failure_id':failureId,'failure_type':failureType,'execution_engine':executionEngine,'execution_tier':executionTier,'fallback_used':fallbackUsed,
+    'door_address':doorAddress,'lineage_snapshot':lineageSnapshot,'coordination_id':coordinationId,'coordination_members':coordinationMembers,'delivery_id':deliveryId,'delivery_recipient':deliveryRecipient,'delivery_status':deliveryStatus,'observations':observations,'findings':findings,'evidence':evidence,'activity':activity,'error':error,
   };
 }
