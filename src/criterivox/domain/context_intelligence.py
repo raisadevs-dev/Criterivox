@@ -84,6 +84,69 @@ class ContextMemoryPolicy:
         )
 
 
+@dataclass(frozen=True, slots=True)
+class ObservabilityEvent:
+    timestamp: str
+    task_id: str
+    character_id: str
+    action: str
+    reason: str
+    context_id: str | None = None
+    output: str | None = None
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "timestamp": self.timestamp,
+            "task_id": self.task_id,
+            "character_id": self.character_id,
+            "action": self.action,
+            "reason": self.reason,
+            "context_id": self.context_id,
+            "output": self.output,
+        }
+
+
+class ObservabilityTimeline:
+    """In-memory task timeline for inspectable S6 agent activity."""
+
+    def __init__(self) -> None:
+        self._events: list[ObservabilityEvent] = []
+
+    def record(
+        self,
+        *,
+        task_id: str,
+        character_id: str,
+        action: str,
+        reason: str,
+        context_id: str | None = None,
+        output: str | None = None,
+        timestamp: datetime | None = None,
+    ) -> ObservabilityEvent:
+        event = ObservabilityEvent(
+            timestamp=(timestamp or datetime.now(timezone.utc)).isoformat(),
+            task_id=task_id,
+            character_id=character_id,
+            action=action,
+            reason=reason,
+            context_id=context_id,
+            output=output,
+        )
+        self._events.append(event)
+        return event
+
+    def for_task(self, task_id: str) -> tuple[ObservabilityEvent, ...]:
+        return tuple(event for event in self._events if event.task_id == task_id)
+
+    def snapshot(self) -> tuple[ObservabilityEvent, ...]:
+        return tuple(self._events)
+
+    def clear_task(self, task_id: str) -> tuple[ObservabilityEvent, ...]:
+        removed = tuple(event for event in self._events if event.task_id == task_id)
+        self._events = [event for event in self._events if event.task_id != task_id]
+        return removed
+
+
 def build_provenance_graph(
     *,
     foundation_id: str | None,
@@ -179,6 +242,8 @@ __all__ = [
     "ContextProvenanceGraph",
     "EvidenceDebt",
     "EvidenceDebtLevel",
+    "ObservabilityEvent",
+    "ObservabilityTimeline",
     "ProvenanceEdge",
     "ProvenanceNode",
     "build_provenance_graph",
