@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from criterivox.application.context_engine import Scratchpad
+from criterivox.application.context_engine import ScratchpadRegistry
 from criterivox.domain.characters import CharacterState
 
 
@@ -24,13 +24,14 @@ PROFILES: dict[str, CharacterChatProfile] = {
     "tarkis": CharacterChatProfile("tarkis", "Reasoning Specialist / Analyst", "Questions, hypotheses, and alternative explanations", ("Why?", "What could be wrong?", "Challenge this", "Form a hypothesis", "What else could explain it?", "Test the assumption"), ("questions", "hypotheses", "alternative explanations", "reasoning challenges")),
 }
 
+SCRATCHPADS = ScratchpadRegistry()
+
 
 def profile_for(character_id: str) -> CharacterChatProfile:
     return PROFILES[character_id.strip().lower()]
 
 
 def response_for(character_id: str, message: str) -> str:
-    """Produce a bounded, role-specific response without inventing system state."""
     text = message.strip().lower()
     if character_id == "dharen":
         if "missing" in text:
@@ -68,17 +69,25 @@ async def handle_character_chat(payload: dict) -> None:
 
     target = str(payload.get("target_character", "")).strip().lower()
     message = str(payload.get("message", "")).strip()
+    task_id = str(payload.get("task_id", "UNBOUND")).strip() or "UNBOUND"
     profile = profile_for(target)
-    scratchpad = Scratchpad()
+    scratchpad = SCRATCHPADS.for_task(task_id)
 
     await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.RECEIVE, active=True, prominence=.9, message=f"{profile.role} received the message.", event="CHARACTER_CHAT_RECEIVED"))
     scratchpad.put("last_message", message)
+    scratchpad.put("active_character", target)
     await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.WORK, active=True, prominence=.9, message=f"Working within the {profile.character_id} response domain.", event="CHARACTER_CHAT_WORKING"))
+    scratchpad.put("response_domain", profile.character_id)
     response = response_for(target, message)
+    scratchpad.put("last_response", response)
     await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.COMMUNICATE, active=True, prominence=.9, message=response, event="CHARACTER_CHAT_RESPONSE"))
     await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.COMPLETE, active=True, prominence=.75, message=f"{profile.role} completed this interaction.", event="CHARACTER_CHAT_COMPLETE"))
-    scratchpad.cleanup(signed_off=True)
     await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.IDLE, active=False, prominence=.25, message=None, event="CHARACTER_IDLE"))
 
 
-__all__ = ["CharacterChatProfile", "PROFILES", "handle_character_chat", "profile_for", "response_for"]
+def sign_off_task_scratchpad(task_id: str) -> tuple[str, ...]:
+    """Explicitly sign off temporary Kaelen/runtime work for a completed task."""
+    return SCRATCHPADS.sign_off(task_id)
+
+
+__all__ = ["CharacterChatProfile", "PROFILES", "SCRATCHPADS", "handle_character_chat", "profile_for", "response_for", "sign_off_task_scratchpad"]
