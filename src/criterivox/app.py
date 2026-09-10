@@ -10,10 +10,10 @@ from fastapi.staticfiles import StaticFiles
 from .config import settings
 from .domain.analysis import AnalysisTaskSource
 from .domain.characters import CharacterState
+from .domain.context_intelligence import ObservabilityTimeline
 from .application.analysis_tasks import analysis_tasks
 from .application.character_chat import PROFILES, handle_character_chat
 from .application.context_engine import ContextEngine
-from .application.context_intelligence import ObservabilityTimeline
 from .application.data_foundation_store import data_foundations
 from .application.sandre_stewardship import SandreStewardship
 from .application import foundation_runtime_bridge  # noqa: F401
@@ -41,7 +41,26 @@ async def _safe_request(handler, payload: dict) -> None:
         await handler(payload)
     except Exception as exc:
         logger.exception("Runtime request failed.")
-        await runtime_connections.publish(PresentationContract.from_state("Dharen", CharacterState.WARNING, active=True, prominence=.85, message=f"Runtime could not complete that request: {exc}", event="RUNTIME_ERROR"))
+        await runtime_connections.publish(PresentationContract.from_state("dharen", CharacterState.WARNING, active=True, prominence=.85, message=f"Runtime could not complete that request: {exc}", event="RUNTIME_ERROR"))
+
+
+def _graph_payload(graph) -> dict:
+    return {
+        "nodes": [{"id": node.node_id, "label": node.label, "kind": node.kind} for node in graph.nodes],
+        "edges": [{"source": edge.source, "target": edge.target, "relation": edge.relation} for edge in graph.edges],
+        "traceability_status": "IMPLEMENTED",
+        "immutability_status": "UNKNOWN",
+    }
+
+
+def _diff_payload(diff) -> dict:
+    return {
+        "added": list(diff.added_dimensions),
+        "removed": list(diff.removed_dimensions),
+        "unchanged": list(diff.unchanged_dimensions),
+        "changed": list(diff.changed_fields),
+        "semantic_equivalence_claimed": False,
+    }
 
 async def _safe_context_build(payload: dict) -> None:
     try:
@@ -53,8 +72,8 @@ async def _safe_context_build(payload: dict) -> None:
         if not isinstance(supplied, dict):
             raise ValueError("user_intent_context must be an object.")
         previous_context = _context_snapshots.get(foundation_id)
-        memory_seconds = supplied.get("memory_recheck_seconds")
-        memory_seconds = int(memory_seconds) if memory_seconds is not None else None
+        memory_seconds_value = supplied.get("memory_recheck_seconds")
+        memory_seconds = int(memory_seconds_value) if memory_seconds_value is not None else None
         memory_reason = str(supplied.get("memory_recheck_reason", "")).strip() or None
         result = context_engine.create_from_material_set(
             foundation,
@@ -69,8 +88,7 @@ async def _safe_context_build(payload: dict) -> None:
         missing = tuple(d.value for d in context.missing_dimensions())
         baseline = result.baselines[0]
         task_id = str(payload.get("task_id", f"CTX-TASK-{foundation_id}"))
-        current_snapshot = {item.key: item.value for item in context.items}
-        _context_snapshots[foundation_id] = current_snapshot
+        _context_snapshots[foundation_id] = {item.key: item.value for item in context.items}
         events = []
 
         def trace(action: str, reason: str, *, output: str | None = None) -> None:
@@ -78,48 +96,46 @@ async def _safe_context_build(payload: dict) -> None:
             events.append(event)
 
         trace("RECEIVE", "Received validated S5 foundation for contextual structuring.")
-        await runtime_connections.publish(PresentationContract.from_state(
-            "dharen", CharacterState.RECEIVE, active=True, prominence=.9,
-            message=f"Dharen received foundation {foundation_id} for contextual structuring.", event="CONTEXT_BUILD_RECEIVED",
-            foundation_id=foundation_id, foundation_material_set_id=foundation_id, task_id=task_id,
-            activity=tuple(f"{item.character_id}: {item.action} • {item.reason}" for item in events),
-            observability_events=tuple(item.to_dict() for item in events),
-        ))
+        common = {
+            "foundation_id": foundation_id,
+            "foundation_material_set_id": foundation_id,
+            "task_id": task_id,
+            "context_id": context.context_id,
+            "context_dimensions": dimensions,
+            "context_missing_dimensions": missing,
+            "context_normalization_count": len(result.normalization),
+            "context_baseline_id": baseline.baseline_id,
+            "context_baseline_status": baseline.status.value,
+            "provenance_graph": _graph_payload(result.provenance_graph),
+            "context_diff": _diff_payload(result.context_diff),
+            "evidence_completeness": result.evidence_debt.completeness_percent,
+            "evidence_debt_level": result.evidence_debt.level.value,
+            "evidence_tags": result.evidence_debt.tags,
+            "memory_status": result.memory.status,
+            "memory_recheck_at": result.memory.expires_at.isoformat() if result.memory.expires_at else None,
+            "memory_recheck_reason": memory_reason,
+            "observability_events": tuple(item.to_dict() for item in events),
+            "activity": tuple(f"{item.character_id}: {item.action} • {item.reason}" for item in events),
+            "lineage_snapshot": {"material_set_id": lineage.material_set_id if lineage else None, "created_at": lineage.created_at if lineage else None, "source_ids": list(lineage.source_ids) if lineage else [], "immutable": lineage.immutable if lineage else False},
+        }
+        await runtime_connections.publish(PresentationContract.from_state("dharen", CharacterState.RECEIVE, active=True, prominence=.9, message=f"Dharen received foundation {foundation_id} for contextual structuring.", event="CONTEXT_BUILD_RECEIVED", **common))
         await asyncio.sleep(.1)
 
         trace("WORK", "Structured dimensions while preserving S5 lineage.")
-        await runtime_connections.publish(PresentationContract.from_state(
-            "dharen", CharacterState.WORK, active=True, prominence=.9,
-            message="Dharen is structuring contextual dimensions and preserving the S5 lineage reference.", event="CONTEXT_BUILD_WORKING",
-            foundation_id=foundation_id, foundation_material_set_id=foundation_id, task_id=task_id,
-            context_id=context.context_id, context_dimensions=dimensions, context_missing_dimensions=missing,
-            context_normalization_count=len(result.normalization), context_baseline_id=baseline.baseline_id,
-            context_baseline_status=baseline.status.value, provenance_graph=result.provenance_graph.to_dict(),
-            context_diff={"added": list(result.context_diff.added), "removed": list(result.context_diff.removed), "changed": list(result.context_diff.changed), "unchanged": list(result.context_diff.unchanged), "semantic_equivalence_claimed": result.context_diff.semantic_equivalence_claimed},
-            evidence_completeness=result.evidence_debt.completeness_percent, evidence_debt_level=result.evidence_debt.level.value, evidence_tags=result.evidence_debt.tags,
-            memory_status=result.memory.status if result.memory else "UNKNOWN", memory_recheck_at=result.memory.recheck_at if result.memory else None, memory_recheck_reason=result.memory.recheck_reason if result.memory else None,
-            evidence=tuple({"id": f"CTX-EVID-{index:03d}", "status": item.status.value, "source_id": source_ids[0] if source_ids else ""} for index, item in enumerate(context.items, start=1)) if (source_ids := tuple(getattr(foundation, "source_ids", ()))) else (),
-            lineage_snapshot={"material_set_id": lineage.material_set_id if lineage else None, "created_at": lineage.created_at if lineage else None, "source_ids": list(lineage.source_ids) if lineage else [], "immutable": lineage.immutable if lineage else False},
-            activity=tuple(f"{item.character_id}: {item.action} • {item.reason}" for item in events), observability_events=tuple(item.to_dict() for item in events),
-        ))
+        common["observability_events"] = tuple(item.to_dict() for item in events)
+        common["activity"] = tuple(f"{item.character_id}: {item.action} • {item.reason}" for item in events)
+        await runtime_connections.publish(PresentationContract.from_state("dharen", CharacterState.WORK, active=True, prominence=.9, message="Dharen is structuring contextual dimensions and preserving the S5 lineage reference.", event="CONTEXT_BUILD_WORKING", **common))
         await asyncio.sleep(.1)
 
         trace("COMMUNICATE", "Context build completed and is ready for inspection.", output=result.interpretation.interpretation)
-        await runtime_connections.publish(PresentationContract.from_state(
-            "dharen", CharacterState.COMMUNICATE, active=True, prominence=.9,
-            message=result.interpretation.interpretation, event="CONTEXT_BUILD_COMPLETE",
-            foundation_id=foundation_id, foundation_material_set_id=foundation_id, task_id=task_id,
-            context_id=context.context_id, context_dimensions=dimensions, context_missing_dimensions=missing,
-            context_normalization_count=len(result.normalization), context_baseline_id=baseline.baseline_id,
-            context_baseline_status=baseline.status.value, context_interpretation_id=result.interpretation.interpretation_id,
-            context_uncertainty=result.interpretation.uncertainty, context_limitations=result.interpretation.limitations,
-            provenance_graph=result.provenance_graph.to_dict(),
-            context_diff={"added": list(result.context_diff.added), "removed": list(result.context_diff.removed), "changed": list(result.context_diff.changed), "unchanged": list(result.context_diff.unchanged), "semantic_equivalence_claimed": result.context_diff.semantic_equivalence_claimed},
-            evidence_completeness=result.evidence_debt.completeness_percent, evidence_debt_level=result.evidence_debt.level.value, evidence_tags=result.evidence_debt.tags,
-            memory_status=result.memory.status if result.memory else "UNKNOWN", memory_recheck_at=result.memory.recheck_at if result.memory else None, memory_recheck_reason=result.memory.recheck_reason if result.memory else None,
-            observability_events=tuple(item.to_dict() for item in events), activity=tuple(f"{item.character_id}: {item.action} • {item.reason}" for item in events),
-            lineage_snapshot={"material_set_id": lineage.material_set_id if lineage else None, "created_at": lineage.created_at if lineage else None, "source_ids": list(lineage.source_ids) if lineage else [], "immutable": lineage.immutable if lineage else False},
-        ))
+        common.update({
+            "context_interpretation_id": result.interpretation.interpretation_id,
+            "context_uncertainty": result.interpretation.uncertainty,
+            "context_limitations": result.interpretation.limitations,
+            "observability_events": tuple(item.to_dict() for item in events),
+            "activity": tuple(f"{item.character_id}: {item.action} • {item.reason}" for item in events),
+        })
+        await runtime_connections.publish(PresentationContract.from_state("dharen", CharacterState.COMMUNICATE, active=True, prominence=.9, message=result.interpretation.interpretation, event="CONTEXT_BUILD_COMPLETE", **common))
     except Exception as exc:
         logger.exception("S6 context build failed.")
         await runtime_connections.publish(PresentationContract.from_state("dharen", CharacterState.WARNING, active=True, prominence=.9, message=f"Context construction could not be completed: {exc}", event="CONTEXT_BUILD_FAILED"))
