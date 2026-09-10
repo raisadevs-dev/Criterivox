@@ -3,7 +3,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
+from typing import TYPE_CHECKING
 from uuid import uuid4
+
+if TYPE_CHECKING:
+    from criterivox.domain.data_foundation import DataFoundation
 
 
 class AnalysisTaskState(str, Enum):
@@ -94,6 +98,7 @@ class AnalysisTask:
     source: AnalysisTaskSource
     references: tuple[str, ...] = ()
     reference_details: tuple[AnalysisReference, ...] = ()
+    data_foundation: DataFoundation | None = None
     state: AnalysisTaskState = AnalysisTaskState.CREATED
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
@@ -111,6 +116,7 @@ class AnalysisTask:
         source: AnalysisTaskSource,
         references: tuple[str, ...] = (),
         reference_details: tuple[AnalysisReference, ...] = (),
+        data_foundation: DataFoundation | None = None,
     ) -> "AnalysisTask":
         if not task.strip():
             raise ValueError("Analysis task must not be empty.")
@@ -130,7 +136,12 @@ class AnalysisTask:
             source=source,
             references=tuple(ref.strip() for ref in references if ref.strip()),
             reference_details=tuple(reference_details),
+            data_foundation=data_foundation,
         )
+
+    @property
+    def foundation_id(self) -> str | None:
+        return self.data_foundation.foundation_id if self.data_foundation is not None else None
 
     def transition(self, target: AnalysisTaskState) -> None:
         if target not in _ALLOWED_TRANSITIONS[self.state]:
@@ -162,13 +173,6 @@ class AnalysisTask:
 
 
 __all__ = [
-    "AnalysisReference",
-    "AnalysisResult",
-    "AnalysisTask",
-    "AnalysisTaskSource",
-    "AnalysisTaskState",
-    "Evidence",
-    "Finding",
-    "InvalidAnalysisTransition",
-    "Observation",
+    "AnalysisReference", "AnalysisResult", "AnalysisTask", "AnalysisTaskSource",
+    "AnalysisTaskState", "Evidence", "Finding", "InvalidAnalysisTransition", "Observation",
 ]
