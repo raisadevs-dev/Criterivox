@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from criterivox.application.context_engine import ScratchpadRegistry
+from criterivox.application.failure_telemetry import FailureType, TELEMETRY
 from criterivox.domain.characters import CharacterState
 
 
@@ -62,6 +63,21 @@ def response_for(character_id: str, message: str) -> str:
     return "The character profile does not define a response domain for this interaction."
 
 
+def _failure_from_message(message: str) -> FailureType | None:
+    text = message.lower()
+    if any(token in text for token in ("requirement changed", "requirements changed", "new requirement", "changed requirement")):
+        return FailureType.REQUIREMENT_CHANGED
+    if any(token in text for token in ("hypothesis failed", "hypothesis is wrong", "hypothesis was wrong", "hypothesis failure")):
+        return FailureType.HYPOTHESIS_FAILED
+    if any(token in text for token in ("context mismatch", "doesn't fit", "does not fit", "wrong context")):
+        return FailureType.CONTEXT_MISMATCH
+    if any(token in text for token in ("build failed", "build failure")):
+        return FailureType.BUILD_FAILED
+    if any(token in text for token in ("execution failed", "runtime failure", "runtime failed")):
+        return FailureType.EXECUTION_FAILED
+    return None
+
+
 async def handle_character_chat(payload: dict) -> None:
     """Handle S6 character conversations on the existing runtime boundary."""
     from criterivox.infrastructure.runtime import runtime_connections
@@ -73,20 +89,25 @@ async def handle_character_chat(payload: dict) -> None:
     profile = profile_for(target)
     scratchpad = SCRATCHPADS.for_task(task_id)
 
-    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.RECEIVE, active=True, prominence=.9, message=f"{profile.role} received the message.", event="CHARACTER_CHAT_RECEIVED"))
+    failure_type = _failure_from_message(message)
+    if failure_type is not None:
+        failure = TELEMETRY.record(task_id=task_id, failure_type=failure_type, character_id=target, summary=message, evidence=tuple(str(item) for item in payload.get("references", ()) if item))
+        scratchpad.put("last_failure_id", failure.event_id)
+        scratchpad.put("last_failure_type", failure.failure_type.value)
+
+    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.RECEIVE, active=True, prominence=.9, message=f"{profile.role} received the message.", event="CHARACTER_CHAT_RECEIVED", task_id=task_id, activity=tuple(event.summary for event in TELEMETRY.for_task(task_id))))
     scratchpad.put("last_message", message)
     scratchpad.put("active_character", target)
-    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.WORK, active=True, prominence=.9, message=f"Working within the {profile.character_id} response domain.", event="CHARACTER_CHAT_WORKING"))
+    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.WORK, active=True, prominence=.9, message=f"Working within the {profile.character_id} response domain.", event="CHARACTER_CHAT_WORKING", task_id=task_id, activity=tuple(event.summary for event in TELEMETRY.for_task(task_id))))
     scratchpad.put("response_domain", profile.character_id)
     response = response_for(target, message)
     scratchpad.put("last_response", response)
-    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.COMMUNICATE, active=True, prominence=.9, message=response, event="CHARACTER_CHAT_RESPONSE"))
-    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.COMPLETE, active=True, prominence=.75, message=f"{profile.role} completed this interaction.", event="CHARACTER_CHAT_COMPLETE"))
-    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.IDLE, active=False, prominence=.25, message=None, event="CHARACTER_IDLE"))
+    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.COMMUNICATE, active=True, prominence=.9, message=response, event="CHARACTER_CHAT_RESPONSE", task_id=task_id, activity=tuple(event.summary for event in TELEMETRY.for_task(task_id))))
+    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.COMPLETE, active=True, prominence=.75, message=f"{profile.role} completed this interaction.", event="CHARACTER_CHAT_COMPLETE", task_id=task_id, activity=tuple(event.summary for event in TELEMETRY.for_task(task_id))))
+    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.IDLE, active=False, prominence=.25, message=None, event="CHARACTER_IDLE", task_id=task_id, activity=tuple(event.summary for event in TELEMETRY.for_task(task_id))))
 
 
 def sign_off_task_scratchpad(task_id: str) -> tuple[str, ...]:
-    """Explicitly sign off temporary Kaelen/runtime work for a completed task."""
     return SCRATCHPADS.sign_off(task_id)
 
 
