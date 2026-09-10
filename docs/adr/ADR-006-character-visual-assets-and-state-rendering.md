@@ -1,68 +1,89 @@
 # ADR-006: Character Visual Assets and State Rendering
 
-- **Status:** Accepted
-- **Date:** 2026-09-08
-- **Scope:** S4 character-driven presentation/runtime integration
+- **Status:** Accepted and superseded by S6 skeletal runtime decision
+- **Date:** 2026-09-10
+- **Scope:** Character-driven presentation/runtime integration
 
 ## Context
 
-CRITERIVOX requires Dharen and Syvax to behave as functional interaction entities rather than decorative mascots. The supplied character boards define the intended visual identity and provide six representative visual states for the initial character lifecycle.
+Criterivox requires characters to behave as functional interaction entities rather than decorative mascots. Python remains authoritative for semantic character state and application behavior.
 
-The application already has a semantic runtime model in which Python is authoritative for character state and Flutter renders that state. The earlier SVG artwork was only placeholder vector artwork and did not represent the supplied character designs.
+The former SVG frame system was a temporary presentation implementation. It has now been removed. Character rendering needs continuous skeletal motion, explicit bone/pose data, state blending, and a renderer that can evolve independently of the Flutter domain layer.
 
 ## Decision
 
-Use the supplied Dharen and Syvax visual boards as the visual source for the initial character presentation assets.
+Use a local HTML + standard JavaScript 2D skeletal runtime embedded into Flutter Web through `HtmlElementView`.
 
-The supported lifecycle order is:
+The runtime follows a Spine / DragonBones-style model:
+
+- character definition is plain JSON data
+- bones/limbs are animated through pose tracks
+- skins/signatures are character-specific
+- semantic states drive animation tracks
+- state transitions blend rather than swapping still images
+- Flutter owns the embedding boundary and semantic state
+- JavaScript owns visual interpolation and drawing
+
+The current runtime is an original Criterivox skeletal format (`criterivox-skeletal-v1`). It is deliberately not coupled to a proprietary authoring tool or external network asset service. The JSON model leaves a future adapter path open for a production Spine or DragonBones runtime if research, licensing, performance and authoring requirements justify it.
+
+The supported semantic lifecycle remains:
 
 `IDLE → RECEIVE → WORK → COMMUNICATE → HANDOFF → COMPLETE`
 
-Flutter selects the visual frame from the semantic presentation state. Flutter must not independently invent or reorder the character lifecycle.
-
-Character artwork remains a presentation concern. Python continues to own semantic state, task lifecycle, and application behavior.
-
-The current implementation uses SVG-backed character assets and a reusable `CharacterFrame` renderer. The supplied visual material, including its designed background treatment, is retained rather than replacing the characters with isolated placeholder silhouettes.
+with `WARNING` as an exceptional state.
 
 ## Runtime Contract
 
 ```text
 Python semantic character state
         ↓
-WebSocket runtime
+WebSocket runtime contract
         ↓
 Dart PresentationState
         ↓
-CharacterFrame / character renderer
+Flutter skeletal runtime bridge
         ↓
-Supplied visual state
+local HTML / JavaScript canvas runtime
         ↓
-Flutter presentation
+JSON skeleton + animation tracks
+        ↓
+blended 2D character pose
 ```
 
-## Authoring Decision
+## Character Coverage
 
-SVG is the runtime asset format. Glaxnimate remains an authoring-time tool for future refinement and animation authoring. Glaxnimate is not a runtime dependency.
+The runtime registry currently contains distinct skeletal definitions for:
 
-The current assets should not be described as pure vector redraws of the supplied images. They are SVG-backed presentation assets using the supplied visual material. Future asset work may convert individual states into cleaner, individually authored SVG/animation assets without changing the runtime contract.
+- Dharen
+- Syvax
+- Sandre
+- Kaelen
+- Anuka
+- Vivren
+- Tarkis
+
+Character identity, role and residence remain separate domain concerns. Visual design must not override canonical character identity.
 
 ## Consequences
 
 ### Positive
 
-- Dharen and Syvax now visually correspond to the supplied character identity boards.
-- Character lifecycle state has a direct presentation representation.
-- Runtime semantics remain independent of artwork.
-- Future character animation work can replace assets without redesigning Python application behavior.
+- No SVG character dependency remains in the presentation runtime.
+- Character states are rendered dynamically rather than as still-frame swaps.
+- Visual animation can evolve without changing Python domain semantics.
+- Character-specific visual signatures are represented as runtime data.
+- JSON skeleton data can later be exported or replaced by a production skeletal runtime format.
+- The web runtime remains local and does not require a paid generation service.
 
 ### Trade-offs
 
-- The supplied boards are state references, not a complete production animation rig.
-- Individual state assets may need further authoring for smoother animation and smaller payloads.
-- Background-rich visual assets require deliberate responsive cropping/layout handling.
+- The current renderer is an original lightweight skeletal implementation, not a full production Spine/DragonBones editor/runtime.
+- Production-quality art authoring and richer bone constraints remain future work.
+- Flutter Web platform-view behavior must be covered by CI/browser testing.
 
 ## Rejected Alternatives
 
-1. Keep the previous placeholder SVG characters. Rejected because they did not represent the intended character identity.
-2. Put character lifecycle logic entirely inside Flutter. Rejected because semantic state must remain authoritative outside presentation.
-3. Treat six still frames as a complete animation system. Rejected because visual keyframes and animation authoring are different concerns.
+1. Keep the previous SVG frame assets. Rejected because they limited state rendering and left a placeholder-oriented visual architecture.
+2. Put animation logic entirely inside Flutter. Rejected because the character renderer should remain replaceable and web-skeletal animation is better isolated at the presentation boundary.
+3. Make Python aware of bones or renderer details. Rejected because semantic state and visual implementation must remain separated.
+4. Introduce a proprietary production runtime before research/licensing validation. Rejected for now; the Criterivox skeletal contract keeps that decision reversible.
