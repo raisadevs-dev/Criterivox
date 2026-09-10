@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Criterivox Character Runtime</title>
+  <style>
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent}
+    body{display:grid;place-items:center;font-family:system-ui,sans-serif}
+    canvas{width:100%;height:100%;display:block}
+    .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+  </style>
+</head>
+<body>
+<canvas id="character" aria-label="Criterivox skeletal character"></canvas>
+<div id="state" class="sr" aria-live="polite"></div>
+<script>
+(() => {
+  const canvas=document.getElementById('character');
+  const ctx=canvas.getContext('2d');
+  const params=new URLSearchParams(location.search);
+  const characterId=(params.get('character')||'dharen').toLowerCase();
+  const initialState=(params.get('state')||'IDLE').toUpperCase();
+  const reducedMotion=params.get('reducedMotion')==='true';
+  const stateEl=document.getElementById('state');
+  let library=null;
+  let currentState=initialState;
+  let targetState=initialState;
+  let blend=reducedMotion?1:0;
+  let time=0;
+  let last=performance.now();
+
+  function resize(){
+    const dpr=Math.min(window.devicePixelRatio||1,2);
+    const r=canvas.getBoundingClientRect();
+    canvas.width=Math.max(1,Math.floor(r.width*dpr));
+    canvas.height=Math.max(1,Math.floor(r.height*dpr));
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  new ResizeObserver(resize).observe(canvas);
+
+  function lerp(a,b,t){return a+(b-a)*t;}
+  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+  function pose(character,state){
+    const p=character.animations[state]||character.animations.IDLE;
+    return {
+      lean:p.lean||0, head:p.head||0, leftArm:p.leftArm||0, rightArm:p.rightArm||0,
+      leftLeg:p.leftLeg||0, rightLeg:p.rightLeg||0, bounce:p.bounce||0, accent:p.accent||0
+    };
+  }
+  function mixedPose(character,a,b,t){
+    const x=pose(character,a),y=pose(character,b); const out={};
+    for(const k of Object.keys(x)) out[k]=lerp(x[k],y[k],t);
+    return out;
+  }
+  function segment(x,y,len,angle,width,color){
+    ctx.save();ctx.translate(x,y);ctx.rotate(angle);
+    ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(-width/2,-len*.08,width,len,Math.min(width,len*.08));ctx.fill();ctx.restore();
+  }
+  function joint(x,y,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();}
+  function limb(root,len,angle,width,color){
+    const ex=root.x+Math.cos(angle)*len,ey=root.y+Math.sin(angle)*len;
+    segment(root.x,root.y,len,angle,width,color); joint(ex,ey,width*.58,color); return {x:ex,y:ey};
+  }
+  function drawCharacter(c){
+    const r=canvas.getBoundingClientRect(); const w=r.width,h=r.height;
+    ctx.clearRect(0,0,w,h); ctx.save(); ctx.translate(w/2,h*.57); const s=Math.min(w/310,h/350);
+    ctx.scale(s,s); const p=mixedPose(c,currentState,targetState,blend);
+    const bob=Math.sin(time*(reducedMotion?0:2.2))*p.bounce;
+    ctx.translate(0,-bob); ctx.rotate(p.lean);
+    const skin=c.palette.skin,main=c.palette.main,secondary=c.palette.secondary,accent=c.palette.accent,dark=c.palette.dark;
+    const headY=-122,torsoY=-62;
+    ctx.shadowColor=accent;ctx.shadowBlur=8+Math.abs(p.accent)*6;
+    ctx.fillStyle=accent;ctx.globalAlpha=.08;ctx.beginPath();ctx.ellipse(0,42,82,18,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;ctx.shadowBlur=0;
+
+    // Legs are bones first, then clothing skins over them.
+    const hipL={x:-c.proportions.hip/2,y:torsoY+70},hipR={x:c.proportions.hip/2,y:torsoY+70};
+    const lFoot=limb(hipL,72,-Math.PI/2+p.leftLeg,.18,dark),rFoot=limb(hipR,72,-Math.PI/2+p.rightLeg,.18,dark);
+    ctx.fillStyle=secondary;ctx.beginPath();ctx.roundRect(-35,5,25,54,9);ctx.roundRect(10,5,25,54,9);ctx.fill();
+    ctx.fillStyle=dark;ctx.beginPath();ctx.ellipse(lFoot.x,lFoot.y+5,17,7,0,0,Math.PI*2);ctx.ellipse(rFoot.x,rFoot.y+5,17,7,0,0,Math.PI*2);ctx.fill();
+
+    // Torso / outfit slot.
+    ctx.fillStyle=main;ctx.beginPath();ctx.roundRect(-c.proportions.torso/2,torsoY,c.proportions.torso,c.proportions.torso*1.15,18);ctx.fill();
+    ctx.fillStyle=secondary;ctx.beginPath();ctx.moveTo(-25,torsoY+8);ctx.lineTo(0,torsoY+28);ctx.lineTo(25,torsoY+8);ctx.lineTo(18,torsoY+92);ctx.lineTo(-18,torsoY+92);ctx.closePath();ctx.fill();
+    ctx.fillStyle=accent;ctx.fillRect(-3,torsoY+12,6,72);
+
+    // Arms as bone chains.
+    const shoulderL={x:-c.proportions.shoulder,y:torsoY+18},shoulderR={x:c.proportions.shoulder,y:torsoY+18};
+    const armL=limb(shoulderL,58,Math.PI/2+p.leftArm,.16,main),armR=limb(shoulderR,58,Math.PI/2-p.rightArm,.16,main);
+    joint(armL.x,armL.y,9,skin);joint(armR.x,armR.y,9,skin);
+    ctx.fillStyle=accent;ctx.fillRect(armL.x-4,armL.y-3,8,12);ctx.fillRect(armR.x-4,armR.y-3,8,12);
+
+    // Neck and head.
+    ctx.fillStyle=skin;ctx.fillRect(-10,headY+37,20,24);
+    ctx.save();ctx.translate(0,headY);ctx.rotate(p.head);ctx.fillStyle=skin;ctx.beginPath();ctx.ellipse(0,0,c.proportions.head,c.proportions.head*1.12,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=dark;ctx.beginPath();ctx.ellipse(0,-c.proportions.head*.82,c.proportions.head*1.02,c.proportions.head*.48,0,Math.PI,Math.PI*2);ctx.fill();
+    if(c.hair==='twin-buns'){ctx.beginPath();ctx.arc(-24,-27,16,0,Math.PI*2);ctx.arc(24,-27,16,0,Math.PI*2);ctx.fill();}
+    if(c.hair==='silver-lilac'){ctx.fillStyle=secondary;ctx.beginPath();ctx.ellipse(0,-34,c.proportions.head*1.06,24,0,Math.PI,Math.PI*2);ctx.fill();ctx.fillRect(-c.proportions.head-3,-28,11,50);ctx.fillRect(c.proportions.head-8,-28,11,50);}
+    ctx.fillStyle=dark;ctx.beginPath();ctx.arc(-10,-1,2.2,0,Math.PI*2);ctx.arc(10,-1,2.2,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=dark;ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,7,8,0.1,Math.PI-.1);ctx.stroke();ctx.restore();
+
+    // Role-specific visual signature slots.
+    ctx.fillStyle=accent;
+    if(c.signature==='orb'){ctx.beginPath();ctx.arc(52,-112,13+Math.sin(time*2)*2,0,Math.PI*2);ctx.fill();ctx.globalAlpha=.25;ctx.beginPath();ctx.arc(52,-112,22,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}
+    if(c.signature==='star'){ctx.save();ctx.translate(48,-116);ctx.rotate(time*.2);ctx.beginPath();for(let i=0;i<8;i++){const a=i*Math.PI/4,r=i%2?5:14;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}ctx.closePath();ctx.fill();ctx.restore();}
+    if(c.signature==='visor'){ctx.globalAlpha=.85;ctx.fillRect(-35,-129,70,9);ctx.globalAlpha=1;}
+    if(c.signature==='headphones'){ctx.strokeStyle=accent;ctx.lineWidth=5;ctx.beginPath();ctx.arc(0,-121,39,Math.PI*1.05,Math.PI*1.95);ctx.stroke();}
+    if(c.signature==='coat'){ctx.strokeStyle=accent;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-31,-57);ctx.lineTo(-42,57);ctx.moveTo(31,-57);ctx.lineTo(42,57);ctx.stroke();}
+    if(c.signature==='notebook'){ctx.fillStyle=accent;ctx.fillRect(-53,-3,24,31);ctx.fillStyle=dark;ctx.fillRect(-49,2,16,3);ctx.fillRect(-49,10,12,3);}
+    if(c.signature==='crown'){ctx.beginPath();ctx.moveTo(-25,-151);ctx.lineTo(-12,-164);ctx.lineTo(0,-151);ctx.lineTo(13,-164);ctx.lineTo(25,-151);ctx.closePath();ctx.fill();}
+    ctx.restore();
+  }
+
+  function loop(now){
+    const dt=Math.min(.05,(now-last)/1000);last=now;time+=dt;
+    if(blend<1) blend=reducedMotion?1:clamp(blend+dt*4.5,0,1);
+    if(library) drawCharacter(library.characters[characterId]||library.characters.dharen);
+    requestAnimationFrame(loop);
+  }
+  window.addEventListener('message',event=>{
+    const data=event.data||{};
+    if(data.type!=='criterivox-character-state')return;
+    const next=String(data.state||'IDLE').toUpperCase();
+    if(!library||!library.characters[characterId]||!library.characters[characterId].animations[next])return;
+    currentState=targetState;targetState=next;blend=0;stateEl.textContent=next;
+  });
+
+  fetch('character_runtime/characters.json').then(r=>r.json()).then(data=>{
+    library=data;stateEl.textContent=initialState;requestAnimationFrame(loop);
+  }).catch(error=>{console.error('Criterivox character runtime failed',error);stateEl.textContent='Character runtime unavailable';});
+})();
+</script>
+</body>
+</html>
