@@ -8,24 +8,69 @@
 
 Criterivox separates **character behavior and presentation capability** from **final authored character artwork**.
 
-During the functional sprints, character identity, responsibility, interaction, semantic lifecycle, communication, handoff and presentation-layer behavior are implemented first. The presentation layer therefore provides a real character slot and Flutter capability surface now, while final authored avatars are explicitly marked **Coming Soon** until the end-stage character asset work.
+During the functional sprints, character identity, responsibility, interaction, semantic lifecycle, communication, handoff and presentation-layer behavior are implemented first. Final visual production is deliberately deferred until the functional character system is stable.
 
-For the current web presentation/runtime boundary, Criterivox uses a local HTML + standard JavaScript 2D skeletal runtime embedded into Flutter Web through `HtmlElementView`.
+The presentation layer must nevertheless be visibly functional now. Therefore, Criterivox uses a **pure Flutter procedural character renderer** during the functional sprints. It provides animated character representations directly in the Flutter presentation layer without requiring final authored artwork, SVG assets, an iframe, JavaScript, or a third-party animation runtime.
 
-The runtime uses a Spine / DragonBones-style conceptual model without claiming to embed either third-party runtime:
+The current Flutter renderer uses `CustomPainter` and `AnimationController` to provide reusable visual behavior for the canonical semantic states:
 
-- local JSON defines a reusable hierarchical humanoid bone graph
-- character-specific skin parameters, silhouettes, hair, accessories and signatures distinguish the roster
-- semantic states drive explicit animation tracks
-- looping and one-shot tracks are supported
-- transitions blend between poses
-- reduced-motion mode uses a deterministic non-animated pose
-- Flutter owns the embedding and semantic-state boundary
-- JavaScript owns skeletal interpolation and drawing
+- `IDLE`
+- `RECEIVE`
+- `WORK`
+- `COMMUNICATE`
+- `HANDOFF`
+- `COMPLETE`
+- `WARNING`
 
-The current format is `criterivox-skeletal-v2`. It is an original lightweight Criterivox runtime contract. It is **not** a claim of Spine runtime compatibility or DragonBonesJS runtime integration.
+The procedural renderer provides state-appropriate motion including breathing, subtle weight shift, attention/head movement, arm/hand movement, speaking indication, facial-state indication and lightweight accessory motion. These are **presentation approximations for functional validation**, not claims of final authored animation quality.
 
-A production asset/runtime decision remains a separate end-stage workstream. If research, licensing, authoring requirements, performance requirements or visual-quality requirements justify a production runtime, Criterivox may add a runtime adapter rather than coupling the domain/application layers to that vendor runtime.
+The presentation boundary remains independent from the future authored asset pipeline. When final artwork becomes available, the procedural renderer can be replaced behind the same character presentation contract without changing character responsibilities, domain services or semantic lifecycle meaning.
+
+A production skeletal asset/runtime decision remains a separate end-stage workstream. The future production pipeline may use a validated Spine/DragonBones-style production solution or another suitable runtime, subject to research, platform support, performance, authoring and licensing requirements. Criterivox must not claim integration or compatibility with a third-party runtime until that runtime and its format/licensing requirements have actually been verified.
+
+## Current Functional-Sprint Runtime
+
+```text
+Python semantic character state
+        ↓
+Dart character presentation boundary
+        ↓
+Flutter CharacterPresentation
+        ↓
+Pure Flutter procedural character renderer
+        ↓
+CustomPainter + AnimationController
+        ↓
+Visible animated character representation
+```
+
+This runtime is intentionally local and dependency-light. It exists to make character behavior and semantic state visible while final artwork is deferred.
+
+## Future Production Asset Runtime
+
+```text
+Canonical Character Bible
+        ↓
+Visual specification
+        ↓
+AI-assisted artwork preparation
+        ↓
+Separate authored pieces
+        ↓
+Rigging / attachments / weights
+        ↓
+Animation layers
+        ↓
+Runtime validation
+        ↓
+Validated production runtime adapter
+        ↓
+Flutter character presentation boundary
+        ↓
+Final authored character
+```
+
+The application domain must not depend on artwork format, bone names, rendering technology or a particular vendor runtime.
 
 ## Functional-Sprint Rule
 
@@ -38,44 +83,23 @@ The following are implemented during normal sprints:
 - semantic lifecycle states
 - character communication and chat behavior
 - presentation-layer state rendering
+- pure Flutter animated character representations
 - accessible status text
 - reduced-motion behavior
-- reserved avatar/presentation slots
-- explicit `Coming Soon` treatment for final artwork
-- runtime contracts that can accept authored assets later
+- reserved presentation slots
+- explicit indication that final authored artwork is coming later
+- runtime contracts capable of accepting the future authored presentation
 
-The following are intentionally deferred until the dedicated character production workstream:
+The following remain intentionally deferred until the dedicated character production workstream:
 
 - final polished character artwork
 - final separable artwork pieces
 - production rigging/weight authoring
 - final facial animation
-- production hair/clothing secondary motion
-- texture atlases/meshes and other advanced deformation
+- production-quality hair/clothing secondary motion
+- texture atlases/meshes and advanced deformation
 - final art-direction approval
 - selection and integration of a third-party production runtime, if justified
-
-## Runtime Contract
-
-```text
-Python semantic character state
-        ↓
-Dart character presentation/runtime boundary
-        ↓
-Flutter presentation slot
-        ↓
-Current: placeholder / capability surface
-        ↓
-Future: authored skeletal character asset
-        ↓
-local HTML + JavaScript runtime or validated production-runtime adapter
-        ↓
-skeleton + skin + semantic animation data
-        ↓
-visible character
-```
-
-The application domain must not depend on artwork format, bone names, rendering technology or a particular vendor runtime.
 
 ## Automation Principle
 
@@ -83,7 +107,7 @@ Deterministic and repetitive character-production work should be automated where
 
 Automation may generate or validate:
 
-- asset directory structures
+- character package directories
 - manifests and naming conventions
 - skeleton schemas and reusable rig templates
 - attachment metadata
@@ -95,11 +119,11 @@ Automation may generate or validate:
 - CI validation
 - character-package completeness reports
 
-Human control remains required for final character identity, artistic direction, visual quality and acceptance of AI-generated artwork.
+AI may assist with visual concept exploration, artwork generation, controlled variations, cleanup and piece-separation preparation. Human control remains required for canonical character identity, artistic direction, visual quality and final acceptance.
 
 ## Character Coverage
 
-The current runtime contract covers Dharen, Syvax, Sandre, Kaelen, Anuka, Vivren and Tarkis. They intentionally share a compatible humanoid topology while remaining distinct through character-specific visual parameters.
+The current functional character presentation contract covers the roster represented by the existing character identity system, including Dharen, Vivren, Tarkis, Sandre, Kaelen, Anuka and Syvax. The character system is extensible to the remaining canonical roster without requiring a new presentation architecture.
 
 Character identity, role, residence and behavioral responsibility remain separate domain concerns. Visual design does not override canonical identity.
 
@@ -111,16 +135,17 @@ These are semantic lifecycle states. They are not merely animation names, and Py
 
 ## Consequences
 
-- Legacy SVG character assets are not part of the presentation architecture.
-- Character behavior can be completed before final artwork exists.
-- The application already has a stable presentation location for future avatars.
-- Final artwork can be inserted without redesigning character responsibilities or application services.
-- The current implementation remains local and has no paid generation dependency.
-- The lightweight runtime is useful for current state/rendering validation but is not represented as a production Spine/DragonBones runtime.
-- Production-quality authored artwork, advanced deformation, richer constraints and a third-party production runtime remain separate future decisions.
+- Legacy SVG character assets are not part of the current presentation architecture.
+- The functional application no longer needs the web iframe/JavaScript character renderer.
+- Characters are visibly animated in the Flutter presentation layer before final artwork exists.
+- Character behavior can be completed independently of final artwork.
+- Final artwork can be inserted later without redesigning character responsibilities or application services.
+- The current functional renderer has no paid generation dependency.
+- Procedural visuals are intentionally not represented as production-quality authored character art.
+- A production skeletal runtime remains a future technical/research decision rather than an unverified claim.
 
 ## Related Work
 
-The dedicated future production task is maintained in:
+The living end-stage production task is maintained in:
 
 `docs/characters/CHARACTER-ASSET-PRODUCTION-MASTER.md`
