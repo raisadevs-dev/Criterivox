@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from criterivox.application.context_engine import ScratchpadRegistry
 from criterivox.application.failure_telemetry import FailureType, TELEMETRY
 from criterivox.domain.characters import CharacterState
+from criterivox.domain.context_intelligence import ObservabilityTimeline
 
 
 @dataclass(frozen=True, slots=True)
@@ -26,6 +27,7 @@ PROFILES: dict[str, CharacterChatProfile] = {
 }
 
 SCRATCHPADS = ScratchpadRegistry()
+OBSERVABILITY = ObservabilityTimeline()
 
 
 def profile_for(character_id: str) -> CharacterChatProfile:
@@ -79,7 +81,7 @@ def _failure_from_message(message: str) -> FailureType | None:
 
 
 async def handle_character_chat(payload: dict) -> None:
-    """Handle S6 character conversations on the existing runtime boundary."""
+    """Handle independent character conversations on the shared runtime boundary."""
     from criterivox.infrastructure.runtime import runtime_connections
     from criterivox.presentation.contract import PresentationContract
 
@@ -90,25 +92,47 @@ async def handle_character_chat(payload: dict) -> None:
     scratchpad = SCRATCHPADS.for_task(task_id)
 
     failure_type = _failure_from_message(message)
+    failure_event = None
     if failure_type is not None:
-        failure = TELEMETRY.record(task_id=task_id, failure_type=failure_type, character_id=target, summary=message, evidence=tuple(str(item) for item in payload.get("references", ()) if item))
-        scratchpad.put("last_failure_id", failure.event_id)
-        scratchpad.put("last_failure_type", failure.failure_type.value)
+        evidence = tuple(str(item.get("name", item)) if isinstance(item, dict) else str(item) for item in payload.get("references", ()) if item)
+        failure_event = TELEMETRY.record(task_id=task_id, failure_type=failure_type, character_id=target, summary=message, evidence=evidence)
+        scratchpad.put("last_failure_id", failure_event.event_id)
+        scratchpad.put("last_failure_type", failure_event.failure_type.value)
+        OBSERVABILITY.record(task_id=task_id, character_id=target, action="FAILURE_RECORDED", reason=failure_type.value, failure_id=failure_event.event_id)
 
-    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.RECEIVE, active=True, prominence=.9, message=f"{profile.role} received the message.", event="CHARACTER_CHAT_RECEIVED", task_id=task_id, activity=tuple(event.summary for event in TELEMETRY.for_task(task_id))))
+    def activity() -> tuple[str, ...]:
+        return tuple(f"{event.character_id}: {event.action} • {event.reason}" for event in OBSERVABILITY.for_task(task_id))
+
+    def traces() -> tuple[dict, ...]:
+        return tuple(event.to_dict() for event in OBSERVABILITY.for_task(task_id))
+
+    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.RECEIVE, active=True, prominence=.9, message=f"{profile.role} received the message.", event="CHARACTER_CHAT_RECEIVED", task_id=task_id, activity=activity(), observability_events=traces(), failure_id=failure_event.event_id if failure_event else None, failure_type=failure_event.failure_type.value if failure_event else None))
+    OBSERVABILITY.record(task_id=task_id, character_id=target, action="WORK", reason="Process character-bounded request.", failure_id=failure_event.event_id if failure_event else None)
     scratchpad.put("last_message", message)
     scratchpad.put("active_character", target)
-    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.WORK, active=True, prominence=.9, message=f"Working within the {profile.character_id} response domain.", event="CHARACTER_CHAT_WORKING", task_id=task_id, activity=tuple(event.summary for event in TELEMETRY.for_task(task_id))))
+    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.WORK, active=True, prominence=.9, message=f"Working within the {profile.character_id} response domain.", event="CHARACTER_CHAT_WORKING", task_id=task_id, activity=activity(), observability_events=traces(), failure_id=failure_event.event_id if failure_event else None, failure_type=failure_event.failure_type.value if failure_event else None))
     scratchpad.put("response_domain", profile.character_id)
     response = response_for(target, message)
     scratchpad.put("last_response", response)
-    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.COMMUNICATE, active=True, prominence=.9, message=response, event="CHARACTER_CHAT_RESPONSE", task_id=task_id, activity=tuple(event.summary for event in TELEMETRY.for_task(task_id))))
-    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.COMPLETE, active=True, prominence=.75, message=f"{profile.role} completed this interaction.", event="CHARACTER_CHAT_COMPLETE", task_id=task_id, activity=tuple(event.summary for event in TELEMETRY.for_task(task_id))))
-    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.IDLE, active=False, prominence=.25, message=None, event="CHARACTER_IDLE", task_id=task_id, activity=tuple(event.summary for event in TELEMETRY.for_task(task_id))))
+    OBSERVABILITY.record(task_id=task_id, character_id=target, action="COMMUNICATE", reason="Return role-bounded response.", output=response, failure_id=failure_event.event_id if failure_event else None)
+    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.COMMUNICATE, active=True, prominence=.9, message=response, event="CHARACTER_CHAT_RESPONSE", task_id=task_id, activity=activity(), observability_events=traces(), failure_id=failure_event.event_id if failure_event else None, failure_type=failure_event.failure_type.value if failure_event else None))
+    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.COMPLETE, active=True, prominence=.75, message=f"{profile.role} completed this interaction.", event="CHARACTER_CHAT_COMPLETE", task_id=task_id, activity=activity(), observability_events=traces(), failure_id=failure_event.event_id if failure_event else None, failure_type=failure_event.failure_type.value if failure_event else None))
+
+    if failure_event is not None and target == "kaelen":
+        OBSERVABILITY.record(task_id=task_id, character_id="vivren", action="ANALYZE_FAILURE", reason=f"Review {failure_event.failure_type.value}", failure_id=failure_event.event_id)
+        await runtime_connections.publish(PresentationContract.from_state("vivren", CharacterState.RECEIVE, active=True, prominence=.9, message="Vivren received the failure telemetry for reasoning review.", event="FAILURE_REVIEW_RECEIVED", task_id=task_id, activity=activity(), observability_events=traces(), failure_id=failure_event.event_id, failure_type=failure_event.failure_type.value))
+        await runtime_connections.publish(PresentationContract.from_state("vivren", CharacterState.COMMUNICATE, active=True, prominence=.9, message="Vivren is separating the observed breakdown from assumptions and identifying what context may explain it.", event="FAILURE_BREAKDOWN_ANALYSIS", task_id=task_id, activity=activity(), observability_events=traces(), failure_id=failure_event.event_id, failure_type=failure_event.failure_type.value))
+        OBSERVABILITY.record(task_id=task_id, character_id="anuka", action="ADAPTIVE_INTERVENTION", reason="Conditional response to recorded failure.", failure_id=failure_event.event_id)
+        scratchpad.put("adaptive_intervention", {"failure_id": failure_event.event_id, "source": "vivren", "status": "PROPOSED"})
+        await runtime_connections.publish(PresentationContract.from_state("anuka", CharacterState.RECEIVE, active=True, prominence=.9, message="Anuka was activated because the workflow recorded a change or failure condition. Earlier context remains preserved.", event="ADAPTIVE_INTERVENTION_RECEIVED", task_id=task_id, activity=activity(), observability_events=traces(), failure_id=failure_event.event_id, failure_type=failure_event.failure_type.value))
+        await runtime_connections.publish(PresentationContract.from_state("anuka", CharacterState.COMMUNICATE, active=True, prominence=.9, message="Anuka proposes revisiting the changed context without silently replacing the failed path.", event="ADAPTIVE_INTERVENTION_PROPOSED", task_id=task_id, activity=activity(), observability_events=traces(), failure_id=failure_event.event_id, failure_type=failure_event.failure_type.value))
+
+    OBSERVABILITY.record(task_id=task_id, character_id=target, action="IDLE", reason="Interaction completed.")
+    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.IDLE, active=False, prominence=.25, message=None, event="CHARACTER_IDLE", task_id=task_id, activity=activity(), observability_events=traces(), failure_id=failure_event.event_id if failure_event else None, failure_type=failure_event.failure_type.value if failure_event else None))
 
 
 def sign_off_task_scratchpad(task_id: str) -> tuple[str, ...]:
     return SCRATCHPADS.sign_off(task_id)
 
 
-__all__ = ["CharacterChatProfile", "PROFILES", "SCRATCHPADS", "handle_character_chat", "profile_for", "response_for", "sign_off_task_scratchpad"]
+__all__ = ["CharacterChatProfile", "PROFILES", "SCRATCHPADS", "OBSERVABILITY", "handle_character_chat", "profile_for", "response_for", "sign_off_task_scratchpad"]
