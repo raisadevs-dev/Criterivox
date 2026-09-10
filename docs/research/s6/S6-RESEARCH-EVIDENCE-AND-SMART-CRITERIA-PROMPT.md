@@ -2,21 +2,22 @@
 
 ## Purpose
 
-Collect traceable research evidence and decision criteria for the S6/S7 intelligence features already identified in Criterivox. This is a research collection task, not a software-design task.
+Collect traceable research evidence and decision criteria for the S6/S7 intelligence and interaction features already identified in Criterivox. This is a research collection task, not a software-design task.
 
-Do not invent evidence, citations, benchmarks, standards, user-study results, or claims of novelty.
+Do not invent evidence, citations, benchmarks, standards, user-study results, licensing conclusions, or claims of novelty.
 
 ## Features under investigation
 
-1. Context Provenance Graph
+1. Context Provenance Graph — S6 BASE VISUAL REQUIREMENT
 2. Context Diff
 3. Evidence Debt / evidence completeness
 4. Context Memory with Expiration / recheck conditions
 5. Agent Observability Timeline
 6. Controlled Multi-Agent Handoff
 7. MCP-ready capability boundary
-8. Human Challenge Checkpoints, explicitly marked FUTURE and not to be implemented as an S6 autonomous decision feature
-9. English/Hindi language mode that localizes interaction-critical UI without duplicating every technical/research term
+8. Human Challenge Checkpoints, explicitly FUTURE
+9. English/Hindi interaction language mode
+10. 2D skeletal character runtime: DragonBones-style / Spine-style data model versus an actual production runtime
 
 ## Required evidence labels
 
@@ -32,9 +33,7 @@ Every conclusion must be labelled exactly as one of:
 
 Never silently convert one label into another.
 
-## Research questions
-
-### A. Context Provenance Graph
+## A. Context Provenance Graph
 
 Investigate:
 
@@ -47,17 +46,22 @@ Investigate:
 - provenance visualization usability
 - provenance requirements in scientific/research workflows
 
-Smart criteria to extract:
+Smart criteria:
 
 - traceability from source to interpretation
-- ability to distinguish source, transformation, context, interpretation and evidence
-- ability to identify missing provenance links
+- distinguish source, transformation, context, interpretation and evidence
+- identify missing provenance links
 - human readability
 - auditability
 - storage cost
 - privacy/security implications
+- whether graph visualization improves traceability or merely increases interface complexity
 
-### B. Context Diff
+Criterivox requirement:
+
+`SOURCE → DATA FOUNDATION → CONTEXT → INTERPRETATION` is the base visual traceability chain for S6. Do not treat it as an optional dashboard decoration.
+
+## B. Context Diff
 
 Investigate:
 
@@ -75,7 +79,7 @@ Smart criteria:
 - identify which changed dimension could affect interpretation
 - preserve prior context instead of overwriting it
 
-### C. Evidence Debt
+## C. Evidence Debt
 
 Investigate:
 
@@ -95,16 +99,16 @@ Required output:
 - tag taxonomy
 - thresholds, only when evidence supports thresholds
 
-Current Criterivox UI tags:
+Current Criterivox tags:
 
 - HIGH
 - MEDIUM
 - LOW
 - UNKNOWN
 
-Do not treat these thresholds as validated until research supports them.
+Do not treat thresholds as validated until research supports them.
 
-### D. Context Memory with Expiration
+## D. Context Memory with Expiration
 
 Investigate:
 
@@ -127,7 +131,7 @@ Smart criteria:
 
 Do not choose a universal TTL without evidence.
 
-### E. Agent Observability Timeline
+## E. Agent Observability Timeline
 
 Investigate:
 
@@ -150,7 +154,7 @@ Smart criteria:
 - failure/recovery event
 - correlation/task identifier
 
-### F. Controlled Multi-Agent Handoff
+## F. Controlled Multi-Agent Handoff
 
 Investigate:
 
@@ -177,7 +181,7 @@ Required handoff fields to evaluate:
 
 Do not claim autonomous multi-agent safety merely because these fields exist.
 
-### G. MCP-ready capability boundary
+## G. MCP-ready capability boundary
 
 Investigate:
 
@@ -193,7 +197,7 @@ Determine whether a protocol-neutral internal capability boundary is a sound pre
 
 Do not add an MCP dependency merely because MCP is trending.
 
-### H. Human Challenge Checkpoints
+## H. Human Challenge Checkpoints
 
 This is FUTURE work.
 
@@ -206,7 +210,7 @@ Investigate:
 
 Do not implement autonomous approval logic in S6.
 
-### I. English/Hindi language mode
+## I. English/Hindi language mode
 
 Investigate:
 
@@ -220,11 +224,60 @@ Investigate:
 
 Criterivox requirement:
 
-The app should not become a duplicated English/Hindi copy of every word. Determine which content should be localized and which should remain canonical, for example:
+The app should NOT become a duplicated English/Hindi copy of every word.
 
-- localize navigation labels, buttons, onboarding prompts, help text and user-facing guidance
-- keep character names, IDs, research labels, evidence-status tags, code identifiers and domain terms stable where translation would reduce precision
-- permit mixed-language explanations when a technical term has no clear Hindi equivalent
+Localize first:
+
+- navigation labels
+- buttons
+- onboarding prompts
+- help/guidance
+- short user-facing explanations
+
+Keep canonical/stable where precision matters:
+
+- character names
+- character IDs
+- research labels
+- evidence-status tags
+- code identifiers
+- dataset/source IDs
+- precise technical terms when translation would reduce clarity
+
+Permit mixed-language explanations when the technical English term is clearer than an uncertain Hindi translation.
+
+## J. 2D skeletal character runtime
+
+Investigate and compare:
+
+- DragonBones JavaScript/TypeScript runtime
+- Spine web runtimes
+- JSON/binary skeleton formats
+- bones, slots, skins and animation tracks
+- state blending/cross-fading
+- WebGL versus Canvas rendering
+- Flutter Web `HtmlElementView` / platform-view embedding
+- local/offline asset delivery
+- authoring workflow and export reproducibility
+- accessibility/reduced-motion behavior
+- licensing requirements and distribution implications
+
+Smart criteria:
+
+- offline/local operation
+- deterministic state-to-animation mapping
+- state blending
+- asset size and performance
+- authoring/editability
+- reproducible exports
+- browser compatibility
+- accessibility
+- licensing cost/constraints
+- ability to replace the renderer without changing Python/domain contracts
+
+Important discipline:
+
+The current Criterivox runtime is an original lightweight skeletal runtime using DragonBones/Spine-style concepts. Do not claim that it is the official DragonBones or Spine runtime. Determine whether adopting an actual production runtime is justified by evidence and licensing requirements.
 
 ## Source quality rules
 
@@ -233,10 +286,11 @@ Prefer, in order:
 1. peer-reviewed research papers
 2. standards/specifications from recognized standards bodies
 3. official technical documentation
-4. reputable research/engineering reports
-5. systematic reviews or high-quality surveys
-6. credible practitioner sources for implementation observations
-7. community discussions only for user-experience signals, never as sole evidence for research claims
+4. official project repositories and licenses
+5. reputable research/engineering reports
+6. systematic reviews or high-quality surveys
+7. credible practitioner sources for implementation observations
+8. community discussions only for user-experience signals, never as sole evidence for research claims
 
 For every source record:
 
