@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from criterivox.application.context_engine import Scratchpad
+from criterivox.domain.characters import CharacterState
+
 
 @dataclass(frozen=True, slots=True)
 class CharacterChatProfile:
@@ -13,36 +16,12 @@ class CharacterChatProfile:
 
 
 PROFILES: dict[str, CharacterChatProfile] = {
-    "dharen": CharacterChatProfile(
-        "dharen", "Context Architect", "Context structuring and contextual handoff",
-        ("Structure this context", "Show contextual factors", "What's missing?", "Compare contexts", "Explain this interpretation", "Prepare handoff"),
-        ("context", "structure", "relationships", "limitations", "handoff"),
-    ),
-    "anuka": CharacterChatProfile(
-        "anuka", "Adaptive Context Member", "Adaptive context when requirements or hypotheses change",
-        ("Something changed", "Find another perspective", "Adapt this context", "What doesn't fit?", "Try another context", "What's different now?"),
-        ("changed requirements", "alternative perspectives", "mismatch", "adaptive context"),
-    ),
-    "kaelen": CharacterChatProfile(
-        "kaelen", "Builder / Experimenter", "Context module construction and short-lived environment state",
-        ("Build this", "Show active module", "Check environment", "Show build state", "Inspect failure", "Prepare module"),
-        ("implementation", "module", "environment", "failure", "scratchpad"),
-    ),
-    "sandre": CharacterChatProfile(
-        "sandre", "Data Steward", "Validated material, provenance, and data quality",
-        ("Show validated data", "Check provenance", "Review material set", "What's missing?", "Confirm data", "Prepare handoff"),
-        ("material set", "provenance", "data quality", "missingness", "handoff"),
-    ),
-    "vivren": CharacterChatProfile(
-        "vivren", "Context Specialist / Analyst", "Critical reasoning and interpretation challenge",
-        ("Challenge this reasoning", "Find the weak point", "Connect the factors", "What assumption is hidden?", "Explain the contradiction", "Review the logic"),
-        ("critical reasoning", "logical breakdown", "assumptions", "contradictions", "context"),
-    ),
-    "tarkis": CharacterChatProfile(
-        "tarkis", "Reasoning Specialist / Analyst", "Questions, hypotheses, and alternative explanations",
-        ("Why?", "What could be wrong?", "Challenge this", "Form a hypothesis", "What else could explain it?", "Test the assumption"),
-        ("questions", "hypotheses", "alternative explanations", "reasoning challenges"),
-    ),
+    "dharen": CharacterChatProfile("dharen", "Context Architect", "Context structuring and contextual handoff", ("Structure this context", "Show contextual factors", "What's missing?", "Compare contexts", "Explain this interpretation", "Prepare handoff"), ("context", "structure", "relationships", "limitations", "handoff")),
+    "anuka": CharacterChatProfile("anuka", "Adaptive Context Member", "Adaptive context when requirements or hypotheses change", ("Something changed", "Find another perspective", "Adapt this context", "What doesn't fit?", "Try another context", "What's different now?"), ("changed requirements", "alternative perspectives", "mismatch", "adaptive context")),
+    "kaelen": CharacterChatProfile("kaelen", "Builder / Experimenter", "Context module construction and short-lived environment state", ("Build this", "Show active module", "Check environment", "Show build state", "Inspect failure", "Prepare module"), ("implementation", "module", "environment", "failure", "scratchpad")),
+    "sandre": CharacterChatProfile("sandre", "Data Steward", "Validated material, provenance, and data quality", ("Show validated data", "Check provenance", "Review material set", "What's missing?", "Confirm data", "Prepare handoff"), ("material set", "provenance", "data quality", "missingness", "handoff")),
+    "vivren": CharacterChatProfile("vivren", "Context Specialist / Analyst", "Critical reasoning and interpretation challenge", ("Challenge this reasoning", "Find the weak point", "Connect the factors", "What assumption is hidden?", "Explain the contradiction", "Review the logic"), ("critical reasoning", "logical breakdown", "assumptions", "contradictions", "context")),
+    "tarkis": CharacterChatProfile("tarkis", "Reasoning Specialist / Analyst", "Questions, hypotheses, and alternative explanations", ("Why?", "What could be wrong?", "Challenge this", "Form a hypothesis", "What else could explain it?", "Test the assumption"), ("questions", "hypotheses", "alternative explanations", "reasoning challenges")),
 }
 
 
@@ -52,7 +31,6 @@ def profile_for(character_id: str) -> CharacterChatProfile:
 
 def response_for(character_id: str, message: str) -> str:
     """Produce a bounded, role-specific response without inventing system state."""
-    profile = profile_for(character_id)
     text = message.strip().lower()
     if character_id == "dharen":
         if "missing" in text:
@@ -83,4 +61,24 @@ def response_for(character_id: str, message: str) -> str:
     return "The character profile does not define a response domain for this interaction."
 
 
-__all__ = ["CharacterChatProfile", "PROFILES", "profile_for", "response_for"]
+async def handle_character_chat(payload: dict) -> None:
+    """Handle S6 character conversations on the existing runtime boundary."""
+    from criterivox.infrastructure.runtime import runtime_connections
+    from criterivox.presentation.contract import PresentationContract
+
+    target = str(payload.get("target_character", "")).strip().lower()
+    message = str(payload.get("message", "")).strip()
+    profile = profile_for(target)
+    scratchpad = Scratchpad()
+
+    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.RECEIVE, active=True, prominence=.9, message=f"{profile.role} received the message.", event="CHARACTER_CHAT_RECEIVED"))
+    scratchpad.put("last_message", message)
+    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.WORK, active=True, prominence=.9, message=f"Working within the {profile.character_id} response domain.", event="CHARACTER_CHAT_WORKING"))
+    response = response_for(target, message)
+    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.COMMUNICATE, active=True, prominence=.9, message=response, event="CHARACTER_CHAT_RESPONSE"))
+    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.COMPLETE, active=True, prominence=.75, message=f"{profile.role} completed this interaction.", event="CHARACTER_CHAT_COMPLETE"))
+    scratchpad.cleanup(signed_off=True)
+    await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.IDLE, active=False, prominence=.25, message=None, event="CHARACTER_IDLE"))
+
+
+__all__ = ["CharacterChatProfile", "PROFILES", "handle_character_chat", "profile_for", "response_for"]
