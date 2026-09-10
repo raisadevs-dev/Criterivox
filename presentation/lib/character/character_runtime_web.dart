@@ -12,86 +12,83 @@ class CharacterRuntimeView extends StatefulWidget {
   final double width;
   final double height;
 
-  const CharacterRuntimeView({
-    super.key,
-    required this.characterId,
-    required this.state,
-    this.reducedMotion = false,
-    this.width = 180,
-    this.height = 240,
-  });
+  const CharacterRuntimeView({super.key,required this.characterId,required this.state,this.reducedMotion=false,this.width=180,this.height=240});
 
   @override
-  State<CharacterRuntimeView> createState() => _CharacterRuntimeViewState();
+  State<CharacterRuntimeView> createState()=>_CharacterRuntimeViewState();
 }
 
 class _CharacterRuntimeViewState extends State<CharacterRuntimeView> {
-  late final String _viewType;
-  web.HTMLIFrameElement? _iframe;
+  late final String viewType;
+  web.HTMLIFrameElement? iframe;
 
   @override
-  void initState() {
+  void initState(){
     super.initState();
-    _viewType = 'criterivox-character-${widget.characterId.toLowerCase()}';
+    viewType='criterivox-character-${widget.characterId.toLowerCase()}';
     _registerFactory();
   }
 
-  void _registerFactory() {
+  void _registerFactory(){
     try {
-      ui_web.platformViewRegistry.registerViewFactory(
-        _viewType,
-        (int viewId) {
-          final iframe = web.createIFrameElement()
-            ..src = _sourceUrl()
-            ..title = '${widget.characterId} character runtime'
-            ..style.border = '0'
-            ..style.width = '100%'
-            ..style.height = '100%'
-            ..style.display = 'block';
-          _iframe = iframe;
-          return iframe;
-        },
-      );
+      ui_web.platformViewRegistry.registerViewFactory(viewType,(int viewId,{Object? params}){
+        final config=params is Map?params:const <String,Object?>{};
+        final character=(config['character']??widget.characterId).toString();
+        final state=(config['state']??widget.state).toString().toUpperCase();
+        final reducedMotion=config['reducedMotion']==true;
+        return web.createIFrameElement()
+          ..src=_sourceUrl(character,state,reducedMotion)
+          ..title='$character character runtime'
+          ..style.border='0'
+          ..style.width='100%'
+          ..style.height='100%'
+          ..style.display='block';
+      });
     } catch (_) {
-      // A factory is registered once per character. Rebuilds reuse it.
+      // A factory is registered once per character. Later instances reuse it.
     }
   }
 
-  String _sourceUrl() {
-    final query = <String, String>{
-      'character': widget.characterId.toLowerCase(),
-      'state': widget.state.toUpperCase(),
-      'reducedMotion': widget.reducedMotion.toString(),
-    };
-    final encoded = query.entries
-        .map((entry) => '${Uri.encodeQueryComponent(entry.key)}=${Uri.encodeQueryComponent(entry.value)}')
-        .join('&');
+  String _sourceUrl(String character,String state,bool reducedMotion){
+    final query=<String,String>{'character':character.toLowerCase(),'state':state,'reducedMotion':reducedMotion.toString()};
+    final encoded=query.entries.map((entry)=>'${Uri.encodeQueryComponent(entry.key)}=${Uri.encodeQueryComponent(entry.value)}').join('&');
     return 'character_runtime.html?$encoded';
   }
 
-  @override
-  void didUpdateWidget(covariant CharacterRuntimeView oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (_iframe == null) return;
-    final message = jsonEncode({
-      'type': 'criterivox-character-state',
-      'state': widget.state.toUpperCase(),
-      'reducedMotion': widget.reducedMotion,
-    });
-    _iframe!.contentWindow?.postMessage(message.toJS, '*'.toJS);
+  void _onPlatformViewCreated(int viewId){
+    final view=ui_web.platformViewRegistry.getViewById(viewId);
+    if(view is web.HTMLIFrameElement){
+      iframe=view;
+      _sendState();
+    }
+  }
+
+  void _sendState(){
+    final frame=iframe;
+    if(frame==null)return;
+    final message=jsonEncode({'type':'criterivox-character-state','state':widget.state.toUpperCase(),'reducedMotion':widget.reducedMotion});
+    frame.contentWindow?.postMessage(message.toJS,'*'.toJS);
   }
 
   @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: widget.width,
-      height: widget.height,
-      child: Semantics(
-        container: true,
-        label: '${widget.characterId} character',
-        value: widget.state.toUpperCase(),
-        child: HtmlElementView(viewType: _viewType),
-      ),
-    );
+  void didUpdateWidget(covariant CharacterRuntimeView oldWidget){
+    super.didUpdateWidget(oldWidget);
+    if(oldWidget.state!=widget.state||oldWidget.reducedMotion!=widget.reducedMotion)_sendState();
   }
+
+  @override
+  Widget build(BuildContext context)=>SizedBox(
+    width:widget.width,
+    height:widget.height,
+    child:Semantics(
+      container:true,
+      label:'${widget.characterId} character',
+      value:widget.state.toUpperCase(),
+      child:HtmlElementView(
+        viewType:viewType,
+        creationParams:<String,Object?>{'character':widget.characterId,'state':widget.state,'reducedMotion':widget.reducedMotion},
+        onPlatformViewCreated:_onPlatformViewCreated,
+      ),
+    ),
+  );
 }
