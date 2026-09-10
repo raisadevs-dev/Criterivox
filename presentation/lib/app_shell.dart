@@ -6,6 +6,7 @@ import 'analysis_page.dart';
 import 'app_introduction_page.dart';
 import 'bloom_page.dart';
 import 'data_stewardship_page.dart';
+import 'context/context_workspace_page.dart';
 import 'chat/character_chat_page.dart';
 import 'interaction/bloom.dart';
 import 'presentation/criterivox_theme.dart';
@@ -31,7 +32,7 @@ class _ShellState extends State<CriterivoxShell> {
   PresentationState? state;
   final List<PresentationState> _history = [];
   String page = 'bloom';
-  String chatTarget = 'syvax';
+  String chatTarget = 'dharen';
   bool busy = false;
   bool railOpen = true;
   String? routeHighlight;
@@ -74,20 +75,14 @@ class _ShellState extends State<CriterivoxShell> {
     final path = uri.path;
     setState(() {
       routeHighlight = uri.queryParameters['highlight'];
-      if (path == '/workspace/sandre' || path == '/workspace/sandre/') {
-        page = 'stewardship';
-      } else {
-        page = 'workspace';
-      }
+      if (path == '/workspace/sandre' || path == '/workspace/sandre/') page = 'stewardship';
+      else if (path == '/context' || path == '/context/') page = 'context';
+      else page = 'workspace';
     });
-    if (routeHighlight != null && routeHighlight!.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Sandre focus: $routeHighlight')));
-    }
+    if (routeHighlight != null && routeHighlight!.isNotEmpty) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Focus: $routeHighlight')));
   }
 
-  void showReserved(String capability) {
-    ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(SnackBar(content: Text('$capability is reserved for a future capability sprint.')));
-  }
+  void showReserved(String capability) => ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(SnackBar(content: Text('$capability is reserved for a future capability sprint.')));
 
   void handleBloomCapability(BloomCapability capability) {
     if (capability == BloomCapability.stewardship) return;
@@ -103,10 +98,17 @@ class _ShellState extends State<CriterivoxShell> {
     open('workspace');
   }
 
+  void buildContext() {
+    final foundationId = state?.foundationId;
+    if (foundationId == null) { open('stewardship'); return; }
+    setState(() { busy = true; page = 'context'; });
+    runtime.buildContext(foundationId: foundationId, userIntentContext: {'origin': 'Context Workspace'});
+  }
+
   void send(String message,{String? target,List<Map<String,dynamic>> references = const []}) {
     final selected = target ?? chatTarget;
     setState(() { busy = true; chatTarget = selected; });
-    runtime.sendChat(message: message,targetCharacter: selected,taskId: state?.taskId,data: {'dataset': data.text,'records': 3},context: {'description': ctx.text,'origin': selected == 'dharen' ? 'Direct Dharen Chat' : selected == 'sandre' ? 'Direct Sandre Chat' : 'Syvax Routing'},references: references);
+    runtime.sendChat(message: message,targetCharacter: selected,taskId: state?.taskId,data: {'dataset': data.text,'records': 3},context: {'description': ctx.text,'origin': selected == 'dharen' ? 'Direct Dharen Chat' : selected == 'sandre' ? 'Direct Sandre Chat' : 'Character Chat'},references: references);
   }
 
   void start() {
@@ -127,6 +129,7 @@ class _ShellState extends State<CriterivoxShell> {
         Expanded(child: AnimatedSwitcher(duration: const Duration(milliseconds:260),child:
           page == 'intro' ? AppIntroductionPage(key: const ValueKey('intro'),onOpenWorkspace:()=>open('workspace'),onOpenChat:()=>open('chat')) :
           page == 'chat' ? CharacterChatPage(key: const ValueKey('chat'),state: state,busy: busy,selectedAgent: chatTarget,onSelectAgent:(agent)=>setState(()=>chatTarget=agent),onSend:(message,agent,references)=>send(message,target:agent,references:references),onOpenTask:()=>openDoorAddress(state?.doorAddress)) :
+          page == 'context' ? ContextWorkspacePage(key: const ValueKey('context'),state: state,onBuildContext:buildContext,onOpenChat:()=>open('chat')) :
           page == 'workspace' ? AnalysisPage(key: const ValueKey('workspace'),state: workspaceState,busy: busy,task: task,data: data,contextText: ctx,onStart: start,onChat:()=>setState(()=>chatTarget='dharen')) :
           page == 'stewardship' ? DataStewardshipPage(key: const ValueKey('stewardship'),state: state,runtime: runtime) :
           BloomPage(key: const ValueKey('bloom'),state: state,onCapability: handleBloomCapability,onSub:(value){switch(value){case BloomSuboption.workspace: open('workspace');break;case BloomSuboption.chat: open('chat');break;case BloomSuboption.stewardshipHome: open('stewardship');break;case BloomSuboption.stewardshipChat: setState(()=>chatTarget='sandre');open('chat');break;}},onSyvax:(message)=>send(message,target:'syvax'),onStewardship:()=>open('stewardship'),onHandoff:handoffFromBloom,onOpenAnalysis:()=>open('workspace'),busy:busy),
@@ -139,7 +142,7 @@ class _ShellState extends State<CriterivoxShell> {
 class _Sidebar extends StatelessWidget {
   final String page; final bool expanded; final ValueChanged<String> onOpen; final ValueChanged<String> onReserved; final VoidCallback onToggle;
   const _Sidebar({required this.page,required this.expanded,required this.onOpen,required this.onReserved,required this.onToggle});
-  @override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);final width=expanded?244.0:76.0;return AnimatedContainer(duration:const Duration(milliseconds:240),width:width,decoration:BoxDecoration(color:t.surface.withValues(alpha:.96),border:Border(right:BorderSide(color:t.border))),child:Column(children:[Padding(padding:EdgeInsets.fromLTRB(expanded?18:10,18,10,14),child:Row(children:[const _BrandMark(size:34),if(expanded)...[const SizedBox(width:10),Expanded(child:Text('Criterivox',style:TextStyle(color:t.text,fontSize:20,fontWeight:FontWeight.w700)))],IconButton(tooltip:expanded?'Collapse sidebar':'Open sidebar',onPressed:onToggle,icon:Icon(expanded?Icons.chevron_left_rounded:Icons.chevron_right_rounded,color:t.mutedText))])),Expanded(child:Scrollbar(thumbVisibility:expanded,child:SingleChildScrollView(padding:EdgeInsets.symmetric(horizontal:expanded?12:8),child:Column(children:[_StatusCard(expanded:expanded),const SizedBox(height:18),_section('START HERE',expanded,t),_nav('App Introduction',Icons.auto_awesome_rounded,page=='intro',()=>onOpen('intro'),expanded,t),const SizedBox(height:8),_section('NAVIGATION',expanded,t),_nav('Bloom',Icons.spa_rounded,page=='bloom',()=>onOpen('bloom'),expanded,t),_nav('Data Stewardship',Icons.inventory_2_rounded,page=='stewardship',()=>onOpen('stewardship'),expanded,t),_nav('Analysis Workspace',Icons.dashboard_customize_rounded,page=='workspace',()=>onOpen('workspace'),expanded,t),_nav('Character Chat',Icons.forum_rounded,page=='chat',()=>onOpen('chat'),expanded,t),const SizedBox(height:16),_section('FUTURE CAPABILITIES',expanded,t),_nav('Compare',Icons.balance_rounded,false,()=>onReserved('Compare'),expanded,t),_nav('Explore',Icons.search_rounded,false,()=>onReserved('Explore'),expanded,t),_nav('Plan',Icons.calendar_month_rounded,false,()=>onReserved('Plan'),expanded,t),_nav('Insights',Icons.lightbulb_outline_rounded,false,()=>onReserved('Insights'),expanded,t),_nav('Explain',Icons.chat_bubble_outline_rounded,false,()=>onReserved('Explain'),expanded,t),if(expanded)Padding(padding:const EdgeInsets.all(10),child:Text('Navigation moves between surfaces. Bloom provides capability discovery; Data Stewardship is Sandre\'s working surface.',style:TextStyle(color:t.mutedText,fontSize:10,height:1.45)))])))]));}
+  @override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);final width=expanded?244.0:76.0;return AnimatedContainer(duration:const Duration(milliseconds:240),width:width,decoration:BoxDecoration(color:t.surface.withValues(alpha:.96),border:Border(right:BorderSide(color:t.border))),child:Column(children:[Padding(padding:EdgeInsets.fromLTRB(expanded?18:10,18,10,14),child:Row(children:[const _BrandMark(size:34),if(expanded)...[const SizedBox(width:10),Expanded(child:Text('Criterivox',style:TextStyle(color:t.text,fontSize:20,fontWeight:FontWeight.w700)))],IconButton(tooltip:expanded?'Collapse sidebar':'Open sidebar',onPressed:onToggle,icon:Icon(expanded?Icons.chevron_left_rounded:Icons.chevron_right_rounded,color:t.mutedText))])),Expanded(child:Scrollbar(thumbVisibility:expanded,child:SingleChildScrollView(padding:EdgeInsets.symmetric(horizontal:expanded?12:8),child:Column(children:[_StatusCard(expanded:expanded),const SizedBox(height:18),_section('START HERE',expanded,t),_nav('App Introduction',Icons.auto_awesome_rounded,page=='intro',()=>onOpen('intro'),expanded,t),const SizedBox(height:8),_section('NAVIGATION',expanded,t),_nav('Bloom',Icons.spa_rounded,page=='bloom',()=>onOpen('bloom'),expanded,t),_nav('Data Stewardship',Icons.inventory_2_rounded,page=='stewardship',()=>onOpen('stewardship'),expanded,t),_nav('Context Workspace',Icons.account_tree_rounded,page=='context',()=>onOpen('context'),expanded,t),_nav('Analysis Workspace',Icons.dashboard_customize_rounded,page=='workspace',()=>onOpen('workspace'),expanded,t),_nav('Character Chat',Icons.forum_rounded,page=='chat',()=>onOpen('chat'),expanded,t),const SizedBox(height:16),_section('FUTURE CAPABILITIES',expanded,t),_nav('Compare',Icons.balance_rounded,false,()=>onReserved('Compare'),expanded,t),_nav('Explore',Icons.search_rounded,false,()=>onReserved('Explore'),expanded,t),_nav('Plan',Icons.calendar_month_rounded,false,()=>onReserved('Plan'),expanded,t),_nav('Insights',Icons.lightbulb_outline_rounded,false,()=>onReserved('Insights'),expanded,t),_nav('Explain',Icons.chat_bubble_outline_rounded,false,()=>onReserved('Explain'),expanded,t),if(expanded)Padding(padding:const EdgeInsets.all(10),child:Text('Bloom remains the capability discovery surface. Context Workspace is the S6 working surface.',style:TextStyle(color:t.mutedText,fontSize:10,height:1.45)))])))]));}
   Widget _section(String text,bool visible,CriterivoxTheme t)=>visible?Align(alignment:Alignment.centerLeft,child:Padding(padding:const EdgeInsets.fromLTRB(10,4,10,6),child:Text(text,style:TextStyle(color:t.mutedText,fontSize:9,fontWeight:FontWeight.w700,letterSpacing:1.1)))):const SizedBox(height:8);
   Widget _nav(String label,IconData icon,bool active,VoidCallback onTap,bool visible,CriterivoxTheme t)=>Material(color:Colors.transparent,child:Tooltip(message:visible?'':label,child:ListTile(onTap:onTap,selected:active,dense:true,horizontalTitleGap:12,contentPadding:EdgeInsets.symmetric(horizontal:visible?10:13),shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(12)),selectedTileColor:t.primary.withValues(alpha:.13),leading:Icon(icon,size:19,color:active?t.primary:t.mutedText),title:visible?Text(label,style:TextStyle(color:active?t.text:t.mutedText,fontSize:12,fontWeight:active?FontWeight.w700:FontWeight.w500)):null)));
 }
