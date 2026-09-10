@@ -50,6 +50,15 @@ class PresentationContract:
     context_interpretation_id: str | None = None
     context_uncertainty: tuple[str, ...] = ()
     context_limitations: tuple[str, ...] = ()
+    provenance_graph: dict[str, Any] | None = None
+    context_diff: dict[str, Any] | None = None
+    evidence_completeness: int | None = None
+    evidence_debt_level: str | None = None
+    evidence_tags: tuple[str, ...] = ()
+    memory_status: str | None = None
+    memory_recheck_at: str | None = None
+    memory_recheck_reason: str | None = None
+    observability_events: tuple[dict[str, Any], ...] = ()
     execution_engine: str | None = None
     execution_tier: str | None = None
     fallback_used: bool | None = None
