@@ -2,7 +2,7 @@
 
 **Branch:** `s5-data-foundation`  
 **Baseline:** `main` after S4 closure  
-**Status:** implementation in progress
+**Status:** CLOSED — 2026-09-10
 
 ## Architectural decision
 
@@ -32,11 +32,13 @@ DHAREN HANDOFF
 
 The implementation is input-neutral. Source adapters converge on the common `DataFoundation` representation. Raw source content is retained separately from normalized and canonical representations.
 
-## Current repository integration
+## Runtime and presentation boundary
 
-S4 already has a durable `AnalysisTask` aggregate and a Python → WebSocket → Dart presentation contract. S5 does not replace either. The new foundation is an additional domain/application capability that can later be attached to the analysis-task boundary.
+S5 extends the existing Python → WebSocket → Dart presentation contract rather than replacing it. Python remains authoritative for semantic character state. Flutter renders the received state and does not invent application lifecycle state.
 
-The existing character registry remains technology-independent, while semantic character state is still rendered by the presentation layer. Sandre is therefore emitted as a semantic runtime participant, not as a Flutter-only animation.
+Character identifiers crossing the presentation boundary use the canonical registry representation. Sandre is a semantic runtime participant and owns Data Stewardship; Dharen owns the Analysis Workspace; Syvax remains the dialogue host.
+
+Bloom remains capability discovery and does not duplicate Sandre's working controls.
 
 ## Provenance
 
@@ -78,22 +80,37 @@ SANDRE_HANDOFF_READY
 DHAREN_HANDOFF_READY
 ```
 
-Syvax remains the dialogue host. Dharen remains the structural-context/downstream handoff participant. Kaelen's S6 page-building responsibility is not implemented here.
+Sandre can receive stewardship chat independently of Dharen analysis chat. Chat material is synchronized through the shared foundation boundary.
+
+## Integration completed during S5
+
+- Sandre Data Stewardship workspace integrated with the runtime.
+- Sandre Home ↔ Chat foundation synchronization closed at the application runtime boundary.
+- Chat material enters the shared data-foundation path before downstream use.
+- Schema pre-flight and low-confidence clarification are supported.
+- Top-3 intent prediction requires explicit user approval.
+- Stewardship routing supports Syvax, Dharen, and Kaelen within the defined boundary.
+- Searchable stewardship logs expose source/material/task context.
+- Conditional provenance requires explicit choices.
+- Home ↔ Chat conflicts require explicit field-level winners before non-destructive merge.
+- Contextual internal workspace door addresses are carried through the presentation contract.
+- Past-analysis queries use the stored analysis-task boundary.
+- Dharen remains the Analysis Workspace owner and Sandre remains the Data Stewardship owner.
+- Redundant Dharen Home navigation was removed.
+- Sandre quick actions were removed from Bloom to avoid duplicating the stewardship workspace.
 
 ## Research-material checkpoint
 
-### RESEARCH MATERIAL REQUIRED
+Research-specific normalization, missingness semantics, domain validation, and semantic extraction rules remain evidence-gated. Engineering does not invent domain-specific units, categories, missing-value meanings, or research interpretations.
 
-**Stage:** research-specific normalization, missingness semantics, domain validation, and semantic extraction rules.
+## Verification
 
-**Why:** generic engineering can preserve and transform material safely, but Criterivox must not invent domain-specific units, categories, missing-value meanings, or research interpretations.
-
-**What must be provided:** the relevant research definitions, source material, schema/field meanings, and any domain-specific rules required for those decisions.
-
-**How it affects implementation:** it determines semantic validation rules, normalization mappings, missingness categories, and research traceability records.
-
-**What can continue without it:** generic source intake, preservation, provenance, deterministic profiling, structural validation, confirmation workflow, generic normalization, runtime events, UI integration, and automated engineering tests using synthetic fixtures.
+The developer verified the application locally during S5 closure after resolving Flutter/Dart syntax and runtime integration issues. Repository documentation records the resulting implementation boundary and known limitations.
 
 ## Non-scope
 
 S5 does not implement the S6 Context Engine, S7 intelligence models, S8 XAI, social APIs, a production database/authentication layer, or the full character ecosystem.
+
+## S6 handoff
+
+S5 hands S6 a validated, provenance-aware canonical data foundation with provenance, quality metadata, confirmation state, transformation history, and source relationships. S6 must preserve these guarantees while adding context reasoning above the foundation.
