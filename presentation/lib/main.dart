@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'app_shell.dart';
 import 'presentation/criterivox_theme.dart';
+import 'presentation/language_mode.dart';
 
 class CriterivoxApp extends StatefulWidget {
   const CriterivoxApp({super.key});
@@ -10,19 +11,36 @@ class CriterivoxApp extends StatefulWidget {
 
 class _CriterivoxAppState extends State<CriterivoxApp> {
   static const _themeKey = 'criterivox.theme.dark';
+  static const _languageKey = 'criterivox.language';
   final SharedPreferencesAsync _preferences = SharedPreferencesAsync();
   ThemeMode _themeMode = ThemeMode.dark;
+  CriterivoxLanguage _language = CriterivoxLanguage.english;
 
-  @override void initState() { super.initState(); _restoreTheme(); }
-  Future<void> _restoreTheme() async {
-    final dark = await _preferences.getBool(_themeKey);
-    if (!mounted || dark == null) return;
-    setState(() => _themeMode = dark ? ThemeMode.dark : ThemeMode.light);
+  @override
+  void initState() {
+    super.initState();
+    _restorePreferences();
   }
+
+  Future<void> _restorePreferences() async {
+    final dark = await _preferences.getBool(_themeKey);
+    final language = await _preferences.getString(_languageKey);
+    if (!mounted) return;
+    setState(() {
+      if (dark != null) _themeMode = dark ? ThemeMode.dark : ThemeMode.light;
+      _language = CriterivoxLanguage.fromCode(language);
+    });
+  }
+
   Future<void> _toggleTheme() async {
     final dark = _themeMode != ThemeMode.dark;
     setState(() => _themeMode = dark ? ThemeMode.dark : ThemeMode.light);
     await _preferences.setBool(_themeKey, dark);
+  }
+
+  Future<void> _setLanguage(CriterivoxLanguage language) async {
+    setState(() => _language = language);
+    await _preferences.setString(_languageKey, language.code);
   }
 
   ThemeData _theme(Brightness brightness, CriterivoxTheme tokens) {
@@ -49,10 +67,16 @@ class _CriterivoxAppState extends State<CriterivoxApp> {
     );
   }
 
-  @override Widget build(BuildContext context) => MaterialApp(
+  @override
+  Widget build(BuildContext context) => MaterialApp(
     title: 'Criterivox', debugShowCheckedModeBanner: false, themeMode: _themeMode,
     theme: _theme(Brightness.light, CriterivoxTheme.light), darkTheme: _theme(Brightness.dark, CriterivoxTheme.dark),
-    home: CriterivoxShell(isDarkMode: _themeMode == ThemeMode.dark, onToggleTheme: _toggleTheme),
+    home: CriterivoxLanguageScope(
+      language: _language,
+      onChanged: _setLanguage,
+      child: CriterivoxShell(isDarkMode: _themeMode == ThemeMode.dark, onToggleTheme: _toggleTheme),
+    ),
   );
 }
+
 void main() => runApp(const CriterivoxApp());
