@@ -1,4 +1,4 @@
-"""Criterivox application entry point and S5 stewardship runtime boundary."""
+"""Criterivox application entry point and S6 context runtime boundary."""
 
 import asyncio
 import logging
@@ -11,6 +11,8 @@ from .config import settings
 from .domain.analysis import AnalysisTaskSource
 from .domain.characters import CharacterState
 from .application.analysis_tasks import analysis_tasks
+from .application.character_chat import PROFILES, handle_character_chat
+from .application.context_engine import ContextEngine
 from .application.data_foundation_store import data_foundations
 from .application.sandre_stewardship import SandreStewardship
 from .application import foundation_runtime_bridge  # noqa: F401
@@ -23,10 +25,11 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="Criterivox")
 app.mount("/static", StaticFiles(directory="src/criterivox/ui/static"), name="static")
 stewardship = SandreStewardship()
+context_engine = ContextEngine()
 
 @app.get("/health")
 def health() -> JSONResponse:
-    return JSONResponse({"service": "criterivox", "status": "ready", "runtime": "python"})
+    return JSONResponse({"service": "criterivox", "status": "ready", "runtime": "python", "s6_context_engine": "active"})
 
 app.include_router(router)
 
@@ -36,6 +39,55 @@ async def _safe_request(handler, payload: dict) -> None:
     except Exception as exc:
         logger.exception("Runtime request failed.")
         await runtime_connections.publish(PresentationContract.from_state("Dharen", CharacterState.WARNING, active=True, prominence=.85, message=f"Runtime could not complete that request: {exc}", event="RUNTIME_ERROR"))
+
+async def _safe_context_build(payload: dict) -> None:
+    try:
+        foundation_id = str(payload.get("foundation_id", "")).strip()
+        if not foundation_id:
+            raise ValueError("A validated S5 foundation identifier is required.")
+        foundation = data_foundations.get(foundation_id)
+        result = context_engine.create_from_material_set(foundation, user_intent_context=payload.get("user_intent_context", {}))
+        context = result.context
+        lineage = context.lineage
+        dimensions = tuple(sorted({item.dimension.value for item in context.items}))
+        missing = tuple(d.value for d in context.missing_dimensions())
+        baseline = result.baselines[0]
+        await runtime_connections.publish(PresentationContract.from_state(
+            "dharen", CharacterState.RECEIVE, active=True, prominence=.9,
+            message=f"Dharen received foundation {foundation_id} for contextual structuring.", event="CONTEXT_BUILD_RECEIVED",
+            foundation_id=foundation_id, foundation_material_set_id=foundation_id,
+        ))
+        await asyncio.sleep(.1)
+        await runtime_connections.publish(PresentationContract.from_state(
+            "dharen", CharacterState.WORK, active=True, prominence=.9,
+            message="Dharen is structuring contextual dimensions and preserving the S5 lineage reference.", event="CONTEXT_BUILD_WORKING",
+            context_id=context.context_id, context_dimensions=dimensions, context_missing_dimensions=missing,
+            context_normalization_count=len(result.normalization), context_baseline_id=baseline.baseline_id,
+            context_baseline_status=baseline.status.value, lineage_snapshot={
+                "material_set_id": lineage.material_set_id if lineage else None,
+                "created_at": lineage.created_at if lineage else None,
+                "source_ids": list(lineage.source_ids) if lineage else [],
+                "immutable": lineage.immutable if lineage else False,
+            },
+        ))
+        await asyncio.sleep(.1)
+        await runtime_connections.publish(PresentationContract.from_state(
+            "dharen", CharacterState.COMMUNICATE, active=True, prominence=.9,
+            message=result.interpretation.interpretation, event="CONTEXT_BUILD_COMPLETE",
+            context_id=context.context_id, context_dimensions=dimensions, context_missing_dimensions=missing,
+            context_normalization_count=len(result.normalization), context_baseline_id=baseline.baseline_id,
+            context_baseline_status=baseline.status.value, context_interpretation_id=result.interpretation.interpretation_id,
+            context_uncertainty=result.interpretation.uncertainty, context_limitations=result.interpretation.limitations,
+            lineage_snapshot={
+                "material_set_id": lineage.material_set_id if lineage else None,
+                "created_at": lineage.created_at if lineage else None,
+                "source_ids": list(lineage.source_ids) if lineage else [],
+                "immutable": lineage.immutable if lineage else False,
+            },
+        ))
+    except Exception as exc:
+        logger.exception("S6 context build failed.")
+        await runtime_connections.publish(PresentationContract.from_state("dharen", CharacterState.WARNING, active=True, prominence=.9, message=f"Context construction could not be completed: {exc}", event="CONTEXT_BUILD_FAILED"))
 
 async def _publish_foundation_state(character: str, state: CharacterState, message: str, event: str, foundation, *, preview=None, recipient=None, conflict_fields=(), log_count=None, log_entries=(), conditional_provenance=()) -> None:
     kwargs = dict(foundation_id=foundation.foundation_id, foundation_material_set_id=foundation.foundation_id, foundation_source_count=len(foundation.sources), foundation_candidate_count=len(foundation.candidates), foundation_confirmation=foundation.confirmation_status.value, foundation_recipient=recipient, foundation_log_count=len(stewardship.logs) if log_count is None else log_count, foundation_log_entries=tuple(log_entries), foundation_conflict_fields=tuple(conflict_fields), foundation_conditional_provenance=tuple(conditional_provenance))
@@ -135,7 +187,13 @@ async def character_runtime(websocket: WebSocket) -> None:
         while True:
             payload = await websocket.receive_json()
             if isinstance(payload, dict) and payload.get("type") == "chat_message":
-                asyncio.create_task(_safe_request(handle_chat_message, payload))
+                target = str(payload.get("target_character", "")).strip().lower()
+                if target in PROFILES and target not in {"dharen", "syvax"}:
+                    asyncio.create_task(_safe_request(handle_character_chat, payload))
+                else:
+                    asyncio.create_task(_safe_request(handle_chat_message, payload))
+            elif isinstance(payload, dict) and payload.get("type") == "context_build":
+                asyncio.create_task(_safe_context_build(payload))
             elif isinstance(payload, dict) and payload.get("type") in {"data_intake", "data_folder"}:
                 asyncio.create_task(_safe_data_intake(payload))
             elif isinstance(payload, dict) and payload.get("type") == "data_action":
