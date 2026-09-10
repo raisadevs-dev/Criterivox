@@ -59,6 +59,8 @@ class PresentationContract:
     memory_recheck_at: str | None = None
     memory_recheck_reason: str | None = None
     observability_events: tuple[dict[str, Any], ...] = ()
+    failure_id: str | None = None
+    failure_type: str | None = None
     execution_engine: str | None = None
     execution_tier: str | None = None
     fallback_used: bool | None = None
