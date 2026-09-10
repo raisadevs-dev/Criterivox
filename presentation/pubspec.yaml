@@ -11,8 +11,8 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   file_picker: ^10.3.3
-  flutter_svg: ^2.3.0
   shared_preferences: ^2.5.5
+  web: ^1.1.1
   web_socket_channel: ^3.0.3
 
 dev_dependencies:
@@ -22,7 +22,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  # Character artwork is authored as vector animation source in Glaxnimate,
-  # exported to SVG, and rendered/animated by Flutter.
   assets:
-    - assets/characters/
+    - web/character_runtime.html
+    - web/character_runtime/
