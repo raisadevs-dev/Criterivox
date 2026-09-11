@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'character_runtime.dart';
 import 'character_visual_profile.dart';
 import 'character_detail_layer.dart';
+import 'character_animation_state.dart';
 import 'generated_vector_animation.dart';
 
 /// Session animation director. Identity comes from CharacterVisualProfile;
@@ -47,14 +48,15 @@ class _SessionCharacterAnimationViewState extends State<SessionCharacterAnimatio
   @override Widget build(BuildContext context){
     final profile=CharacterVisualProfile.forId(widget.characterId);
     if(!SessionCharacterAnimation.supports(widget.characterId)||profile==null){return CharacterRuntimeView(characterId:widget.characterId,state:widget.state,reducedMotion:widget.reducedMotion,width:widget.width,height:widget.height);}
+    final visualState=CharacterAnimationStateMapper.bloomSignal(CharacterAnimationStateMapper.fromRuntime(characterState:widget.state));
     return AnimatedBuilder(animation:_controller,builder:(context,_){
       final phase=_motion.phase+_controller.value*math.pi*2;
-      final wave=math.sin(phase);final breathe=math.sin(phase*1.17+.4);final state=widget.state.toUpperCase();
-      final active=state!='IDLE';final lift=wave*_motion.lift*(active?1:.65);final sway=math.sin(phase*.73)*_motion.sway*_motion.direction;
+      final wave=math.sin(phase);final breathe=math.sin(phase*1.17+.4);final active=visualState!='IDLE';
+      final lift=wave*_motion.lift*(active?1:.65);final sway=math.sin(phase*.73)*_motion.sway*_motion.direction;
       final scale=1+breathe*.004*_motion.emphasis;final angle=math.sin(phase*.61)*.004*_motion.direction;
       return SizedBox(width:widget.width,height:widget.height,child:Stack(alignment:Alignment.center,children:[
-        Transform.translate(offset:Offset(sway,lift),child:Transform.rotate(angle:angle,child:Transform.scale(scale:scale,child:CharacterRuntimeView(characterId:widget.characterId,state:widget.state,reducedMotion:widget.reducedMotion,width:widget.width,height:widget.height)))),
-        CharacterDetailLayer(profile:profile,state:widget.state,progress:widget.reducedMotion ? .35 : _controller.value),
+        Transform.translate(offset:Offset(sway,lift),child:Transform.rotate(angle:angle,child:Transform.scale(scale:scale,child:CharacterRuntimeView(characterId:widget.characterId,state:visualState,reducedMotion:widget.reducedMotion,width:widget.width,height:widget.height)))),
+        CharacterDetailLayer(profile:profile,state:visualState,progress:widget.reducedMotion ? .35 : _controller.value),
       ]));
     });
   }
@@ -62,6 +64,7 @@ class _SessionCharacterAnimationViewState extends State<SessionCharacterAnimatio
   String generatedSvgFrame({required int frame, int frameCount=8}){
     final profile=CharacterVisualProfile.forId(widget.characterId);
     if(profile==null)return '';
-    return GeneratedVectorAnimation(profile:profile,sessionSeed:SessionCharacterAnimation.sessionSeed).svgFrame(state:widget.state,frame:frame,frameCount:frameCount);
+    final visualState=CharacterAnimationStateMapper.bloomSignal(CharacterAnimationStateMapper.fromRuntime(characterState:widget.state));
+    return GeneratedVectorAnimation(profile:profile,sessionSeed:SessionCharacterAnimation.sessionSeed).svgFrame(state:visualState,frame:frame,frameCount:frameCount);
   }
 }
