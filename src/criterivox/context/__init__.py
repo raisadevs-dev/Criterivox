@@ -1,35 +1,10 @@
-"""Computational context intelligence for Criterivox S6.
-
-Dharen and Anuka are executable AI/context agents in this package. Their
-character identities remain presentation-layer representations of these
-computational roles.
-"""
+"""S6 Context Intelligence computational agents and runtime."""
 
 from .agents import AnukaAgent, DharenAgent
 from .engine import ContextIntelligenceEngine
-from .models import (
-    ContextFrame,
-    ContextInput,
-    ContextItem,
-    ContextTier,
-    ContextViolation,
-    AdaptiveContextState,
-    ContextCheckpoint,
-    ContextDiff,
-    ContextFork,
-)
+from .models import AdaptiveContextState, ContextCheckpoint, ContextDiff, ContextFork, ContextFrame, ContextInput, ContextItem, ContextTier, ContextViolation
+from .runtime import ContextRuntime
 
 __all__ = [
-    "AdaptiveContextState",
-    "AnukaAgent",
-    "ContextCheckpoint",
-    "ContextDiff",
-    "ContextFork",
-    "ContextFrame",
-    "ContextInput",
-    "ContextIntelligenceEngine",
-    "ContextItem",
-    "ContextTier",
-    "ContextViolation",
-    "DharenAgent",
+    "AdaptiveContextState", "AnukaAgent", "ContextCheckpoint", "ContextDiff", "ContextFork", "ContextFrame", "ContextInput", "ContextIntelligenceEngine", "ContextItem", "ContextRuntime", "ContextTier", "ContextViolation", "DharenAgent",
 ]
