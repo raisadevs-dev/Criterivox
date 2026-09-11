@@ -50,6 +50,15 @@ class PresentationContract:
     context_interpretation_id: str | None = None
     context_uncertainty: tuple[str, ...] = ()
     context_limitations: tuple[str, ...] = ()
+    context_compression_ratio: float | None = None
+    context_original_item_count: int | None = None
+    context_retained_item_count: int | None = None
+    context_violation_count: int | None = None
+    context_state_version: int | None = None
+    context_checkpoint_id: str | None = None
+    context_sandbox_count: int | None = None
+    context_tier_budget: dict[str, float] | None = None
+    context_authoritative_input: str | None = None
     provenance_graph: dict[str, Any] | None = None
     context_diff: dict[str, Any] | None = None
     evidence_completeness: int | None = None
