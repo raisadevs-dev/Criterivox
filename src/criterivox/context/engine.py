@@ -13,22 +13,15 @@ class ContextIntelligenceEngine:
         self.dharen = dharen or DharenAgent()
         self.anuka = anuka or AnukaAgent()
 
-    def build(
-        self,
-        context: ContextInput,
-        *,
-        previous: AdaptiveContextState | ContextFrame | None = None,
-        anuka_triggers: Mapping[str, bool] | None = None,
-        manual_activation: bool = False,
-    ) -> AdaptiveContextState:
+    def build(self, context: ContextInput, *, previous: AdaptiveContextState | ContextFrame | None = None, anuka_triggers: Mapping[str, bool] | None = None, manual_activation: bool = False) -> AdaptiveContextState:
         frame = self.dharen.frame(context)
         previous_state = previous if isinstance(previous, AdaptiveContextState) else None
-        previous_frame = previous.frame if previous_state else previous
+        previous_frame = previous_state.frame if previous_state else previous
         triggers = dict(anuka_triggers or {})
-        triggers.setdefault("new_context", previous_frame is not None)
-        should_adapt = self.anuka.should_activate(triggers, manual_activation=manual_activation)
-        if not should_adapt:
-            return AdaptiveContextState(frame=frame, diff=self.anuka.diff({}, {i.key: i.value for i in frame.items}), active_context={i.key: i.value for i in frame.items}, state_version=1)
+        triggers.setdefault("new_context", True)
+        if not self.anuka.should_activate(triggers, manual_activation=manual_activation):
+            current = {item.key: item.value for item in frame.items}
+            return AdaptiveContextState(frame=frame, diff=self.anuka.diff({}, current), active_context=current, state_version=1)
         return self.anuka.adapt(previous_frame, frame, previous_state=previous_state)
 
     def checkpoint(self, state: AdaptiveContextState, scratchpad: Mapping[str, Any] | None = None) -> AdaptiveContextState:
