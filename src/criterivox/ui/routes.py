@@ -7,6 +7,9 @@ from ..application.syvax import syvax_engine
 from ..application.bloom import bloom_controller
 from ..application.home03_services import home03_services
 from ..application.home03_store import home03_store
+from ..application.home03_bridge import install as install_home03_bridge
+from ..infrastructure.runtime import runtime_connections
+install_home03_bridge(runtime_connections)
 
 router=APIRouter(); templates=Jinja2Templates(directory='src/criterivox/ui/templates')
 @router.get('/',response_class=HTMLResponse)
@@ -19,7 +22,6 @@ def placeholder_page(request:Request,page_name:str): return templates.TemplateRe
 def _register_placeholder(page_name): router.add_api_route(f'/{page_name}',lambda request,_page_name=page_name:placeholder_page(request,_page_name),methods=['GET'],response_class=HTMLResponse,name=f'{page_name}_page')
 for _page in ('workspace','data','intelligence','explanations','experiments','knowledge'): _register_placeholder(_page)
 def _plan_payload(plan): return {'task_id':plan.task_id,'intent':{'goal':plan.intent.goal,'intent_type':plan.intent.intent_type,'confidence':plan.intent.confidence,'entities':plan.intent.entities},'steps':[step.__dict__ for step in plan.steps],'created_at':plan.created_at}
-
 @router.post('/api/syvax/plan')
 async def syvax_plan(payload:dict):
  message=str(payload.get('message','')).strip(); safety=syvax_engine.safety_check(message)
@@ -43,7 +45,6 @@ async def syvax_render(payload:dict): return home03_services.render(str(payload.
 async def syvax_oversight(payload:dict): return {'mode':syvax_engine.set_mode(str(payload.get('mode','HITL')))}
 @router.post('/api/syvax/budget')
 async def syvax_budget(payload:dict): return {'home':str(payload.get('home','')),'budget':syvax_engine.set_budget(str(payload.get('home','')),int(payload.get('budget',100)))}
-
 @router.get('/api/home03/runtime')
 async def home03_runtime_state(): return home03_services.snapshot()
 @router.post('/api/home03/runtime-event')
@@ -70,9 +71,9 @@ async def home03_ingest(payload:dict):
  except (ValueError,binascii.Error): return JSONResponse({'accepted':False,'error':'content_base64 is invalid'},status_code=400)
  if len(data)>8*1024*1024:return JSONResponse({'accepted':False,'error':'8 MB upload limit exceeded'},status_code=413)
  cid=str(payload.get('collection_id') or f'home03-{abs(hash(name))}'); source={'name':name,'source_type':'file','channel':'home03-universal-dropzone','collection_id':cid,'content':data.decode('utf-8',errors='replace')}
- foundation=__import__('criterivox.application.data_foundation_store',fromlist=['data_foundations']).data_foundations.ingest({'sources':[source],'collection_id':cid,'supplied_context':{'entered_through':'Home 03 Universal Dropzone','content_type':payload.get('content_type')}})
+ from ..application.data_foundation_store import data_foundations
+ foundation=data_foundations.ingest({'sources':[source],'collection_id':cid,'supplied_context':{'entered_through':'Home 03 Universal Dropzone','content_type':payload.get('content_type')}})
  return {'accepted':True,'filename':name,'size':len(data),'foundation_id':foundation.foundation_id,'forward_target':'Sandre/Data Foundation'}
-
 @router.get('/api/bloom/state')
 async def bloom_state(): return bloom_controller.state()
 @router.post('/api/bloom/mode')
