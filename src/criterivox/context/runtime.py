@@ -6,7 +6,7 @@ from typing import Any, Mapping
 
 from .engine import ContextIntelligenceEngine
 from .models import (
-    AdaptiveContextState, ContextCheckpoint, ContextFrame, ContextInput, ContextItem,
+    AdaptiveContextState, ContextCheckpoint, ContextFork, ContextFrame, ContextInput, ContextItem,
     ContextTier,
 )
 
@@ -49,10 +49,16 @@ class ContextRuntime:
             soft_guidelines=soft,
             environment={**supplied, "foundation_id": foundation_id, "task_id": task_id},
             scratchpad=scratch,
-            metadata={"foundation_revision": self.revision_for(foundation_id), "manual": manual, "activation_reason": activation_reason},
+            metadata={
+                "foundation_revision": self.revision_for(foundation_id),
+                "manual": manual,
+                "activation_reason": activation_reason,
+                "authoritative_input": "complete_data_foundation",
+            },
         )
         previous_frame = previous.frame if previous else None
-        state = self.engine.build(context, previous=previous_frame)
+        previous_state = previous
+        state = self.engine.build(context, previous=previous_state or previous_frame)
         self.frames[foundation_id] = state.frame
         self.states[foundation_id] = state
         self.scratchpads.setdefault(task_id, {}).update(scratch)
@@ -72,6 +78,18 @@ class ContextRuntime:
             state_version=state.state_version,
         )
         return checkpoint
+
+    def fork(self, foundation_id: str, *, fork_id: str, overrides: Mapping[str, Any]) -> ContextFork:
+        state = self.states[foundation_id]
+        fork = self.engine.fork(state, fork_id, overrides)
+        sandbox_states = dict(state.sandbox_states)
+        sandbox_states[fork.fork_id] = dict(fork.state)
+        self.states[foundation_id] = AdaptiveContextState(
+            frame=state.frame, diff=state.diff, active_context=state.active_context,
+            sandbox_states=sandbox_states, checkpoint_id=state.checkpoint_id,
+            state_version=state.state_version + 1,
+        )
+        return fork
 
     def revision_for(self, foundation_id: str) -> int:
         return self.revisions.get(foundation_id, 0)
@@ -97,9 +115,17 @@ class ContextRuntime:
             "context_id": state.frame.frame_id,
             "state_version": state.state_version,
             "checkpoint_id": state.checkpoint_id,
-            "diff": {"added": list(state.diff.added), "removed": list(state.diff.removed), "changed": list(state.diff.changed), "goal_shift": state.diff.goal_shift, "constraint_shift": state.diff.constraint_shift},
+            "diff": {
+                "added": list(state.diff.added), "removed": list(state.diff.removed),
+                "changed": list(state.diff.changed), "unchanged": list(state.diff.unchanged),
+                "goal_shift": state.diff.goal_shift, "constraint_shift": state.diff.constraint_shift,
+            },
             "item_count": len(state.frame.items),
             "violation_count": len(state.frame.violations),
+            "compression_ratio": state.frame.compression_ratio,
+            "original_item_count": state.frame.original_item_count,
+            "tier_budget": dict(state.frame.tier_budget),
+            "sandbox_count": len(state.sandbox_states),
             "revision": self.revision_for(foundation_id),
         }
 
@@ -118,13 +144,14 @@ class ContextRuntime:
             "context_checkpoint": _jsonable(checkpoint) if checkpoint else None,
             "scratchpad": dict(self.scratchpads.get(task_id, {})),
             "provenance_reference_ids": _source_ids(state.frame),
+            "sandbox_states": _jsonable(state.sandbox_states),
         }
 
     def handoff_payload(self, foundation_id: str, *, task_id: str, recipient: str, reason: str) -> dict[str, Any]:
         state = self.states[foundation_id]
         return {
             "message_type": "context_handoff",
-            "schema_version": self.schema_version,
+            "schema_version": "s6.context-handoff.v1",
             "sender": "dharen",
             "recipient": recipient,
             "foundation_id": foundation_id,
@@ -133,8 +160,13 @@ class ContextRuntime:
             "frame_id": state.frame.frame_id,
             "state_version": state.state_version,
             "checkpoint_id": state.checkpoint_id,
+            "request": state.frame.request,
             "active_context": dict(state.active_context),
-            "diff": {"added": list(state.diff.added), "removed": list(state.diff.removed), "changed": list(state.diff.changed), "goal_shift": state.diff.goal_shift, "constraint_shift": state.diff.constraint_shift},
+            "diff": {
+                "added": list(state.diff.added), "removed": list(state.diff.removed),
+                "changed": list(state.diff.changed), "unchanged": list(state.diff.unchanged),
+                "goal_shift": state.diff.goal_shift, "constraint_shift": state.diff.constraint_shift,
+            },
             "provenance_reference_ids": _source_ids(state.frame),
         }
 
@@ -142,7 +174,11 @@ class ContextRuntime:
     def _foundation_items(foundation: Any) -> tuple[ContextItem, ...]:
         source_ids = tuple(getattr(source, "source_id", "") for source in getattr(foundation, "sources", ()) if getattr(source, "source_id", ""))
         rows = tuple(getattr(foundation, "canonical_data", ()) or ())
+        # The full serialized foundation is a single critical binding. Summary
+        # items make the hierarchy inspectable without replacing the authoritative input.
+        serialized = foundation.to_dict() if hasattr(foundation, "to_dict") else {"foundation_id": str(getattr(foundation, "foundation_id", "")), "canonical_data": rows}
         items: list[ContextItem] = [
+            ContextItem("foundation.authoritative_payload", _jsonable(serialized), ContextTier.CRITICAL, True, source_ids),
             ContextItem("foundation.canonical_record_count", len(rows), ContextTier.CRITICAL, True, source_ids),
             ContextItem("foundation.candidate_count", len(getattr(foundation, "candidates", ()) or ()), ContextTier.HIGH, False, source_ids),
             ContextItem("foundation.source_count", len(getattr(foundation, "sources", ()) or ()), ContextTier.HIGH, False, source_ids),
