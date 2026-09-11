@@ -54,13 +54,11 @@ class _SessionCharacterAnimationViewState extends State<SessionCharacterAnimatio
       final scale=1+breathe*.004*_motion.emphasis;final angle=math.sin(phase*.61)*.004*_motion.direction;
       return SizedBox(width:widget.width,height:widget.height,child:Stack(alignment:Alignment.center,children:[
         Transform.translate(offset:Offset(sway,lift),child:Transform.rotate(angle:angle,child:Transform.scale(scale:scale,child:CharacterRuntimeView(characterId:widget.characterId,state:widget.state,reducedMotion:widget.reducedMotion,width:widget.width,height:widget.height)))),
-        CharacterDetailLayer(profile:profile,state:widget.state,progress:widget.reducedMotion?.35:_controller.value),
+        CharacterDetailLayer(profile:profile,state:widget.state,progress:widget.reducedMotion ? .35 : _controller.value),
       ]));
     });
   }
 
-  /// Keeps the vector-frame generator reachable through the same animation
-  /// contract. Consumers can request an SVG frame without changing identity.
   String generatedSvgFrame({required int frame, int frameCount=8}){
     final profile=CharacterVisualProfile.forId(widget.characterId);
     if(profile==null)return '';
