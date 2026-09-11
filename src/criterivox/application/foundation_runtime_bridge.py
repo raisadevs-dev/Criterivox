@@ -56,18 +56,36 @@ async def _publish_context_state(foundation_id: str, task_id: str, *, event: str
 async def _publish_context_handoff(foundation_id: str, task_id: str, recipient: str, reason: str) -> None:
     await _publish_raw(context_runtime.handoff_payload(foundation_id, task_id=task_id, recipient=recipient, reason=reason))
 
+
+def _s6_metrics(foundation_id: str) -> dict[str, Any]:
+    projection = context_runtime.compact_projection(foundation_id)
+    return {
+        'context_compression_ratio': projection['compression_ratio'],
+        'context_original_item_count': projection['original_item_count'],
+        'context_retained_item_count': projection['item_count'],
+        'context_violation_count': projection['violation_count'],
+        'context_state_version': projection['state_version'],
+        'context_checkpoint_id': projection['checkpoint_id'],
+        'context_sandbox_count': projection['sandbox_count'],
+        'context_tier_budget': projection['tier_budget'],
+        'context_authoritative_input': 'complete_data_foundation',
+    }
+
 async def _run_s6_for_task(task: Any, foundation: Any) -> None:
     foundation_id = str(foundation.foundation_id)
     task_id = str(task.task_id)
     supplied = dict(getattr(task, 'context', {}) or {})
     state = context_runtime.build_from_foundation(foundation, task_id=task_id, user_context=supplied, activation_reason='normal_pipeline')
-    await runtime_connections.publish(PresentationContract.from_state('Dharen', CharacterState.RECEIVE, active=True, prominence=.95, message='Dharen received the confirmed S5 DataFoundation and established the S6 baseline context.', event='S6_DHAREN_BASELINE_ESTABLISHED', foundation_id=foundation_id, foundation_material_set_id=foundation_id, context_id=state.frame.frame_id, context_diff={'added': list(state.diff.added), 'removed': list(state.diff.removed), 'changed': list(state.diff.changed), 'goal_shift': state.diff.goal_shift, 'constraint_shift': state.diff.constraint_shift}, lineage_snapshot=lineage_snapshot(foundation, intent_context=supplied).to_dict()))
+    metrics = _s6_metrics(foundation_id)
+    diff = {'added': list(state.diff.added), 'removed': list(state.diff.removed), 'changed': list(state.diff.changed), 'unchanged': list(state.diff.unchanged), 'goal_shift': state.diff.goal_shift, 'constraint_shift': state.diff.constraint_shift}
+    common = dict(metrics, context_diff=diff, context_id=state.frame.frame_id)
+    await runtime_connections.publish(PresentationContract.from_state('Dharen', CharacterState.RECEIVE, active=True, prominence=.95, message='Dharen received the confirmed S5 DataFoundation and established the S6 baseline context.', event='S6_DHAREN_BASELINE_ESTABLISHED', foundation_id=foundation_id, foundation_material_set_id=foundation_id, **common))
     await _publish_context_state(foundation_id, task_id, event='CONTEXT_STATE_PERSIST', reason='S6 authoritative context state produced from S5 DataFoundation.')
-    await runtime_connections.publish(PresentationContract.from_state('Anuka', CharacterState.WORK, active=True, prominence=.8, message='Anuka activated because new context arrived and is adapting the Dharen baseline.', event='S6_ANUKA_ACTIVATED', foundation_id=foundation_id, context_id=state.frame.frame_id, context_diff={'added': list(state.diff.added), 'removed': list(state.diff.removed), 'changed': list(state.diff.changed), 'goal_shift': state.diff.goal_shift, 'constraint_shift': state.diff.constraint_shift}, activity=('Dharen: baseline established', 'Anuka: adaptive context evaluation')))
+    await runtime_connections.publish(PresentationContract.from_state('Anuka', CharacterState.WORK, active=True, prominence=.8, message='Anuka activated because new context arrived and is adapting the Dharen baseline.', event='S6_ANUKA_ACTIVATED', foundation_id=foundation_id, **common, activity=('Dharen: baseline established', 'Anuka: adaptive context evaluation')))
     await _publish_context_state(foundation_id, task_id, event='CONTEXT_CHECKPOINT_PERSIST', reason='Context checkpoint created after adaptive state evaluation.')
     for recipient in ('tarkis', 'sandre'):
         await _publish_context_handoff(foundation_id, task_id, recipient, 'Stateful S6 context handoff from Dharen after baseline/adaptation.')
-        await runtime_connections.publish(PresentationContract.from_state(recipient, CharacterState.RECEIVE, active=True, prominence=.72, message=f'{recipient.title()} received the compact S6 context handoff projection.', event='S6_CONTEXT_HANDOFF', foundation_id=foundation_id, context_id=state.frame.frame_id, context_diff={'added': list(state.diff.added), 'removed': list(state.diff.removed), 'changed': list(state.diff.changed)}, delivery_recipient=recipient))
+        await runtime_connections.publish(PresentationContract.from_state(recipient, CharacterState.RECEIVE, active=True, prominence=.72, message=f'{recipient.title()} received the compact S6 context handoff projection.', event='S6_CONTEXT_HANDOFF', foundation_id=foundation_id, context_id=state.frame.frame_id, context_diff=diff, context_state_version=state.state_version, context_checkpoint_id=state.checkpoint_id, delivery_recipient=recipient))
 
 async def _publish_task_with_foundation(self: DharenRuntime, task: Any, *, message: str | None = None, event: str | None = None) -> None:
     foundation = getattr(task, 'data_foundation', None)
@@ -81,7 +99,7 @@ async def _publish_task_with_foundation(self: DharenRuntime, task: Any, *, messa
     latest = runtime_connections.latest
     updates = {}
     if foundation is not None:
-        updates.update(foundation_id=foundation.foundation_id, foundation_material_set_id=foundation.foundation_id, foundation_source_count=len(foundation.sources), foundation_candidate_count=len(foundation.candidates), foundation_confirmation=foundation.confirmation_status.value, lineage_snapshot=snapshot.to_dict() if snapshot else None, context_id=context_runtime.states[foundation.foundation_id].frame.frame_id, context_diff={'added': list(context_runtime.states[foundation.foundation_id].diff.added), 'removed': list(context_runtime.states[foundation.foundation_id].diff.removed), 'changed': list(context_runtime.states[foundation.foundation_id].diff.changed), 'goal_shift': context_runtime.states[foundation.foundation_id].diff.goal_shift, 'constraint_shift': context_runtime.states[foundation.foundation_id].diff.constraint_shift})
+        updates.update(foundation_id=foundation.foundation_id, foundation_material_set_id=foundation.foundation_id, foundation_source_count=len(foundation.sources), foundation_candidate_count=len(foundation.candidates), foundation_confirmation=foundation.confirmation_status.value, lineage_snapshot=snapshot.to_dict() if snapshot else None, context_id=context_runtime.states[foundation.foundation_id].frame.frame_id, context_diff={'added': list(context_runtime.states[foundation.foundation_id].diff.added), 'removed': list(context_runtime.states[foundation.foundation_id].diff.removed), 'changed': list(context_runtime.states[foundation.foundation_id].diff.changed), 'goal_shift': context_runtime.states[foundation.foundation_id].diff.goal_shift, 'constraint_shift': context_runtime.states[foundation.foundation_id].diff.constraint_shift}, **_s6_metrics(foundation.foundation_id))
     if task.result is not None and task.is_terminal:
         package = delivery_package(task)
         updates.update(delivery_id=package['delivery_id'], delivery_recipient='viveda', delivery_status='READY_FOR_INSPECTION', door_address=analysis_door(task.task_id).url)
