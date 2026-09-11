@@ -18,6 +18,7 @@ from .application.character_chat import PROFILES, handle_character_chat, sign_of
 from .application.context_engine import ContextEngine
 from .application.data_foundation_store import data_foundations
 from .application.sandre_stewardship import SandreStewardship
+from .application.s5_feature_runtime import S5FeatureRuntime
 from .application import foundation_runtime_bridge  # noqa: F401
 from .infrastructure.runtime import dharen_runtime, handle_application_request, handle_chat_message, parse_analysis_request, runtime_connections
 from .logging_config import configure_logging
@@ -204,6 +205,16 @@ async def _safe_runtime_payload(payload: dict) -> None:
     except Exception as exc:
         logger.exception("Analysis runtime failed.")
         await runtime_connections.publish(PresentationContract.from_state("dharen", CharacterState.WARNING, active=True, prominence=.85, message=f"Analysis could not be completed: {exc}", event="ANALYSIS_RUNTIME_FAILED"))
+
+async def _foundation_sync(payload: dict) -> dict:
+    if not isinstance(payload, dict):
+        raise ValueError("Foundation synchronization payload must be an object.")
+    envelope = dict(payload)
+    envelope.pop("type", None)
+    foundation = data_foundations.restore_replace(envelope, authoritative=True)
+    serialized = data_foundations.serialize(foundation.foundation_id)
+    payload_hash = hashlib.sha256(json.dumps(serialized["foundation"], default=str, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    return {"type": "foundation_sync_ack", "foundation_id": foundation.foundation_id, "revision": data_foundations.revision(foundation.foundation_id), "status": "accepted", "payload_hash": payload_hash, "authoritative": True}
 
 @app.websocket("/runtime/characters")
 async def character_runtime(websocket: WebSocket) -> None:

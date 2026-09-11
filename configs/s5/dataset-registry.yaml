@@ -1,0 +1,69 @@
+version: 1
+policy:
+  max_working_dataset_mb: 200
+  training_local_only: true
+  external_test_only: true
+  direct_cost_required: false
+  redistribution_requires_explicit_permission: true
+  kaggle_workspace_only: true
+benchmarks:
+  - id: retabad
+    name: ReTabAD
+    role: sandre_primary
+    purpose: semantic_context_anomaly_detection
+    acquisition: research_source
+    license_check_required: true
+  - id: tabard
+    name: TABARD
+    role: sandre_primary
+    purpose: fine_grained_tabular_anomaly_and_controlled_perturbation
+    acquisition: research_source
+    license_check_required: true
+  - id: adbench-selected
+    name: ADBench-selected-tabular
+    role: sandre_secondary
+    purpose: cross_domain_anomaly_robustness
+    acquisition: research_source
+    license_check_required: true
+  - id: table-gpt
+    name: Table-GPT
+    role: kaelen_primary
+    purpose: schema_matching_transformation_and_error_detection
+    acquisition: research_source
+    license_check_required: true
+  - id: tabfix
+    name: TabFix/tabular-errors-v1
+    role: kaelen_primary
+    purpose: tabular_error_repair
+    acquisition: research_source
+    license_check_required: true
+  - id: kaggle-data-cleaning
+    name: Kaggle Data Cleaning
+    role: external_test_only
+    purpose: realistic_missingness_duplicates_inconsistent_labels_corrupted_values
+    acquisition: kaggle_research_workspace
+    training_allowed: false
+    repository_redistribution: false
+  - id: criterivox-synthetic-corruption
+    name: Criterivox Synthetic Corruption Suite
+    role: train_and_validation
+    purpose: controlled_ground_truth
+    acquisition: generated_locally
+    training_allowed: true
+    repository_redistribution: true
+split_policy:
+  train: source_datasets_plus_synthetic_corruptions
+  validation: unseen_corruption_combinations_and_schemas
+  test: held_out_datasets_or_domains
+  final_audit: untouched_external_test_material
+threshold_policy:
+  ui_provisional_alert_threshold: 0.85
+  status: provisional
+  selection: validation_only
+  required_metrics:
+    - precision
+    - recall
+    - f1
+    - false_quarantine_rate
+    - missed_critical_anomaly_rate
+    - calibration

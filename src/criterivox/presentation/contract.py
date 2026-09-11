@@ -1,13 +1,9 @@
 from __future__ import annotations
-
-from dataclasses import asdict, dataclass
+from dataclasses import asdict,dataclass
 from typing import Any
-
 from criterivox.domain.characters import CharacterState
 from criterivox.presentation.states import VisualPresentation
-
-
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True,slots=True)
 class PresentationContract:
     contract_version: int
     character_id: str
