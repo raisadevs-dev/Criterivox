@@ -1,23 +1,24 @@
 name: presentation
-description: "Criterivox Flutter presentation layer."
+description: Criterivox presentation layer.
 publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.13.2
+  sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
-  file_picker: ^10.3.3
-  shared_preferences: ^2.5.5
-  web_socket_channel: ^3.0.3
+  cupertino_icons: ^1.0.6
+  web_socket_channel: ^3.0.1
+  idb_shim: ^2.6.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
+  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/characters/
