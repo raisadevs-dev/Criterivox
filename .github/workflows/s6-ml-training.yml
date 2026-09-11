@@ -1,0 +1,30 @@
+name: S6 ML Training
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/train_s6_*.py'
+      - 'src/criterivox/context/ml.py'
+      - 'pyproject.toml'
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install ML dependencies
+        run: python -m pip install --upgrade pip && pip install -e '.[ml]'
+      - name: Train Dharen and Anuka models
+        run: python scripts/train_s6_models.py --output-dir artifacts/s6-models
+      - name: Train learned context compressor
+        run: python scripts/train_s6_compressor.py --output artifacts/s6-models/context_compressor.joblib
+      - name: Upload trained artifacts and reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: s6-learned-models
+          path: artifacts/s6-models/
+          retention-days: 30
