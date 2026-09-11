@@ -69,4 +69,4 @@ class SandreMLAgent:
             return {"rows": 0.0, "fields": 0.0, "entropy_proxy": 0.0}
         fields = {k for row in rows for k in row}
         unique_rows = len({SandreMLAgent._stable_row(row) for row in rows})
-        return {"rows": float(len(rows),), "fields": float(len(fields)), "entropy_proxy": log1p(unique_rows) / max(1.0, log1p(len(rows)))}
+        return {"rows": float(len(rows)), "fields": float(len(fields)), "entropy_proxy": log1p(unique_rows) / max(1.0, log1p(len(rows)))}
