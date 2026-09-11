@@ -1,6 +1,8 @@
 """Criterivox application entry point and S5 stewardship runtime boundary."""
 
 import asyncio
+import hashlib
+import json
 import logging
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -13,6 +15,7 @@ from .domain.characters import CharacterState
 from .application.analysis_tasks import analysis_tasks
 from .application.data_foundation_store import data_foundations
 from .application.sandre_stewardship import SandreStewardship
+from .application.s5_feature_runtime import S5FeatureRuntime
 from .application import foundation_runtime_bridge  # noqa: F401
 from .infrastructure.runtime import dharen_runtime, handle_application_request, handle_chat_message, parse_analysis_request, runtime_connections
 from .logging_config import configure_logging
@@ -23,10 +26,11 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="Criterivox")
 app.mount("/static", StaticFiles(directory="src/criterivox/ui/static"), name="static")
 stewardship = SandreStewardship()
+s5_features = S5FeatureRuntime()
 
 @app.get("/health")
 def health() -> JSONResponse:
-    return JSONResponse({"service": "criterivox", "status": "ready", "runtime": "python"})
+    return JSONResponse({"service": "criterivox", "status": "ready", "runtime": "python", "s5_home01": True, "vector_lakehouse": "deferred"})
 
 app.include_router(router)
 
@@ -37,10 +41,12 @@ async def _safe_request(handler, payload: dict) -> None:
         logger.exception("Runtime request failed.")
         await runtime_connections.publish(PresentationContract.from_state("Dharen", CharacterState.WARNING, active=True, prominence=.85, message=f"Runtime could not complete that request: {exc}", event="RUNTIME_ERROR"))
 
-async def _publish_foundation_state(character: str, state: CharacterState, message: str, event: str, foundation, *, preview=None, recipient=None, conflict_fields=(), log_count=None, log_entries=(), conditional_provenance=()) -> None:
+async def _publish_foundation_state(character: str, state: CharacterState, message: str, event: str, foundation, *, preview=None, recipient=None, conflict_fields=(), log_count=None, log_entries=(), conditional_provenance=(), feature_payload=None) -> None:
     kwargs = dict(foundation_id=foundation.foundation_id, foundation_material_set_id=foundation.foundation_id, foundation_source_count=len(foundation.sources), foundation_candidate_count=len(foundation.candidates), foundation_confirmation=foundation.confirmation_status.value, foundation_recipient=recipient, foundation_log_count=len(stewardship.logs) if log_count is None else log_count, foundation_log_entries=tuple(log_entries), foundation_conflict_fields=tuple(conflict_fields), foundation_conditional_provenance=tuple(conditional_provenance))
     if preview is not None:
         kwargs.update(foundation_preview_question=preview.question, foundation_match_ratio=preview.schema_preflight.match_ratio if preview.schema_preflight else None, foundation_auto_fill=preview.schema_preflight.auto_fill if preview.schema_preflight else False, foundation_intent_guesses=tuple(item.label for item in preview.intent_guesses))
+    if feature_payload is not None:
+        kwargs["s5_feature_payload"] = feature_payload
     await runtime_connections.publish(PresentationContract.from_state(character, state, active=True, prominence=.9, message=message, event=event, **kwargs))
 
 async def _safe_data_intake(payload: dict) -> None:
@@ -80,8 +86,7 @@ async def _safe_data_action(payload: dict) -> None:
         if action == "provenance_choices":
             foundation = data_foundations.get(foundation_id)
             choices = payload.get("choices")
-            if not isinstance(choices, dict):
-                raise ValueError("Conditional provenance choices must be an object of Yes/No values.")
+            if not isinstance(choices, dict): raise ValueError("Conditional provenance choices must be an object of Yes/No values.")
             stored = stewardship.set_conditional_provenance(foundation_id, {str(k): bool(v) for k, v in choices.items()})
             stewardship.record(foundation, event="PROVENANCE_CHOICES_RECORDED", detail=f"User explicitly selected {len(stored)} conditional provenance option(s).")
             enabled = tuple(key for key, value in stored.items() if value)
@@ -90,8 +95,7 @@ async def _safe_data_action(payload: dict) -> None:
         if action == "handoff":
             recipient = stewardship.route(str(payload.get("recipient", "dharen")))
             foundation = data_foundations.get(foundation_id)
-            if not stewardship.can_handoff(foundation):
-                raise ValueError("User confirmation is required before downstream handoff.")
+            if not stewardship.can_handoff(foundation): raise ValueError("User confirmation is required before downstream handoff.")
             handoff = data_foundations.handoff(foundation_id, recipient)
             stewardship.record(foundation, recipient=recipient, event="SANDRE_HANDOFF_READY", detail=f"Routed curated foundation to {recipient}.")
             await _publish_foundation_state("sandre", CharacterState.HANDOFF, f"Safeguarded foundation {handoff.foundation_id} is ready for {recipient}.", "SANDRE_HANDOFF_READY", foundation, recipient=recipient)
@@ -115,18 +119,40 @@ async def _safe_data_action(payload: dict) -> None:
             return
         if action == "merge_conflicts":
             home, chat, winners = payload.get("home"), payload.get("chat"), payload.get("winners")
-            if not isinstance(home, dict) or not isinstance(chat, dict) or not isinstance(winners, dict):
-                raise ValueError("Conflict merge requires home, chat, and per-field winners objects.")
+            if not isinstance(home, dict) or not isinstance(chat, dict) or not isinstance(winners, dict): raise ValueError("Conflict merge requires home, chat, and per-field winners objects.")
             merged, resolutions = stewardship.merge_conflicts(home, chat, {str(k): str(v) for k, v in winners.items()})
             foundation = data_foundations.get(foundation_id)
             fields = tuple(item.field for item in resolutions)
             stewardship.record(foundation, event="CONFLICTS_RESOLVED", detail=f"Resolved {len(resolutions)} field conflict(s) explicitly.")
             await _publish_foundation_state("sandre", CharacterState.COMPLETE, f"Merged {len(resolutions)} conflicting field(s) using explicit user choices. No hard overwrite was applied.", "CONFLICTS_RESOLVED", foundation, conflict_fields=fields, log_entries=tuple(f"{k}: {v!r}" for k, v in merged.items()))
             return
+        if action in {"profile", "pipeline_preview", "provenance_rewind", "synthetic_preview", "semantic_inspect", "schema_patch_preview", "vector_prepare", "edd_evaluate"}:
+            foundation = data_foundations.get(foundation_id)
+            if action == "profile": result = {"readiness": s5_features.readiness(foundation).__dict__}
+            elif action == "pipeline_preview": result = {"pipeline": ["ingest", "validate", "normalize", "patch", "handoff"], "rollback": True}
+            elif action == "provenance_rewind": result = s5_features.provenance(foundation) | {"requested_position": payload.get("values", {}).get("position", 1.0)}
+            elif action == "synthetic_preview": result = s5_features.synthetic_preview(foundation, int(payload.get("values", {}).get("seed", 17)))
+            elif action == "semantic_inspect": result = s5_features.semantic(foundation)
+            elif action == "schema_patch_preview": result = s5_features.schema_patch(foundation)
+            elif action == "vector_prepare": result = s5_features.vector_readiness(foundation)
+            else: result = s5_features.edd_gate(foundation)
+            stewardship.record(foundation, event=f"HOME01_{action.upper()}", detail=json.dumps(result, default=str, sort_keys=True)[:1000])
+            await _publish_foundation_state("sandre", CharacterState.WORK, f"Home 01 feature '{action}' completed locally with an auditable baseline result.", f"HOME01_{action.upper()}", foundation, feature_payload=result)
+            return
         raise ValueError("Unsupported S5 data action.")
     except Exception as exc:
         logger.exception("S5 data action failed.")
         await runtime_connections.publish(PresentationContract.from_state("sandre", CharacterState.WARNING, active=True, prominence=.9, message=f"Sandre could not complete that stewardship action: {exc}", event="DATA_ACTION_FAILED"))
+
+async def _foundation_sync(payload: dict) -> dict:
+    if not isinstance(payload, dict):
+        raise ValueError("Foundation synchronization payload must be an object.")
+    envelope = dict(payload)
+    envelope.pop("type", None)
+    foundation = data_foundations.restore_replace(envelope, authoritative=True)
+    serialized = data_foundations.serialize(foundation.foundation_id)
+    payload_hash = hashlib.sha256(json.dumps(serialized["foundation"], default=str, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    return {"type": "foundation_sync_ack", "foundation_id": foundation.foundation_id, "revision": data_foundations.revision(foundation.foundation_id), "status": "accepted", "payload_hash": payload_hash, "authoritative": True}
 
 @app.websocket("/runtime/characters")
 async def character_runtime(websocket: WebSocket) -> None:
@@ -134,14 +160,15 @@ async def character_runtime(websocket: WebSocket) -> None:
     try:
         while True:
             payload = await websocket.receive_json()
-            if isinstance(payload, dict) and payload.get("type") == "chat_message":
-                asyncio.create_task(_safe_request(handle_chat_message, payload))
-            elif isinstance(payload, dict) and payload.get("type") in {"data_intake", "data_folder"}:
-                asyncio.create_task(_safe_data_intake(payload))
-            elif isinstance(payload, dict) and payload.get("type") == "data_action":
-                asyncio.create_task(_safe_data_action(payload))
-            elif isinstance(payload, dict) and "intent" in payload:
-                asyncio.create_task(_safe_request(handle_application_request, payload))
+            if isinstance(payload, dict) and payload.get("type") == "foundation_sync":
+                try:
+                    await websocket.send_json(await _foundation_sync(payload))
+                except ValueError as exc:
+                    await websocket.send_json({"type": "foundation_sync_ack", "foundation_id": payload.get("foundation_id"), "revision": payload.get("revision", 0), "status": "rejected", "reason": str(exc), "authoritative": False})
+            elif isinstance(payload, dict) and payload.get("type") == "chat_message": asyncio.create_task(_safe_request(handle_chat_message, payload))
+            elif isinstance(payload, dict) and payload.get("type") in {"data_intake", "data_folder"}: asyncio.create_task(_safe_data_intake(payload))
+            elif isinstance(payload, dict) and payload.get("type") == "data_action": asyncio.create_task(_safe_data_action(payload))
+            elif isinstance(payload, dict) and "intent" in payload: asyncio.create_task(_safe_request(handle_application_request, payload))
             else:
                 request = parse_analysis_request(payload)
                 asyncio.create_task(dharen_runtime.run_analysis(request))
@@ -158,5 +185,4 @@ def main() -> None:
     configure_logging()
     logger.info("Criterivox application starting in %s mode.", settings.environment)
 
-if __name__ == "__main__":
-    main()
+if __name__ == "__main__": main()
