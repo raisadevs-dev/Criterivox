@@ -1,0 +1,28 @@
+name: S6 Sync Main
+
+on:
+  push:
+    branches:
+      - s6-context-engine
+
+permissions:
+  contents: write
+
+jobs:
+  sync-main:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout S6 branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Merge current main into S6 with main-preferred conflict resolution
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout s6-context-engine
+          git merge --no-edit -X theirs origin/main -m "merge: synchronize current main S5 foundation into S6"
+          git push origin s6-context-engine
