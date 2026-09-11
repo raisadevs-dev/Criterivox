@@ -1,6 +1,8 @@
 """Criterivox application entry point and S5 stewardship runtime boundary."""
 
 import asyncio
+import hashlib
+import json
 import logging
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -142,13 +144,28 @@ async def _safe_data_action(payload: dict) -> None:
         logger.exception("S5 data action failed.")
         await runtime_connections.publish(PresentationContract.from_state("sandre", CharacterState.WARNING, active=True, prominence=.9, message=f"Sandre could not complete that stewardship action: {exc}", event="DATA_ACTION_FAILED"))
 
+async def _foundation_sync(payload: dict) -> dict:
+    if not isinstance(payload, dict):
+        raise ValueError("Foundation synchronization payload must be an object.")
+    envelope = dict(payload)
+    envelope.pop("type", None)
+    foundation = data_foundations.restore_replace(envelope, authoritative=True)
+    serialized = data_foundations.serialize(foundation.foundation_id)
+    payload_hash = hashlib.sha256(json.dumps(serialized["foundation"], default=str, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    return {"type": "foundation_sync_ack", "foundation_id": foundation.foundation_id, "revision": data_foundations.revision(foundation.foundation_id), "status": "accepted", "payload_hash": payload_hash, "authoritative": True}
+
 @app.websocket("/runtime/characters")
 async def character_runtime(websocket: WebSocket) -> None:
     await runtime_connections.connect(websocket)
     try:
         while True:
             payload = await websocket.receive_json()
-            if isinstance(payload, dict) and payload.get("type") == "chat_message": asyncio.create_task(_safe_request(handle_chat_message, payload))
+            if isinstance(payload, dict) and payload.get("type") == "foundation_sync":
+                try:
+                    await websocket.send_json(await _foundation_sync(payload))
+                except ValueError as exc:
+                    await websocket.send_json({"type": "foundation_sync_ack", "foundation_id": payload.get("foundation_id"), "revision": payload.get("revision", 0), "status": "rejected", "reason": str(exc), "authoritative": False})
+            elif isinstance(payload, dict) and payload.get("type") == "chat_message": asyncio.create_task(_safe_request(handle_chat_message, payload))
             elif isinstance(payload, dict) and payload.get("type") in {"data_intake", "data_folder"}: asyncio.create_task(_safe_data_intake(payload))
             elif isinstance(payload, dict) and payload.get("type") == "data_action": asyncio.create_task(_safe_data_action(payload))
             elif isinstance(payload, dict) and "intent" in payload: asyncio.create_task(_safe_request(handle_application_request, payload))
