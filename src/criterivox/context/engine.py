@@ -7,30 +7,33 @@ from .models import AdaptiveContextState, ContextCheckpoint, ContextFork, Contex
 
 
 class ContextIntelligenceEngine:
-    """Coordinates the S6 Context Master and Context Adaptor agents.
-
-    Dharen establishes the validated contextual boundary. Anuka continuously
-    evaluates whether that boundary remains appropriate as state changes.
-    """
+    """S6 computational control plane: Dharen baseline, Anuka adaptation when triggered."""
 
     def __init__(self, dharen: DharenAgent | None = None, anuka: AnukaAgent | None = None) -> None:
         self.dharen = dharen or DharenAgent()
         self.anuka = anuka or AnukaAgent()
 
-    def build(self, context: ContextInput, *, previous: ContextFrame | None = None) -> AdaptiveContextState:
+    def build(
+        self,
+        context: ContextInput,
+        *,
+        previous: AdaptiveContextState | ContextFrame | None = None,
+        anuka_triggers: Mapping[str, bool] | None = None,
+        manual_activation: bool = False,
+    ) -> AdaptiveContextState:
         frame = self.dharen.frame(context)
-        return self.anuka.adapt(previous, frame)
+        previous_state = previous if isinstance(previous, AdaptiveContextState) else None
+        previous_frame = previous.frame if previous_state else previous
+        triggers = dict(anuka_triggers or {})
+        triggers.setdefault("new_context", previous_frame is not None)
+        should_adapt = self.anuka.should_activate(triggers, manual_activation=manual_activation)
+        if not should_adapt:
+            return AdaptiveContextState(frame=frame, diff=self.anuka.diff({}, {i.key: i.value for i in frame.items}), active_context={i.key: i.value for i in frame.items}, state_version=1)
+        return self.anuka.adapt(previous_frame, frame, previous_state=previous_state)
 
-    def checkpoint(self, state: AdaptiveContextState, scratchpad: Mapping[str, Any] | None = None) -> ContextCheckpoint:
+    def checkpoint(self, state: AdaptiveContextState, scratchpad: Mapping[str, Any] | None = None) -> AdaptiveContextState:
         checkpoint = self.anuka.checkpoint(state, scratchpad or {})
-        return AdaptiveContextState(
-            frame=state.frame,
-            diff=state.diff,
-            active_context=state.active_context,
-            sandbox_states=state.sandbox_states,
-            checkpoint_id=checkpoint.checkpoint_id,
-            state_version=state.state_version,
-        )
+        return AdaptiveContextState(frame=state.frame, diff=state.diff, active_context=state.active_context, sandbox_states=state.sandbox_states, checkpoint_id=checkpoint.checkpoint_id, state_version=state.state_version)
 
     def fork(self, state: AdaptiveContextState, fork_id: str, overrides: Mapping[str, Any]) -> ContextFork:
         return self.anuka.fork(state, fork_id, overrides)
