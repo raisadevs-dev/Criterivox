@@ -41,6 +41,7 @@ class PresentationContract:
     foundation_log_entries: tuple[str, ...] = ()
     foundation_conflict_fields: tuple[str, ...] = ()
     foundation_conditional_provenance: tuple[str, ...] = ()
+    s5_feature_payload: dict[str, Any] | None = None
     execution_engine: str | None = None
     execution_tier: str | None = None
     fallback_used: bool | None = None
