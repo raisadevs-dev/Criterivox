@@ -1,5 +1,4 @@
 """Browser-facing UI routes and Home 03 interaction APIs."""
-import asyncio
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
@@ -37,48 +36,33 @@ def _plan_payload(plan):
 async def syvax_plan(payload: dict):
     message = str(payload.get("message", "")).strip()
     safety = syvax_engine.safety_check(message)
-    if safety["status"] == "blocked":
-        return JSONResponse({"safety": safety, "plan": None}, status_code=422)
+    if safety["status"] == "blocked": return JSONResponse({"safety": safety, "plan": None}, status_code=422)
     return {"safety": safety, "plan": _plan_payload(syvax_engine.compile_plan(message, payload.get("task_id")))}
 
 @router.post("/api/syvax/dispatch")
 async def syvax_dispatch(payload: dict):
     message = str(payload.get("message", "")).strip()
     safety = syvax_engine.safety_check(message)
-    if safety["status"] == "blocked":
-        return JSONResponse({"safety": safety, "plan": None}, status_code=422)
+    if safety["status"] == "blocked": return JSONResponse({"safety": safety, "plan": None}, status_code=422)
     plan = syvax_engine.compile_plan(message, payload.get("task_id"))
-    await handle_application_request({"contract_version": 1, "intent": plan.intent.intent_type if plan.intent.intent_type in {"analyze", "compare", "explain", "build", "explore"} else "analyze", "task": message, "task_id": plan.task_id, "data": payload.get("data", {}), "context": payload.get("context", {}), "source": "syvax-home03", "references": payload.get("references", [])})
-    return {"safety": safety, "plan": _plan_payload(plan), "dispatched": True}
+    executable = plan.intent.intent_type == "analyze"
+    if executable:
+        await handle_application_request({"contract_version": 1, "intent": "analyze", "task": message, "task_id": plan.task_id, "data": payload.get("data", {}), "context": payload.get("context", {}), "source": "syvax-home03", "references": payload.get("references", [])})
+    return {"safety": safety, "plan": _plan_payload(plan), "dispatched": executable, "execution_status": "executed" if executable else "plan_only_reserved_capability", "note": None if executable else "The routing plan is available, but the existing application runtime exposes only the analyze execution capability today."}
 
 @router.post("/api/syvax/steer")
-async def syvax_steer(payload: dict):
-    return syvax_engine.steer(str(payload.get("task_id", "")), str(payload.get("correction", "")))
-
+async def syvax_steer(payload: dict): return syvax_engine.steer(str(payload.get("task_id", "")), str(payload.get("correction", "")))
 @router.post("/api/syvax/oversight")
-async def syvax_oversight(payload: dict):
-    return {"mode": syvax_engine.set_mode(str(payload.get("mode", "HITL")))}
-
+async def syvax_oversight(payload: dict): return {"mode": syvax_engine.set_mode(str(payload.get("mode", "HITL")))}
 @router.post("/api/syvax/budget")
-async def syvax_budget(payload: dict):
-    return {"home": str(payload.get("home", "")), "budget": syvax_engine.set_budget(str(payload.get("home", "")), int(payload.get("budget", 100)))}
-
+async def syvax_budget(payload: dict): return {"home": str(payload.get("home", "")), "budget": syvax_engine.set_budget(str(payload.get("home", "")), int(payload.get("budget", 100)))}
 @router.get("/api/bloom/state")
-async def bloom_state():
-    return bloom_controller.state()
-
+async def bloom_state(): return bloom_controller.state()
 @router.post("/api/bloom/mode")
-async def bloom_mode(payload: dict):
-    return {"mode": bloom_controller.set_mode(str(payload.get("mode", "HITL")))}
-
+async def bloom_mode(payload: dict): return {"mode": bloom_controller.set_mode(str(payload.get("mode", "HITL")))}
 @router.post("/api/bloom/budget")
-async def bloom_budget(payload: dict):
-    return {"home": str(payload.get("home", "")), "budget": bloom_controller.set_budget(str(payload.get("home", "")), int(payload.get("budget", 100)))}
-
+async def bloom_budget(payload: dict): return {"home": str(payload.get("home", "")), "budget": bloom_controller.set_budget(str(payload.get("home", "")), int(payload.get("budget", 100)))}
 @router.post("/api/bloom/checkpoint")
-async def bloom_checkpoint(payload: dict):
-    return bloom_controller.checkpoint(str(payload.get("task_id", "unknown")), dict(payload.get("state", {})))
-
+async def bloom_checkpoint(payload: dict): return bloom_controller.checkpoint(str(payload.get("task_id", "unknown")), dict(payload.get("state", {})))
 @router.post("/api/bloom/trace")
-async def bloom_trace(payload: dict):
-    return bloom_controller.evaluate(str(payload.get("task_id", "unknown")), str(payload.get("source", "")), str(payload.get("target", "")), float(payload.get("score", 1)), reason=str(payload.get("reason", "")))
+async def bloom_trace(payload: dict): return bloom_controller.evaluate(str(payload.get("task_id", "unknown")), str(payload.get("source", "")), str(payload.get("target", "")), float(payload.get("score", 1)), reason=str(payload.get("reason", "")))
