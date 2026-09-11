@@ -10,6 +10,8 @@ from criterivox.application.analysis_tasks import analysis_tasks
 from criterivox.application.conversation import interpret_message
 from criterivox.application.context_engine import ScratchpadRegistry
 from criterivox.context.runtime import ContextRuntime
+from criterivox.context.replay import ContextReplayService
+from criterivox.context.replay_routes import configure as configure_replay_routes, router as replay_router
 from criterivox.domain.characters import CharacterState
 from criterivox.infrastructure import runtime as runtime_module
 from criterivox.infrastructure.runtime import DharenRuntime, runtime_connections
@@ -20,6 +22,7 @@ _original_chat_message = runtime_module.handle_chat_message
 _original_runtime_publish = runtime_connections.publish
 context_runtime = ContextRuntime()
 scratchpads = ScratchpadRegistry()
+replay_service = ContextReplayService(context_runtime, analysis_tasks, dharen_runtime, data_foundations) if False else None
 
 async def _publish_raw(payload: dict[str, Any]) -> None:
     message = json.dumps(payload, default=str)
@@ -81,7 +84,7 @@ async def _run_s6_for_task(task: Any, foundation: Any) -> None:
     common = dict(metrics, context_diff=diff, context_id=state.frame.frame_id)
     await runtime_connections.publish(PresentationContract.from_state('Dharen', CharacterState.RECEIVE, active=True, prominence=.95, message='Dharen received the confirmed S5 DataFoundation and established the S6 baseline context.', event='S6_DHAREN_BASELINE_ESTABLISHED', foundation_id=foundation_id, foundation_material_set_id=foundation_id, **common))
     await _publish_context_state(foundation_id, task_id, event='CONTEXT_STATE_PERSIST', reason='S6 authoritative context state produced from S5 DataFoundation.')
-    await runtime_connections.publish(PresentationContract.from_state('Anuka', CharacterState.WORK, active=True, prominence=.8, message='Anuka activated because new context arrived and is adapting the Dharen baseline.', event='S6_ANUKA_ACTIVATED', foundation_id=foundation_id, **common, activity=('Dharen: baseline established', 'Anuka: adaptive context evaluation')))
+    await runtime_connections.publish(PresentationContract.from_state('Anuka', CharacterState.WORK, active=True, prominence=.8, message='Anuka activated because new context arrived and is adapting the Dharen baseline.', event='S6_ANUKA_ACTIVATED', foundation_id=foundation_id, **common, activity=('Dharen: baseline established', 'Anuka: adaptive context evaluation'))
     await _publish_context_state(foundation_id, task_id, event='CONTEXT_CHECKPOINT_PERSIST', reason='Context checkpoint created after adaptive state evaluation.')
     for recipient in ('tarkis', 'sandre'):
         await _publish_context_handoff(foundation_id, task_id, recipient, 'Stateful S6 context handoff from Dharen after baseline/adaptation.')
@@ -144,4 +147,16 @@ async def _orchestrated_chat(payload: dict[str, Any]) -> None:
 
 runtime_module.handle_chat_message = _orchestrated_chat
 DharenRuntime.publish_task = _publish_task_with_foundation
-__all__ = ['context_runtime', 'scratchpads', 'delivery_package']
+
+# The application creates FastAPI before importing this bridge. Register the
+# replay API at that boundary so sandbox/fork operations use the same runtime state.
+try:
+    from criterivox.application.data_foundation_store import data_foundations
+    replay_service = ContextReplayService(context_runtime, analysis_tasks, dharen_runtime, data_foundations)
+    configure_replay_routes(replay_service)
+    from criterivox.app import app as _criterivox_app
+    _criterivox_app.include_router(replay_router)
+except Exception:
+    replay_service = None
+
+__all__ = ['context_runtime', 'scratchpads', 'replay_service', 'delivery_package']
