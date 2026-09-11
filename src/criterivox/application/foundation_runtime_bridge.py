@@ -9,7 +9,6 @@ from criterivox.application.s5_orchestration import analysis_door, delivery_pack
 from criterivox.application.analysis_tasks import analysis_tasks
 from criterivox.application.conversation import interpret_message
 from criterivox.application.context_engine import ScratchpadRegistry
-from criterivox.application.context_engine import ScratchpadRegistry
 from criterivox.context.runtime import ContextRuntime
 from criterivox.domain.characters import CharacterState
 from criterivox.infrastructure import runtime as runtime_module
@@ -41,14 +40,7 @@ async def _publish_with_foundation_residency(contract: PresentationContract) -> 
     try:
         from criterivox.application.data_foundation_store import data_foundations
         foundation = data_foundations.get(str(foundation_id))
-        await _publish_raw({
-            'message_type': 'foundation_state',
-            'schema_version': 1,
-            'foundation_id': foundation.foundation_id,
-            'revision': data_foundations.revision(foundation.foundation_id),
-            'foundation': foundation.to_dict(),
-            'presentation_state': contract.to_dict(),
-        })
+        await _publish_raw({'message_type': 'foundation_state', 'schema_version': 1, 'foundation_id': foundation.foundation_id, 'revision': data_foundations.revision(foundation.foundation_id), 'foundation': foundation.to_dict(), 'presentation_state': contract.to_dict()})
     except Exception:
         return
 
