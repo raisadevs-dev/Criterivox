@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Mapping
 
-from .models import AdaptiveContextState, ContextInput
+from .models import AdaptiveContextState
 from .sandbox import ContextSandboxManager
 
 
@@ -21,11 +21,16 @@ class ReplayResult:
 class ContextReplayService:
     """Runs a forked context through Dharen and the normal AnalysisTask pipeline."""
 
-    def __init__(self, runtime, analysis_tasks, dharen_runtime) -> None:
+    def __init__(self, runtime, analysis_tasks, dharen_runtime, foundations) -> None:
         self.runtime = runtime
         self.analysis_tasks = analysis_tasks
         self.dharen_runtime = dharen_runtime
+        self.foundations = foundations
         self.sandboxes = ContextSandboxManager()
+
+    @property
+    def runtime_foundations(self):
+        return self.foundations
 
     def create(self, foundation_id: str, state: AdaptiveContextState, variables: Mapping[str, Any] | None = None) -> dict[str, Any]:
         sandbox = self.sandboxes.create(foundation_id, state.state_version, variables or state.active_context)
@@ -39,11 +44,12 @@ class ContextReplayService:
         sandbox.variables = fork_context
         sandbox.status = "running"
         sandbox.touch()
+        from criterivox.domain.analysis import AnalysisTaskSource
         task = self.analysis_tasks.create_task(
             task="Replay the active analysis under the forked S6 context.",
             data={"foundation_id": foundation.foundation_id, "canonical_rows": len(foundation.canonical_data), "replay": True, "sandbox_id": sandbox_id},
             context=fork_context,
-            source=getattr(task_id, "source", None) or "s6-context-replay",
+            source=AnalysisTaskSource.BLOOM,
             references=tuple(s.source_id for s in foundation.sources),
             data_foundation=foundation,
         )
@@ -55,7 +61,7 @@ class ContextReplayService:
         sandbox.status = "completed"
         sandbox.touch()
         comparison = self.sandboxes.compare(sandbox_id, base)
-        return ReplayResult(sandbox_id, foundation.foundation_id, sandbox_id, task.task_id, state.state_version, fork_context, comparison)
+        return ReplayResult(f"replay-{sandbox_id}", foundation.foundation_id, sandbox_id, task.task_id, state.state_version, fork_context, comparison)
 
     def inspect(self, sandbox_id: str) -> dict[str, Any]:
         return self.sandboxes.inspect(sandbox_id)
