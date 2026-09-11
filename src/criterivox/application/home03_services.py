@@ -17,6 +17,8 @@ class Home03Services:
  def consume(self,task_id,home,cost):return home03_runtime.consume(task_id,home,cost)
  def ingest_runtime_event(self,event):
   out=home03_runtime.emit('RUNTIME_HANDOFF',event.get('task_id','unknown'),source=event.get('source'),target=event.get('target'),payload=event.get('payload',{}),confidence=event.get('confidence'));home03_runtime.ingest_pollen(out);score=float(event.get('confidence') if event.get('confidence') is not None else 1.0);evaluation=bloom_controller.evaluate(str(event.get('task_id','unknown')),str(event.get('source','')),str(event.get('target','')),score,reason=str(event.get('event','runtime')));return {'event':out,'pollen':home03_runtime.pollen[-1],'evaluation':evaluation}
+ def restore(self,checkpoint_id):return home03_runtime.restore(checkpoint_id)
+ def fork(self,checkpoint_id,name):return home03_runtime.fork(checkpoint_id,name)
  def snapshot(self):return home03_runtime.snapshot()
 
 home03_services=Home03Services()
