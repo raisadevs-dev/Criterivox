@@ -1,68 +1,151 @@
 # ADR-006: Character Visual Assets and State Rendering
 
 - **Status:** Accepted
-- **Date:** 2026-09-08
-- **Scope:** S4 character-driven presentation/runtime integration
-
-## Context
-
-CRITERIVOX requires Dharen and Syvax to behave as functional interaction entities rather than decorative mascots. The supplied character boards define the intended visual identity and provide six representative visual states for the initial character lifecycle.
-
-The application already has a semantic runtime model in which Python is authoritative for character state and Flutter renders that state. The earlier SVG artwork was only placeholder vector artwork and did not represent the supplied character designs.
+- **Date:** 2026-09-10
+- **Scope:** Character-driven presentation/runtime integration and future character asset production
 
 ## Decision
 
-Use the supplied Dharen and Syvax visual boards as the visual source for the initial character presentation assets.
+Criterivox separates **character behavior and presentation capability** from **final authored character artwork**.
 
-The supported lifecycle order is:
+During the functional sprints, character identity, responsibility, interaction, semantic lifecycle, communication, handoff and presentation-layer behavior are implemented first. Final visual production is deliberately deferred until the functional character system is stable.
 
-`IDLE → RECEIVE → WORK → COMMUNICATE → HANDOFF → COMPLETE`
+The presentation layer must nevertheless be visibly functional now. Therefore, Criterivox uses a **pure Flutter procedural character renderer** during the functional sprints. It provides animated character representations directly in the Flutter presentation layer without requiring final authored artwork, SVG assets, an iframe, JavaScript, or a third-party animation runtime.
 
-Flutter selects the visual frame from the semantic presentation state. Flutter must not independently invent or reorder the character lifecycle.
+The current Flutter renderer uses `CustomPainter` and `AnimationController` to provide reusable visual behavior for the canonical semantic states:
 
-Character artwork remains a presentation concern. Python continues to own semantic state, task lifecycle, and application behavior.
+- `IDLE`
+- `RECEIVE`
+- `WORK`
+- `COMMUNICATE`
+- `HANDOFF`
+- `COMPLETE`
+- `WARNING`
 
-The current implementation uses SVG-backed character assets and a reusable `CharacterFrame` renderer. The supplied visual material, including its designed background treatment, is retained rather than replacing the characters with isolated placeholder silhouettes.
+The procedural renderer provides state-appropriate motion including breathing, subtle weight shift, attention/head movement, arm/hand movement, speaking indication, facial-state indication and lightweight accessory motion. These are **presentation approximations for functional validation**, not claims of final authored animation quality.
 
-## Runtime Contract
+The presentation boundary remains independent from the future authored asset pipeline. When final artwork becomes available, the procedural renderer can be replaced behind the same character presentation contract without changing character responsibilities, domain services or semantic lifecycle meaning.
+
+A production skeletal asset/runtime decision remains a separate end-stage workstream. The future production pipeline may use a validated Spine/DragonBones-style production solution or another suitable runtime, subject to research, platform support, performance, authoring and licensing requirements. Criterivox must not claim integration or compatibility with a third-party runtime until that runtime and its format/licensing requirements have actually been verified.
+
+## Current Functional-Sprint Runtime
 
 ```text
 Python semantic character state
         ↓
-WebSocket runtime
+Dart character presentation boundary
         ↓
-Dart PresentationState
+Flutter CharacterPresentation
         ↓
-CharacterFrame / character renderer
+Pure Flutter procedural character renderer
         ↓
-Supplied visual state
+CustomPainter + AnimationController
         ↓
-Flutter presentation
+Visible animated character representation
 ```
 
-## Authoring Decision
+This runtime is intentionally local and dependency-light. It exists to make character behavior and semantic state visible while final artwork is deferred.
 
-SVG is the runtime asset format. Glaxnimate remains an authoring-time tool for future refinement and animation authoring. Glaxnimate is not a runtime dependency.
+## Future Production Asset Runtime
 
-The current assets should not be described as pure vector redraws of the supplied images. They are SVG-backed presentation assets using the supplied visual material. Future asset work may convert individual states into cleaner, individually authored SVG/animation assets without changing the runtime contract.
+```text
+Canonical Character Bible
+        ↓
+Visual specification
+        ↓
+AI-assisted artwork preparation
+        ↓
+Separate authored pieces
+        ↓
+Rigging / attachments / weights
+        ↓
+Animation layers
+        ↓
+Runtime validation
+        ↓
+Validated production runtime adapter
+        ↓
+Flutter character presentation boundary
+        ↓
+Final authored character
+```
+
+The application domain must not depend on artwork format, bone names, rendering technology or a particular vendor runtime.
+
+## Functional-Sprint Rule
+
+Character visuals are not allowed to block functional character work.
+
+The following are implemented during normal sprints:
+
+- canonical character identity and role
+- residence and interaction relationships
+- semantic lifecycle states
+- character communication and chat behavior
+- presentation-layer state rendering
+- pure Flutter animated character representations
+- accessible status text
+- reduced-motion behavior
+- reserved presentation slots
+- explicit indication that final authored artwork is coming later
+- runtime contracts capable of accepting the future authored presentation
+
+The following remain intentionally deferred until the dedicated character production workstream:
+
+- final polished character artwork
+- final separable artwork pieces
+- production rigging/weight authoring
+- final facial animation
+- production-quality hair/clothing secondary motion
+- texture atlases/meshes and advanced deformation
+- final art-direction approval
+- selection and integration of a third-party production runtime, if justified
+
+## Automation Principle
+
+Deterministic and repetitive character-production work should be automated wherever practical.
+
+Automation may generate or validate:
+
+- character package directories
+- manifests and naming conventions
+- skeleton schemas and reusable rig templates
+- attachment metadata
+- animation-track templates
+- procedural secondary-motion parameters
+- asset validation
+- missing-asset detection
+- runtime compatibility checks
+- CI validation
+- character-package completeness reports
+
+AI may assist with visual concept exploration, artwork generation, controlled variations, cleanup and piece-separation preparation. Human control remains required for canonical character identity, artistic direction, visual quality and final acceptance.
+
+## Character Coverage
+
+The current functional character presentation contract covers the roster represented by the existing character identity system, including Dharen, Vivren, Tarkis, Sandre, Kaelen, Anuka and Syvax. The character system is extensible to the remaining canonical roster without requiring a new presentation architecture.
+
+Character identity, role, residence and behavioral responsibility remain separate domain concerns. Visual design does not override canonical identity.
+
+## Semantic States
+
+`IDLE`, `RECEIVE`, `WORK`, `COMMUNICATE`, `HANDOFF`, `COMPLETE`, `WARNING`.
+
+These are semantic lifecycle states. They are not merely animation names, and Python remains authoritative for their meaning.
 
 ## Consequences
 
-### Positive
+- Legacy SVG character assets are not part of the current presentation architecture.
+- The functional application no longer needs the web iframe/JavaScript character renderer.
+- Characters are visibly animated in the Flutter presentation layer before final artwork exists.
+- Character behavior can be completed independently of final artwork.
+- Final artwork can be inserted later without redesigning character responsibilities or application services.
+- The current functional renderer has no paid generation dependency.
+- Procedural visuals are intentionally not represented as production-quality authored character art.
+- A production skeletal runtime remains a future technical/research decision rather than an unverified claim.
 
-- Dharen and Syvax now visually correspond to the supplied character identity boards.
-- Character lifecycle state has a direct presentation representation.
-- Runtime semantics remain independent of artwork.
-- Future character animation work can replace assets without redesigning Python application behavior.
+## Related Work
 
-### Trade-offs
+The living end-stage production task is maintained in:
 
-- The supplied boards are state references, not a complete production animation rig.
-- Individual state assets may need further authoring for smoother animation and smaller payloads.
-- Background-rich visual assets require deliberate responsive cropping/layout handling.
-
-## Rejected Alternatives
-
-1. Keep the previous placeholder SVG characters. Rejected because they did not represent the intended character identity.
-2. Put character lifecycle logic entirely inside Flutter. Rejected because semantic state must remain authoritative outside presentation.
-3. Treat six still frames as a complete animation system. Rejected because visual keyframes and animation authoring are different concerns.
+`docs/characters/CHARACTER-ASSET-PRODUCTION-MASTER.md`

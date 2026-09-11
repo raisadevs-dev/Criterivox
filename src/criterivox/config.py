@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     """Criterivox runtime configuration."""
 
     environment: str = "development"
+    kaelen_scratchpad_ttl_seconds: int = 24 * 60 * 60
 
     model_config = SettingsConfigDict(
         env_file=".env",

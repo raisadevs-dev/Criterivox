@@ -16,17 +16,14 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: CharacterPresentation(
-              state: state,
-            ),
-          ),
+          home: Scaffold(body: CharacterPresentation(state: state)),
         ),
       );
 
       expect(find.text('Dharen'), findsOneWidget);
-      expect(find.text('Analysis'), findsOneWidget);
+      expect(find.text('Context Architecture'), findsOneWidget);
       expect(find.text('IDLE'), findsOneWidget);
+      expect(find.text('Final character artwork coming soon'), findsOneWidget);
     },
   );
 
@@ -41,16 +38,12 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: CharacterPresentation(
-              state: state,
-            ),
-          ),
+          home: Scaffold(body: CharacterPresentation(state: state)),
         ),
       );
 
       expect(find.text('Vivren'), findsOneWidget);
-      expect(find.text('Context'), findsOneWidget);
+      expect(find.text('Discernment'), findsOneWidget);
       expect(find.text('IDLE'), findsOneWidget);
     },
   );
@@ -66,43 +59,35 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: CharacterPresentation(
-              state: state,
-            ),
-          ),
+          home: Scaffold(body: CharacterPresentation(state: state)),
         ),
       );
 
       expect(find.text('Dharen'), findsOneWidget);
-      expect(find.text('Analysis'), findsOneWidget);
+      expect(find.text('Context Architecture'), findsOneWidget);
       expect(find.text('IDLE'), findsOneWidget);
     },
   );
 
   testWidgets(
-    'reduced motion still renders character',
+    'reduced motion still renders character without animation dependency',
     (WidgetTester tester) async {
       const state = PresentationState(
         agentId: 'Dharen',
-        characterState: 'IDLE',
+        characterState: 'WORK',
         active: true,
         reducedMotion: true,
       );
 
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: CharacterPresentation(
-              state: state,
-            ),
-          ),
+          home: Scaffold(body: CharacterPresentation(state: state)),
         ),
       );
 
       expect(find.text('Dharen'), findsOneWidget);
-      expect(find.text('Analysis'), findsOneWidget);
-      expect(find.text('IDLE'), findsOneWidget);
+      expect(find.text('Context Architecture'), findsOneWidget);
+      expect(find.text('WORK'), findsOneWidget);
     },
   );
 }

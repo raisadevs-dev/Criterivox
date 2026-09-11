@@ -1,0 +1,7 @@
+case_id,source_id,surface,window,locale,segment,items_seen,evidence
+U01,SRC-U01,short_video,2027-W03,hi-IN,students,14,OBSERVED
+U02,SRC-U02,community,2027-W03,en-IN,developers,6,OBSERVED
+U03,SRC-U03,photo,2027-W04,hi-IN,professionals,21,OBSERVED
+U04,SRC-U04,newsletter,2027-W04,en-IN,founders,,UNKNOWN
+U05,SRC-U05,discussion,2027-W05,en-IN,mixed,9,ASSUMED
+U06,SRC-U06,short_video,2027-W05,hi-IN,students,17,OBSERVED

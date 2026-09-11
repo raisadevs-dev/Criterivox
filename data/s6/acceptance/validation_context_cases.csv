@@ -1,0 +1,9 @@
+case_id,source_id,platform,period,region,audience,language_mode,records,evidence_status,expected_context_change
+VA01,SRC-V01,video,2026-Q3,IN,young_adult,en,20,OBSERVED,none
+VA02,SRC-V02,video,2026-Q3,IN,young_adult,hi,20,OBSERVED,language_mode
+VA03,SRC-V03,microblog,2026-Q3,IN,general,en,14,OBSERVED,platform
+VA04,SRC-V04,image,2026-Q3,IN,professional,en,,UNKNOWN,records_unknown
+VA05,SRC-V05,forum,2026-Q3,IN,technical,en,11,OBSERVED,platform
+VA06,SRC-V06,video,2026-Q4,IN,technical,en,11,OBSERVED,period
+VA07,SRC-V07,video,2026-Q4,,technical,en,11,UNKNOWN,region_missing
+VA08,SRC-V08,video,2026-Q4,IN,,en,11,UNKNOWN,audience_missing

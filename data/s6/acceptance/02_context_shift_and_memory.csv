@@ -1,0 +1,6 @@
+case_id,source_id,task_id,period,region,audience,records,previous_period,memory_ttl_seconds,recheck_reason,expected_memory_status,expected_change
+MS01,SRC-MS01,TASK-01,2026-Q3,IN,general,20,2026-Q2,3600,source may change during task,ACTIVE,period
+MS02,SRC-MS02,TASK-02,2026-Q3,IN,general,20,2026-Q2,86400,source refresh expected daily,ACTIVE,period
+MS03,SRC-MS03,TASK-03,2026-Q3,IN,technical,15,2026-Q3,60,a short-lived experiment is changing,ACTIVE,audience
+MS04,SRC-MS04,TASK-04,2026-Q4,IN,technical,15,2026-Q3,1,rapid source volatility,ACTIVE,period
+MS05,SRC-MS05,TASK-05,2027-Q1,IN,professional,0,2026-Q4,, ,UNKNOWN,records_unknown

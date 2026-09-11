@@ -1,6 +1,6 @@
-"""Local ML agents for Criterivox data-foundation stewardship."""
+"""Local ML-capable agents used by Criterivox."""
 
-from .sandre import SandreMLAgent, SandrePrediction
-from .kaelen import KaelenMLAgent, KaelenPlan
+from .anuka import AnukaMLAgent
+from .dharen import DharenMLAgent
 
-__all__ = ["KaelenMLAgent", "KaelenPlan", "SandreMLAgent", "SandrePrediction"]
+__all__ = ["AnukaMLAgent", "DharenMLAgent"]

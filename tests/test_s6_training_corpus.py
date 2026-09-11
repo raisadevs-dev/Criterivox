@@ -2,8 +2,7 @@ import json
 from pathlib import Path
 
 from criterivox.application.context_engine import ContextEngine
-from criterivox.domain.data_foundation import DataFoundation
-
+from criterivox.domain.data_foundation import DataFoundation, Provenance, SourceRecord, SourceType
 
 DATA = Path(__file__).parents[1] / "data" / "s6"
 
@@ -12,20 +11,25 @@ def load_jsonl(name: str):
     return [json.loads(line) for line in (DATA / name).read_text(encoding="utf-8").splitlines() if line.strip()]
 
 
-def make_foundation(case):
-    foundation = DataFoundation.create()
+def make_material(case):
+    sources = tuple(
+        SourceRecord(
+            source_id=source_id,
+            name=source_id,
+            source_type=SourceType.REFERENCE,
+            channel="test",
+            provided_at="2026-09-11T00:00:00+00:00",
+            provenance=Provenance(source_id, SourceType.REFERENCE, source_id),
+        )
+        for source_id in case.get("source_ids", [])
+    )
     return DataFoundation(
         foundation_id=case["material_id"],
-        created_at=foundation.created_at,
+        created_at="2026-09-11T00:00:00+00:00",
+        sources=sources,
         canonical_data=tuple(case.get("canonical_data", [])),
         supplied_context=dict(case.get("supplied_context", {})),
-        source_ids=(),
     )
-
-
-def make_material(case):
-    foundation = make_foundation(case)
-    return foundation
 
 
 def test_training_corpus_has_expected_cases():
@@ -47,7 +51,7 @@ def test_provenance_and_interpretation_boundaries():
     result = ContextEngine().create_from_material_set(make_material(case))
     assert {node.kind for node in result.provenance_graph.nodes} >= {"SOURCE", "FOUNDATION", "CONTEXT", "INTERPRETATION"}
     assert {edge.relation for edge in result.provenance_graph.edges} >= {"EXTRACTED_INTO", "STRUCTURED_AS", "INTERPRETED_AS"}
-    assert "causal" in result.interpretation.limitations[-1]
+    assert any("causal" in limitation for limitation in result.interpretation.limitations)
 
 
 def test_context_diff_preserves_structural_change():

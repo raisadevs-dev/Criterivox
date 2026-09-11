@@ -1,0 +1,7 @@
+case_id,source_id,platform,period,region,audience,records,region_status,audience_status,records_status,expected_behavior
+MU01,SRC-MU01,video,2026-Q3,IN,general,18,OBSERVED,OBSERVED,OBSERVED,normal_context
+MU02,SRC-MU02,video,2026-Q3,,general,18,UNKNOWN,OBSERVED,OBSERVED,missing_region_not_zero
+MU03,SRC-MU03,video,2026-Q3,IN,,18,OBSERVED,UNKNOWN,OBSERVED,missing_audience_not_zero
+MU04,SRC-MU04,video,2026-Q3,IN,general,,OBSERVED,OBSERVED,UNKNOWN,missing_records_not_zero
+MU05,SRC-MU05,video,2026-Q3,,, ,UNKNOWN,UNKNOWN,UNKNOWN,uncertainty_preserved
+MU06,SRC-MU06,video,2026-Q3,IN,general,18,OBSERVED,OBSERVED,ASSUMED,assumption_not_observed

@@ -15,16 +15,12 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: CharacterPresentation(
-              state: state,
-            ),
-          ),
+          home: Scaffold(body: CharacterPresentation(state: state)),
         ),
       );
 
       expect(find.text('Dharen'), findsOneWidget);
-      expect(find.text('Analysis'), findsOneWidget);
+      expect(find.text('Context Architecture'), findsOneWidget);
       expect(find.text('IDLE'), findsOneWidget);
     },
   );
@@ -40,16 +36,12 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: CharacterPresentation(
-              state: state,
-            ),
-          ),
+          home: Scaffold(body: CharacterPresentation(state: state)),
         ),
       );
 
       expect(find.text('Vivren'), findsOneWidget);
-      expect(find.text('Context'), findsOneWidget);
+      expect(find.text('Discernment'), findsOneWidget);
       expect(find.text('RECEIVE'), findsOneWidget);
     },
   );
@@ -65,15 +57,12 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: CharacterPresentation(
-              state: state,
-            ),
-          ),
+          home: Scaffold(body: CharacterPresentation(state: state)),
         ),
       );
 
       expect(find.text('Dharen'), findsOneWidget);
+      expect(find.text('Context Architecture'), findsOneWidget);
       expect(find.text('IDLE'), findsOneWidget);
     },
   );

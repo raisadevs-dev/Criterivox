@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../character/character_frame.dart';
+import '../character/character_runtime.dart';
 import '../presentation/criterivox_theme.dart';
 
 class Syvax extends StatefulWidget {
@@ -32,12 +32,15 @@ class _SyvaxState extends State<Syvax> {
 
   void _submit() {
     final text = _controller.text.trim();
-    if (text.isNotEmpty && !widget.busy) widget.onSubmit(text);
+    if (text.isNotEmpty && !widget.busy) {
+      widget.onSubmit(text);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final t = CriterivoxTheme.of(context);
+    final theme = CriterivoxTheme.of(context);
+
     return Material(
       color: Colors.transparent,
       child: Semantics(
@@ -47,12 +50,12 @@ class _SyvaxState extends State<Syvax> {
           width: 360,
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: t.surface,
+            color: theme.surface,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: t.border),
+            border: Border.all(color: theme.border),
             boxShadow: [
               BoxShadow(
-                color: t.primary.withValues(alpha: .08),
+                color: theme.primary.withValues(alpha: .08),
                 blurRadius: 28,
                 spreadRadius: 2,
               ),
@@ -63,15 +66,30 @@ class _SyvaxState extends State<Syvax> {
             children: [
               Row(
                 children: [
-                  _SyvaxAvatar(busy: widget.busy),
+                  CharacterRuntimeView(
+                    characterId: 'syvax',
+                    state: widget.busy ? 'WORK' : 'IDLE',
+                    width: 58,
+                    height: 58,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Syvax', style: TextStyle(color: t.text, fontSize: 19, fontWeight: FontWeight.w600)),
+                        Text(
+                          'Syvax',
+                          style: TextStyle(
+                            color: theme.text,
+                            fontSize: 19,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         const SizedBox(height: 2),
-                        Text('Dialogue + routing', style: TextStyle(color: t.mutedText, fontSize: 11)),
+                        Text(
+                          'Dialogue + routing',
+                          style: TextStyle(color: theme.mutedText, fontSize: 11),
+                        ),
                       ],
                     ),
                   ),
@@ -80,13 +98,20 @@ class _SyvaxState extends State<Syvax> {
                     height: 9,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: widget.busy ? t.warning : t.success,
+                      color: widget.busy ? theme.warning : theme.success,
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              Text('What would you like to do?', style: TextStyle(color: t.text, fontSize: 14, fontWeight: FontWeight.w500)),
+              Text(
+                'What would you like to do?',
+                style: TextStyle(
+                  color: theme.text,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               const SizedBox(height: 10),
               TextField(
                 controller: _controller,
@@ -95,10 +120,10 @@ class _SyvaxState extends State<Syvax> {
                 maxLines: 4,
                 textInputAction: TextInputAction.done,
                 onSubmitted: (_) => _submit(),
-                style: TextStyle(color: t.text, fontSize: 13),
+                style: TextStyle(color: theme.text, fontSize: 13),
                 decoration: InputDecoration(
                   hintText: 'Describe what you want Criterivox to do…',
-                  hintStyle: TextStyle(color: t.mutedText, fontSize: 12),
+                  hintStyle: TextStyle(color: theme.mutedText, fontSize: 12),
                   contentPadding: const EdgeInsets.all(14),
                 ),
               ),
@@ -110,9 +135,12 @@ class _SyvaxState extends State<Syvax> {
                   for (final suggestion in suggestions)
                     ActionChip(
                       avatar: const Icon(Icons.auto_awesome, size: 12),
-                      label: Text(suggestion, style: TextStyle(fontSize: 9.5, color: t.mutedText)),
-                      backgroundColor: t.surfaceStrong,
-                      side: BorderSide(color: t.border),
+                      label: Text(
+                        suggestion,
+                        style: TextStyle(fontSize: 9.5, color: theme.mutedText),
+                      ),
+                      backgroundColor: theme.surfaceStrong,
+                      side: BorderSide(color: theme.border),
                       onPressed: widget.busy
                           ? null
                           : () {
@@ -125,44 +153,23 @@ class _SyvaxState extends State<Syvax> {
               const SizedBox(height: 12),
               FilledButton.icon(
                 style: FilledButton.styleFrom(
-                  backgroundColor: t.primary,
+                  backgroundColor: theme.primary,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
                 onPressed: widget.busy ? null : _submit,
                 icon: widget.busy
-                    ? const SizedBox(width: 17, height: 17, child: CircularProgressIndicator(strokeWidth: 2))
+                    ? const SizedBox(
+                        width: 17,
+                        height: 17,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
                     : const Icon(Icons.arrow_upward_rounded, size: 18),
                 label: Text(widget.busy ? 'Working…' : 'Send to Criterivox'),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SyvaxAvatar extends StatelessWidget {
-  final bool busy;
-  const _SyvaxAvatar({required this.busy});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 58,
-      height: 58,
-      child: AnimatedScale(
-        scale: busy ? 1.05 : 1,
-        duration: const Duration(milliseconds: 280),
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 320),
-          child: CharacterFrame(
-            key: ValueKey(busy),
-            asset: 'assets/characters/syvax.svg',
-            index: busy ? 2 : 0,
-            width: 58,
-            height: 58,
           ),
         ),
       ),
