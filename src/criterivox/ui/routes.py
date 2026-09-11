@@ -1,9 +1,11 @@
 """Browser-facing UI routes and Home 03 interaction APIs."""
+import asyncio
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from ..application.syvax import syvax_engine
 from ..application.bloom import bloom_controller
+from ..infrastructure.runtime import handle_application_request
 
 router = APIRouter()
 templates = Jinja2Templates(directory="src/criterivox/ui/templates")
@@ -28,14 +30,26 @@ def _register_placeholder(page_name: str) -> None:
 for _page in ("workspace", "data", "intelligence", "explanations", "experiments", "knowledge"):
     _register_placeholder(_page)
 
+def _plan_payload(plan):
+    return {"task_id": plan.task_id, "intent": {"goal": plan.intent.goal, "intent_type": plan.intent.intent_type, "confidence": plan.intent.confidence, "entities": plan.intent.entities}, "steps": [step.__dict__ for step in plan.steps], "created_at": plan.created_at}
+
 @router.post("/api/syvax/plan")
 async def syvax_plan(payload: dict):
     message = str(payload.get("message", "")).strip()
     safety = syvax_engine.safety_check(message)
     if safety["status"] == "blocked":
         return JSONResponse({"safety": safety, "plan": None}, status_code=422)
+    return {"safety": safety, "plan": _plan_payload(syvax_engine.compile_plan(message, payload.get("task_id")))}
+
+@router.post("/api/syvax/dispatch")
+async def syvax_dispatch(payload: dict):
+    message = str(payload.get("message", "")).strip()
+    safety = syvax_engine.safety_check(message)
+    if safety["status"] == "blocked":
+        return JSONResponse({"safety": safety, "plan": None}, status_code=422)
     plan = syvax_engine.compile_plan(message, payload.get("task_id"))
-    return {"safety": safety, "plan": {"task_id": plan.task_id, "intent": {"goal": plan.intent.goal, "intent_type": plan.intent.intent_type, "confidence": plan.intent.confidence, "entities": plan.intent.entities}, "steps": [step.__dict__ for step in plan.steps], "created_at": plan.created_at}}
+    await handle_application_request({"contract_version": 1, "intent": plan.intent.intent_type if plan.intent.intent_type in {"analyze", "compare", "explain", "build", "explore"} else "analyze", "task": message, "task_id": plan.task_id, "data": payload.get("data", {}), "context": payload.get("context", {}), "source": "syvax-home03", "references": payload.get("references", [])})
+    return {"safety": safety, "plan": _plan_payload(plan), "dispatched": True}
 
 @router.post("/api/syvax/steer")
 async def syvax_steer(payload: dict):
