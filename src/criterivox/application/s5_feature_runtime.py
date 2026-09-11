@@ -1,18 +1,14 @@
-"""Deterministic S5 Home 01 feature services.
-
-These services intentionally stay local, explainable, and lightweight. They provide
-an executable baseline for Sandre/Kaelen feature surfaces without introducing a
-vector database or remote model dependency.
-"""
+"""Executable S5 Home 01 services backed by the local progressive ML stack."""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 import hashlib
 import json
-import random
 from typing import Any
 
+from .s5_advanced_runtime import EvaluationGate, FoundationSynchronizer, KaelenPipeline, ProvenanceLedger, SchemaDriftHealer, SemanticTagger, SyntheticDataEngine
+from .s5_ml_stack import LocalMLStack
 
 @dataclass(frozen=True)
 class ReadinessSnapshot:
@@ -22,89 +18,51 @@ class ReadinessSnapshot:
     readiness: float
     decision: str
 
-
 class S5FeatureRuntime:
-    """Computes auditable Home 01 signals and safe local previews."""
-
     provisional_alert_threshold = 0.85
+    def __init__(self) -> None:
+        self.ledger=ProvenanceLedger(); self.sync=FoundationSynchronizer(); self.pipeline=KaelenPipeline(); self.healer=SchemaDriftHealer(); self.synthetic=SyntheticDataEngine(); self.tagger=SemanticTagger(); self.evaluator=EvaluationGate(); self.ml=LocalMLStack()
+
+    def _rows(self, foundation: Any) -> list[dict[str,Any]]:
+        rows=getattr(foundation,'canonical_data',()) or getattr(foundation,'normalized_data',()) or getattr(foundation,'raw_data',())
+        return [dict(r) for r in rows if isinstance(r,dict)]
 
     def readiness(self, foundation: Any) -> ReadinessSnapshot:
-        profile = foundation.profile
-        completeness = max(0.0, min(1.0, 1.0 - float(getattr(profile, "missingness_rate", 0.0))))
-        duplicate_rate = float(getattr(profile, "duplicate_rate", 0.0))
-        schema_alignment = 1.0
-        if foundation.sources and getattr(profile, "column_count", 0) == 0:
-            schema_alignment = 0.0
-        anomaly_score = max(0.0, min(1.0, float(len(foundation.anomalies)) / max(1, len(foundation.candidates))))
-        readiness = max(0.0, min(1.0, completeness * 0.45 + schema_alignment * 0.35 + (1.0 - anomaly_score) * 0.20 - duplicate_rate * 0.10))
-        decision = "READY" if readiness >= self.provisional_alert_threshold else "REVIEW"
-        return ReadinessSnapshot(completeness, schema_alignment, anomaly_score, readiness, decision)
+        rows=self._rows(foundation); profile=getattr(foundation,'profile',None)
+        if profile is not None and rows:
+            total=max(1,profile.record_count*max(1,profile.field_count)); missing=sum(profile.missingness.values()); completeness=max(0.0,min(1.0,1-missing/total))
+            duplicate_rate=min(1.0,profile.duplicate_candidates/max(1,profile.record_count)); schema_alignment=1.0 if profile.field_count else 0.0
+        else: completeness=1.0 if rows else 0.0; duplicate_rate=0.0; schema_alignment=1.0 if rows else 0.0
+        anomaly_score=max(0.0,min(1.0,len(getattr(foundation,'anomalies',()))/max(1,len(getattr(foundation,'candidates',())))))
+        readiness=max(0.0,min(1.0,completeness*.45+schema_alignment*.35+(1-anomaly_score)*.20-duplicate_rate*.10))
+        return ReadinessSnapshot(round(completeness,4),round(schema_alignment,4),round(anomaly_score,4),round(readiness,4),'READY' if readiness>=self.provisional_alert_threshold else 'REVIEW')
 
-    def provenance(self, foundation: Any) -> dict[str, Any]:
-        payload = json.dumps(foundation.raw_data, sort_keys=True, default=str).encode()
-        return {
-            "payload_hash": hashlib.sha256(payload).hexdigest(),
-            "captured_at": datetime.now(timezone.utc).isoformat(),
-            "source_count": len(foundation.sources),
-            "transformation_count": len(foundation.transformations),
-            "timeline_supported": True,
-        }
+    def provenance(self, foundation: Any, revision: int | None = None) -> dict[str,Any]:
+        snapshot=foundation.to_dict(); entry=self.ledger.append(foundation.foundation_id,'FOUNDATION_SNAPSHOT',snapshot)
+        result={'payload_hash':hashlib.sha256(json.dumps(foundation.raw_data,sort_keys=True,default=str).encode()).hexdigest(),'captured_at':datetime.now(timezone.utc).isoformat(),'source_count':len(foundation.sources),'transformation_count':len(foundation.transformations),'revision':entry.revision,'timeline_supported':True}
+        if revision is not None: result['rewind']=asdict(self.ledger.rewind(foundation.foundation_id,revision))
+        return result
 
-    def synthetic_preview(self, foundation: Any, seed: int = 17) -> dict[str, Any]:
-        rng = random.Random(seed)
-        rows = foundation.canonical_data if isinstance(foundation.canonical_data, list) else []
-        preview = []
-        for row in rows[:5]:
-            if isinstance(row, dict):
-                clone = dict(row)
-                if clone:
-                    key = next(iter(clone))
-                    value = clone[key]
-                    if isinstance(value, (int, float)):
-                        clone[key] = value + rng.randint(-2, 2)
-                preview.append(clone)
-        return {"mode": "local-synthetic", "seed": seed, "rows": preview, "training_consent": False}
-
-    def semantic(self, foundation: Any) -> dict[str, Any]:
-        fields: list[str] = []
-        for row in foundation.canonical_data[:20] if isinstance(foundation.canonical_data, list) else []:
-            if isinstance(row, dict):
-                fields.extend(str(k) for k in row.keys())
-        unique = sorted(set(fields))
-        score = min(1.0, 0.55 + min(len(unique), 10) * 0.035) if unique else 0.20
-        return {"agent_readability_score": round(score, 3), "semantic_tags": unique[:12], "active_metadata": True}
-
-    def schema_patch(self, foundation: Any) -> dict[str, Any]:
-        keys: set[str] = set()
-        for row in foundation.canonical_data[:50] if isinstance(foundation.canonical_data, list) else []:
-            if isinstance(row, dict):
-                keys.update(str(k) for k in row.keys())
-        return {
-            "drift_detected": len(keys) == 0 and bool(foundation.candidates),
-            "old_schema": sorted(keys),
-            "new_schema": sorted(keys),
-            "patch_strategy": "declarative-map-and-validate",
-            "rollback": True,
-        }
-
-    def vector_readiness(self, foundation: Any) -> dict[str, Any]:
-        return {
-            "stage": "embedding-ready-representation",
-            "text": bool(foundation.canonical_data),
-            "image": False,
-            "audio": False,
-            "matrix_preview": [[0.0, 0.0, 0.0] for _ in range(min(3, len(foundation.candidates)))],
-            "lakehouse": "deferred-by-S5-scope",
-        }
-
-    def edd_gate(self, foundation: Any) -> dict[str, Any]:
-        readiness = self.readiness(foundation)
-        checks = {
-            "completeness": readiness.completeness >= 0.70,
-            "schema_alignment": readiness.schema_alignment >= 0.70,
-            "anomaly_review": readiness.anomaly_score < 0.30,
-            "provenance": bool(foundation.sources),
-            "confirmation": foundation.confirmation_status.value in {"user-confirmed", "user-corrected"},
-        }
-        passed = sum(checks.values())
-        return {"status": "PASS" if passed == len(checks) else "REVIEW", "checks": checks, "passed": passed, "total": len(checks), "action": "handoff" if passed == len(checks) else "re-normalize"}
+    def rewind(self, foundation: Any, revision: int) -> dict[str,Any]: return asdict(self.ledger.rewind(foundation.foundation_id,revision))
+    def synthetic_preview(self, foundation: Any, seed: int=17) -> dict[str,Any]: return self.synthetic.preview(self._rows(foundation),seed)
+    def semantic(self, foundation: Any) -> dict[str,Any]: return self.tagger.tag(self._rows(foundation),getattr(foundation,'supplied_context',{}) or {})
+    def schema_patch(self, foundation: Any) -> dict[str,Any]:
+        rows=self._rows(foundation); old=sorted({k for r in rows for k in r}); supplied=getattr(foundation,'supplied_context',{}) or {}; new=supplied.get('expected_schema',old); aliases=supplied.get('schema_aliases',{})
+        return self.healer.patch(rows,old,[str(k) for k in new],{str(k):str(v) for k,v in aliases.items()} if isinstance(aliases,dict) else {})
+    def pipeline_result(self, foundation: Any) -> dict[str,Any]: return self.pipeline.execute(self._rows(foundation))
+    def sync_envelope(self, foundation: Any, revision: int=1) -> dict[str,Any]: return asdict(self.sync.prepare(foundation.foundation_id,revision,foundation.to_dict()))
+    def accept_sync(self, envelope: dict[str,Any]) -> dict[str,Any]:
+        from .s5_advanced_runtime import SyncEnvelope
+        return self.sync.accept(SyncEnvelope(str(envelope['foundation_id']),int(envelope['revision']),str(envelope['payload_hash']),str(envelope.get('operation','upsert')),dict(envelope['payload'])))
+    def ml_train_and_score(self, foundation: Any) -> dict[str,Any]:
+        rows=self._rows(foundation); model=self.ml.train_anomaly_baseline(rows); scored=[asdict(self.ml.score(model,row)) for row in rows[:25]]; return {'model':model,'scores':scored,'agent':'sandre','execution':'local'}
+    def agent_runtime(self, foundation: Any, agent: str) -> dict[str,Any]:
+        result=self.pipeline_result(foundation) if agent.lower()=='kaelen' else self.ml_train_and_score(foundation)
+        return {'agent':agent.lower(),'runtime':'local-executable','foundation_id':foundation.foundation_id,'result':result}
+    def vector_readiness(self, foundation: Any) -> dict[str,Any]: return {'stage':'embedding-ready-representation','text':bool(self._rows(foundation)),'image':False,'audio':False,'matrix_preview':[[0.0,0.0,0.0] for _ in range(min(3,len(getattr(foundation,'candidates',()))))],'lakehouse':'deferred-by-S5-scope'}
+    def edd_gate(self, foundation: Any) -> dict[str,Any]:
+        readiness=self.readiness(foundation); ml=self.ml_train_and_score(foundation); metrics={'readiness':readiness.readiness};
+        scores=[float(x['score']) for x in ml['scores'] if isinstance(x.get('score'),(int,float))]
+        if scores: metrics['model_stability']=max(0.0,1.0-min(1.0,(max(scores)-min(scores))))
+        datasets=(getattr(foundation,'supplied_context',{}) or {}).get('evaluation_datasets',[]); result=self.evaluator.evaluate(metrics,datasets,self.provisional_alert_threshold)
+        result['checks']={'readiness':readiness.readiness>=.85,'confirmation':getattr(foundation,'confirmation_status',None).value in {'user-confirmed','user-corrected'},'provenance':bool(foundation.sources),'ml_execution':bool(ml['model'].get('trained'))}; result['status']='PASS' if all(result['checks'].values()) and result['passed'] else 'REVIEW'; result['threshold_status']='provisional'; return result
