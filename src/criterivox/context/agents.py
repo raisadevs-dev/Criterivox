@@ -4,12 +4,16 @@ from hashlib import sha256
 from typing import Any, Mapping
 
 from .models import AdaptiveContextState, ContextCheckpoint, ContextDiff, ContextFork, ContextFrame, ContextInput, ContextItem, ContextTier, ContextViolation
+from .token_budget import DynamicTokenAllocator
 
 
 class DharenAgent:
     """Context Master: baseline framing, scope, hierarchy, compression and firewall."""
     agent_id = "dharen"
     role = "Context Master / Scope Boundary Control"
+
+    def __init__(self, allocator: DynamicTokenAllocator | None = None) -> None:
+        self.allocator = allocator or DynamicTokenAllocator()
 
     def frame(self, context: ContextInput, *, max_items: int = 64) -> ContextFrame:
         request = context.request.strip()
@@ -22,18 +26,26 @@ class DharenAgent:
         kept = tuple(ranked[:max_items])
         if not kept:
             kept = (ContextItem("request", request, ContextTier.CRITICAL, True),)
-        original = max(1, len(context.items))
+        budget = int(context.environment.get("context_token_budget", 4096) or 4096)
+        allocation = self.allocator.allocate(kept, budget)
+        selected_keys = set(allocation.selected_keys)
+        selected = tuple(item for item in kept if item.key in selected_keys or item.critical)
+        if not selected:
+            selected = kept[:1]
+        by_tier = dict(allocation.by_tier)
+        total = max(1, allocation.used)
+        tier_budget = {key: value / total for key, value in by_tier.items()}
         return ContextFrame(
-            frame_id=self._id(request, [item.key for item in kept]),
+            frame_id=self._id(request, [item.key for item in selected]),
             request=request,
-            items=kept,
+            items=selected,
             hard_constraints=tuple(dict.fromkeys(context.hard_constraints)),
             soft_guidelines=tuple(dict.fromkeys(context.soft_guidelines)),
-            environment=dict(context.environment),
+            environment={**dict(context.environment), "context_token_budget": budget, "context_tokens_used": allocation.used, "context_tokens_remaining": allocation.remaining, "context_dropped_keys": allocation.dropped_keys},
             violations=tuple(violations),
-            compression_ratio=len(kept) / original,
+            compression_ratio=len(selected) / max(1, len(context.items)),
             original_item_count=len(context.items),
-            tier_budget={"critical": .40, "high": .30, "medium": .20, "low": .10},
+            tier_budget=tier_budget,
         )
 
     def _firewall(self, context: ContextInput) -> tuple[ContextViolation, ...]:
