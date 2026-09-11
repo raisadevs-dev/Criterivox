@@ -1,12 +1,25 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timezone
 from typing import Any
 
 from .data_foundation import DataFoundationService
 from .data_intake import ingest_folder_path, ingest_sources
-from criterivox.domain.data_foundation import DataFoundation
+from criterivox.domain.data_foundation import (
+    Anomaly,
+    CandidateInformation,
+    ConfirmationStatus,
+    DataFoundation,
+    DataProfile,
+    ExtractionStatus,
+    Missingness,
+    Provenance,
+    QualityMetadata,
+    SourceRecord,
+    SourceType,
+    Transformation,
+)
 
 
 @dataclass
@@ -56,22 +69,17 @@ class DataFoundationStore:
         return self.revisions.get(foundation_id, 1)
 
     def serialize(self, foundation_id: str) -> dict[str, Any]:
-        """Return a complete JSON-safe foundation envelope for browser persistence."""
         foundation = self.get(foundation_id)
         return {
             "schema_version": 1,
             "foundation_id": foundation.foundation_id,
             "revision": self.revision(foundation_id),
             "serialized_at": datetime.now(timezone.utc).isoformat(),
-            "foundation": foundation.model_dump(mode="json") if hasattr(foundation, "model_dump") else _dataclass_json(foundation),
+            "foundation": foundation.to_dict(),
         }
 
     def restore_replace(self, envelope: dict[str, Any], *, authoritative: bool = True) -> DataFoundation:
-        """Restore a browser-recovered foundation and make it the active server copy.
-
-        The incoming revision must not be older than the server revision. Equal
-        revisions are accepted idempotently only when the foundation is equivalent.
-        """
+        """Restore a browser copy and, when authorised, replace the server copy."""
         if not isinstance(envelope, dict):
             raise ValueError("Foundation synchronization envelope must be an object.")
         raw = envelope.get("foundation")
@@ -86,8 +94,10 @@ class DataFoundationStore:
         current_revision = self.revisions.get(foundation_id, 0)
         if current is not None and incoming_revision < current_revision:
             raise ValueError(f"Stale foundation revision {incoming_revision}; server has {current_revision}.")
-        if current is not None and incoming_revision == current_revision and current != foundation:
-            raise ValueError("Foundation revision conflict: equal revisions contain different material.")
+        if current is not None and incoming_revision == current_revision:
+            if current.to_dict() != foundation.to_dict():
+                raise ValueError("Foundation revision conflict: equal revisions contain different material.")
+            return current
         if not authoritative and current is not None:
             return current
         self.items[foundation_id] = foundation
@@ -95,19 +105,52 @@ class DataFoundationStore:
         return foundation
 
 
-def _dataclass_json(value: Any) -> dict[str, Any]:
-    from dataclasses import asdict
-    return asdict(value)
-
-
 def _foundation_from_dict(raw: dict[str, Any]) -> DataFoundation:
-    """Rehydrate the Pydantic domain model without silently dropping fields."""
-    if hasattr(DataFoundation, "model_validate"):
-        try:
-            return DataFoundation.model_validate(raw)
-        except Exception as exc:
-            raise ValueError("Serialized DataFoundation failed domain validation.") from exc
-    raise ValueError("DataFoundation domain model does not support restoration.")
+    def provenance(value: dict[str, Any] | None) -> Provenance | None:
+        if value is None:
+            return None
+        return Provenance(**{**value, "source_type": SourceType(value["source_type"])})
+
+    def source(value: dict[str, Any]) -> SourceRecord:
+        data = dict(value)
+        data["source_type"] = SourceType(data["source_type"])
+        data["extraction_status"] = ExtractionStatus(data["extraction_status"])
+        data["provenance"] = provenance(data.get("provenance"))
+        return SourceRecord(**data)
+
+    def candidate(value: dict[str, Any]) -> CandidateInformation:
+        data = dict(value)
+        data["confirmation_status"] = ConfirmationStatus(data["confirmation_status"])
+        data["provenance"] = provenance(data.get("provenance"))
+        return CandidateInformation(**data)
+
+    def transformation(value: dict[str, Any]) -> Transformation:
+        data = dict(value)
+        data["provenance"] = provenance(data.get("provenance"))
+        return Transformation(**data)
+
+    def anomaly(value: dict[str, Any]) -> Anomaly:
+        return Anomaly(**value)
+
+    def profile(value: dict[str, Any] | None) -> DataProfile | None:
+        return DataProfile(**value) if value is not None else None
+
+    def quality(value: dict[str, Any] | None) -> QualityMetadata:
+        return QualityMetadata(**(value or {}))
+
+    data = dict(raw)
+    data["sources"] = tuple(source(item) for item in data.get("sources", ()))
+    data["candidates"] = tuple(candidate(item) for item in data.get("candidates", ()))
+    data["profile"] = profile(data.get("profile"))
+    data["quality"] = quality(data.get("quality"))
+    data["missingness"] = {str(key): Missingness(value) for key, value in data.get("missingness", {}).items()}
+    data["anomalies"] = tuple(anomaly(item) for item in data.get("anomalies", ()))
+    data["transformations"] = tuple(transformation(item) for item in data.get("transformations", ()))
+    data["confirmation_status"] = ConfirmationStatus(data.get("confirmation_status", ConfirmationStatus.UNCERTAIN.value))
+    data.pop("revision", None)
+    data.pop("serialized_at", None)
+    data.pop("schema_version", None)
+    return DataFoundation(**data)
 
 
 data_foundations = DataFoundationStore()
