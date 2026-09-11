@@ -25,12 +25,15 @@ def _plan_payload(plan):return {'task_id':plan.task_id,'intent':{'goal':plan.int
 async def syvax_plan(payload:dict):
  message=str(payload.get('message','')).strip();safety=syvax_engine.safety_check(message)
  if safety['status']=='blocked':return JSONResponse({'safety':safety,'plan':None},status_code=422)
- return {'safety':safety,'plan':_plan_payload(syvax_engine.compile_plan(message,payload.get('task_id')))}
+ plan=syvax_engine.compile_plan(message,payload.get('task_id'));return {'safety':safety,'plan':_plan_payload(plan),'candidate':syvax_engine.candidate_route(plan)}
+@router.post('/api/syvax/replan')
+async def syvax_replan(payload:dict):
+ plan=syvax_engine.compile_plan(str(payload.get('message','')),str(payload.get('task_id','')) or None);return syvax_engine.revise_from_runtime(plan,dict(payload.get('runtime_event',{})))
 @router.post('/api/syvax/dispatch')
 async def syvax_dispatch(payload:dict):
  message=str(payload.get('message','')).strip();safety=syvax_engine.safety_check(message)
  if safety['status']=='blocked':return JSONResponse({'safety':safety,'plan':None},status_code=422)
- plan=syvax_engine.compile_plan(message,payload.get('task_id'));result=home03_services.dispatch(message,plan.task_id);return {'safety':safety,'plan':_plan_payload(plan),'adaptive':result,'dispatched':True,'execution_status':'control_plane_accepted'}
+ plan=syvax_engine.compile_plan(message,payload.get('task_id'));result=home03_services.dispatch(message,plan.task_id);return {'safety':safety,'plan':_plan_payload(plan),'candidate':syvax_engine.candidate_route(plan),'adaptive':result,'dispatched':True,'execution_status':'control_plane_accepted'}
 @router.post('/api/syvax/steer')
 async def syvax_steer(payload:dict):return {**syvax_engine.steer(str(payload.get('task_id','')),str(payload.get('correction',''))),'runtime':home03_services.suspend(str(payload.get('task_id','')),str(payload.get('correction','')))}
 @router.post('/api/syvax/resume')
@@ -46,7 +49,8 @@ async def syvax_budget(payload:dict):return {'home':str(payload.get('home','')),
 @router.get('/api/home03/runtime')
 async def home03_runtime_state():return home03_services.snapshot()
 @router.post('/api/home03/runtime-event')
-async def home03_runtime_event(payload:dict):return home03_services.ingest_runtime_event(payload)
+async def home03_runtime_event(payload:dict):
+ result=home03_services.ingest_runtime_event(payload);plan=syvax_engine.compile_plan(str(payload.get('goal',payload.get('message','runtime event'))),str(payload.get('task_id','')) or None);result['replan']=syvax_engine.revise_from_runtime(plan,payload);return result
 @router.post('/api/home03/consume')
 async def home03_consume(payload:dict):return {'remaining':home03_services.consume(str(payload.get('task_id','')),str(payload.get('home','')),int(payload.get('cost',1)))}
 @router.post('/api/home03/conversation/{conversation_id}/message')
