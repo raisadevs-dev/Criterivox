@@ -26,11 +26,12 @@ class DharenAgent:
         if not context.request.strip():
             raise ValueError("Context request cannot be empty.")
         violations = self._firewall(context)
-        accepted = tuple(item for item in context.items if not any(item.key in v.keys for v in violations))
+        rejected_keys = {key for violation in violations for key in violation.keys}
+        accepted = tuple(item for item in context.items if item.key not in rejected_keys)
         ranked = sorted(accepted, key=lambda i: (i.critical, -int(i.tier)), reverse=True)
         kept = tuple(ranked[:max_items])
-        if not kept and context.request:
-            kept = (ContextItem("request", context.request, ContextTier.CRITICAL, True),)
+        if not kept:
+            kept = (ContextItem("request", context.request.strip(), ContextTier.CRITICAL, True),)
         original = max(1, len(context.items))
         return ContextFrame(
             frame_id=self._id(context.request, [i.key for i in kept]),
@@ -104,3 +105,21 @@ class AnukaAgent:
         fork_state = dict(state.active_context)
         fork_state.update(overrides)
         return ContextFork(fork_id=fork_id, base_checkpoint_id=state.checkpoint_id, state=fork_state)
+
+    def handoff_payload(self, state: AdaptiveContextState, *, recipient: str) -> dict[str, Any]:
+        """Serialize the active contextual state for a stateful downstream handoff."""
+        return {
+            "schema_version": "s6.context-handoff.v1",
+            "sender": self.agent_id,
+            "recipient": recipient,
+            "frame_id": state.frame.frame_id,
+            "state_version": state.state_version,
+            "request": state.frame.request,
+            "active_context": dict(state.active_context),
+            "added": state.diff.added,
+            "removed": state.diff.removed,
+            "changed": state.diff.changed,
+            "goal_shift": state.diff.goal_shift,
+            "constraint_shift": state.diff.constraint_shift,
+            "violations": tuple({"code": v.code, "message": v.message, "keys": v.keys} for v in state.frame.violations),
+        }
