@@ -14,17 +14,23 @@ class SandrePrediction:
 
 
 class SandreMLAgent:
-    """Small, local, dependency-light baseline for S5 stewardship.
-
-    This first baseline deliberately uses interpretable statistical signals rather
-    than hiding the gate behind an opaque model. A future adapter can replace the
-    scorer with IsolationForest/gradient boosting after benchmark calibration.
-    """
+    """Local, interpretable S5 ML baseline with an in-app train/predict lifecycle."""
 
     def __init__(self, alert_threshold: float = 0.85) -> None:
         if not 0 < alert_threshold < 1:
             raise ValueError("alert_threshold must be between 0 and 1")
         self.alert_threshold = alert_threshold
+        self._baseline: dict[str, float] | None = None
+
+    def train(self, clean_rows: list[dict[str, Any]]) -> dict[str, float]:
+        if not clean_rows:
+            raise ValueError("clean_rows must not be empty")
+        self._baseline = self.quality_features(clean_rows)
+        return dict(self._baseline)
+
+    @property
+    def is_trained(self) -> bool:
+        return self._baseline is not None
 
     def predict(self, rows: list[dict[str, Any]]) -> SandrePrediction:
         if not rows:
@@ -34,17 +40,20 @@ class SandreMLAgent:
         cells = max(1, len(rows) * max(1, len(fields)))
         missing_rate = missing / cells
         duplicate_rate = 1 - (len({self._stable_row(row) for row in rows}) / len(rows))
-        schema_penalty = 0.0
-        for row in rows:
-            schema_penalty = max(schema_penalty, abs(len(row) - len(fields)) / max(1, len(fields)))
-        anomaly = min(1.0, 0.55 * missing_rate + 0.35 * duplicate_rate + 0.10 * schema_penalty)
+        schema_penalty = max((abs(len(row) - len(fields)) / max(1, len(fields)) for row in rows), default=0.0)
+        current = self.quality_features(rows)
+        scale_penalty = 0.0
+        if self._baseline is not None:
+            expected_fields = max(1.0, self._baseline["fields"])
+            scale_penalty = min(1.0, abs(current["fields"] - expected_fields) / expected_fields)
+        anomaly = min(1.0, 0.45 * missing_rate + 0.30 * duplicate_rate + 0.15 * schema_penalty + 0.10 * scale_penalty)
         readiness = max(0.0, 1.0 - anomaly)
         signals: list[str] = []
         if missing_rate > 0.05:
             signals.append("missingness")
         if duplicate_rate > 0:
             signals.append("duplicate_candidates")
-        if schema_penalty > 0:
+        if schema_penalty > 0 or scale_penalty > 0:
             signals.append("schema_inconsistency")
         if anomaly >= self.alert_threshold:
             signals.append("quarantine_review")
@@ -60,8 +69,4 @@ class SandreMLAgent:
             return {"rows": 0.0, "fields": 0.0, "entropy_proxy": 0.0}
         fields = {k for row in rows for k in row}
         unique_rows = len({SandreMLAgent._stable_row(row) for row in rows})
-        return {
-            "rows": float(len(rows)),
-            "fields": float(len(fields)),
-            "entropy_proxy": log1p(unique_rows) / max(1.0, log1p(len(rows))),
-        }
+        return {"rows": float(len(rows),), "fields": float(len(fields)), "entropy_proxy": log1p(unique_rows) / max(1.0, log1p(len(rows)))}
