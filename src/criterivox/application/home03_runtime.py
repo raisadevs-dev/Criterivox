@@ -6,7 +6,7 @@ from hashlib import sha256
 from .home03_store import home03_store
 @dataclass
 class WorkflowState:
- task_id:str;status:str='running';revision:int=0;correction:str='';approval:str='';budget:dict[str,int]|None=None;remaining:dict[str,int]|None=None;updated_at:str=''
+ task_id:str;status:str='running';revision:int=0;correction:str='';approval:str='';budget:dict[str,int]|None=None;remaining:dict[str,int]|None=None;plan:dict|None=None;updated_at:str=''
 class Home03Runtime:
  def __init__(self):self.workflows={};self.events=[];self.branches={};self.pollen=[];self.checkpoints={};self._wake={}
  def _now(self):return datetime.now(timezone.utc).isoformat()
@@ -14,7 +14,7 @@ class Home03Runtime:
   e={'event_id':'evt-'+sha256(f'{task_id}:{len(self.events)}:{self._now()}'.encode()).hexdigest()[:14],'type':event_type,'task_id':task_id,'created_at':self._now(),**payload};self.events.append(e);home03_store.event(event_type,task_id,e);return e
  def start(self,task_id,plan):
   if task_id in self.workflows:return self.emit('WORKFLOW_REUSED',task_id,plan=plan)
-  self.workflows[task_id]=WorkflowState(task_id=task_id,updated_at=self._now(),budget={},remaining={});self._wake[task_id]=asyncio.Event();self._wake[task_id].set();return self.emit('WORKFLOW_STARTED',task_id,plan=plan)
+  self.workflows[task_id]=WorkflowState(task_id=task_id,updated_at=self._now(),budget={},remaining={},plan=plan);self._wake[task_id]=asyncio.Event();self._wake[task_id].set();return self.emit('WORKFLOW_STARTED',task_id,plan=plan)
  def _ensure(self,task_id):
   if task_id not in self.workflows:self.start(task_id,{})
   self._wake.setdefault(task_id,asyncio.Event());return self.workflows[task_id]
@@ -29,8 +29,8 @@ class Home03Runtime:
   if not cp:raise KeyError(f'Unknown checkpoint: {checkpoint_id}')
   task_id=cp['task_id'];w=self._ensure(task_id);state=cp.get('state',{})
   if isinstance(state,dict) and isinstance(state.get('workflow'),dict):
-   r=state['workflow'];w.status=r.get('status',w.status);w.revision=int(r.get('revision',w.revision));w.correction=r.get('correction','');w.approval=r.get('approval','');w.budget=r.get('budget',w.budget);w.remaining=r.get('remaining',w.remaining)
-  (self._wake[task_id].clear() if w.status=='paused' else self._wake[task_id].set());self.emit('REPLAY_RESTORED',task_id,checkpoint_id=checkpoint_id,state_hash=cp['state_hash']);return {'restored':True,'checkpoint':cp,'workflow':asdict(w),'branchable':True}
+   r=state['workflow'];w.status=r.get('status',w.status);w.revision=int(r.get('revision',w.revision));w.correction=r.get('correction','');w.approval=r.get('approval','');w.budget=r.get('budget',w.budget);w.remaining=r.get('remaining',w.remaining);w.plan=r.get('plan',w.plan)
+  self._wake[task_id].clear() if w.status=='paused' else self._wake[task_id].set();self.emit('REPLAY_RESTORED',task_id,checkpoint_id=checkpoint_id,state_hash=cp['state_hash']);return {'restored':True,'checkpoint':cp,'workflow':asdict(w),'branchable':True}
  def fork(self,checkpoint_id,branch_name):
   cp=self.checkpoints.get(checkpoint_id)
   if not cp:raise KeyError(f'Unknown checkpoint: {checkpoint_id}')
