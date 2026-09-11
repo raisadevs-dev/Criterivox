@@ -33,7 +33,9 @@ async def syvax_replan(payload:dict):
 async def syvax_dispatch(payload:dict):
  message=str(payload.get('message','')).strip();safety=syvax_engine.safety_check(message)
  if safety['status']=='blocked':return JSONResponse({'safety':safety,'plan':None},status_code=422)
- plan=syvax_engine.compile_plan(message,payload.get('task_id'));result=home03_services.dispatch(message,plan.task_id);return {'safety':safety,'plan':_plan_payload(plan),'candidate':syvax_engine.candidate_route(plan),'adaptive':result,'dispatched':True,'execution_status':'control_plane_accepted'}
+ plan=syvax_engine.compile_plan(message,payload.get('task_id'));candidate=syvax_engine.candidate_route(plan)
+ if not candidate['validation']['valid']:return JSONResponse({'safety':safety,'plan':_plan_payload(plan),'candidate':candidate,'dispatched':False},status_code=409)
+ result=home03_services.dispatch(message,plan.task_id,_plan_payload(plan));return {'safety':safety,'plan':_plan_payload(plan),'candidate':candidate,'adaptive':result,'dispatched':True,'execution_status':'control_plane_accepted'}
 @router.post('/api/syvax/steer')
 async def syvax_steer(payload:dict):return {**syvax_engine.steer(str(payload.get('task_id','')),str(payload.get('correction',''))),'runtime':home03_services.suspend(str(payload.get('task_id','')),str(payload.get('correction','')))}
 @router.post('/api/syvax/resume')
