@@ -51,11 +51,16 @@ async def guest_session_input(session_id:str,payload:dict):
 async def guest_session_trace(session_id:str,payload:dict):
  if guest_passes.get(session_id) is None:return JSONResponse({'accepted':False,'error':'guest_session_expired'},status_code=410)
  guest_passes.append_trace(session_id,dict(payload));return {'accepted':True,'session_id':session_id,'trace':guest_passes.get(session_id).trace}
-@router.post('/api/guest-pass/session/{session_id}/claim')
-async def guest_session_claim(session_id:str):
- try:payload=guest_passes.claim(session_id)
+@router.post('/api/guest-pass/session/{session_id}/claim/prepare')
+async def guest_session_claim_prepare(session_id:str):
+ try:return {'accepted':True,'migratable':guest_passes.migratable(session_id),'vaporized_guest_session':False,'claim_status':'PREPARED'}
  except KeyError:return JSONResponse({'accepted':False,'error':'guest_session_expired'},status_code=410)
- return {'accepted':True,'migratable':payload,'vaporized_guest_session':True,'persistent_storage':'caller_must_create_human_residence'}
+@router.post('/api/guest-pass/session/{session_id}/claim/commit')
+async def guest_session_claim_commit(session_id:str):
+ try:return {'accepted':True,'migratable':guest_passes.commit_claim(session_id),'vaporized_guest_session':True,'claim_status':'COMMITTED'}
+ except KeyError:return JSONResponse({'accepted':False,'error':'guest_session_expired'},status_code=410)
+@router.post('/api/guest-pass/session/{session_id}/claim')
+async def guest_session_claim(session_id:str):return await guest_session_claim_prepare(session_id)
 @router.delete('/api/guest-pass/session/{session_id}')
 async def guest_session_leave(session_id:str):
  removed=guest_passes.vaporize(session_id);return {'accepted':removed,'vaporized':removed,'persistent_storage':False}
@@ -85,9 +90,9 @@ async def syvax_intervention(payload:dict):return home03_services.intervene(str(
 @router.post('/api/syvax/render')
 async def syvax_render(payload:dict):return home03_services.render(str(payload.get('text','')),str(payload.get('intent','general')),str(payload.get('mode','')))
 @router.post('/api/syvax/oversight')
-async def syvax_oversight(payload:dict):return {'mode':syvax_engine.set_mode(str(payload.get('mode','HITL')))}
+async def syvax_oversight(payload):return {'mode':syvax_engine.set_mode(str(payload.get('mode','HITL')))}
 @router.post('/api/syvax/budget')
-async def syvax_budget(payload:dict):return {'home':str(payload.get('home','')),'budget':syvax_engine.set_budget(str(payload.get('home','')),int(payload.get('budget',100)))}
+async def syvax_budget(payload):return {'home':str(payload.get('home','')),'budget':syvax_engine.set_budget(str(payload.get('home','')),int(payload.get('budget',100)))}
 @router.get('/api/home03/runtime')
 async def home03_runtime_state():return home03_services.snapshot()
 @router.post('/api/home03/runtime-event')
