@@ -11,7 +11,7 @@ def _error(e):
     if isinstance(e,ValueError):return JSONResponse({"accepted":False,"error":str(e)},status_code=400)
     return JSONResponse({"accepted":False,"error":str(e)},status_code=500)
 @router.post("/session")
-async def create_session(payload:dict):return {"accepted":True,**collaboration_engine.create(str(payload.get("residence_id","")),str(payload.get("owner_id","")),str(payload.get("owner_name","House Owner")))}
+async def create_session(payload:dict):return {"accepted":True,**collaboration_engine.get_or_create(str(payload.get("residence_id","")),str(payload.get("owner_id","")),str(payload.get("owner_name","House Owner")))}
 @router.get("/session/{session_id}")
 async def get_session(session_id:str,actor:str=""):
     try:
@@ -25,9 +25,6 @@ async def add_member(session_id:str,payload:dict):
     try:
         member_id=str(payload.get("member_id") or "")
         result=collaboration_engine.add_member(session_id,str(payload.get("actor","")),str(payload.get("display_name","")),str(payload.get("role","resident")),member_id or None)
-        # add_member is a management operation, but its response must represent
-        # the new member, not the owner who performed the operation. This keeps
-        # role/permission data aligned with the identity that was just created.
         created_id=member_id
         if not created_id:
             created_id=next(m["member_id"] for m in result["session"]["members"] if m.get("display_name")==str(payload.get("display_name","")))
