@@ -10,9 +10,10 @@ from ..application.home03_store import home03_store
 from ..application.home03_bridge import install as install_home03_bridge
 from ..application.human_residence_store import human_residences
 from ..human.guest_pass import GuestPassManager
+from ..human.collaboration_routes import router as collaboration_router
 from ..infrastructure.runtime import runtime_connections
 install_home03_bridge(runtime_connections)
-router=APIRouter();templates=Jinja2Templates(directory='src/criterivox/ui/templates');guest_passes=GuestPassManager()
+router=APIRouter();router.include_router(collaboration_router);templates=Jinja2Templates(directory='src/criterivox/ui/templates');guest_passes=GuestPassManager()
 @router.get('/',response_class=HTMLResponse)
 def home(request:Request):return templates.TemplateResponse(request=request,name='home.html',context={'request':request,'title':'Criterivox'})
 @router.get('/settings',response_class=HTMLResponse)
