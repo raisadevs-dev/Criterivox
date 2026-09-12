@@ -8,6 +8,7 @@ from ..application.bloom import bloom_controller
 from ..application.home03_services import home03_services
 from ..application.home03_store import home03_store
 from ..application.home03_bridge import install as install_home03_bridge
+from ..application.human_residence_store import human_residences
 from ..infrastructure.runtime import runtime_connections
 install_home03_bridge(runtime_connections)
 router=APIRouter();templates=Jinja2Templates(directory='src/criterivox/ui/templates')
@@ -21,6 +22,16 @@ def placeholder_page(request,page_name):return templates.TemplateResponse(reques
 def _register_placeholder(page_name):router.add_api_route(f'/{page_name}',lambda request,_page_name=page_name:placeholder_page(request,_page_name),methods=['GET'],response_class=HTMLResponse,name=f'{page_name}_page')
 for _page in ('workspace','data','intelligence','explanations','experiments','knowledge'):_register_placeholder(_page)
 def _plan_payload(plan):return {'task_id':plan.task_id,'intent':{'goal':plan.intent.goal,'intent_type':plan.intent.intent_type,'confidence':plan.intent.confidence,'entities':plan.intent.entities},'steps':[step.__dict__ for step in plan.steps],'created_at':plan.created_at}
+@router.post('/api/human-residence')
+async def human_residence(payload:dict):
+ record=human_residences.upsert(dict(payload));return {'accepted':True,'residence':record,'storage':'python-local-mirror','browser_authority':'IndexedDB'}
+@router.get('/api/human-residence/{residence_id}')
+async def get_human_residence(residence_id:str):
+ record=human_residences.get(residence_id)
+ if record is None:return JSONResponse({'accepted':False,'error':'residence_not_found'},status_code=404)
+ return {'accepted':True,'residence':record,'storage':'python-local-mirror'}
+@router.get('/api/human-residences/owner/{owner_id}')
+async def owner_human_residences(owner_id:str):return {'accepted':True,'residences':human_residences.by_owner(owner_id),'storage':'python-local-mirror'}
 @router.post('/api/syvax/plan')
 async def syvax_plan(payload:dict):
  message=str(payload.get('message','')).strip();safety=syvax_engine.safety_check(message)
@@ -67,11 +78,11 @@ async def conversation_branch(conversation_id,payload):
 async def home03_checkpoint(payload):
  state=dict(payload.get('state',{}));h=hashlib.sha256(json.dumps(state,sort_keys=True,default=str).encode()).hexdigest();cid=home03_store.checkpoint(str(payload.get('conversation_id','default')),str(payload.get('branch_id','main')),state,h);return {'checkpoint_id':cid,'state_hash':h}
 @router.post('/api/home03/replay')
-async def home03_replay(payload):return home03_services.restore(str(payload.get('checkpoint_id','')))
+async def home03_replay(payload:dict):return home03_services.restore(str(payload.get('checkpoint_id','')))
 @router.post('/api/home03/fork')
-async def home03_fork(payload):return home03_services.fork(str(payload.get('checkpoint_id','')),str(payload.get('name','Replay branch')))
+async def home03_fork(payload:dict):return home03_services.fork(str(payload.get('checkpoint_id','')),str(payload.get('name','Replay branch')))
 @router.post('/api/home03/ingest')
-async def home03_ingest(payload):
+async def home03_ingest(payload:dict):
  name=str(payload.get('filename','upload'));encoded=str(payload.get('content_base64',''))
  try:data=base64.b64decode(encoded,validate=True)
  except (ValueError,binascii.Error):return JSONResponse({'accepted':False,'error':'content_base64 is invalid'},status_code=400)
