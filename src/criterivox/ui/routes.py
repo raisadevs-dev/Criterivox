@@ -60,7 +60,7 @@ async def guest_session_claim_commit(session_id:str):
  try:return {'accepted':True,'migratable':guest_passes.commit_claim(session_id),'vaporized_guest_session':True,'claim_status':'COMMITTED'}
  except KeyError:return JSONResponse({'accepted':False,'error':'guest_session_expired'},status_code=410)
 @router.post('/api/guest-pass/session/{session_id}/claim')
-async def guest_session_claim(session_id:str):return await guest_session_claim_prepare(session_id)
+async def guest_session_claim(session_id:str):return await guest_session_claim_commit(session_id)
 @router.delete('/api/guest-pass/session/{session_id}')
 async def guest_session_leave(session_id:str):
  removed=guest_passes.vaporize(session_id);return {'accepted':removed,'vaporized':removed,'persistent_storage':False}
