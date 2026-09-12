@@ -2,16 +2,18 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
-from .agents import AnukaAgent, DharenAgent
 from .models import AdaptiveContextState, ContextCheckpoint, ContextFork, ContextFrame, ContextInput
+from criterivox.ml.anuka import AnukaMLAgent
+from criterivox.ml.dharen import DharenMLAgent
 
 
 class ContextIntelligenceEngine:
-    """S6 computational control plane: Dharen baseline, Anuka adaptation when triggered."""
+    """S6 computational control plane with learned Dharen/Anuka by default."""
 
-    def __init__(self, dharen: DharenAgent | None = None, anuka: AnukaAgent | None = None) -> None:
-        self.dharen = dharen or DharenAgent()
-        self.anuka = anuka or AnukaAgent()
+    def __init__(self, dharen: DharenMLAgent | None = None, anuka: AnukaMLAgent | None = None) -> None:
+        self.dharen = dharen or DharenMLAgent()
+        self.anuka = anuka or AnukaMLAgent(model_registry=self.dharen.model_registry)
+        self.model_registry = self.dharen.model_registry
 
     def build(self, context: ContextInput, *, previous: AdaptiveContextState | ContextFrame | None = None, anuka_triggers: Mapping[str, bool] | None = None, manual_activation: bool = False) -> AdaptiveContextState:
         frame = self.dharen.frame(context)
@@ -30,6 +32,9 @@ class ContextIntelligenceEngine:
 
     def fork(self, state: AdaptiveContextState, fork_id: str, overrides: Mapping[str, Any]) -> ContextFork:
         return self.anuka.fork(state, fork_id, overrides)
+
+    def learned_model_status(self) -> dict[str, Any]:
+        return self.model_registry.status()
 
 
 __all__ = ["ContextIntelligenceEngine"]
