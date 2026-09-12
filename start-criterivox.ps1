@@ -84,35 +84,60 @@ $Recommendation
 try {
     Set-Location $Root
     $env:PYTHONPATH = Join-Path $Root 'src'
-    if (-not (Test-Path $PythonExecutable)) { throw "Project Python environment was not found at $PythonExecutable. Run the documented environment setup first." }
-    if (-not (Get-Command flutter -ErrorAction SilentlyContinue)) { throw 'Flutter executable was not found on PATH.' }
+
+    if (-not (Test-Path $PythonExecutable)) {
+        throw "Project Python environment was not found at $PythonExecutable. Run the documented environment setup first."
+    }
+    if (-not (Get-Command flutter -ErrorAction SilentlyContinue)) {
+        throw 'Flutter executable was not found on PATH.'
+    }
+
+    Write-LauncherLog 'Running Python syntax preflight before starting the backend.'
+    & $PythonExecutable -m compileall -q src
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Python source preflight failed. The backend was not started.'
+    }
+    Write-LauncherLog 'Python source preflight passed. foundation_runtime_bridge is loaded transitively by criterivox.app and is therefore part of this startup boundary.'
 
     Write-LauncherLog "Starting Python runtime on $BackendUrl using project .venv."
     $PythonProcess = Start-Process -FilePath $PythonExecutable -ArgumentList '-m','uvicorn','criterivox.app:app','--host','127.0.0.1','--port',$Port -WorkingDirectory $Root -RedirectStandardOutput $BackendLog -RedirectStandardError $BackendErrorLog -PassThru -WindowStyle Minimized
     $ready = $false
     for ($i = 0; $i -lt 30; $i++) {
         Start-Sleep -Milliseconds 500
-        if ($PythonProcess.HasExited) { throw "Python runtime exited during startup with code $($PythonProcess.ExitCode)." }
+        if ($PythonProcess.HasExited) {
+            throw "Python runtime exited during startup with code $($PythonProcess.ExitCode)."
+        }
         try {
             $response = Invoke-WebRequest -Uri $HealthUrl -UseBasicParsing -TimeoutSec 1
-            if ($response.StatusCode -eq 200) { $ready = $true; break }
+            if ($response.StatusCode -eq 200) {
+                $ready = $true
+                break
+            }
         } catch { }
     }
-    if (-not $ready) { throw "Python runtime did not become ready at $HealthUrl within 15 seconds." }
+    if (-not $ready) {
+        throw "Python runtime did not become ready at $HealthUrl within 15 seconds."
+    }
 
     Write-LauncherLog 'Python runtime is ready.'
     Write-LauncherLog "Starting Flutter presentation on $PresentationUrl."
     $FlutterProcess = Start-Process -FilePath 'flutter' -ArgumentList 'run','-d','chrome','--web-port',$WebPort -WorkingDirectory (Join-Path $Root 'presentation') -RedirectStandardOutput $FlutterLog -RedirectStandardError $FlutterErrorLog -PassThru -WindowStyle Minimized
     Start-Sleep -Seconds 3
-    if ($FlutterProcess.HasExited) { throw "Flutter presentation exited during startup with code $($FlutterProcess.ExitCode)." }
+    if ($FlutterProcess.HasExited) {
+        throw "Flutter presentation exited during startup with code $($FlutterProcess.ExitCode)."
+    }
 
     Write-LauncherLog 'Criterivox runtime is running. Flutter will open the presentation in Chrome.'
     Write-LauncherLog "Presentation: $PresentationUrl"
     Write-LauncherLog "Backend health: $HealthUrl"
     while ($true) {
         Start-Sleep -Seconds 2
-        if ($PythonProcess.HasExited) { throw "Python runtime stopped unexpectedly with code $($PythonProcess.ExitCode)." }
-        if ($FlutterProcess.HasExited) { throw "Flutter presentation stopped unexpectedly with code $($FlutterProcess.ExitCode)." }
+        if ($PythonProcess.HasExited) {
+            throw "Python runtime stopped unexpectedly with code $($PythonProcess.ExitCode)."
+        }
+        if ($FlutterProcess.HasExited) {
+            throw "Flutter presentation stopped unexpectedly with code $($FlutterProcess.ExitCode)."
+        }
     }
 }
 catch {
@@ -122,6 +147,10 @@ catch {
     exit 1
 }
 finally {
-    if ($FlutterProcess -and -not $FlutterProcess.HasExited) { Stop-Process -Id $FlutterProcess.Id -Force -ErrorAction SilentlyContinue }
-    if ($PythonProcess -and -not $PythonProcess.HasExited) { Stop-Process -Id $PythonProcess.Id -Force -ErrorAction SilentlyContinue }
+    if ($FlutterProcess -and -not $FlutterProcess.HasExited) {
+        Stop-Process -Id $FlutterProcess.Id -Force -ErrorAction SilentlyContinue
+    }
+    if ($PythonProcess -and -not $PythonProcess.HasExited) {
+        Stop-Process -Id $PythonProcess.Id -Force -ErrorAction SilentlyContinue
+    }
 }
