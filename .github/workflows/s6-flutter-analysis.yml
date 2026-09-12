@@ -1,0 +1,34 @@
+name: S6 Flutter Analysis
+
+on:
+  push:
+    branches:
+      - s6-home03-syvax-bloom-complete
+  pull_request:
+    branches:
+      - main
+      - s6-home03-syvax-bloom-complete
+  workflow_dispatch:
+
+jobs:
+  flutter-analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Pub get
+        working-directory: presentation
+        run: flutter pub get
+      - name: Format check
+        working-directory: presentation
+        run: dart format --output=none --set-exit-if-changed lib test
+      - name: Analyze
+        working-directory: presentation
+        run: flutter analyze
+      - name: Tests
+        working-directory: presentation
+        run: flutter test
