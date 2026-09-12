@@ -2,18 +2,27 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
+from .agents import AnukaAgent, DharenAgent
 from .models import AdaptiveContextState, ContextCheckpoint, ContextFork, ContextFrame, ContextInput
-from criterivox.ml.anuka import AnukaMLAgent
-from criterivox.ml.dharen import DharenMLAgent
 
 
 class ContextIntelligenceEngine:
-    """S6 computational control plane with learned Dharen/Anuka by default."""
+    """S6 computational control plane with learned agents enabled by default."""
 
-    def __init__(self, dharen: DharenMLAgent | None = None, anuka: AnukaMLAgent | None = None) -> None:
-        self.dharen = dharen or DharenMLAgent()
-        self.anuka = anuka or AnukaMLAgent(model_registry=self.dharen.model_registry)
-        self.model_registry = self.dharen.model_registry
+    def __init__(self, dharen: DharenAgent | None = None, anuka: AnukaAgent | None = None) -> None:
+        # Lazy imports avoid the context-package <-> criterivox.ml circular import.
+        from criterivox.ml.anuka import AnukaMLAgent
+        from criterivox.ml.dharen import DharenMLAgent
+        if dharen is None:
+            self.dharen = DharenMLAgent()
+        else:
+            self.dharen = dharen
+        if anuka is None:
+            registry = getattr(self.dharen, "model_registry", None)
+            self.anuka = AnukaMLAgent(model_registry=registry)
+        else:
+            self.anuka = anuka
+        self.model_registry = getattr(self.dharen, "model_registry", None)
 
     def build(self, context: ContextInput, *, previous: AdaptiveContextState | ContextFrame | None = None, anuka_triggers: Mapping[str, bool] | None = None, manual_activation: bool = False) -> AdaptiveContextState:
         frame = self.dharen.frame(context)
@@ -34,7 +43,7 @@ class ContextIntelligenceEngine:
         return self.anuka.fork(state, fork_id, overrides)
 
     def learned_model_status(self) -> dict[str, Any]:
-        return self.model_registry.status()
+        return self.model_registry.status() if self.model_registry is not None else {}
 
 
 __all__ = ["ContextIntelligenceEngine"]
