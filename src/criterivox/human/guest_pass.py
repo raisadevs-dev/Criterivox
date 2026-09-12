@@ -1,12 +1,5 @@
-"""Ephemeral Guest Pass lifecycle.
-
-This is intentionally local-runtime infrastructure, not a production MicroVM
-implementation. The guest envelope is memory-only and is never written to the
-Human Residence store. Production deployment can replace the in-process
-sandbox boundary with Firecracker/gVisor while retaining this contract.
-"""
+"""Ephemeral Guest Pass lifecycle with browser-first claim semantics."""
 from __future__ import annotations
-
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from secrets import token_urlsafe
@@ -26,49 +19,31 @@ class GuestSession:
 
 class GuestPassManager:
     def __init__(self, ttl_seconds: int = 15 * 60) -> None:
-        self.ttl_seconds = ttl_seconds
-        self._sessions: dict[str, GuestSession] = {}
-
+        self.ttl_seconds = ttl_seconds; self._sessions: dict[str, GuestSession] = {}
     def create(self) -> GuestSession:
-        now = datetime.now(timezone.utc)
-        session = GuestSession(token_urlsafe(18), now, now + timedelta(seconds=self.ttl_seconds))
-        self._sessions[session.session_id] = session
-        return session
-
+        now=datetime.now(timezone.utc); s=GuestSession(token_urlsafe(18),now,now+timedelta(seconds=self.ttl_seconds)); self._sessions[s.session_id]=s; return s
     def get(self, session_id: str) -> GuestSession | None:
-        session = self._sessions.get(session_id)
-        if session is None or not session.active or session.expires_at <= datetime.now(timezone.utc):
-            if session is not None: self.vaporize(session_id)
+        s=self._sessions.get(session_id)
+        if s is None or not s.active or s.expires_at <= datetime.now(timezone.utc):
+            if s is not None:self.vaporize(session_id)
             return None
-        return session
-
+        return s
     def update(self, session_id: str, *, goal: str, data: Any, context: dict[str, Any]) -> GuestSession:
-        session = self.get(session_id)
-        if session is None: raise KeyError("guest session expired or does not exist")
-        session.goal, session.data, session.context = goal, data, dict(context)
-        return session
-
+        s=self.get(session_id)
+        if s is None:raise KeyError("guest session expired or does not exist")
+        s.goal,s.data,s.context=goal,data,dict(context);return s
     def append_trace(self, session_id: str, event: dict[str, Any]) -> None:
-        session = self.get(session_id)
-        if session is not None: session.trace.append(dict(event))
-
+        s=self.get(session_id)
+        if s is not None:s.trace.append(dict(event))
+    def migratable(self, session_id: str) -> dict[str, Any]:
+        s=self.get(session_id)
+        if s is None:raise KeyError("guest session expired or does not exist")
+        return {'goal':s.goal,'data':s.data,'context':dict(s.context),'trace':list(s.trace),'decisions':list(s.decisions),'claimed_from_guest':s.session_id}
+    def commit_claim(self, session_id: str) -> dict[str, Any]:
+        payload=self.migratable(session_id);self.vaporize(session_id);return payload
     def vaporize(self, session_id: str) -> bool:
-        session = self._sessions.pop(session_id, None)
-        if session is None: return False
-        session.active = False
-        session.goal = ""
-        session.data = None
-        session.context.clear()
-        session.trace.clear()
-        session.decisions.clear()
-        return True
-
-    def claim(self, session_id: str) -> dict[str, Any]:
-        session = self.get(session_id)
-        if session is None: raise KeyError("guest session expired or does not exist")
-        payload = {'goal': session.goal, 'data': session.data, 'context': dict(session.context), 'trace': list(session.trace), 'decisions': list(session.decisions), 'claimed_from_guest': session.session_id}
-        self.vaporize(session_id)
-        return payload
-
-    def active_count(self) -> int:
-        return sum(1 for s in self._sessions.values() if s.active and s.expires_at > datetime.now(timezone.utc))
+        s=self._sessions.pop(session_id,None)
+        if s is None:return False
+        s.active=False;s.goal="";s.data=None;s.context.clear();s.trace.clear();s.decisions.clear();return True
+    def claim(self, session_id: str) -> dict[str, Any]:return self.commit_claim(session_id)
+    def active_count(self) -> int:return sum(1 for s in self._sessions.values() if s.active and s.expires_at>datetime.now(timezone.utc))
