@@ -9,9 +9,10 @@ from ..application.home03_services import home03_services
 from ..application.home03_store import home03_store
 from ..application.home03_bridge import install as install_home03_bridge
 from ..application.human_residence_store import human_residences
+from ..human.guest_pass import GuestPassManager
 from ..infrastructure.runtime import runtime_connections
 install_home03_bridge(runtime_connections)
-router=APIRouter();templates=Jinja2Templates(directory='src/criterivox/ui/templates')
+router=APIRouter();templates=Jinja2Templates(directory='src/criterivox/ui/templates');guest_passes=GuestPassManager()
 @router.get('/',response_class=HTMLResponse)
 def home(request:Request):return templates.TemplateResponse(request=request,name='home.html',context={'request':request,'title':'Criterivox'})
 @router.get('/settings',response_class=HTMLResponse)
@@ -32,6 +33,33 @@ async def get_human_residence(residence_id:str):
  return {'accepted':True,'residence':record,'storage':'python-local-mirror'}
 @router.get('/api/human-residences/owner/{owner_id}')
 async def owner_human_residences(owner_id:str):return {'accepted':True,'residences':human_residences.by_owner(owner_id),'storage':'python-local-mirror'}
+@router.post('/api/guest-pass/session')
+async def guest_session_create():
+ session=guest_passes.create();return {'accepted':True,'session_id':session.session_id,'sandbox_status':'ISOLATED_EPHEMERAL_STATE','created_at':session.created_at.isoformat(),'expires_at':session.expires_at.isoformat(),'ttl_seconds':guest_passes.ttl_seconds,'persistent_storage':False}
+@router.get('/api/guest-pass/session/{session_id}')
+async def guest_session_get(session_id:str):
+ session=guest_passes.get(session_id)
+ if session is None:return JSONResponse({'accepted':False,'error':'guest_session_expired'},status_code=410)
+ return {'accepted':True,'session_id':session.session_id,'sandbox_status':'ISOLATED_EPHEMERAL_STATE','expires_at':session.expires_at.isoformat(),'trace':session.trace,'decisions':session.decisions}
+@router.post('/api/guest-pass/session/{session_id}/input')
+async def guest_session_input(session_id:str,payload:dict):
+ try:session=guest_passes.update(session_id,goal=str(payload.get('goal','')).strip(),data=payload.get('data'),context=dict(payload.get('context',{})))
+ except KeyError:return JSONResponse({'accepted':False,'error':'guest_session_expired'},status_code=410)
+ return {'accepted':True,'session_id':session.session_id,'goal':session.goal,'missing_fields':[k for k,v in {'goal':session.goal,'data':session.data,'context':session.context}.items() if v in ('',None,{})]}
+@router.post('/api/guest-pass/session/{session_id}/trace')
+async def guest_session_trace(session_id:str,payload:dict):
+ if guest_passes.get(session_id) is None:return JSONResponse({'accepted':False,'error':'guest_session_expired'},status_code=410)
+ guest_passes.append_trace(session_id,dict(payload));return {'accepted':True,'session_id':session_id,'trace':guest_passes.get(session_id).trace}
+@router.post('/api/guest-pass/session/{session_id}/claim')
+async def guest_session_claim(session_id:str):
+ try:payload=guest_passes.claim(session_id)
+ except KeyError:return JSONResponse({'accepted':False,'error':'guest_session_expired'},status_code=410)
+ return {'accepted':True,'migratable':payload,'vaporized_guest_session':True,'persistent_storage':'caller_must_create_human_residence'}
+@router.delete('/api/guest-pass/session/{session_id}')
+async def guest_session_leave(session_id:str):
+ removed=guest_passes.vaporize(session_id);return {'accepted':removed,'vaporized':removed,'persistent_storage':False}
+@router.get('/api/guest-pass/status')
+async def guest_pass_status():return {'active_ephemeral_sessions':guest_passes.active_count(),'ttl_seconds':guest_passes.ttl_seconds}
 @router.post('/api/syvax/plan')
 async def syvax_plan(payload:dict):
  message=str(payload.get('message','')).strip();safety=syvax_engine.safety_check(message)
@@ -78,9 +106,9 @@ async def conversation_branch(conversation_id,payload):
 async def home03_checkpoint(payload):
  state=dict(payload.get('state',{}));h=hashlib.sha256(json.dumps(state,sort_keys=True,default=str).encode()).hexdigest();cid=home03_store.checkpoint(str(payload.get('conversation_id','default')),str(payload.get('branch_id','main')),state,h);return {'checkpoint_id':cid,'state_hash':h}
 @router.post('/api/home03/replay')
-async def home03_replay(payload:dict):return home03_services.restore(str(payload.get('checkpoint_id','')))
+async def home03_replay(payload):return home03_services.restore(str(payload.get('checkpoint_id','')))
 @router.post('/api/home03/fork')
-async def home03_fork(payload:dict):return home03_services.fork(str(payload.get('checkpoint_id','')),str(payload.get('name','Replay branch')))
+async def home03_fork(payload):return home03_services.fork(str(payload.get('checkpoint_id','')),str(payload.get('name','Replay branch')))
 @router.post('/api/home03/ingest')
 async def home03_ingest(payload:dict):
  name=str(payload.get('filename','upload'));encoded=str(payload.get('content_base64',''))
