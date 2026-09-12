@@ -22,7 +22,17 @@ async def get_session(session_id:str,actor:str=""):
     except Exception as e:return _error(e)
 @router.post("/session/{session_id}/members")
 async def add_member(session_id:str,payload:dict):
-    try:return {"accepted":True,**collaboration_engine.add_member(session_id,str(payload.get("actor","")),str(payload.get("display_name","")),str(payload.get("role","resident")),payload.get("member_id"))}
+    try:
+        member_id=str(payload.get("member_id") or "")
+        result=collaboration_engine.add_member(session_id,str(payload.get("actor","")),str(payload.get("display_name","")),str(payload.get("role","resident")),member_id or None)
+        # add_member is a management operation, but its response must represent
+        # the new member, not the owner who performed the operation. This keeps
+        # role/permission data aligned with the identity that was just created.
+        created_id=member_id
+        if not created_id:
+            created_id=next(m["member_id"] for m in result["session"]["members"] if m.get("display_name")==str(payload.get("display_name","")))
+        member_view=collaboration_engine.snapshot(session_id,created_id)
+        return {"accepted":True,**member_view}
     except Exception as e:return _error(e)
 @router.post("/session/{session_id}/configure")
 async def configure(session_id:str,payload:dict):
