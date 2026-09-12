@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+
 import 'character_visual_profile.dart';
 
 /// Produces deterministic SVG/vector-frame descriptions in memory for the
@@ -6,19 +7,30 @@ import 'character_visual_profile.dart';
 class GeneratedVectorAnimation {
   final CharacterVisualProfile profile;
   final int sessionSeed;
-  const GeneratedVectorAnimation({required this.profile, required this.sessionSeed});
 
-  String svgFrame({required String state, required int frame, int frameCount = 8}) {
+  const GeneratedVectorAnimation({
+    required this.profile,
+    required this.sessionSeed,
+  });
+
+  String svgFrame({
+    required String state,
+    required int frame,
+    int frameCount = 8,
+  }) {
     final count = frameCount < 2 ? 2 : frameCount;
     final index = frame % count;
     final phase = index / count * math.pi * 2;
-    final lift = math.sin(phase) * (state.toUpperCase() == 'IDLE' ? 1.2 : 2.6);
-    final glow = .10 + .08 * (.5 + .5 * math.sin(phase * 2 + sessionSeed % 13));
-    final accent = _hex(profile.accent.value);
-    final body = _hex(profile.body.value);
-    final hair = _hex(profile.hair.value);
-    final face = _hex(profile.face.value);
-    final trousers = _hex(profile.trousers.value);
+    final lift = math.sin(phase) *
+        (state.toUpperCase() == 'IDLE' ? 1.2 : 2.6);
+    final glow =
+        .10 + .08 * (.5 + .5 * math.sin(phase * 2 + sessionSeed % 13));
+    final accent = _hex(profile.accent.toARGB32());
+    final body = _hex(profile.body.toARGB32());
+    final hair = _hex(profile.hair.toARGB32());
+    final face = _hex(profile.face.toARGB32());
+    final trousers = _hex(profile.trousers.toARGB32());
+
     return '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 238 286" width="238" height="286">
 <g transform="translate(119 ${151 + lift})">
  <ellipse cx="0" cy="116" rx="63" ry="10" fill="$accent" opacity="${glow.toStringAsFixed(3)}"/>
@@ -32,5 +44,6 @@ class GeneratedVectorAnimation {
 </svg>''';
   }
 
-  String _hex(int value) => '#${(value & 0xffffff).toRadixString(16).padLeft(6, '0')}';
+  String _hex(int value) =>
+      '#${(value & 0xffffff).toRadixString(16).padLeft(6, '0')}';
 }
