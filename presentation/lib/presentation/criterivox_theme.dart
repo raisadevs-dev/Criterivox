@@ -62,7 +62,8 @@ class CriterivoxTheme extends ThemeExtension<CriterivoxTheme> {
     Color? primary,
     Color? success,
     Color? warning,
-  }) => CriterivoxTheme(
+  }) =>
+      CriterivoxTheme(
         page: page ?? this.page,
         surface: surface ?? this.surface,
         surfaceStrong: surfaceStrong ?? this.surfaceStrong,

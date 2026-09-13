@@ -11,8 +11,7 @@ void main() {
         active: true,
       );
 
-      final visual =
-          CharacterVisualState.fromPresentationState(state);
+      final visual = CharacterVisualState.fromPresentationState(state);
 
       expect(visual.agentId, 'Dharen');
       expect(visual.characterState, 'IDLE');
@@ -28,8 +27,7 @@ void main() {
         active: true,
       );
 
-      final visual =
-          CharacterVisualState.fromPresentationState(state);
+      final visual = CharacterVisualState.fromPresentationState(state);
 
       expect(visual.isActive, isTrue);
       expect(visual.isWorking, isTrue);
@@ -44,8 +42,7 @@ void main() {
         active: true,
       );
 
-      final visual =
-          CharacterVisualState.fromPresentationState(state);
+      final visual = CharacterVisualState.fromPresentationState(state);
 
       expect(visual.agentId, 'Vivren');
       expect(visual.isReceiving, isTrue);
@@ -59,8 +56,7 @@ void main() {
         active: true,
       );
 
-      final visual =
-          CharacterVisualState.fromPresentationState(state);
+      final visual = CharacterVisualState.fromPresentationState(state);
 
       expect(visual.isCommunicating, isTrue);
       expect(visual.isWorking, isFalse);
@@ -74,8 +70,7 @@ void main() {
         active: true,
       );
 
-      final visual =
-          CharacterVisualState.fromPresentationState(state);
+      final visual = CharacterVisualState.fromPresentationState(state);
 
       expect(visual.isHandingOff, isTrue);
       expect(visual.prominence, 0.75);
@@ -88,8 +83,7 @@ void main() {
         active: true,
       );
 
-      final visual =
-          CharacterVisualState.fromPresentationState(state);
+      final visual = CharacterVisualState.fromPresentationState(state);
 
       expect(visual.isComplete, isTrue);
       expect(visual.prominence, 0.5);
@@ -102,8 +96,7 @@ void main() {
         active: true,
       );
 
-      final visual =
-          CharacterVisualState.fromPresentationState(state);
+      final visual = CharacterVisualState.fromPresentationState(state);
 
       expect(visual.isWarning, isTrue);
       expect(visual.requiresUserAttention, isTrue);
@@ -117,8 +110,7 @@ void main() {
         active: false,
       );
 
-      final visual =
-          CharacterVisualState.fromPresentationState(state);
+      final visual = CharacterVisualState.fromPresentationState(state);
 
       expect(visual.isActive, isFalse);
       expect(visual.prominence, 0.0);
@@ -133,8 +125,7 @@ void main() {
         reducedMotion: true,
       );
 
-      final visual =
-          CharacterVisualState.fromPresentationState(state);
+      final visual = CharacterVisualState.fromPresentationState(state);
 
       expect(visual.reducedMotion, isTrue);
       expect(visual.hasMotion, isFalse);
@@ -149,8 +140,7 @@ void main() {
         reducedMotion: false,
       );
 
-      final visual =
-          CharacterVisualState.fromPresentationState(state);
+      final visual = CharacterVisualState.fromPresentationState(state);
 
       expect(visual.hasMotion, isTrue);
     });
@@ -162,8 +152,7 @@ void main() {
         active: true,
       );
 
-      final visual =
-          CharacterVisualState.fromPresentationState(state);
+      final visual = CharacterVisualState.fromPresentationState(state);
 
       expect(visual.requiresUserAttention, isTrue);
       expect(visual.prominence, 1.0);
@@ -176,8 +165,7 @@ void main() {
         active: true,
       );
 
-      final visual =
-          CharacterVisualState.fromPresentationState(state);
+      final visual = CharacterVisualState.fromPresentationState(state);
 
       expect(visual.characterState, 'UNKNOWN_STATE');
       expect(visual.prominence, 0.25);

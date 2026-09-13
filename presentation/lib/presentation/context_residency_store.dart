@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:idb_shim/idb.dart';
 import 'package:idb_shim/idb_browser.dart';
 
 class ContextResidencyStore {
@@ -7,10 +6,13 @@ class ContextResidencyStore {
   static const _storeName = 'context_states';
   static const _key = 'active';
 
-  Future<Database> _open() => idbFactoryBrowser.open(_databaseName, version: 1, onUpgradeNeeded: (event) {
-    final db = event.database;
-    if (!db.objectStoreNames.contains(_storeName)) db.createObjectStore(_storeName);
-  });
+  Future<Database> _open() => idbFactoryBrowser.open(_databaseName, version: 1,
+          onUpgradeNeeded: (event) {
+        final db = event.database;
+        if (!db.objectStoreNames.contains(_storeName)) {
+          db.createObjectStore(_storeName);
+        }
+      });
 
   Future<void> save(Map<String, dynamic> payload) async {
     final db = await _open();

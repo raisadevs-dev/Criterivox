@@ -1,0 +1,194 @@
+[
+  {
+    "text": "inspect this findings",
+    "label": "analyze"
+  },
+  {
+    "text": "investigate the data for the current task",
+    "label": "analyze"
+  },
+  {
+    "text": "inspect this findings",
+    "label": "analyze"
+  },
+  {
+    "text": "investigate the data for the current task",
+    "label": "analyze"
+  },
+  {
+    "text": "inspect this findings",
+    "label": "analyze"
+  },
+  {
+    "text": "investigate the data for the current task",
+    "label": "analyze"
+  },
+  {
+    "text": "inspect this findings",
+    "label": "analyze"
+  },
+  {
+    "text": "investigate the data for the current task",
+    "label": "analyze"
+  },
+  {
+    "text": "compare this approaches",
+    "label": "compare"
+  },
+  {
+    "text": "show trade offs for the current task",
+    "label": "compare"
+  },
+  {
+    "text": "compare this approaches",
+    "label": "compare"
+  },
+  {
+    "text": "show trade offs for the current task",
+    "label": "compare"
+  },
+  {
+    "text": "compare this approaches",
+    "label": "compare"
+  },
+  {
+    "text": "show trade offs for the current task",
+    "label": "compare"
+  },
+  {
+    "text": "compare this approaches",
+    "label": "compare"
+  },
+  {
+    "text": "show trade offs for the current task",
+    "label": "compare"
+  },
+  {
+    "text": "why did this happen",
+    "label": "explain"
+  },
+  {
+    "text": "clarify the reasoning for the current task",
+    "label": "explain"
+  },
+  {
+    "text": "why did this happen",
+    "label": "explain"
+  },
+  {
+    "text": "clarify the reasoning for the current task",
+    "label": "explain"
+  },
+  {
+    "text": "why did this happen",
+    "label": "explain"
+  },
+  {
+    "text": "clarify the reasoning for the current task",
+    "label": "explain"
+  },
+  {
+    "text": "why did this happen",
+    "label": "explain"
+  },
+  {
+    "text": "clarify the reasoning for the current task",
+    "label": "explain"
+  },
+  {
+    "text": "implement this change",
+    "label": "build"
+  },
+  {
+    "text": "create the component for the current task",
+    "label": "build"
+  },
+  {
+    "text": "implement this change",
+    "label": "build"
+  },
+  {
+    "text": "create the component for the current task",
+    "label": "build"
+  },
+  {
+    "text": "implement this change",
+    "label": "build"
+  },
+  {
+    "text": "create the component for the current task",
+    "label": "build"
+  },
+  {
+    "text": "implement this change",
+    "label": "build"
+  },
+  {
+    "text": "create the component for the current task",
+    "label": "build"
+  },
+  {
+    "text": "research this topic",
+    "label": "explore"
+  },
+  {
+    "text": "discover unknowns for the current task",
+    "label": "explore"
+  },
+  {
+    "text": "research this topic",
+    "label": "explore"
+  },
+  {
+    "text": "discover unknowns for the current task",
+    "label": "explore"
+  },
+  {
+    "text": "research this topic",
+    "label": "explore"
+  },
+  {
+    "text": "discover unknowns for the current task",
+    "label": "explore"
+  },
+  {
+    "text": "research this topic",
+    "label": "explore"
+  },
+  {
+    "text": "discover unknowns for the current task",
+    "label": "explore"
+  },
+  {
+    "text": "recommend an option",
+    "label": "decide"
+  },
+  {
+    "text": "make a decision for the current task",
+    "label": "decide"
+  },
+  {
+    "text": "recommend an option",
+    "label": "decide"
+  },
+  {
+    "text": "make a decision for the current task",
+    "label": "decide"
+  },
+  {
+    "text": "recommend an option",
+    "label": "decide"
+  },
+  {
+    "text": "make a decision for the current task",
+    "label": "decide"
+  },
+  {
+    "text": "recommend an option",
+    "label": "decide"
+  },
+  {
+    "text": "make a decision for the current task",
+    "label": "decide"
+  }
+]

@@ -1,0 +1,8 @@
+SOURCE A
+The campaign target audience is existing subscribers.
+
+SOURCE B
+The campaign target audience is new users.
+
+TEST CONDITION
+These statements intentionally conflict. Criterivox should expose the clash rather than silently selecting one as fact.

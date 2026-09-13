@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../presentation/criterivox_theme.dart';
 import '../presentation/presentation_state.dart';
 import 'character_identity.dart';
-import 'character_runtime.dart';
+import 'session_character_animation.dart';
 
 class CharacterPresentation extends StatelessWidget {
   final PresentationState state;
@@ -22,23 +22,12 @@ class CharacterPresentation extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CharacterRuntimeView(
+          SessionCharacterAnimationView(
             characterId: state.agentId,
             state: state.characterState,
             reducedMotion: state.reducedMotion,
             width: 238,
             height: 286,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Final character artwork coming soon',
-            style: TextStyle(
-              color: theme.mutedText,
-              fontSize: 9,
-              fontWeight: FontWeight.w600,
-              letterSpacing: .25,
-            ),
-            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 7),
           Text(

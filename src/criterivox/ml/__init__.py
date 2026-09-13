@@ -2,5 +2,7 @@
 
 from .anuka import AnukaMLAgent
 from .dharen import DharenMLAgent
+from .kaelen import KaelenMLAgent
+from .sandre import SandreMLAgent
 
-__all__ = ["AnukaMLAgent", "DharenMLAgent"]
+__all__ = ["AnukaMLAgent", "DharenMLAgent", "KaelenMLAgent", "SandreMLAgent"]
