@@ -2,8 +2,7 @@ name: S6 Source Repair
 
 on:
   push:
-    branches:
-      - s6-home03-syvax-bloom-complete
+    branches: [s6-home03-syvax-bloom-complete]
     paths:
       - 'presentation/**'
       - 'src/**'
@@ -19,92 +18,99 @@ jobs:
   repair-and-verify:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-
     steps:
-      - name: Checkout branch
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: s6-home03-syvax-bloom-complete
           fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-
-      - name: Repair known malformed Dart expressions
+      - name: Repair known malformed Dart source
         shell: python
         run: |
           from pathlib import Path
-
           root = Path('presentation/lib')
-
           replacements = {
-              'home03_syvax_page.dart': [
-                  (
-                      "setState(()=>{plan=d,rendered=r});",
-                      "setState(() {\n        plan = d;\n        rendered = r;\n      });",
-                  ),
-                  (
-                      "rendered?['components']?.toString()??'No rendered output yet.'",
-                      "rendered?['components']?.toString() ?? 'No rendered output yet.'",
-                  ),
-              ],
-              'home03_bloom.dart': [
-                  ("alpha:active?.32:.10", "alpha: active ? .32 : .10"),
-                  ("alpha:active?.32:.08", "alpha: active ? .32 : .08"),
-                  ("alpha:active?.18:0", "alpha: active ? .18 : 0"),
-                  ("alpha:active?.32", "alpha: active ? .32"),
-                  ("alpha:active?.08", "alpha: active ? .08"),
-              ],
+            'analysis_page.dart': [
+              ('])]]));});}', '])])));});}'),
+              ('fontWeight:FontWeight.w600))])];}}', 'fontWeight:FontWeight.w600))]);}}'),
+            ],
+            'home03_syvax_page.dart': [
+              ('setState(()=>{plan=d,rendered=r});', 'setState(() { plan = d; rendered = r; });'),
+              ("rendered?['components']?.toString()??'No rendered output yet.'", "rendered?['components']?.toString() ?? 'No rendered output yet.'"),
+            ],
+            'home03_bloom.dart': [
+              ('active?.32:.10', 'active ? .32 : .10'),
+              ('active?.32:.08', 'active ? .32 : .08'),
+              ('active?.18:0', 'active ? .18 : 0'),
+              ('active?.32', 'active ? .32'),
+              ('active?.08', 'active ? .08'),
+            ],
+            'home01_feature_console.dart': [
+              ("import 'browser_residency_store.dart';", "import 'presentation/browser_residency_store.dart';"),
+              ('activeColor:', 'activeThumbColor:'),
+            ],
+            'human_residence_store.dart': [
+              ("import 'package:idb_shim/idb.dart';\n", ''),
+            ],
+            'presentation/browser_residency_store.dart': [
+              ("import 'package:idb_shim/idb.dart';\n", ''),
+            ],
+            'presentation/context_residency_store.dart': [
+              ("import 'package:idb_shim/idb.dart';\n", ''),
+            ],
+            'presentation/foundation_residency_store.dart': [
+              ("import 'package:idb_shim/idb.dart';\n", ''),
+            ],
+            'presentation/runtime_client.dart': [
+              ("import 'runtime_client.dart';\n", ''),
+            ],
+            'test/character_visual_animation_system_test.dart': [
+              ("import '../lib/character/character_animation_state.dart';", "import 'package:criterivox/character/character_animation_state.dart';"),
+              ("import '../lib/character/character_visual_profile.dart';", "import 'package:criterivox/character/character_visual_profile.dart';"),
+              ("import '../lib/character/generated_vector_animation.dart';", "import 'package:criterivox/character/generated_vector_animation.dart';"),
+              ('.value', '.toARGB32()'),
+            ],
           }
-
-          for name, pairs in replacements.items():
-              path = root / name
-              text = path.read_text(encoding='utf-8')
-              for old, new in pairs:
+          # Also repair recurring delimiter typos produced by compressed source generation.
+          for path in root.rglob('*.dart'):
+            text = path.read_text(encoding='utf-8')
+            original = text
+            for key, pairs in replacements.items():
+              target = root.parent / key if key.startswith('presentation/') else (root.parent / key if key.startswith('test/') else root / key)
+              if path == target:
+                for old, new in pairs:
                   text = text.replace(old, new)
+            text = text.replace('])]]));});}', '])])));});}')
+            text = text.replace('))])];}}', '))]);}}')
+            if text != original:
               path.write_text(text, encoding='utf-8')
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
-
       - name: Install presentation dependencies
         working-directory: presentation
         run: flutter pub get
-
-      - name: Format Dart source
+      - name: Format source
         working-directory: presentation
         run: dart format lib test
-
-      - name: Compile Python source
-        run: python -m compileall -q src tests
-
-      - name: Run targeted Python tests
-        run: |
-          python -m pytest tests/human/test_collaboration_a_to_g.py -q
-          python -m pytest tests/runtime/test_health.py tests/unit/test_app.py -q
-
-      - name: Analyze Flutter source
-        working-directory: presentation
-        run: flutter analyze
-
-      - name: Run Flutter tests
-        working-directory: presentation
-        run: flutter test
-
-      - name: Commit formatter and source repairs
+      - name: Commit repaired source before verification
         shell: bash
         run: |
           git config user.name 'Criterivox Repair Bot'
           git config user.email 'actions@github.com'
-          if git diff --quiet; then
-            echo 'No source changes were produced by the repair pass.'
-            exit 0
-          fi
-          git add presentation src tests start-criterivox.ps1
-          git commit -m 'fix(s6): format and repair presentation source'
-          git push origin HEAD:s6-home03-syvax-bloom-complete
+          if git diff --quiet; then echo 'No repair changes'; else git add presentation tests && git commit -m 'fix(s6): repair malformed Flutter source' && git push origin HEAD:s6-home03-syvax-bloom-complete; fi
+      - name: Compile Python
+        run: python -m compileall -q src tests
+      - name: Python tests
+        run: |
+          python -m pytest tests/human/test_collaboration_a_to_g.py -q
+          python -m pytest tests/runtime/test_health.py tests/unit/test_app.py -q
+      - name: Flutter analyze
+        working-directory: presentation
+        run: flutter analyze
+      - name: Flutter tests
+        working-directory: presentation
+        run: flutter test
