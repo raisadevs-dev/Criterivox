@@ -3,7 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:presentation/app_shell.dart';
 
 void main() {
-  testWidgets('Criterivox opens on Bloom and exposes navigation', (tester) async {
+  testWidgets('Criterivox opens on Bloom and exposes navigation',
+      (tester) async {
     await tester.pumpWidget(MaterialApp(
       home: CriterivoxShell(isDarkMode: true, connectRuntime: false),
     ));
@@ -16,7 +17,8 @@ void main() {
     expect(find.text('App Introduction'), findsOneWidget);
   });
 
-  testWidgets('navigation moves to the real workspace and chat surfaces', (tester) async {
+  testWidgets('navigation moves to the real workspace and chat surfaces',
+      (tester) async {
     await tester.pumpWidget(MaterialApp(
       home: CriterivoxShell(isDarkMode: true, connectRuntime: false),
     ));
@@ -45,7 +47,9 @@ void main() {
     expect(find.text('Chat'), findsOneWidget);
   });
 
-  testWidgets('App Introduction explains both characters and implemented capabilities', (tester) async {
+  testWidgets(
+      'App Introduction explains both characters and implemented capabilities',
+      (tester) async {
     await tester.pumpWidget(MaterialApp(
       home: CriterivoxShell(isDarkMode: true, connectRuntime: false),
     ));

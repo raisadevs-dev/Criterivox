@@ -5,14 +5,296 @@ import 'character_identity.dart';
 import 'session_character_animation.dart';
 
 class LiveAgentPanel extends StatefulWidget {
-  final String characterId, responsibility, workDescription, state;
+  final String characterId;
+  final String responsibility;
+  final String workDescription;
+  final String state;
   final VoidCallback? onChat;
   final bool initiallyExpanded;
-  const LiveAgentPanel({super.key,required this.characterId,required this.responsibility,required this.workDescription,required this.state,this.onChat,this.initiallyExpanded=false});
-  @override State<LiveAgentPanel> createState()=>_LiveAgentPanelState();
+
+  const LiveAgentPanel({
+    super.key,
+    required this.characterId,
+    required this.responsibility,
+    required this.workDescription,
+    required this.state,
+    this.onChat,
+    this.initiallyExpanded = false,
+  });
+
+  @override
+  State<LiveAgentPanel> createState() => _LiveAgentPanelState();
 }
 
-class _LiveAgentPanelState extends State<LiveAgentPanel>{late bool expanded=widget.initiallyExpanded;
-  @override Widget build(BuildContext context){final theme=CriterivoxTheme.of(context);final identity=CharacterIdentities.resolve(widget.characterId);final active=widget.state.toUpperCase()!='IDLE';return Container(width:double.infinity,decoration:BoxDecoration(color:theme.surface,borderRadius:BorderRadius.circular(18),border:Border.all(color:active?theme.primary.withValues(alpha:.42):theme.border),boxShadow:[BoxShadow(color:Colors.black.withValues(alpha:.06),blurRadius:20)]),child:Column(children:[Semantics(button:true,label:'${identity.displayName} work panel',value:expanded?'expanded':'collapsed',child:InkWell(onTap:()=>setState(()=>expanded=!expanded),borderRadius:BorderRadius.circular(18),child:Padding(padding:const EdgeInsets.symmetric(horizontal:16,vertical:13),child:Row(children:[SessionCharacterAnimationView(characterId:widget.characterId,state:widget.state,width:42,height:42),const SizedBox(width:10),Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(identity.displayName,style:TextStyle(color:theme.text,fontSize:13,fontWeight:FontWeight.w800)),const SizedBox(height:2),Text(widget.responsibility,style:TextStyle(color:theme.mutedText,fontSize:9.5))])),_LiveBadge(state:widget.state,theme:theme),const SizedBox(width:8),Icon(expanded?Icons.keyboard_arrow_up_rounded:Icons.keyboard_arrow_down_rounded,color:theme.mutedText,size:20)])))),if(expanded)Padding(padding:const EdgeInsets.fromLTRB(16,0,16,16),child:LayoutBuilder(builder:(context,constraints){final narrow=constraints.maxWidth<700;final visual=Column(mainAxisSize:MainAxisSize.min,children:[SessionCharacterAnimationView(characterId:widget.characterId,state:widget.state,width:190,height:228),Text('LIVE PRESENTATION',style:TextStyle(color:theme.mutedText,fontSize:8,fontWeight:FontWeight.w800,letterSpacing:1.0))]);final details=Column(crossAxisAlignment:CrossAxisAlignment.start,mainAxisAlignment:MainAxisAlignment.center,children:[Text('RESPONSIBILITY',style:TextStyle(color:theme.mutedText,fontSize:8,fontWeight:FontWeight.w800,letterSpacing:1)),const SizedBox(height:4),Text(identity.role,style:TextStyle(color:theme.text,fontSize:14,fontWeight:FontWeight.w800)),const SizedBox(height:10),Text(widget.workDescription,style:TextStyle(color:theme.mutedText,fontSize:10.5,height:1.45)),if(widget.onChat!=null)...[const SizedBox(height:12),OutlinedButton.icon(onPressed:widget.onChat,icon:const Icon(Icons.forum_outlined,size:15),label:Text('Open ${identity.displayName} chat'))]]);return narrow?Column(children:[visual,const SizedBox(height:10),Align(alignment:Alignment.centerLeft,child:details)]):Row(crossAxisAlignment:CrossAxisAlignment.center,children:[SizedBox(width:220,child:visual),const SizedBox(width:18),Expanded(child:details)]);}))) ]));}
+class _LiveAgentPanelState extends State<LiveAgentPanel> {
+  late bool expanded;
+
+  @override
+  void initState() {
+    super.initState();
+    expanded = widget.initiallyExpanded;
+  }
+
+  @override
+  void didUpdateWidget(covariant LiveAgentPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.initiallyExpanded != widget.initiallyExpanded) {
+      expanded = widget.initiallyExpanded;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = CriterivoxTheme.of(context);
+    final identity = CharacterIdentities.resolve(widget.characterId);
+    final active = widget.state.toUpperCase() != 'IDLE';
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: theme.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: active
+              ? theme.primary.withValues(alpha: 0.42)
+              : theme.border,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 20,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Semantics(
+            button: true,
+            label: '${identity.displayName} work panel',
+            value: expanded ? 'expanded' : 'collapsed',
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  expanded = !expanded;
+                });
+              },
+              borderRadius: BorderRadius.circular(18),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 13,
+                ),
+                child: Row(
+                  children: [
+                    SessionCharacterAnimationView(
+                      characterId: widget.characterId,
+                      state: widget.state,
+                      width: 42,
+                      height: 42,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            identity.displayName,
+                            style: TextStyle(
+                              color: theme.text,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            widget.responsibility,
+                            style: TextStyle(
+                              color: theme.mutedText,
+                              fontSize: 9.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _LiveBadge(
+                      state: widget.state,
+                      theme: theme,
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      expanded
+                          ? Icons.keyboard_arrow_up_rounded
+                          : Icons.keyboard_arrow_down_rounded,
+                      color: theme.mutedText,
+                      size: 20,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          if (expanded)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                16,
+                0,
+                16,
+                16,
+              ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final narrow = constraints.maxWidth < 700;
+
+                  final visual = Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SessionCharacterAnimationView(
+                        characterId: widget.characterId,
+                        state: widget.state,
+                        width: 190,
+                        height: 228,
+                      ),
+                      Text(
+                        'LIVE PRESENTATION',
+                        style: TextStyle(
+                          color: theme.mutedText,
+                          fontSize: 8,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                    ],
+                  );
+
+                  final details = Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'RESPONSIBILITY',
+                        style: TextStyle(
+                          color: theme.mutedText,
+                          fontSize: 8,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        identity.role,
+                        style: TextStyle(
+                          color: theme.text,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        widget.workDescription,
+                        style: TextStyle(
+                          color: theme.mutedText,
+                          fontSize: 10.5,
+                          height: 1.45,
+                        ),
+                      ),
+                      if (widget.onChat != null) ...[
+                        const SizedBox(height: 12),
+                        OutlinedButton.icon(
+                          onPressed: widget.onChat,
+                          icon: const Icon(
+                            Icons.forum_outlined,
+                            size: 15,
+                          ),
+                          label: Text(
+                            'Open ${identity.displayName} chat',
+                          ),
+                        ),
+                      ],
+                    ],
+                  );
+
+                  if (narrow) {
+                    return Column(
+                      children: [
+                        visual,
+                        const SizedBox(height: 10),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: details,
+                        ),
+                      ],
+                    );
+                  }
+
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 220,
+                        child: visual,
+                      ),
+                      const SizedBox(width: 18),
+                      Expanded(
+                        child: details,
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }
-class _LiveBadge extends StatelessWidget{final String state;final CriterivoxTheme theme;const _LiveBadge({required this.state,required this.theme});@override Widget build(BuildContext context)=>Container(padding:const EdgeInsets.symmetric(horizontal:8,vertical:5),decoration:BoxDecoration(color:theme.primary.withValues(alpha:.08),borderRadius:BorderRadius.circular(999),border:Border.all(color:theme.primary.withValues(alpha:.28))),child:Row(mainAxisSize:MainAxisSize.min,children:[Container(width:6,height:6,decoration:BoxDecoration(shape:BoxShape.circle,color:theme.success)),const SizedBox(width:5),Text(state.toUpperCase(),style:TextStyle(color:theme.mutedText,fontSize:8,fontWeight:FontWeight.w800,letterSpacing:.7))]));}
+
+class _LiveBadge extends StatelessWidget {
+  final String state;
+  final CriterivoxTheme theme;
+
+  const _LiveBadge({
+    required this.state,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 5,
+      ),
+      decoration: BoxDecoration(
+        color: theme.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: theme.primary.withValues(alpha: 0.28),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: theme.success,
+            ),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            state.toUpperCase(),
+            style: TextStyle(
+              color: theme.mutedText,
+              fontSize: 8,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.7,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

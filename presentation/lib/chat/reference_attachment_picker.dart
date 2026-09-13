@@ -44,8 +44,18 @@ class ReferenceAttachmentPicker extends StatelessWidget {
       withData: true,
       type: FileType.custom,
       allowedExtensions: const [
-        'pdf', 'csv', 'json', 'txt', 'md', 'doc', 'docx',
-        'png', 'jpg', 'jpeg', 'webp', 'xlsx',
+        'pdf',
+        'csv',
+        'json',
+        'txt',
+        'md',
+        'doc',
+        'docx',
+        'png',
+        'jpg',
+        'jpeg',
+        'webp',
+        'xlsx',
       ],
     );
     if (result == null || result.files.isEmpty) return;
@@ -53,7 +63,8 @@ class ReferenceAttachmentPicker extends StatelessWidget {
     final additions = <ChatReference>[];
     for (final file in result.files) {
       final bytes = file.bytes;
-      if (bytes == null || bytes.isEmpty || bytes.length > 4 * 1024 * 1024) continue;
+      if (bytes == null || bytes.isEmpty || bytes.length > 4 * 1024 * 1024)
+        continue;
       final item = ChatReference(
         label: file.name,
         kind: _kindFor(file.extension),
@@ -117,7 +128,9 @@ class ReferenceAttachmentPicker extends StatelessWidget {
                 child: Text(reference.label, overflow: TextOverflow.ellipsis),
               ),
               onDeleted: () => onChanged(
-                references.where((item) => item != reference).toList(growable: false),
+                references
+                    .where((item) => item != reference)
+                    .toList(growable: false),
               ),
             ),
         ],
@@ -156,14 +169,20 @@ Future<ChatReference?> showReferenceLinkDialog(BuildContext context) async {
         onSubmitted: (value) => Navigator.of(context).pop(value.trim()),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
-        FilledButton(onPressed: () => Navigator.of(context).pop(controller.text.trim()), child: const Text('Add')),
+        TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel')),
+        FilledButton(
+            onPressed: () => Navigator.of(context).pop(controller.text.trim()),
+            child: const Text('Add')),
       ],
     ),
   );
   controller.dispose();
   if (value == null || value.isEmpty) return null;
   final uri = Uri.tryParse(value);
-  if (uri == null || (uri.scheme != 'http' && uri.scheme != 'https') || uri.host.isEmpty) return null;
+  if (uri == null ||
+      (uri.scheme != 'http' && uri.scheme != 'https') ||
+      uri.host.isEmpty) return null;
   return ChatReference(label: value, kind: 'link', sizeBytes: 0);
 }

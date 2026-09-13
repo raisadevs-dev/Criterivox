@@ -1,6 +1,9 @@
+
 import 'dart:convert';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+
 import 'presentation/criterivox_theme.dart';
 import 'presentation/presentation_state.dart';
 import 'presentation/runtime_client.dart';
@@ -8,8 +11,15 @@ import 'presentation/runtime_client.dart';
 class DataStewardshipPage extends StatefulWidget {
   final PresentationState? state;
   final CharacterRuntimeClient runtime;
-  const DataStewardshipPage({super.key, required this.state, required this.runtime});
-  @override State<DataStewardshipPage> createState() => _DataStewardshipPageState();
+
+  const DataStewardshipPage({
+    super.key,
+    required this.state,
+    required this.runtime,
+  });
+
+  @override
+  State<DataStewardshipPage> createState() => _DataStewardshipPageState();
 }
 
 class _DataStewardshipPageState extends State<DataStewardshipPage> {
@@ -17,34 +27,1445 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
   final _what = TextEditingController();
   final _why = TextEditingController();
   final _logQuery = TextEditingController();
-  final _homeJson = TextEditingController(text: '{"purpose":"analysis","platform":"Instagram"}');
-  final _chatJson = TextEditingController(text: '{"purpose":"research evidence","platform":"Instagram"}');
-  final List<Map<String,dynamic>> _sources = [];
+
+  final _homeJson = TextEditingController(
+    text: '{"purpose":"analysis","platform":"Instagram"}',
+  );
+
+  final _chatJson = TextEditingController(
+    text: '{"purpose":"research evidence","platform":"Instagram"}',
+  );
+
+  final List<Map<String, dynamic>> _sources = [];
+
   String? _foundationId;
   String _recipient = 'syvax';
   String? _approvedIntent;
-  final Map<String,bool> _provenance = {'source_location': true, 'page_or_section': false, 'transformation_history': false};
-  final Map<String,String> _winner={};
-  @override void dispose(){for(final c in [_text,_what,_why,_logQuery,_homeJson,_chatJson]){c.dispose();}super.dispose();}
-  List<String> get _recentTaskIds { final id=widget.state?.taskId; return id==null?const []:[id]; }
-  Future<void> _files() async { final result=await FilePicker.platform.pickFiles(withData:true,allowMultiple:true); if(result==null)return; final staged=<Map<String,dynamic>>[]; for(final file in result.files){staged.add({'name':file.name,'source_type':'file','channel':'file','content':file.bytes==null?null:utf8.decode(file.bytes!,allowMalformed:true)});} setState(()=>_sources.addAll(staged)); }
-  Future<void> _folder() async { try{final path=await FilePicker.platform.getDirectoryPath();if(path==null)return;widget.runtime.ingestFolder(folderPath:path,suppliedContext:{'entered_through':'Data Stewardship','collection_mode':'python_folder_loader'},recentTaskIds:_recentTaskIds);}catch(_){if(mounted)ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('Folder selection is unavailable on this browser target. Use Upload Files so selected contents are sent safely to Python.')));}}
-  void _textSource(){final value=_text.text.trim();if(value.isEmpty)return;setState((){_sources.add({'name':'Direct text input ${_sources.length+1}','source_type':'text','channel':'text','content':value});_text.clear();});}
-  void _ingest(){if(_sources.isEmpty)return;widget.runtime.ingestData(sources:List<Map<String,dynamic>>.from(_sources),suppliedContext:{'entered_through':'Data Stewardship','collection_mode':'selected_files'},recentTaskIds:_recentTaskIds);}
-  void _action(String action,{String? recipient,Map<String,dynamic> values=const {}}){final id=_foundationId??widget.state?.foundationId;if(id==null)return;widget.runtime.dataAction(foundationId:id,action:action,recipient:recipient??_recipient,values:values);}
-  void _approveIntent(List<String> guesses){if(_approvedIntent==null||guesses.isEmpty)return;_action('approve_intent',values:{'intent':_approvedIntent,'allowed_intents':guesses});}
-  void _saveProvenance(){_action('provenance_choices',values:{'choices':Map<String,bool>.from(_provenance)});}
-  void _merge(){try{final home=jsonDecode(_homeJson.text);final chat=jsonDecode(_chatJson.text);if(home is! Map||chat is! Map)throw const FormatException();final conflicts=<String>[];for(final field in {...home.keys,...chat.keys}){if(home[field]!=chat[field])conflicts.add(field.toString());}final unresolved=conflicts.where((field)=>!_winner.containsKey(field)).toList();if(conflicts.isEmpty){ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('No conflicting fields were found.')));return;}if(unresolved.isNotEmpty){ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Text('Choose Home or Chat for every conflict before merging: ${unresolved.join(', ')}')));return;}final winners={for(final field in conflicts)field:_winner[field]!};_action('merge_conflicts',values:{'home':Map<String,dynamic>.from(home),'chat':Map<String,dynamic>.from(chat),'winners':winners});}catch(_){ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('Conflict inputs must be valid JSON objects.')));}}
-  @override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);final s=widget.state;if(s?.foundationId!=null)_foundationId=s!.foundationId;final ready=_foundationId!=null;final ratio=s?.foundationMatchRatio;final guesses=s?.foundationIntentGuesses??const <String>[];final needsClarification=s?.event=='USER_CONFIRMATION_REQUIRED'&&ratio!=null&&ratio<.80;return LayoutBuilder(builder:(context,c){final narrow=c.maxWidth<1050;return SingleChildScrollView(padding:const EdgeInsets.fromLTRB(22,20,22,30),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Row(children:[Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('Data Stewardship',style:TextStyle(color:t.text,fontSize:25,fontWeight:FontWeight.w800)),const SizedBox(height:4),Text("Sandre's home • safeguard the foundation before downstream work",style:TextStyle(color:t.mutedText,fontSize:11))])),if(s?.agentId.toLowerCase()=='sandre')_StatePill(s!.characterState,t)]),const SizedBox(height:16),_Pipeline(state:s,t:t),const SizedBox(height:14),if(narrow)...[_Intake(sources:_sources,onFiles:_files,onFolder:_folder,onText:_textSource,text:_text,onIngest:_ingest,t:t),const SizedBox(height:12),_Review(s:s,ready:ready,needsClarification:needsClarification,what:_what,why:_why,confirm:s?.foundationConfirmation??'uncertain',recipient:_recipient,onRecipient:(v)=>setState(()=>_recipient=v),guesses:guesses,approvedIntent:_approvedIntent,onIntent:(v)=>setState(()=>_approvedIntent=v),onApproveIntent:()=>_approveIntent(guesses),onAction:_action,t:t)]else Row(crossAxisAlignment:CrossAxisAlignment.start,children:[Expanded(child:_Intake(sources:_sources,onFiles:_files,onFolder:_folder,onText:_textSource,text:_text,onIngest:_ingest,t:t)),const SizedBox(width:12),Expanded(child:_Review(s:s,ready:ready,needsClarification:needsClarification,what:_what,why:_why,confirm:s?.foundationConfirmation??'uncertain',recipient:_recipient,onRecipient:(v)=>setState(()=>_recipient=v),guesses:guesses,approvedIntent:_approvedIntent,onIntent:(v)=>setState(()=>_approvedIntent=v),onApproveIntent:()=>_approveIntent(guesses),onAction:_action,t:t))]),const SizedBox(height:14),_Provenance(s:s,choices:_provenance,onChanged:(k,v)=>setState(()=>_provenance[k]=v),onSave:_saveProvenance,t:t),const SizedBox(height:14),_LogPanel(s:s,query:_logQuery,onQuery:()=>_action('log_search',values:{'query':_logQuery.text}),t:t),const SizedBox(height:14),_ConflictPanel(home:_homeJson,chat:_chatJson,winner:_winner,onWinner:(k,v)=>setState(()=>_winner[k]=v),onMerge:_merge,t:t),const SizedBox(height:14),_Quality(s:s,t:t),const SizedBox(height:14),_Sandre(s:s,t:t)]));});}}
-class _Pipeline extends StatelessWidget{final PresentationState? state;final CriterivoxTheme t;const _Pipeline({required this.state,required this.t});@override Widget build(BuildContext context){final steps=['MATERIAL','EXTRACT','INSPECT','CONFIRM','VALIDATE','PREPARE','SAFEGUARD'];final current=(state?.characterState??'IDLE').toUpperCase();final active=current=='RECEIVE'?1:current=='WORK'?2:current=='COMMUNICATE'?3:current=='HANDOFF'||current=='COMPLETE'?7:0;return Wrap(spacing:7,runSpacing:7,children:[for(var i=0;i<steps.length;i++)Container(width:110,height:58,padding:const EdgeInsets.all(9),decoration:BoxDecoration(color:i<=active?t.primary.withValues(alpha:.13):t.surface,borderRadius:BorderRadius.circular(10),border:Border.all(color:i<=active?t.primary:t.border)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Icon(i<=active?Icons.check_circle_outline:Icons.radio_button_unchecked,size:16,color:i<=active?t.primary:t.mutedText),const SizedBox(height:5),Text(steps[i],style:TextStyle(color:t.text,fontSize:8,fontWeight:FontWeight.w800,letterSpacing:.6))]))]);}}
-class _Intake extends StatelessWidget{final List<Map<String,dynamic>> sources;final VoidCallback onFiles,onFolder,onText,onIngest;final TextEditingController text;final CriterivoxTheme t;const _Intake({required this.sources,required this.onFiles,required this.onFolder,required this.onText,required this.text,required this.onIngest,required this.t});@override Widget build(BuildContext context)=>_Panel('Material Intake',t,Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Wrap(spacing:7,runSpacing:7,children:[_Button('Upload Files',Icons.upload_file,onFiles,t),_Button('Add Folder to Python',Icons.folder_open,onFolder,t)]),const SizedBox(height:10),TextField(controller:text,maxLines:3,decoration:const InputDecoration(labelText:'Direct text / context',hintText:'Paste material or user-supplied context here')),const SizedBox(height:7),Row(children:[OutlinedButton.icon(onPressed:onText,icon:const Icon(Icons.add,size:15),label:const Text('Add text')),const Spacer(),FilledButton.icon(onPressed:sources.isEmpty?null:onIngest,icon:const Icon(Icons.play_arrow,size:15),label:const Text('Receive material'))]),const SizedBox(height:12),Text('${sources.length} source(s) staged locally • original content is preserved before Python processing',style:TextStyle(color:t.mutedText,fontSize:10)),for(final source in sources.take(8))ListTile(dense:true,contentPadding:EdgeInsets.zero,leading:Icon(Icons.description_outlined,size:18,color:t.primary),title:Text('${source['name']}',style:TextStyle(color:t.text,fontSize:10)),subtitle:Text('${source['channel']} • original preserved',style:TextStyle(color:t.mutedText,fontSize:8)))]));}}
-class _Review extends StatelessWidget{final PresentationState? s;final bool ready,needsClarification;final TextEditingController what,why;final String confirm,recipient;final ValueChanged<String> onRecipient;final List<String> guesses;final String? approvedIntent;final ValueChanged<String?> onIntent;final VoidCallback onApproveIntent;final void Function(String,{String? recipient,Map<String,dynamic> values}) onAction;final CriterivoxTheme t;const _Review({required this.s,required this.ready,required this.needsClarification,required this.what,required this.why,required this.confirm,required this.recipient,required this.onRecipient,required this.guesses,required this.approvedIntent,required this.onIntent,required this.onApproveIntent,required this.onAction,required this.t});@override Widget build(BuildContext context){final ratio=s?.foundationMatchRatio;return _Panel('User Reconfirmation',t,Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(ready?'Sandre found ${s?.foundationCandidateCount??0} candidate item(s). Review extracted material before handoff.':'No material has reached extraction yet.',style:TextStyle(color:t.text,fontSize:12,height:1.4)),if(ready)...[const SizedBox(height:10),Container(padding:const EdgeInsets.all(10),decoration:BoxDecoration(color:t.surfaceStrong,borderRadius:BorderRadius.circular(10),border:Border.all(color:t.border)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(s?.foundationPreviewQuestion??'Is this what you intended to submit?',style:TextStyle(color:t.text,fontSize:11,fontWeight:FontWeight.w700)),if(guesses.isNotEmpty)...[const SizedBox(height:8),Text('Top inferred What/Why tags',style:TextStyle(color:t.mutedText,fontSize:9)),DropdownButtonFormField<String>(value:approvedIntent,decoration:const InputDecoration(isDense:true),items:[for(final g in guesses)DropdownMenuItem(value:g,child:Text(g))],onChanged:onIntent),const SizedBox(height:5),OutlinedButton(onPressed:onApproveIntent,child:const Text('Approve selected intent'))],if(ratio!=null)Padding(padding:const EdgeInsets.only(top:6),child:Text('Schema pre-flight match: ${(ratio*100).toStringAsFixed(0)}%${s?.foundationAutoFill==true?' • metadata can be auto-filled for confirmation':' • clarification required below'}',style:TextStyle(color:t.mutedText,fontSize:9))])),if(needsClarification)...[const SizedBox(height:10),Text('Clarification required',style:TextStyle(color:t.warning,fontSize:10,fontWeight:FontWeight.w700)),const SizedBox(height:6),TextField(controller:what,decoration:const InputDecoration(labelText:'What is this material?')),const SizedBox(height:6),TextField(controller:why,decoration:const InputDecoration(labelText:'Why are you providing it?')),const SizedBox(height:6),OutlinedButton(onPressed:()=>onAction('clarify',values:{'what':what.text,'why':why.text}),child:const Text('Submit clarification'))],const SizedBox(height:12),_Meta('Foundation',s?.foundationId??'Waiting',t),_Meta('Confirmation',confirm,t),_Meta('Sources','${s?.foundationSourceCount??0}',t),_Meta('Stewardship logs','${s?.foundationLogCount??0}',t),if((s?.foundationRecipient??'').isNotEmpty)_Meta('Last route',s!.foundationRecipient!,t),const SizedBox(height:10),Text('Route validated material',style:TextStyle(color:t.mutedText,fontSize:9)),const SizedBox(height:5),DropdownButtonFormField<String>(value:recipient,decoration:const InputDecoration(isDense:true),items:const[DropdownMenuItem(value:'syvax',child:Text('Syvax • direct user confirmation')),DropdownMenuItem(value:'dharen',child:Text('Dharen • context handoff')),DropdownMenuItem(value:'kaelen',child:Text('Kaelen • downstream build handoff'))],onChanged:(v){if(v!=null)onRecipient(v);}),const SizedBox(height:10),Wrap(spacing:6,runSpacing:6,children:[OutlinedButton(onPressed:ready?()=>onAction('confirm'):null,child:const Text('Confirm')),OutlinedButton(onPressed:ready?()=>onAction('correct'):null,child:const Text('Correct')),OutlinedButton(onPressed:ready?()=>onAction('exclude'):null,child:const Text('Exclude')),FilledButton.icon(onPressed:confirm=='user-confirmed'||confirm=='user-corrected'?()=>onAction('handoff',recipient:recipient):null,icon:const Icon(Icons.send,size:15),label:Text('Handoff to ${recipient[0].toUpperCase()}${recipient.substring(1)}'))]) ]));}}
-class _Provenance extends StatelessWidget{final PresentationState? s;final Map<String,bool> choices;final void Function(String,bool) onChanged;final VoidCallback onSave;final CriterivoxTheme t;const _Provenance({required this.s,required this.choices,required this.onChanged,required this.onSave,required this.t});@override Widget build(BuildContext context)=>_Panel('Conditional Provenance',t,Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('Mandatory source identity remains preserved. These additional provenance categories require explicit Yes/No user choices.',style:TextStyle(color:t.mutedText,fontSize:10,height:1.4)),for(final e in choices.entries)CheckboxListTile(dense:true,contentPadding:EdgeInsets.zero,value:e.value,onChanged:(v)=>onChanged(e.key,v??false),title:Text(e.key.replaceAll('_',' '),style:TextStyle(color:t.text,fontSize:10)),subtitle:const Text('Yes = retain after extraction',style:TextStyle(fontSize:8))),Align(alignment:Alignment.centerRight,child:OutlinedButton(onPressed:s?.foundationId==null?null:onSave,child:const Text('Save provenance choices')))]));}
-class _LogPanel extends StatelessWidget{final PresentationState? s;final TextEditingController query;final VoidCallback onQuery;final CriterivoxTheme t;const _LogPanel({required this.s,required this.query,required this.onQuery,required this.t});@override Widget build(BuildContext context)=>_Panel('Searchable Stewardship Log',t,Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Row(children:[Expanded(child:TextField(controller:query,decoration:const InputDecoration(labelText:'Search Material Set ID, task ID, event, recipient...'))),const SizedBox(width:8),FilledButton(onPressed:s?.foundationId==null?null:onQuery,child:const Text('Search'))]),const SizedBox(height:8),Text('${s?.foundationLogCount??0} matching record(s)',style:TextStyle(color:t.mutedText,fontSize:9)),for(final entry in (s?.foundationLogEntries??const <String>[]).take(20))ListTile(dense:true,contentPadding:EdgeInsets.zero,leading:Icon(Icons.history,size:16,color:t.primary),title:Text(entry,style:TextStyle(color:t.text,fontSize:9)))]));}
-class _ConflictPanel extends StatelessWidget{final TextEditingController home,chat;final Map<String,String> winner;final void Function(String,String) onWinner;final VoidCallback onMerge;final CriterivoxTheme t;const _ConflictPanel({required this.home,required this.chat,required this.winner,required this.onWinner,required this.onMerge,required this.t});@override Widget build(BuildContext context){Map<String,dynamic> h={},c={};try{h=Map<String,dynamic>.from(jsonDecode(home.text));c=Map<String,dynamic>.from(jsonDecode(chat.text));}catch(_){ }final fields=(<String>{...h.keys,...c.keys}).toList()..sort();final conflicts=fields.where((f)=>h[f]!=c[f]).toList();final unresolved=conflicts.where((f)=>!winner.containsKey(f)).toList();return _Panel('Home ↔ Chat Conflict Merge',t,Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('No hard overwrite. Every conflicting field requires an explicit user winner before the merge can be committed.',style:TextStyle(color:t.mutedText,fontSize:10,height:1.4)),const SizedBox(height:8),TextField(controller:home,maxLines:4,decoration:const InputDecoration(labelText:'Home representation (JSON)')),const SizedBox(height:7),TextField(controller:chat,maxLines:4,decoration:const InputDecoration(labelText:'Chat representation (JSON)')),if(conflicts.isNotEmpty)...[const SizedBox(height:10),for(final f in conflicts)Container(margin:const EdgeInsets.only(bottom:7),padding:const EdgeInsets.all(8),decoration:BoxDecoration(color:t.surfaceStrong,borderRadius:BorderRadius.circular(9),border:Border.all(color:t.border)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(f,style:TextStyle(color:t.text,fontSize:10,fontWeight:FontWeight.w700)),Text('Home: ${h[f]}',style:TextStyle(color:t.mutedText,fontSize:9)),Text('Chat: ${c[f]}',style:TextStyle(color:t.mutedText,fontSize:9)),DropdownButton<String>(hint:const Text('Choose winner'),value:winner[f],items:const[DropdownMenuItem(value:'home',child:Text('Keep Home')),DropdownMenuItem(value:'chat',child:Text('Keep Chat'))],onChanged:(v){if(v!=null)onWinner(f,v);})])),const SizedBox(height:5),FilledButton.icon(onPressed:conflicts.isEmpty||unresolved.isNotEmpty?null:onMerge,icon:const Icon(Icons.merge_type,size:15),label:Text(unresolved.isEmpty?'Commit explicit merge':'Choose ${unresolved.length} remaining winner(s)'))]));}}
-class _Quality extends StatelessWidget{final PresentationState? s;final CriterivoxTheme t;const _Quality({required this.s,required this.t});@override Widget build(BuildContext context)=>_Panel('Data Quality',t,Row(children:[Icon(s?.event=='EXTRACTION_FAILED'?Icons.warning_amber_rounded:Icons.verified_outlined,color:s?.event=='EXTRACTION_FAILED'?t.warning:t.success,size:20),const SizedBox(width:9),Expanded(child:Text(s?.message??'Waiting for material. Raw source and lineage are preserved before transformation.',style:TextStyle(color:t.mutedText,fontSize:10,height:1.4)))]));}
-class _Sandre extends StatelessWidget{final PresentationState? s;final CriterivoxTheme t;const _Sandre({required this.s,required this.t});@override Widget build(BuildContext context)=>_Panel('Sandre',t,Row(children:[Container(width:90,height:90,decoration:BoxDecoration(borderRadius:BorderRadius.circular(14),border:Border.all(color:t.border)),child:Icon(Icons.person_outline_rounded,size:45,color:t.primary)),const SizedBox(width:16),Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('SANDRE',style:TextStyle(color:t.text,fontSize:16,fontWeight:FontWeight.w800)),Text('Data Stewardship • House Owner',style:TextStyle(color:t.primary,fontSize:10)),const SizedBox(height:8),Text(s?.agentId.toLowerCase()=='sandre'?(s?.message??'Safeguarding the foundation.'):'Sandre is ready to receive foundational material.',style:TextStyle(color:t.mutedText,fontSize:10,height:1.4))]))]));}
-class _StatePill extends StatelessWidget{final String state;final CriterivoxTheme t;const _StatePill(this.state,this.t);@override Widget build(BuildContext context)=>Container(padding:const EdgeInsets.symmetric(horizontal:10,vertical:6),decoration:BoxDecoration(borderRadius:BorderRadius.circular(20),border:Border.all(color:t.primary)),child:Text(state,style:TextStyle(color:t.primary,fontSize:9,fontWeight:FontWeight.w800)));}
-class _Panel extends StatelessWidget{final String title;final CriterivoxTheme t;final Widget child;const _Panel(this.title,this.t,this.child);@override Widget build(BuildContext context)=>Container(padding:const EdgeInsets.all(14),decoration:BoxDecoration(color:t.surface,borderRadius:BorderRadius.circular(14),border:Border.all(color:t.border)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(title,style:TextStyle(color:t.text,fontSize:12,fontWeight:FontWeight.w700)),const SizedBox(height:11),child]));}
-class _Meta extends StatelessWidget{final String a,b;final CriterivoxTheme t;const _Meta(this.a,this.b,this.t);@override Widget build(BuildContext context)=>Padding(padding:const EdgeInsets.only(bottom:8),child:Row(children:[SizedBox(width:90,child:Text(a,style:TextStyle(color:t.mutedText,fontSize:9))),Expanded(child:Text(b,style:TextStyle(color:t.text,fontSize:10,fontWeight:FontWeight.w700)))]));}
-class _Button extends StatelessWidget{final String label;final IconData icon;final VoidCallback onTap;final CriterivoxTheme t;const _Button(this.label,this.icon,this.onTap,this.t);@override Widget build(BuildContext context)=>OutlinedButton.icon(onPressed:onTap,icon:Icon(icon,size:15),label:Text(label));}
+
+  final Map<String, bool> _provenance = {
+    'source_location': true,
+    'page_or_section': false,
+    'transformation_history': false,
+  };
+
+  final Map<String, String> _winner = {};
+
+  @override
+  void dispose() {
+    for (final controller in [
+      _text,
+      _what,
+      _why,
+      _logQuery,
+      _homeJson,
+      _chatJson,
+    ]) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  List<String> get _recentTaskIds {
+    final id = widget.state?.taskId;
+    return id == null ? const [] : [id];
+  }
+
+  Future<void> _files() async {
+    final result = await FilePicker.platform.pickFiles(
+      withData: true,
+      allowMultiple: true,
+    );
+
+    if (result == null) {
+      return;
+    }
+
+    final staged = <Map<String, dynamic>>[];
+
+    for (final file in result.files) {
+      staged.add({
+        'name': file.name,
+        'source_type': 'file',
+        'channel': 'file',
+        'content': file.bytes == null
+            ? null
+            : utf8.decode(file.bytes!, allowMalformed: true),
+      });
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _sources.addAll(staged);
+    });
+  }
+
+  Future<void> _folder() async {
+    try {
+      final path = await FilePicker.platform.getDirectoryPath();
+
+      if (path == null) {
+        return;
+      }
+
+      widget.runtime.ingestFolder(
+        folderPath: path,
+        suppliedContext: {
+          'entered_through': 'Data Stewardship',
+          'collection_mode': 'python_folder_loader',
+        },
+        recentTaskIds: _recentTaskIds,
+      );
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Folder selection is unavailable on this browser target. '
+            'Use Upload Files so selected contents are sent safely to Python.',
+          ),
+        ),
+      );
+    }
+  }
+
+  void _textSource() {
+    final value = _text.text.trim();
+
+    if (value.isEmpty) {
+      return;
+    }
+
+    setState(() {
+      _sources.add({
+        'name': 'Direct text input ${_sources.length + 1}',
+        'source_type': 'text',
+        'channel': 'text',
+        'content': value,
+      });
+
+      _text.clear();
+    });
+  }
+
+  void _ingest() {
+    if (_sources.isEmpty) {
+      return;
+    }
+
+    widget.runtime.ingestData(
+      sources: List<Map<String, dynamic>>.from(_sources),
+      suppliedContext: {
+        'entered_through': 'Data Stewardship',
+        'collection_mode': 'selected_files',
+      },
+      recentTaskIds: _recentTaskIds,
+    );
+  }
+
+  void _action(
+    String action, {
+    String? recipient,
+    Map<String, dynamic> values = const {},
+  }) {
+    final id = _foundationId ?? widget.state?.foundationId;
+
+    if (id == null) {
+      return;
+    }
+
+    widget.runtime.dataAction(
+      foundationId: id,
+      action: action,
+      recipient: recipient ?? _recipient,
+      values: values,
+    );
+  }
+
+  void _approveIntent(List<String> guesses) {
+    if (_approvedIntent == null || guesses.isEmpty) {
+      return;
+    }
+
+    _action(
+      'approve_intent',
+      values: {
+        'intent': _approvedIntent,
+        'allowed_intents': guesses,
+      },
+    );
+  }
+
+  void _saveProvenance() {
+    _action(
+      'provenance_choices',
+      values: {
+        'choices': Map<String, bool>.from(_provenance),
+      },
+    );
+  }
+
+  void _merge() {
+    try {
+      final home = jsonDecode(_homeJson.text);
+      final chat = jsonDecode(_chatJson.text);
+
+      if (home is! Map || chat is! Map) {
+        throw const FormatException();
+      }
+
+      final conflicts = <String>[];
+
+      for (final field in {...home.keys, ...chat.keys}) {
+        if (home[field] != chat[field]) {
+          conflicts.add(field.toString());
+        }
+      }
+
+      final unresolved = conflicts
+          .where((field) => !_winner.containsKey(field))
+          .toList();
+
+      if (conflicts.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No conflicting fields were found.'),
+          ),
+        );
+        return;
+      }
+
+      if (unresolved.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Choose Home or Chat for every conflict before merging: '
+              '${unresolved.join(', ')}',
+            ),
+          ),
+        );
+        return;
+      }
+
+      final winners = {
+        for (final field in conflicts) field: _winner[field]!,
+      };
+
+      _action(
+        'merge_conflicts',
+        values: {
+          'home': Map<String, dynamic>.from(home),
+          'chat': Map<String, dynamic>.from(chat),
+          'winners': winners,
+        },
+      );
+    } catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Conflict inputs must be valid JSON objects.',
+          ),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+    final s = widget.state;
+
+    if (s?.foundationId != null) {
+      _foundationId = s!.foundationId;
+    }
+
+    final ready = _foundationId != null;
+    final ratio = s?.foundationMatchRatio;
+    final guesses =
+        s?.foundationIntentGuesses ?? const <String>[];
+
+    final needsClarification =
+        s?.event == 'USER_CONFIRMATION_REQUIRED' &&
+        ratio != null &&
+        ratio < 0.80;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final narrow = constraints.maxWidth < 1050;
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(22, 20, 22, 30),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Data Stewardship',
+                          style: TextStyle(
+                            color: t.text,
+                            fontSize: 25,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "Sandre's home • safeguard the foundation before downstream work",
+                          style: TextStyle(
+                            color: t.mutedText,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (s?.agentId.toLowerCase() == 'sandre')
+                    _StatePill(s!.characterState, t),
+                ],
+              ),
+              const SizedBox(height: 16),
+              _Pipeline(
+                state: s,
+                t: t,
+              ),
+              const SizedBox(height: 14),
+              if (narrow) ...[
+                _Intake(
+                  sources: _sources,
+                  onFiles: _files,
+                  onFolder: _folder,
+                  onText: _textSource,
+                  text: _text,
+                  onIngest: _ingest,
+                  t: t,
+                ),
+                const SizedBox(height: 12),
+                _Review(
+                  s: s,
+                  ready: ready,
+                  needsClarification: needsClarification,
+                  what: _what,
+                  why: _why,
+                  confirm: s?.foundationConfirmation ?? 'uncertain',
+                  recipient: _recipient,
+                  onRecipient: (value) =>
+                      setState(() => _recipient = value),
+                  guesses: guesses,
+                  approvedIntent: _approvedIntent,
+                  onIntent: (value) =>
+                      setState(() => _approvedIntent = value),
+                  onApproveIntent: () => _approveIntent(guesses),
+                  onAction: _action,
+                  t: t,
+                ),
+              ] else
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: _Intake(
+                        sources: _sources,
+                        onFiles: _files,
+                        onFolder: _folder,
+                        onText: _textSource,
+                        text: _text,
+                        onIngest: _ingest,
+                        t: t,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _Review(
+                        s: s,
+                        ready: ready,
+                        needsClarification: needsClarification,
+                        what: _what,
+                        why: _why,
+                        confirm:
+                            s?.foundationConfirmation ?? 'uncertain',
+                        recipient: _recipient,
+                        onRecipient: (value) =>
+                            setState(() => _recipient = value),
+                        guesses: guesses,
+                        approvedIntent: _approvedIntent,
+                        onIntent: (value) =>
+                            setState(() => _approvedIntent = value),
+                        onApproveIntent: () => _approveIntent(guesses),
+                        onAction: _action,
+                        t: t,
+                      ),
+                    ),
+                  ],
+                ),
+              const SizedBox(height: 14),
+              _Provenance(
+                s: s,
+                choices: _provenance,
+                onChanged: (key, value) =>
+                    setState(() => _provenance[key] = value),
+                onSave: _saveProvenance,
+                t: t,
+              ),
+              const SizedBox(height: 14),
+              _LogPanel(
+                s: s,
+                query: _logQuery,
+                onQuery: () => _action(
+                  'log_search',
+                  values: {'query': _logQuery.text},
+                ),
+                t: t,
+              ),
+              const SizedBox(height: 14),
+              _ConflictPanel(
+                home: _homeJson,
+                chat: _chatJson,
+                winner: _winner,
+                onWinner: (key, value) =>
+                    setState(() => _winner[key] = value),
+                onMerge: _merge,
+                t: t,
+              ),
+              const SizedBox(height: 14),
+              _Quality(
+                s: s,
+                t: t,
+              ),
+              const SizedBox(height: 14),
+              _Sandre(
+                s: s,
+                t: t,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _Pipeline extends StatelessWidget {
+  final PresentationState? state;
+  final CriterivoxTheme t;
+
+  const _Pipeline({
+    required this.state,
+    required this.t,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final steps = [
+      'MATERIAL',
+      'EXTRACT',
+      'INSPECT',
+      'CONFIRM',
+      'VALIDATE',
+      'PREPARE',
+      'SAFEGUARD',
+    ];
+
+    final current =
+        (state?.characterState ?? 'IDLE').toUpperCase();
+
+    final active = current == 'RECEIVE'
+        ? 1
+        : current == 'WORK'
+            ? 2
+            : current == 'COMMUNICATE'
+                ? 3
+                : current == 'HANDOFF' || current == 'COMPLETE'
+                    ? 7
+                    : 0;
+
+    return Wrap(
+      spacing: 7,
+      runSpacing: 7,
+      children: [
+        for (var i = 0; i < steps.length; i++)
+          Container(
+            width: 110,
+            height: 58,
+            padding: const EdgeInsets.all(9),
+            decoration: BoxDecoration(
+              color: i <= active
+                  ? t.primary.withValues(alpha: 0.13)
+                  : t.surface,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: i <= active ? t.primary : t.border,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  i <= active
+                      ? Icons.check_circle_outline
+                      : Icons.radio_button_unchecked,
+                  size: 16,
+                  color: i <= active
+                      ? t.primary
+                      : t.mutedText,
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  steps[i],
+                  style: TextStyle(
+                    color: t.text,
+                    fontSize: 8,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.6,
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _Intake extends StatelessWidget {
+  final List<Map<String, dynamic>> sources;
+  final VoidCallback onFiles;
+  final VoidCallback onFolder;
+  final VoidCallback onText;
+  final VoidCallback onIngest;
+  final TextEditingController text;
+  final CriterivoxTheme t;
+
+  const _Intake({
+    required this.sources,
+    required this.onFiles,
+    required this.onFolder,
+    required this.onText,
+    required this.text,
+    required this.onIngest,
+    required this.t,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _Panel(
+      'Material Intake',
+      t,
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 7,
+            runSpacing: 7,
+            children: [
+              _Button(
+                'Upload Files',
+                Icons.upload_file,
+                onFiles,
+                t,
+              ),
+              _Button(
+                'Add Folder to Python',
+                Icons.folder_open,
+                onFolder,
+                t,
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: text,
+            maxLines: 3,
+            decoration: const InputDecoration(
+              labelText: 'Direct text / context',
+              hintText:
+                  'Paste material or user-supplied context here',
+            ),
+          ),
+          const SizedBox(height: 7),
+          Row(
+            children: [
+              OutlinedButton.icon(
+                onPressed: onText,
+                icon: const Icon(Icons.add, size: 15),
+                label: const Text('Add text'),
+              ),
+              const Spacer(),
+              FilledButton.icon(
+                onPressed: sources.isEmpty ? null : onIngest,
+                icon: const Icon(Icons.play_arrow, size: 15),
+                label: const Text('Receive material'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            '${sources.length} source(s) staged locally • '
+            'original content is preserved before Python processing',
+            style: TextStyle(
+              color: t.mutedText,
+              fontSize: 10,
+            ),
+          ),
+          for (final source in sources.take(8))
+            ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(
+                Icons.description_outlined,
+                size: 18,
+                color: t.primary,
+              ),
+              title: Text(
+                '${source['name']}',
+                style: TextStyle(
+                  color: t.text,
+                  fontSize: 10,
+                ),
+              ),
+              subtitle: Text(
+                '${source['channel']} • original preserved',
+                style: TextStyle(
+                  color: t.mutedText,
+                  fontSize: 8,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Review extends StatelessWidget {
+  final PresentationState? s;
+  final bool ready;
+  final bool needsClarification;
+  final TextEditingController what;
+  final TextEditingController why;
+  final String confirm;
+  final String recipient;
+  final ValueChanged<String> onRecipient;
+  final List<String> guesses;
+  final String? approvedIntent;
+  final ValueChanged<String?> onIntent;
+  final VoidCallback onApproveIntent;
+  final void Function(
+    String, {
+    String? recipient,
+    Map<String, dynamic> values,
+  }) onAction;
+  final CriterivoxTheme t;
+
+  const _Review({
+    required this.s,
+    required this.ready,
+    required this.needsClarification,
+    required this.what,
+    required this.why,
+    required this.confirm,
+    required this.recipient,
+    required this.onRecipient,
+    required this.guesses,
+    required this.approvedIntent,
+    required this.onIntent,
+    required this.onApproveIntent,
+    required this.onAction,
+    required this.t,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final ratio = s?.foundationMatchRatio;
+
+    return _Panel(
+      'User Reconfirmation',
+      t,
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            ready
+                ? 'Sandre found ${s?.foundationCandidateCount ?? 0} '
+                    'candidate item(s). Review extracted material before handoff.'
+                : 'No material has reached extraction yet.',
+            style: TextStyle(
+              color: t.text,
+              fontSize: 12,
+              height: 1.4,
+            ),
+          ),
+          if (ready) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: t.surfaceStrong,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: t.border),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    s?.foundationPreviewQuestion ??
+                        'Is this what you intended to submit?',
+                    style: TextStyle(
+                      color: t.text,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  if (guesses.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      'Top inferred What/Why tags',
+                      style: TextStyle(
+                        color: t.mutedText,
+                        fontSize: 9,
+                      ),
+                    ),
+                    DropdownButtonFormField<String>(
+                      initialValue: approvedIntent,
+                      decoration: const InputDecoration(
+                        isDense: true,
+                      ),
+                      items: [
+                        for (final guess in guesses)
+                          DropdownMenuItem(
+                            value: guess,
+                            child: Text(guess),
+                          ),
+                      ],
+                      onChanged: onIntent,
+                    ),
+                    const SizedBox(height: 5),
+                    OutlinedButton(
+                      onPressed: onApproveIntent,
+                      child: const Text('Approve selected intent'),
+                    ),
+                  ],
+                  if (ratio != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Text(
+                        'Schema pre-flight match: '
+                        '${(ratio * 100).toStringAsFixed(0)}%'
+                        '${s?.foundationAutoFill == true ? ' • metadata can be auto-filled for confirmation' : ' • clarification required below'}',
+                        style: TextStyle(
+                          color: t.mutedText,
+                          fontSize: 9,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+          if (needsClarification) ...[
+            const SizedBox(height: 10),
+            Text(
+              'Clarification required',
+              style: TextStyle(
+                color: t.warning,
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 6),
+            TextField(
+              controller: what,
+              decoration: const InputDecoration(
+                labelText: 'What is this material?',
+              ),
+            ),
+            const SizedBox(height: 6),
+            TextField(
+              controller: why,
+              decoration: const InputDecoration(
+                labelText: 'Why are you providing it?',
+              ),
+            ),
+            const SizedBox(height: 6),
+            OutlinedButton(
+              onPressed: () => onAction(
+                'clarify',
+                values: {
+                  'what': what.text,
+                  'why': why.text,
+                },
+              ),
+              child: const Text('Submit clarification'),
+            ),
+          ],
+          const SizedBox(height: 12),
+          _Meta(
+            'Foundation',
+            s?.foundationId ?? 'Waiting',
+            t,
+          ),
+          _Meta(
+            'Confirmation',
+            confirm,
+            t,
+          ),
+          _Meta(
+            'Sources',
+            '${s?.foundationSourceCount ?? 0}',
+            t,
+          ),
+          _Meta(
+            'Stewardship logs',
+            '${s?.foundationLogCount ?? 0}',
+            t,
+          ),
+          if ((s?.foundationRecipient ?? '').isNotEmpty)
+            _Meta(
+              'Last route',
+              s!.foundationRecipient!,
+              t,
+            ),
+          const SizedBox(height: 10),
+          Text(
+            'Route validated material',
+            style: TextStyle(
+              color: t.mutedText,
+              fontSize: 9,
+            ),
+          ),
+          const SizedBox(height: 5),
+          DropdownButtonFormField<String>(
+            initialValue: recipient,
+            decoration: const InputDecoration(
+              isDense: true,
+            ),
+            items: const [
+              DropdownMenuItem(
+                value: 'syvax',
+                child: Text(
+                  'Syvax • direct user confirmation',
+                ),
+              ),
+              DropdownMenuItem(
+                value: 'dharen',
+                child: Text(
+                  'Dharen • context handoff',
+                ),
+              ),
+              DropdownMenuItem(
+                value: 'kaelen',
+                child: Text(
+                  'Kaelen • downstream build handoff',
+                ),
+              ),
+            ],
+            onChanged: (value) {
+              if (value != null) {
+                onRecipient(value);
+              }
+            },
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              OutlinedButton(
+                onPressed: ready
+                    ? () => onAction('confirm')
+                    : null,
+                child: const Text('Confirm'),
+              ),
+              OutlinedButton(
+                onPressed: ready
+                    ? () => onAction('correct')
+                    : null,
+                child: const Text('Correct'),
+              ),
+              OutlinedButton(
+                onPressed: ready
+                    ? () => onAction('exclude')
+                    : null,
+                child: const Text('Exclude'),
+              ),
+              FilledButton.icon(
+                onPressed:
+                    confirm == 'user-confirmed' ||
+                            confirm == 'user-corrected'
+                        ? () => onAction(
+                              'handoff',
+                              recipient: recipient,
+                            )
+                        : null,
+                icon: const Icon(Icons.send, size: 15),
+                label: Text(
+                  'Handoff to '
+                  '${recipient[0].toUpperCase()}'
+                  '${recipient.substring(1)}',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Provenance extends StatelessWidget {
+  final PresentationState? s;
+  final Map<String, bool> choices;
+  final void Function(String, bool) onChanged;
+  final VoidCallback onSave;
+  final CriterivoxTheme t;
+
+  const _Provenance({
+    required this.s,
+    required this.choices,
+    required this.onChanged,
+    required this.onSave,
+    required this.t,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _Panel(
+      'Conditional Provenance',
+      t,
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Mandatory source identity remains preserved. These '
+            'additional provenance categories require explicit Yes/No user choices.',
+            style: TextStyle(
+              color: t.mutedText,
+              fontSize: 10,
+              height: 1.4,
+            ),
+          ),
+          for (final entry in choices.entries)
+            CheckboxListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              value: entry.value,
+              onChanged: (value) =>
+                  onChanged(entry.key, value ?? false),
+              title: Text(
+                entry.key.replaceAll('_', ' '),
+                style: TextStyle(
+                  color: t.text,
+                  fontSize: 10,
+                ),
+              ),
+              subtitle: const Text(
+                'Yes = retain after extraction',
+                style: TextStyle(fontSize: 8),
+              ),
+            ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton(
+              onPressed:
+                  s?.foundationId == null ? null : onSave,
+              child: const Text('Save provenance choices'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LogPanel extends StatelessWidget {
+  final PresentationState? s;
+  final TextEditingController query;
+  final VoidCallback onQuery;
+  final CriterivoxTheme t;
+
+  const _LogPanel({
+    required this.s,
+    required this.query,
+    required this.onQuery,
+    required this.t,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _Panel(
+      'Searchable Stewardship Log',
+      t,
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: query,
+                  decoration: const InputDecoration(
+                    labelText:
+                        'Search Material Set ID, task ID, event, recipient...',
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              FilledButton(
+                onPressed:
+                    s?.foundationId == null ? null : onQuery,
+                child: const Text('Search'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${s?.foundationLogCount ?? 0} matching record(s)',
+            style: TextStyle(
+              color: t.mutedText,
+              fontSize: 9,
+            ),
+          ),
+          for (final entry
+              in (s?.foundationLogEntries ??
+                      const <String>[])
+                  .take(20))
+            ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(
+                Icons.history,
+                size: 16,
+                color: t.primary,
+              ),
+              title: Text(
+                entry,
+                style: TextStyle(
+                  color: t.text,
+                  fontSize: 9,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ConflictPanel extends StatelessWidget {
+  final TextEditingController home;
+  final TextEditingController chat;
+  final Map<String, String> winner;
+  final void Function(String, String) onWinner;
+  final VoidCallback onMerge;
+  final CriterivoxTheme t;
+
+  const _ConflictPanel({
+    required this.home,
+    required this.chat,
+    required this.winner,
+    required this.onWinner,
+    required this.onMerge,
+    required this.t,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    Map<String, dynamic> h = {};
+    Map<String, dynamic> c = {};
+
+    try {
+      h = Map<String, dynamic>.from(
+        jsonDecode(home.text),
+      );
+      c = Map<String, dynamic>.from(
+        jsonDecode(chat.text),
+      );
+    } catch (_) {
+      // Invalid JSON is surfaced by the merge action.
+    }
+
+    final fields = (<String>{
+      ...h.keys.map((key) => key.toString()),
+      ...c.keys.map((key) => key.toString()),
+    }).toList()
+      ..sort();
+
+    final conflicts =
+        fields.where((field) => h[field] != c[field]).toList();
+
+    final unresolved =
+        conflicts.where((field) => !winner.containsKey(field)).toList();
+
+    return _Panel(
+      'Home ↔ Chat Conflict Merge',
+      t,
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'No hard overwrite. Every conflicting field requires an '
+            'explicit user winner before the merge can be committed.',
+            style: TextStyle(
+              color: t.mutedText,
+              fontSize: 10,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: home,
+            maxLines: 4,
+            decoration: const InputDecoration(
+              labelText: 'Home representation (JSON)',
+            ),
+          ),
+          const SizedBox(height: 7),
+          TextField(
+            controller: chat,
+            maxLines: 4,
+            decoration: const InputDecoration(
+              labelText: 'Chat representation (JSON)',
+            ),
+          ),
+          if (conflicts.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            for (final field in conflicts)
+              Container(
+                margin: const EdgeInsets.only(bottom: 7),
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: t.surfaceStrong,
+                  borderRadius: BorderRadius.circular(9),
+                  border: Border.all(color: t.border),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      field,
+                      style: TextStyle(
+                        color: t.text,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Text(
+                      'Home: ${h[field]}',
+                      style: TextStyle(
+                        color: t.mutedText,
+                        fontSize: 9,
+                      ),
+                    ),
+                    Text(
+                      'Chat: ${c[field]}',
+                      style: TextStyle(
+                        color: t.mutedText,
+                        fontSize: 9,
+                      ),
+                    ),
+                    DropdownButton<String>(
+                      hint: const Text('Choose winner'),
+                      value: winner[field],
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'home',
+                          child: Text('Keep Home'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'chat',
+                          child: Text('Keep Chat'),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        if (value != null) {
+                          onWinner(field, value);
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+          ],
+          const SizedBox(height: 5),
+          FilledButton.icon(
+            onPressed:
+                conflicts.isEmpty || unresolved.isNotEmpty
+                    ? null
+                    : onMerge,
+            icon: const Icon(
+              Icons.merge_type,
+              size: 15,
+            ),
+            label: Text(
+              unresolved.isEmpty
+                  ? 'Commit explicit merge'
+                  : 'Choose ${unresolved.length} remaining winner(s)',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Quality extends StatelessWidget {
+  final PresentationState? s;
+  final CriterivoxTheme t;
+
+  const _Quality({
+    required this.s,
+    required this.t,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final failed = s?.event == 'EXTRACTION_FAILED';
+
+    return _Panel(
+      'Data Quality',
+      t,
+      Row(
+        children: [
+          Icon(
+            failed
+                ? Icons.warning_amber_rounded
+                : Icons.verified_outlined,
+            color: failed ? t.warning : t.success,
+            size: 20,
+          ),
+          const SizedBox(width: 9),
+          Expanded(
+            child: Text(
+              s?.message ??
+                  'Waiting for material. Raw source and lineage '
+                      'are preserved before transformation.',
+              style: TextStyle(
+                color: t.mutedText,
+                fontSize: 10,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Sandre extends StatelessWidget {
+  final PresentationState? s;
+  final CriterivoxTheme t;
+
+  const _Sandre({
+    required this.s,
+    required this.t,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _Panel(
+      'Sandre',
+      t,
+      Row(
+        children: [
+          Container(
+            width: 90,
+            height: 90,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: t.border),
+            ),
+            child: Icon(
+              Icons.person_outline_rounded,
+              size: 45,
+              color: t.primary,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'SANDRE',
+                  style: TextStyle(
+                    color: t.text,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                Text(
+                  'Data Stewardship • House Owner',
+                  style: TextStyle(
+                    color: t.primary,
+                    fontSize: 10,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  s?.agentId.toLowerCase() == 'sandre'
+                      ? (s?.message ??
+                          'Safeguarding the foundation.')
+                      : 'Sandre is ready to receive foundational material.',
+                  style: TextStyle(
+                    color: t.mutedText,
+                    fontSize: 10,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatePill extends StatelessWidget {
+  final String state;
+  final CriterivoxTheme t;
+
+  const _StatePill(
+    this.state,
+    this.t,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 6,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: t.primary),
+      ),
+      child: Text(
+        state,
+        style: TextStyle(
+          color: t.primary,
+          fontSize: 9,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+  }
+}
+
+class _Panel extends StatelessWidget {
+  final String title;
+  final CriterivoxTheme t;
+  final Widget child;
+
+  const _Panel(
+    this.title,
+    this.t,
+    this.child,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: t.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: t.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              color: t.text,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 11),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+class _Meta extends StatelessWidget {
+  final String a;
+  final String b;
+  final CriterivoxTheme t;
+
+  const _Meta(
+    this.a,
+    this.b,
+    this.t,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 90,
+            child: Text(
+              a,
+              style: TextStyle(
+                color: t.mutedText,
+                fontSize: 9,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              b,
+              style: TextStyle(
+                color: t.text,
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Button extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+  final CriterivoxTheme t;
+
+  const _Button(
+    this.label,
+    this.icon,
+    this.onTap,
+    this.t,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: onTap,
+      icon: Icon(
+        icon,
+        size: 15,
+      ),
+      label: Text(label),
+    );
+  }
+}

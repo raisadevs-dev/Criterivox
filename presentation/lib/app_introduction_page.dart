@@ -2,14 +2,217 @@ import 'package:flutter/material.dart';
 import 'character/session_character_animation.dart';
 import 'presentation/criterivox_theme.dart';
 
-class AppIntroductionPage extends StatefulWidget{final VoidCallback onOpenWorkspace,onOpenChat;const AppIntroductionPage({super.key,required this.onOpenWorkspace,required this.onOpenChat});@override State<AppIntroductionPage> createState()=>_AppIntroductionPageState();}
-class _AppIntroductionPageState extends State<AppIntroductionPage> with SingleTickerProviderStateMixin{late final AnimationController _motion=AnimationController(vsync:this,duration:const Duration(seconds:12))..repeat();static const states=['IDLE','RECEIVE','WORK','COMMUNICATE','HANDOFF','COMPLETE','WARNING'];@override void dispose(){_motion.dispose();super.dispose();}@override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);return LayoutBuilder(builder:(context,c){final n=c.maxWidth<820;return SingleChildScrollView(padding:EdgeInsets.fromLTRB(n?14:28,24,n?14:28,36),child:Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[_hero(t,n),const SizedBox(height:22),_minds(t,n),const SizedBox(height:22),_workflow(t,n),const SizedBox(height:22),_capabilities(t),const SizedBox(height:22),_start(t,n)]));});}
-Widget _hero(CriterivoxTheme t,bool n)=>Container(padding:EdgeInsets.all(n?20:30),decoration:BoxDecoration(borderRadius:BorderRadius.circular(28),gradient:LinearGradient(colors:[t.surfaceStrong,t.surface]),border:Border.all(color:t.border)),child:Column(children:[AnimatedBuilder(animation:_motion,builder:(_,__) {final s=states[(_motion.value*states.length).floor()%states.length];final a=_heroCharacter(t,'syvax','SYVAX','DIALOGUE + ROUTING',s);final b=_heroCharacter(t,'dharen','DHAREN','CONTEXT ARCHITECTURE',states[(states.indexOf(s)+1)%states.length]);return n?Column(children:[a,const SizedBox(height:12),b]):Row(children:[Expanded(child:a),Padding(padding:const EdgeInsets.symmetric(horizontal:22),child:Text('×',style:TextStyle(color:t.mutedText,fontSize:24))),Expanded(child:b)]);}),const SizedBox(height:18),Text('ONE SYSTEM. MANY MINDS.',textAlign:TextAlign.center,style:TextStyle(color:t.text,fontSize:n?22:30,fontWeight:FontWeight.w700,letterSpacing:2.5)),const SizedBox(height:8),Text('Criterivox turns data, context and questions into understandable analysis and evidence-backed action.',textAlign:TextAlign.center,style:TextStyle(color:t.mutedText,fontSize:13,height:1.5))]));
-Widget _heroCharacter(CriterivoxTheme t,String id,String name,String role,String state)=>Container(constraints:const BoxConstraints(minHeight:260,maxHeight:330),padding:const EdgeInsets.all(14),decoration:BoxDecoration(borderRadius:BorderRadius.circular(22),color:t.page.withValues(alpha:.72),border:Border.all(color:t.primary.withValues(alpha:.25))),child:Column(children:[Expanded(child:SessionCharacterAnimationView(characterId:id,state:state,width:180,height:264)),const SizedBox(height:8),Text(name,style:TextStyle(color:t.text,fontWeight:FontWeight.w800,letterSpacing:2)),Text(role,style:TextStyle(color:t.primary,fontSize:10,letterSpacing:1.2))]));
-Widget _minds(CriterivoxTheme t,bool n)=>_section(t,'MEET THE MINDS','They are functional interaction entities, not decorative mascots.',n,[_mindCard(t,'SYVAX','Dialogue + routing','Receives intent, clarifies direction and routes work through the shared runtime.'),_mindCard(t,'DHAREN','Context architecture','Structures context, preserves uncertainty and returns contextual work to the task.')]);
-Widget _mindCard(CriterivoxTheme t,String name,String role,String desc)=>Container(padding:const EdgeInsets.all(20),decoration:BoxDecoration(color:t.surface,borderRadius:BorderRadius.circular(22),border:Border.all(color:t.border)),child:Row(children:[SessionCharacterAnimationView(characterId:name.toLowerCase(),state:'IDLE',width:72,height:86),const SizedBox(width:14),Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(name,style:TextStyle(color:t.primary,fontSize:22,fontWeight:FontWeight.w800,letterSpacing:2)),Text(role,style:TextStyle(color:t.text,fontWeight:FontWeight.w600)),const SizedBox(height:12),Text(desc,style:TextStyle(color:t.mutedText,fontSize:11,height:1.5))]))]));
-Widget _section(CriterivoxTheme t,String title,String subtitle,bool n,List<Widget> children)=>Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(title,style:TextStyle(color:t.text,fontSize:18,fontWeight:FontWeight.w800,letterSpacing:1.2)),const SizedBox(height:5),Text(subtitle,style:TextStyle(color:t.mutedText,fontSize:11)),const SizedBox(height:12),n?Column(children:[for(final c in children)Padding(padding:const EdgeInsets.only(bottom:10),child:c)]):Row(children:[for(final c in children)Expanded(child:Padding(padding:const EdgeInsets.only(right:10),child:c))])]);
-Widget _workflow(CriterivoxTheme t,bool n)=>_section(t,'THE WORKFLOW','A shared runtime turns human intent into coordinated computation.',n,[Text('RECEIVE → CONTEXT → REASON → PLAN → VERIFY → DELIVER',style:TextStyle(color:t.primary,fontWeight:FontWeight.w700))]);
-Widget _capabilities(CriterivoxTheme t)=>Container(padding:const EdgeInsets.all(20),decoration:BoxDecoration(color:t.surface,borderRadius:BorderRadius.circular(20),border:Border.all(color:t.border)),child:Text('Characters visualize runtime state through the same semantic animation contract used by the interaction layer.',style:TextStyle(color:t.mutedText,fontSize:12,height:1.5)));
-Widget _start(CriterivoxTheme t,bool n)=>Row(mainAxisAlignment:MainAxisAlignment.center,children:[FilledButton(onPressed:widget.onOpenWorkspace,child:const Text('Enter workspace')),const SizedBox(width:10),OutlinedButton(onPressed:widget.onOpenChat,child:const Text('Meet the characters'))]);
+class AppIntroductionPage extends StatefulWidget {
+  final VoidCallback onOpenWorkspace, onOpenChat;
+  const AppIntroductionPage(
+      {super.key, required this.onOpenWorkspace, required this.onOpenChat});
+  @override
+  State<AppIntroductionPage> createState() => _AppIntroductionPageState();
+}
+
+class _AppIntroductionPageState extends State<AppIntroductionPage>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _motion =
+      AnimationController(vsync: this, duration: const Duration(seconds: 12))
+        ..repeat();
+  static const states = [
+    'IDLE',
+    'RECEIVE',
+    'WORK',
+    'COMMUNICATE',
+    'HANDOFF',
+    'COMPLETE',
+    'WARNING'
+  ];
+  @override
+  void dispose() {
+    _motion.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+    return LayoutBuilder(builder: (context, c) {
+      final n = c.maxWidth < 820;
+      return SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(n ? 14 : 28, 24, n ? 14 : 28, 36),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            _hero(t, n),
+            const SizedBox(height: 22),
+            _minds(t, n),
+            const SizedBox(height: 22),
+            _workflow(t, n),
+            const SizedBox(height: 22),
+            _capabilities(t),
+            const SizedBox(height: 22),
+            _start(t, n)
+          ]));
+    });
+  }
+
+  Widget _hero(CriterivoxTheme t, bool n) => Container(
+      padding: EdgeInsets.all(n ? 20 : 30),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          gradient: LinearGradient(colors: [t.surfaceStrong, t.surface]),
+          border: Border.all(color: t.border)),
+      child: Column(children: [
+        AnimatedBuilder(
+            animation: _motion,
+            builder: (_, __) {
+              final s = states[
+                  (_motion.value * states.length).floor() % states.length];
+              final a =
+                  _heroCharacter(t, 'syvax', 'SYVAX', 'DIALOGUE + ROUTING', s);
+              final b = _heroCharacter(
+                  t,
+                  'dharen',
+                  'DHAREN',
+                  'CONTEXT ARCHITECTURE',
+                  states[(states.indexOf(s) + 1) % states.length]);
+              return n
+                  ? Column(children: [a, const SizedBox(height: 12), b])
+                  : Row(children: [
+                      Expanded(child: a),
+                      Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 22),
+                          child: Text('×',
+                              style:
+                                  TextStyle(color: t.mutedText, fontSize: 24))),
+                      Expanded(child: b)
+                    ]);
+            }),
+        const SizedBox(height: 18),
+        Text('ONE SYSTEM. MANY MINDS.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                color: t.text,
+                fontSize: n ? 22 : 30,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 2.5)),
+        const SizedBox(height: 8),
+        Text(
+            'Criterivox turns data, context and questions into understandable analysis and evidence-backed action.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: t.mutedText, fontSize: 13, height: 1.5))
+      ]));
+  Widget _heroCharacter(CriterivoxTheme t, String id, String name, String role,
+          String state) =>
+      Container(
+          constraints: const BoxConstraints(minHeight: 260, maxHeight: 330),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(22),
+              color: t.page.withValues(alpha: .72),
+              border: Border.all(color: t.primary.withValues(alpha: .25))),
+          child: Column(children: [
+            Expanded(
+                child: SessionCharacterAnimationView(
+                    characterId: id, state: state, width: 180, height: 264)),
+            const SizedBox(height: 8),
+            Text(name,
+                style: TextStyle(
+                    color: t.text,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 2)),
+            Text(role,
+                style: TextStyle(
+                    color: t.primary, fontSize: 10, letterSpacing: 1.2))
+          ]));
+  Widget _minds(CriterivoxTheme t, bool n) => _section(
+          t,
+          'MEET THE MINDS',
+          'They are functional interaction entities, not decorative mascots.',
+          n, [
+        _mindCard(t, 'SYVAX', 'Dialogue + routing',
+            'Receives intent, clarifies direction and routes work through the shared runtime.'),
+        _mindCard(t, 'DHAREN', 'Context architecture',
+            'Structures context, preserves uncertainty and returns contextual work to the task.')
+      ]);
+  Widget _mindCard(CriterivoxTheme t, String name, String role, String desc) =>
+      Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+              color: t.surface,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: t.border)),
+          child: Row(children: [
+            SessionCharacterAnimationView(
+                characterId: name.toLowerCase(),
+                state: 'IDLE',
+                width: 72,
+                height: 86),
+            const SizedBox(width: 14),
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  Text(name,
+                      style: TextStyle(
+                          color: t.primary,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 2)),
+                  Text(role,
+                      style: TextStyle(
+                          color: t.text, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 12),
+                  Text(desc,
+                      style: TextStyle(
+                          color: t.mutedText, fontSize: 11, height: 1.5))
+                ]))
+          ]));
+  Widget _section(CriterivoxTheme t, String title, String subtitle, bool n,
+          List<Widget> children) =>
+      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(title,
+            style: TextStyle(
+                color: t.text,
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.2)),
+        const SizedBox(height: 5),
+        Text(subtitle, style: TextStyle(color: t.mutedText, fontSize: 11)),
+        const SizedBox(height: 12),
+        n
+            ? Column(children: [
+                for (final c in children)
+                  Padding(padding: const EdgeInsets.only(bottom: 10), child: c)
+              ])
+            : Row(children: [
+                for (final c in children)
+                  Expanded(
+                      child: Padding(
+                          padding: const EdgeInsets.only(right: 10), child: c))
+              ])
+      ]);
+  Widget _workflow(CriterivoxTheme t, bool n) => _section(
+          t,
+          'THE WORKFLOW',
+          'A shared runtime turns human intent into coordinated computation.',
+          n, [
+        Text('RECEIVE → CONTEXT → REASON → PLAN → VERIFY → DELIVER',
+            style: TextStyle(color: t.primary, fontWeight: FontWeight.w700))
+      ]);
+  Widget _capabilities(CriterivoxTheme t) => Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+          color: t.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: t.border)),
+      child: Text(
+          'Characters visualize runtime state through the same semantic animation contract used by the interaction layer.',
+          style: TextStyle(color: t.mutedText, fontSize: 12, height: 1.5)));
+  Widget _start(CriterivoxTheme t, bool n) =>
+      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        FilledButton(
+            onPressed: widget.onOpenWorkspace,
+            child: const Text('Enter workspace')),
+        const SizedBox(width: 10),
+        OutlinedButton(
+            onPressed: widget.onOpenChat,
+            child: const Text('Meet the characters'))
+      ]);
 }

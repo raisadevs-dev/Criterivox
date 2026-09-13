@@ -31,13 +31,17 @@ class ExecutionEngineBadge extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.memory_rounded, size: 14, color: fallback ? t.warning : t.primary),
+            Icon(Icons.memory_rounded,
+                size: 14, color: fallback ? t.warning : t.primary),
             const SizedBox(width: 7),
             Flexible(
               child: Text(
                 label,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: t.mutedText, fontSize: 9, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                    color: t.mutedText,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700),
               ),
             ),
           ],

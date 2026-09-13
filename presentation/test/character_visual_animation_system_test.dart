@@ -21,7 +21,8 @@ void main() {
     expect(a.phase, isNot(c.phase));
   });
 
-  test('vector generator emits valid SVG frames for every current character', () {
+  test('vector generator emits valid SVG frames for every current character',
+      () {
     for (final id in SessionCharacterAnimation.activeCharacters) {
       final profile = CharacterVisualProfile.forId(id)!;
       final generator = GeneratedVectorAnimation(

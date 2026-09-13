@@ -11,7 +11,8 @@ void main() {
     expect(SessionCharacterAnimation.supports('vivren'), isFalse);
   });
 
-  test('profiles are deterministic within a session and character-specific', () {
+  test('profiles are deterministic within a session and character-specific',
+      () {
     final first = SessionCharacterAnimation.profileFor('syvax');
     final second = SessionCharacterAnimation.profileFor('syvax');
     final other = SessionCharacterAnimation.profileFor('anuka');

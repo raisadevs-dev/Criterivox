@@ -42,5 +42,6 @@ class CriterivoxStrings {
   String get english => _text('English', 'अंग्रेज़ी');
   String get hindi => _text('Hindi', 'हिंदी');
   String get livingSystem => _text('Living system', 'सक्रिय सिस्टम');
-  String _text(String englishText, String hindiText) => language == CriterivoxLanguage.hindi ? hindiText : englishText;
+  String _text(String englishText, String hindiText) =>
+      language == CriterivoxLanguage.hindi ? hindiText : englishText;
 }

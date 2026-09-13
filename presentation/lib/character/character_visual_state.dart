@@ -50,8 +50,7 @@ class CharacterVisualState {
 
   bool get isActive => active;
 
-  bool get isIdle =>
-      characterState == 'IDLE' || characterState == 'QUIET';
+  bool get isIdle => characterState == 'IDLE' || characterState == 'QUIET';
 
   bool get isReceiving => characterState == 'RECEIVE';
   bool get isWorking => characterState == 'WORK';

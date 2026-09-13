@@ -10,6 +10,23 @@ void main() {
     expect(identity.role, 'Analysis');
   });
 
+  test('character identity resolution is case-insensitive', () {
+    final inputs = <String>[
+      'Dharen',
+      'dharen',
+      'DHAREN',
+      'dHaReN',
+    ];
+
+    for (final input in inputs) {
+      final identity = CharacterIdentities.resolve(input);
+
+      expect(identity.id, 'Dharen');
+      expect(identity.displayName, 'Dharen');
+      expect(identity.role, 'Analysis');
+    }
+  });
+
   test('all fifteen character identities are registered', () {
     expect(CharacterIdentities.all.length, 15);
   });

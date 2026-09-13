@@ -3,7 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:presentation/character/character_runtime_flutter.dart';
 
 void main() {
-  testWidgets('pure Flutter runtime renders all semantic states', (tester) async {
+  testWidgets('pure Flutter runtime renders all semantic states',
+      (tester) async {
     const states = [
       'IDLE',
       'RECEIVE',

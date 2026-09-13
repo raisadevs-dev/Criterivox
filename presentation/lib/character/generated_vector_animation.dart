@@ -21,10 +21,8 @@ class GeneratedVectorAnimation {
     final count = frameCount < 2 ? 2 : frameCount;
     final index = frame % count;
     final phase = index / count * math.pi * 2;
-    final lift = math.sin(phase) *
-        (state.toUpperCase() == 'IDLE' ? 1.2 : 2.6);
-    final glow =
-        .10 + .08 * (.5 + .5 * math.sin(phase * 2 + sessionSeed % 13));
+    final lift = math.sin(phase) * (state.toUpperCase() == 'IDLE' ? 1.2 : 2.6);
+    final glow = .10 + .08 * (.5 + .5 * math.sin(phase * 2 + sessionSeed % 13));
     final accent = _hex(profile.accent.toARGB32());
     final body = _hex(profile.body.toARGB32());
     final hair = _hex(profile.hair.toARGB32());

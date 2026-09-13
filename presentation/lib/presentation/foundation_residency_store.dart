@@ -12,15 +12,18 @@ class FoundationResidencyStore {
   Future<Database> _open() async {
     final existing = _db;
     if (existing != null) return existing;
-    final db = await idbFactoryBrowser.open(_dbName, version: 1, onUpgradeNeeded: (event) {
+    final db = await idbFactoryBrowser.open(_dbName, version: 1,
+        onUpgradeNeeded: (event) {
       final database = event.database;
-      if (!database.objectStoreNames.contains(_store)) database.createObjectStore(_store);
+      if (!database.objectStoreNames.contains(_store))
+        database.createObjectStore(_store);
     });
     _db = db;
     return db;
   }
 
-  Future<void> put(Map<String, dynamic> foundation, {required int revision}) async {
+  Future<void> put(Map<String, dynamic> foundation,
+      {required int revision}) async {
     final db = await _open();
     final id = '${foundation['foundation_id']}';
     final envelope = {
@@ -49,7 +52,10 @@ class FoundationResidencyStore {
     final tx = db.transaction(_store, idbModeReadOnly);
     final values = await tx.objectStore(_store).getAll();
     await tx.completed;
-    return values.whereType<Map>().map(Map<String, dynamic>.from).toList(growable: false);
+    return values
+        .whereType<Map>()
+        .map(Map<String, dynamic>.from)
+        .toList(growable: false);
   }
 
   Future<void> remove(String id) async {

@@ -41,7 +41,7 @@ class _SessionCharacterAnimationViewState extends State<SessionCharacterAnimatio
       return SizedBox(width:widget.width,height:widget.height,child:Transform.translate(offset:Offset(sway,lift),child:Transform.rotate(angle:angle,child:Transform.scale(scale:scale,child:Stack(alignment:Alignment.center,children:[
         CharacterRuntimeView(characterId:widget.characterId,state:visualState,reducedMotion:widget.reducedMotion,width:widget.width,height:widget.height),
         Transform.translate(offset:Offset(-sway,-lift),child:Transform.rotate(angle:-angle,child:Transform.scale(scale:1/scale,child:CharacterDetailLayer(profile:profile,state:visualState,progress:widget.reducedMotion ? .35 : _controller.value)))),
-      ]))));
+      ])))));
     });
   }
   String generatedSvgFrame({required int frame, int frameCount=8}){

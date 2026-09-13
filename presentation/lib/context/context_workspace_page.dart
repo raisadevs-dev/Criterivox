@@ -7,7 +7,11 @@ class ContextWorkspacePage extends StatelessWidget {
   final PresentationState? state;
   final VoidCallback onBuildContext;
   final VoidCallback onOpenChat;
-  const ContextWorkspacePage({super.key, required this.state, required this.onBuildContext, required this.onOpenChat});
+  const ContextWorkspacePage(
+      {super.key,
+      required this.state,
+      required this.onBuildContext,
+      required this.onOpenChat});
 
   @override
   Widget build(BuildContext context) {
@@ -16,49 +20,514 @@ class ContextWorkspacePage extends StatelessWidget {
     final diff = state?.contextDiff;
     final memoryStatus = state?.memoryStatus ?? 'UNKNOWN';
     final debtLevel = state?.evidenceDebtLevel ?? 'UNKNOWN';
-    return Container(color: theme.page, child: SingleChildScrollView(padding: const EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text('CONTEXT WORKSPACE', style: TextStyle(color: theme.mutedText, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.4)),
-      const SizedBox(height: 6), Text('Context Engine', style: TextStyle(color: theme.text, fontSize: 28, fontWeight: FontWeight.w800)),
-      const SizedBox(height: 8), Text('The context layer is inspectable: provenance, context change, evidence completeness, memory validity and agent activity are explicit runtime state.', style: TextStyle(color: theme.mutedText, fontSize: 12, height: 1.5)),
-      const SizedBox(height: 20), Wrap(spacing: 12, runSpacing: 12, children: [
-        _Metric(label: 'S5 Material Set', value: state?.foundationMaterialSetId ?? 'Not selected', theme: theme), _Metric(label: 'Context ID', value: state?.contextId ?? 'Not built', theme: theme),
-        _Metric(label: 'Baseline', value: state?.contextBaselineStatus ?? 'UNKNOWN', theme: theme), _Metric(label: 'Evidence completeness', value: state?.evidenceCompleteness == null ? 'UNKNOWN' : '${state!.evidenceCompleteness}%', theme: theme),
-      ]),
-      const SizedBox(height: 18), Row(children: [FilledButton.icon(onPressed: state?.foundationId == null ? null : onBuildContext, icon: const Icon(Icons.account_tree_rounded, size: 17), label: const Text('Build context from S5 material')), const SizedBox(width: 10), OutlinedButton.icon(onPressed: onOpenChat, icon: const Icon(Icons.forum_outlined, size: 17), label: const Text('Character interaction'))]),
-      const SizedBox(height: 24),
-      _Section(title: 'CONTEXT PROVENANCE GRAPH', summary: '${_graphCount(graph)} nodes', theme: theme, child: _GraphView(graph: graph, theme: theme)),
-      _Section(title: 'CONTEXT DIMENSIONS', summary: '${state?.contextDimensions.length ?? 0} active', theme: theme, child: Wrap(spacing: 8, runSpacing: 8, children: [for (final item in const ['content','creator','platform','temporal','audience','environment']) _Pill(label: item, active: state?.contextDimensions.contains(item) ?? false, theme: theme)])),
-      _Section(title: 'CONTEXT DIFF', summary: _diffSummary(diff), theme: theme, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_DiffRow(label: 'Added', values: _strings(diff?['added']), theme: theme), _DiffRow(label: 'Removed', values: _strings(diff?['removed']), theme: theme), _DiffRow(label: 'Changed', values: _strings(diff?['changed']), theme: theme), _DiffRow(label: 'Unchanged', values: _strings(diff?['unchanged']), theme: theme), const SizedBox(height: 8), Text('Semantic equivalence is deliberately not claimed by a structural diff.', style: TextStyle(color: theme.mutedText, fontSize: 9.5))])),
-      _Section(title: 'EVIDENCE DEBT', summary: state?.evidenceCompleteness == null ? 'UNKNOWN' : '${state!.evidenceCompleteness}% • $debtLevel', theme: theme, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(children: [Text(state?.evidenceCompleteness == null ? 'UNKNOWN' : '${state!.evidenceCompleteness}%', style: TextStyle(color: theme.text, fontSize: 24, fontWeight: FontWeight.w800)), const SizedBox(width: 12), _Pill(label: debtLevel, active: debtLevel == 'LOW', theme: theme)]), const SizedBox(height: 10), Wrap(spacing: 7, runSpacing: 7, children: [for (final tag in state?.evidenceTags ?? const <String>[]) _Pill(label: tag, active: false, theme: theme)]), const SizedBox(height: 8), Text('HEURISTIC • the percentage is an evidence-completeness indicator, not a confidence probability. Threshold effectiveness remains unvalidated.', style: TextStyle(color: theme.mutedText, fontSize: 9.5, height: 1.4))])),
-      _Section(title: 'CONTEXT MEMORY WITH EXPIRATION', summary: memoryStatus, theme: theme, child: _KeyValueGrid(theme: theme, values: {'Status': memoryStatus, 'Recheck at': state?.memoryRecheckAt ?? 'UNKNOWN', 'Reason': state?.memoryRecheckReason ?? 'No research-validated recheck rule supplied', 'Rule': 'No universal TTL is assumed'})),
-      _Section(title: 'AGENT OBSERVABILITY TIMELINE', summary: '${state?.observabilityEvents.length ?? 0} events', theme: theme, child: state?.observabilityEvents.isNotEmpty == true ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [for (final event in state!.observabilityEvents.take(20)) _ActivityEvent(event: event, theme: theme)]) : Text('No structured activity events have been emitted yet.', style: TextStyle(color: theme.mutedText, fontSize: 10.5))),
-      _Section(title: 'CONTROLLED MULTI-AGENT HANDOFF', summary: state?.deliveryStatus ?? 'Not emitted', theme: theme, child: _KeyValueGrid(theme: theme, values: {'Coordination ID': state?.coordinationId ?? 'Not emitted', 'Members': state?.coordinationMembers.join(', ') ?? 'Not emitted', 'Delivery ID': state?.deliveryId ?? 'Not emitted', 'Recipient': state?.deliveryRecipient ?? 'Not emitted', 'Status': state?.deliveryStatus ?? 'Not emitted'})),
-      _Section(title: 'CONTEXTUAL BASELINE', summary: state?.contextBaselineStatus ?? 'UNKNOWN', theme: theme, child: _KeyValueGrid(theme: theme, values: {'Baseline ID': state?.contextBaselineId ?? 'Not created', 'Status': state?.contextBaselineStatus ?? 'UNKNOWN', 'Method': 'Representation / comparison boundary only', 'Limitation': 'Empirically validated baseline-selection method is not established'})),
-      _Section(title: 'INTERPRETATION', summary: state?.message == null ? 'No interpretation' : 'Available', theme: theme, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(state?.message ?? 'No contextual interpretation has been produced yet.', style: TextStyle(color: theme.text, fontSize: 12, height: 1.5)), if ((state?.contextUncertainty ?? const <String>[]).isNotEmpty) ...[const SizedBox(height: 8), Text('UNCERTAINTY  ${state!.contextUncertainty.join(' • ')}', style: TextStyle(color: theme.mutedText, fontSize: 10, height: 1.5))], if ((state?.contextLimitations ?? const <String>[]).isNotEmpty) ...[const SizedBox(height: 6), Text('LIMITATIONS  ${state!.contextLimitations.join(' • ')}', style: TextStyle(color: theme.mutedText, fontSize: 10, height: 1.5))]])),
-      _Section(title: 'LINEAGE', summary: '${_sourceIds(state?.lineageSnapshot).length} source IDs', theme: theme, child: _KeyValueGrid(theme: theme, values: {'Material Set': state?.lineageSnapshot?['material_set_id']?.toString() ?? state?.foundationMaterialSetId ?? 'Unknown', 'Source IDs': _sourceIds(state?.lineageSnapshot).join(', '), 'Immutable': state?.lineageSnapshot?['immutable']?.toString() ?? 'false'})),
-      _Section(title: 'MCP-READY CAPABILITY BOUNDARY', summary: 'IMPLEMENTED', theme: theme, child: Text('IMPLEMENTED: Criterivox exposes a protocol-neutral internal capability boundary. MCP is kept as a future adapter concern, with no autonomous external tool execution implied.', style: TextStyle(color: theme.mutedText, fontSize: 11, height: 1.5))),
-    ])));
+    return Container(
+        color: theme.page,
+        child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('CONTEXT WORKSPACE',
+                  style: TextStyle(
+                      color: theme.mutedText,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.4)),
+              const SizedBox(height: 6),
+              Text('Context Engine',
+                  style: TextStyle(
+                      color: theme.text,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800)),
+              const SizedBox(height: 8),
+              Text(
+                  'The context layer is inspectable: provenance, context change, evidence completeness, memory validity and agent activity are explicit runtime state.',
+                  style: TextStyle(
+                      color: theme.mutedText, fontSize: 12, height: 1.5)),
+              const SizedBox(height: 20),
+              Wrap(spacing: 12, runSpacing: 12, children: [
+                _Metric(
+                    label: 'S5 Material Set',
+                    value: state?.foundationMaterialSetId ?? 'Not selected',
+                    theme: theme),
+                _Metric(
+                    label: 'Context ID',
+                    value: state?.contextId ?? 'Not built',
+                    theme: theme),
+                _Metric(
+                    label: 'Baseline',
+                    value: state?.contextBaselineStatus ?? 'UNKNOWN',
+                    theme: theme),
+                _Metric(
+                    label: 'Evidence completeness',
+                    value: state?.evidenceCompleteness == null
+                        ? 'UNKNOWN'
+                        : '${state!.evidenceCompleteness}%',
+                    theme: theme),
+              ]),
+              const SizedBox(height: 18),
+              Row(children: [
+                FilledButton.icon(
+                    onPressed:
+                        state?.foundationId == null ? null : onBuildContext,
+                    icon: const Icon(Icons.account_tree_rounded, size: 17),
+                    label: const Text('Build context from S5 material')),
+                const SizedBox(width: 10),
+                OutlinedButton.icon(
+                    onPressed: onOpenChat,
+                    icon: const Icon(Icons.forum_outlined, size: 17),
+                    label: const Text('Character interaction'))
+              ]),
+              const SizedBox(height: 24),
+              _Section(
+                  title: 'CONTEXT PROVENANCE GRAPH',
+                  summary: '${_graphCount(graph)} nodes',
+                  theme: theme,
+                  child: _GraphView(graph: graph, theme: theme)),
+              _Section(
+                  title: 'CONTEXT DIMENSIONS',
+                  summary: '${state?.contextDimensions.length ?? 0} active',
+                  theme: theme,
+                  child: Wrap(spacing: 8, runSpacing: 8, children: [
+                    for (final item in const [
+                      'content',
+                      'creator',
+                      'platform',
+                      'temporal',
+                      'audience',
+                      'environment'
+                    ])
+                      _Pill(
+                          label: item,
+                          active:
+                              state?.contextDimensions.contains(item) ?? false,
+                          theme: theme)
+                  ])),
+              _Section(
+                  title: 'CONTEXT DIFF',
+                  summary: _diffSummary(diff),
+                  theme: theme,
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _DiffRow(
+                            label: 'Added',
+                            values: _strings(diff?['added']),
+                            theme: theme),
+                        _DiffRow(
+                            label: 'Removed',
+                            values: _strings(diff?['removed']),
+                            theme: theme),
+                        _DiffRow(
+                            label: 'Changed',
+                            values: _strings(diff?['changed']),
+                            theme: theme),
+                        _DiffRow(
+                            label: 'Unchanged',
+                            values: _strings(diff?['unchanged']),
+                            theme: theme),
+                        const SizedBox(height: 8),
+                        Text(
+                            'Semantic equivalence is deliberately not claimed by a structural diff.',
+                            style: TextStyle(
+                                color: theme.mutedText, fontSize: 9.5))
+                      ])),
+              _Section(
+                  title: 'EVIDENCE DEBT',
+                  summary: state?.evidenceCompleteness == null
+                      ? 'UNKNOWN'
+                      : '${state!.evidenceCompleteness}% • $debtLevel',
+                  theme: theme,
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(children: [
+                          Text(
+                              state?.evidenceCompleteness == null
+                                  ? 'UNKNOWN'
+                                  : '${state!.evidenceCompleteness}%',
+                              style: TextStyle(
+                                  color: theme.text,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w800)),
+                          const SizedBox(width: 12),
+                          _Pill(
+                              label: debtLevel,
+                              active: debtLevel == 'LOW',
+                              theme: theme)
+                        ]),
+                        const SizedBox(height: 10),
+                        Wrap(spacing: 7, runSpacing: 7, children: [
+                          for (final tag
+                              in state?.evidenceTags ?? const <String>[])
+                            _Pill(label: tag, active: false, theme: theme)
+                        ]),
+                        const SizedBox(height: 8),
+                        Text(
+                            'HEURISTIC • the percentage is an evidence-completeness indicator, not a confidence probability. Threshold effectiveness remains unvalidated.',
+                            style: TextStyle(
+                                color: theme.mutedText,
+                                fontSize: 9.5,
+                                height: 1.4))
+                      ])),
+              _Section(
+                  title: 'CONTEXT MEMORY WITH EXPIRATION',
+                  summary: memoryStatus,
+                  theme: theme,
+                  child: _KeyValueGrid(theme: theme, values: {
+                    'Status': memoryStatus,
+                    'Recheck at': state?.memoryRecheckAt ?? 'UNKNOWN',
+                    'Reason': state?.memoryRecheckReason ??
+                        'No research-validated recheck rule supplied',
+                    'Rule': 'No universal TTL is assumed'
+                  })),
+              _Section(
+                  title: 'AGENT OBSERVABILITY TIMELINE',
+                  summary: '${state?.observabilityEvents.length ?? 0} events',
+                  theme: theme,
+                  child: state?.observabilityEvents.isNotEmpty == true
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                              for (final event
+                                  in state!.observabilityEvents.take(20))
+                                _ActivityEvent(event: event, theme: theme)
+                            ])
+                      : Text(
+                          'No structured activity events have been emitted yet.',
+                          style: TextStyle(
+                              color: theme.mutedText, fontSize: 10.5))),
+              _Section(
+                  title: 'CONTROLLED MULTI-AGENT HANDOFF',
+                  summary: state?.deliveryStatus ?? 'Not emitted',
+                  theme: theme,
+                  child: _KeyValueGrid(theme: theme, values: {
+                    'Coordination ID': state?.coordinationId ?? 'Not emitted',
+                    'Members':
+                        state?.coordinationMembers.join(', ') ?? 'Not emitted',
+                    'Delivery ID': state?.deliveryId ?? 'Not emitted',
+                    'Recipient': state?.deliveryRecipient ?? 'Not emitted',
+                    'Status': state?.deliveryStatus ?? 'Not emitted'
+                  })),
+              _Section(
+                  title: 'CONTEXTUAL BASELINE',
+                  summary: state?.contextBaselineStatus ?? 'UNKNOWN',
+                  theme: theme,
+                  child: _KeyValueGrid(theme: theme, values: {
+                    'Baseline ID': state?.contextBaselineId ?? 'Not created',
+                    'Status': state?.contextBaselineStatus ?? 'UNKNOWN',
+                    'Method': 'Representation / comparison boundary only',
+                    'Limitation':
+                        'Empirically validated baseline-selection method is not established'
+                  })),
+              _Section(
+                  title: 'INTERPRETATION',
+                  summary: state?.message == null
+                      ? 'No interpretation'
+                      : 'Available',
+                  theme: theme,
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                            state?.message ??
+                                'No contextual interpretation has been produced yet.',
+                            style: TextStyle(
+                                color: theme.text, fontSize: 12, height: 1.5)),
+                        if ((state?.contextUncertainty ?? const <String>[])
+                            .isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                              'UNCERTAINTY  ${state!.contextUncertainty.join(' • ')}',
+                              style: TextStyle(
+                                  color: theme.mutedText,
+                                  fontSize: 10,
+                                  height: 1.5))
+                        ],
+                        if ((state?.contextLimitations ?? const <String>[])
+                            .isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                          Text(
+                              'LIMITATIONS  ${state!.contextLimitations.join(' • ')}',
+                              style: TextStyle(
+                                  color: theme.mutedText,
+                                  fontSize: 10,
+                                  height: 1.5))
+                        ]
+                      ])),
+              _Section(
+                  title: 'LINEAGE',
+                  summary:
+                      '${_sourceIds(state?.lineageSnapshot).length} source IDs',
+                  theme: theme,
+                  child: _KeyValueGrid(theme: theme, values: {
+                    'Material Set': state?.lineageSnapshot?['material_set_id']
+                            ?.toString() ??
+                        state?.foundationMaterialSetId ??
+                        'Unknown',
+                    'Source IDs': _sourceIds(state?.lineageSnapshot).join(', '),
+                    'Immutable':
+                        state?.lineageSnapshot?['immutable']?.toString() ??
+                            'false'
+                  })),
+              _Section(
+                  title: 'MCP-READY CAPABILITY BOUNDARY',
+                  summary: 'IMPLEMENTED',
+                  theme: theme,
+                  child: Text(
+                      'IMPLEMENTED: Criterivox exposes a protocol-neutral internal capability boundary. MCP is kept as a future adapter concern, with no autonomous external tool execution implied.',
+                      style: TextStyle(
+                          color: theme.mutedText, fontSize: 11, height: 1.5))),
+            ])));
   }
-  static int _graphCount(Map<String,dynamic>? graph) => graph?['nodes'] is List ? (graph!['nodes'] as List).length : 0;
-  static String _diffSummary(Map<String,dynamic>? diff) { final changed = _strings(diff?['changed']).length; final added = _strings(diff?['added']).length; final removed = _strings(diff?['removed']).length; return '$changed changed • $added added • $removed removed'; }
-  static List<String> _strings(dynamic value) => value is List ? value.whereType<String>().toList() : const <String>[];
-  static List<String> _sourceIds(Map<String,dynamic>? lineage) => lineage?['source_ids'] is List ? (lineage!['source_ids'] as List).whereType<String>().toList() : const <String>[];
+
+  static int _graphCount(Map<String, dynamic>? graph) =>
+      graph?['nodes'] is List ? (graph!['nodes'] as List).length : 0;
+  static String _diffSummary(Map<String, dynamic>? diff) {
+    final changed = _strings(diff?['changed']).length;
+    final added = _strings(diff?['added']).length;
+    final removed = _strings(diff?['removed']).length;
+    return '$changed changed • $added added • $removed removed';
+  }
+
+  static List<String> _strings(dynamic value) =>
+      value is List ? value.whereType<String>().toList() : const <String>[];
+  static List<String> _sourceIds(Map<String, dynamic>? lineage) =>
+      lineage?['source_ids'] is List
+          ? (lineage!['source_ids'] as List).whereType<String>().toList()
+          : const <String>[];
 }
 
 class _Section extends StatefulWidget {
-  final String title, summary; final Widget child; final CriterivoxTheme theme;
-  const _Section({required this.title, required this.summary, required this.child, required this.theme});
-  @override State<_Section> createState() => _SectionState();
-}
-class _SectionState extends State<_Section> {
-  bool expanded = false;
-  @override Widget build(BuildContext context) => Container(width: double.infinity, margin: const EdgeInsets.only(bottom: 12), decoration: BoxDecoration(color: widget.theme.surface, borderRadius: BorderRadius.circular(18), border: Border.all(color: widget.theme.border)), child: Column(children: [InkWell(onTap: () => setState(() => expanded = !expanded), borderRadius: BorderRadius.circular(18), child: Padding(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14), child: Row(children: [Expanded(child: Text(widget.title, style: TextStyle(color: widget.theme.text, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.0)),), if (widget.summary.isNotEmpty) ...[const SizedBox(width: 10), Flexible(child: Text(widget.summary, overflow: TextOverflow.ellipsis, style: TextStyle(color: widget.theme.mutedText, fontSize: 9)) )], const SizedBox(width: 8), Icon(expanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded, color: widget.theme.mutedText, size: 19)])),), if (expanded) Padding(padding: const EdgeInsets.fromLTRB(16, 0, 16, 16), child: widget.child)]));
+  final String title, summary;
+  final Widget child;
+  final CriterivoxTheme theme;
+  const _Section(
+      {required this.title,
+      required this.summary,
+      required this.child,
+      required this.theme});
+  @override
+  State<_Section> createState() => _SectionState();
 }
 
-class _GraphView extends StatelessWidget { final Map<String,dynamic>? graph; final CriterivoxTheme theme; const _GraphView({required this.graph, required this.theme}); @override Widget build(BuildContext context) { final nodes = graph?['nodes'] is List ? (graph!['nodes'] as List).whereType<Map>().map((item) => Map<String,dynamic>.from(item)).toList() : const <Map<String,dynamic>>[]; if (nodes.isEmpty) return Text('No provenance graph has been built yet.', style: TextStyle(color: theme.mutedText, fontSize: 10.5)); return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Wrap(spacing: 8, runSpacing: 8, children: [for (final node in nodes) _GraphNode(label: node['label']?.toString() ?? 'Unknown', kind: node['kind']?.toString() ?? '', theme: theme)]), const SizedBox(height: 10), Text('${nodes.length} provenance node(s) • traceability is IMPLEMENTED • immutability is UNKNOWN', style: TextStyle(color: theme.mutedText, fontSize: 9.5))]); } }
-class _GraphNode extends StatelessWidget { final String label, kind; final CriterivoxTheme theme; const _GraphNode({required this.label, required this.kind, required this.theme}); @override Widget build(BuildContext context) => Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10), decoration: BoxDecoration(color: theme.surfaceStrong, borderRadius: BorderRadius.circular(12), border: Border.all(color: theme.primary.withValues(alpha: .35))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(kind, style: TextStyle(color: theme.primary, fontSize: 8, fontWeight: FontWeight.w700)), const SizedBox(height: 3), Text(label, style: TextStyle(color: theme.text, fontSize: 10, fontWeight: FontWeight.w600))])); }
-class _DiffRow extends StatelessWidget { final String label; final List<String> values; final CriterivoxTheme theme; const _DiffRow({required this.label, required this.values, required this.theme}); @override Widget build(BuildContext context) => Padding(padding: const EdgeInsets.only(bottom: 8), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [SizedBox(width: 90, child: Text(label, style: TextStyle(color: theme.mutedText, fontSize: 9))), Expanded(child: Text(values.isEmpty ? 'None' : values.join(', '), style: TextStyle(color: theme.text, fontSize: 10.5)))])); }
-class _ActivityEvent extends StatelessWidget { final Map<String,dynamic> event; final CriterivoxTheme theme; const _ActivityEvent({required this.event, required this.theme}); @override Widget build(BuildContext context) => Padding(padding: const EdgeInsets.only(bottom: 8), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Container(width: 7, height: 7, margin: const EdgeInsets.only(top: 4, right: 8), decoration: BoxDecoration(shape: BoxShape.circle, color: theme.primary)), Expanded(child: Text('${event['character_id'] ?? 'unknown'} • ${event['action'] ?? 'event'} • ${event['reason'] ?? ''}', style: TextStyle(color: theme.text, fontSize: 10.5, height: 1.4)))])); }
-class _Metric extends StatelessWidget { final String label, value; final CriterivoxTheme theme; const _Metric({required this.label, required this.value, required this.theme}); @override Widget build(BuildContext context) => Container(width: 210, padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: theme.surfaceStrong, borderRadius: BorderRadius.circular(16), border: Border.all(color: theme.border)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(label, style: TextStyle(color: theme.mutedText, fontSize: 9, fontWeight: FontWeight.w700)), const SizedBox(height: 7), Text(value, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: theme.text, fontSize: 12, fontWeight: FontWeight.w700))])); }
-class _KeyValueGrid extends StatelessWidget { final CriterivoxTheme theme; final Map<String,String> values; const _KeyValueGrid({required this.theme, required this.values}); @override Widget build(BuildContext context) => Wrap(spacing: 24, runSpacing: 10, children: [for (final item in values.entries) SizedBox(width: 250, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(item.key, style: TextStyle(color: theme.mutedText, fontSize: 9)), const SizedBox(height: 3), Text(item.value, style: TextStyle(color: theme.text, fontSize: 11, height: 1.35))]))]); }
-class _Pill extends StatelessWidget { final String label; final bool active; final CriterivoxTheme theme; const _Pill({required this.label, required this.active, required this.theme}); @override Widget build(BuildContext context) => Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7), decoration: BoxDecoration(color: active ? theme.primary.withValues(alpha: .12) : theme.surfaceStrong, borderRadius: BorderRadius.circular(20), border: Border.all(color: active ? theme.primary.withValues(alpha: .45) : theme.border)), child: Text(label, style: TextStyle(color: active ? theme.text : theme.mutedText, fontSize: 10, fontWeight: FontWeight.w600))); }
+class _SectionState extends State<_Section> {
+  bool expanded = false;
+  @override
+  Widget build(BuildContext context) => Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+          color: widget.theme.surface,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: widget.theme.border)),
+      child: Column(children: [
+        InkWell(
+          onTap: () => setState(() => expanded = !expanded),
+          borderRadius: BorderRadius.circular(18),
+          child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(children: [
+                Expanded(
+                  child: Text(widget.title,
+                      style: TextStyle(
+                          color: widget.theme.text,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.0)),
+                ),
+                if (widget.summary.isNotEmpty) ...[
+                  const SizedBox(width: 10),
+                  Flexible(
+                      child: Text(widget.summary,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: widget.theme.mutedText, fontSize: 9)))
+                ],
+                const SizedBox(width: 8),
+                Icon(
+                    expanded
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
+                    color: widget.theme.mutedText,
+                    size: 19)
+              ])),
+        ),
+        if (expanded)
+          Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: widget.child)
+      ]));
+}
+
+class _GraphView extends StatelessWidget {
+  final Map<String, dynamic>? graph;
+  final CriterivoxTheme theme;
+  const _GraphView({required this.graph, required this.theme});
+  @override
+  Widget build(BuildContext context) {
+    final nodes = graph?['nodes'] is List
+        ? (graph!['nodes'] as List)
+            .whereType<Map>()
+            .map((item) => Map<String, dynamic>.from(item))
+            .toList()
+        : const <Map<String, dynamic>>[];
+    if (nodes.isEmpty)
+      return Text('No provenance graph has been built yet.',
+          style: TextStyle(color: theme.mutedText, fontSize: 10.5));
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Wrap(spacing: 8, runSpacing: 8, children: [
+        for (final node in nodes)
+          _GraphNode(
+              label: node['label']?.toString() ?? 'Unknown',
+              kind: node['kind']?.toString() ?? '',
+              theme: theme)
+      ]),
+      const SizedBox(height: 10),
+      Text(
+          '${nodes.length} provenance node(s) • traceability is IMPLEMENTED • immutability is UNKNOWN',
+          style: TextStyle(color: theme.mutedText, fontSize: 9.5))
+    ]);
+  }
+}
+
+class _GraphNode extends StatelessWidget {
+  final String label, kind;
+  final CriterivoxTheme theme;
+  const _GraphNode(
+      {required this.label, required this.kind, required this.theme});
+  @override
+  Widget build(BuildContext context) => Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+          color: theme.surfaceStrong,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: theme.primary.withValues(alpha: .35))),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(kind,
+            style: TextStyle(
+                color: theme.primary,
+                fontSize: 8,
+                fontWeight: FontWeight.w700)),
+        const SizedBox(height: 3),
+        Text(label,
+            style: TextStyle(
+                color: theme.text, fontSize: 10, fontWeight: FontWeight.w600))
+      ]));
+}
+
+class _DiffRow extends StatelessWidget {
+  final String label;
+  final List<String> values;
+  final CriterivoxTheme theme;
+  const _DiffRow(
+      {required this.label, required this.values, required this.theme});
+  @override
+  Widget build(BuildContext context) => Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SizedBox(
+            width: 90,
+            child: Text(label,
+                style: TextStyle(color: theme.mutedText, fontSize: 9))),
+        Expanded(
+            child: Text(values.isEmpty ? 'None' : values.join(', '),
+                style: TextStyle(color: theme.text, fontSize: 10.5)))
+      ]));
+}
+
+class _ActivityEvent extends StatelessWidget {
+  final Map<String, dynamic> event;
+  final CriterivoxTheme theme;
+  const _ActivityEvent({required this.event, required this.theme});
+  @override
+  Widget build(BuildContext context) => Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Container(
+            width: 7,
+            height: 7,
+            margin: const EdgeInsets.only(top: 4, right: 8),
+            decoration:
+                BoxDecoration(shape: BoxShape.circle, color: theme.primary)),
+        Expanded(
+            child: Text(
+                '${event['character_id'] ?? 'unknown'} • ${event['action'] ?? 'event'} • ${event['reason'] ?? ''}',
+                style:
+                    TextStyle(color: theme.text, fontSize: 10.5, height: 1.4)))
+      ]));
+}
+
+class _Metric extends StatelessWidget {
+  final String label, value;
+  final CriterivoxTheme theme;
+  const _Metric(
+      {required this.label, required this.value, required this.theme});
+  @override
+  Widget build(BuildContext context) => Container(
+      width: 210,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+          color: theme.surfaceStrong,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: theme.border)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(label,
+            style: TextStyle(
+                color: theme.mutedText,
+                fontSize: 9,
+                fontWeight: FontWeight.w700)),
+        const SizedBox(height: 7),
+        Text(value,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+                color: theme.text, fontSize: 12, fontWeight: FontWeight.w700))
+      ]));
+}
+
+class _KeyValueGrid extends StatelessWidget {
+  final CriterivoxTheme theme;
+  final Map<String, String> values;
+  const _KeyValueGrid({required this.theme, required this.values});
+  @override
+  Widget build(BuildContext context) =>
+      Wrap(spacing: 24, runSpacing: 10, children: [
+        for (final item in values.entries)
+          SizedBox(
+              width: 250,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(item.key,
+                        style: TextStyle(color: theme.mutedText, fontSize: 9)),
+                    const SizedBox(height: 3),
+                    Text(item.value,
+                        style: TextStyle(
+                            color: theme.text, fontSize: 11, height: 1.35))
+                  ]))
+      ]);
+}
+
+class _Pill extends StatelessWidget {
+  final String label;
+  final bool active;
+  final CriterivoxTheme theme;
+  const _Pill({required this.label, required this.active, required this.theme});
+  @override
+  Widget build(BuildContext context) => Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+          color: active
+              ? theme.primary.withValues(alpha: .12)
+              : theme.surfaceStrong,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+              color: active
+                  ? theme.primary.withValues(alpha: .45)
+                  : theme.border)),
+      child: Text(label,
+          style: TextStyle(
+              color: active ? theme.text : theme.mutedText,
+              fontSize: 10,
+              fontWeight: FontWeight.w600)));
+}

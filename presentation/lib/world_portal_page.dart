@@ -1,30 +1,1176 @@
+
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
 import 'human_residence_store.dart';
 import 'presentation/criterivox_theme.dart';
 
 class WorldPortalPage extends StatelessWidget {
-  final VoidCallback onCivilization,onHumanResidence,onGuest,onChat;
-  const WorldPortalPage({super.key,required this.onCivilization,required this.onHumanResidence,required this.onGuest,required this.onChat});
-  @override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);return LayoutBuilder(builder:(context,c){final compact=c.maxWidth<900;return SingleChildScrollView(padding:EdgeInsets.all(compact?18:30),child:Column(children:[Container(width:double.infinity,padding:const EdgeInsets.all(32),decoration:BoxDecoration(color:t.surface,borderRadius:BorderRadius.circular(30),border:Border.all(color:t.border)),child:Column(children:[Text('WELCOME TO CRITERIVOX',style:TextStyle(color:t.primary,fontSize:11,fontWeight:FontWeight.w800,letterSpacing:2)),const SizedBox(height:10),Text('Two gates. One living system.',textAlign:TextAlign.center,style:TextStyle(color:t.text,fontSize:compact?28:38,fontWeight:FontWeight.w800)),const SizedBox(height:8),Text('First understand the machine. Then bring your own problem into it.',textAlign:TextAlign.center,style:TextStyle(color:t.mutedText,fontSize:13))])),const SizedBox(height:20),compact?Column(children:[_gate1(t),const SizedBox(height:14),_gate2(t)]):Row(crossAxisAlignment:CrossAxisAlignment.stretch,children:[Expanded(child:_gate1(t)),const SizedBox(width:14),Expanded(child:_gate2(t))]),const SizedBox(height:16),OutlinedButton.icon(onPressed:onChat,icon:const Icon(Icons.forum_rounded),label:const Text('Independent character chat'))]));});}
-  Widget _gate1(CriterivoxTheme t)=>_card(t,Icons.door_front_door_rounded,'GATE 1','CRITERIVOX CIVILIZATION','Meet the people who assist you make the decision.','Visit characters, homes, relationships, evidence, collaboration and explanations.',t.primary,onCivilization,'Enter civilization');
-  Widget _gate2(CriterivoxTheme t)=>_card(t,Icons.home_work_rounded,'GATE 2','HUMAN RESIDENCE','This is where your actual problem lives.','Get a personal house, create or join a club, or use a Guest Pass without creating a permanent residence.',t.success,onHumanResidence,'Enter residence');
-  Widget _card(CriterivoxTheme t,IconData icon,String eyebrow,String title,String sub,String body,Color accent,VoidCallback onTap,String action)=>Container(padding:const EdgeInsets.all(22),decoration:BoxDecoration(color:t.surface,borderRadius:BorderRadius.circular(24),border:Border.all(color:accent.withValues(alpha:.3))),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Icon(icon,color:accent,size:30),const SizedBox(height:12),Text(eyebrow,style:TextStyle(color:accent,fontSize:9,fontWeight:FontWeight.w800,letterSpacing:1.5)),const SizedBox(height:5),Text(title,style:TextStyle(color:t.text,fontSize:20,fontWeight:FontWeight.w800)),const SizedBox(height:5),Text(sub,style:TextStyle(color:t.text,fontSize:11,fontWeight:FontWeight.w600)),const SizedBox(height:10),Text(body,style:TextStyle(color:t.mutedText,fontSize:11,height:1.5)),const SizedBox(height:16),FilledButton.icon(onPressed:onTap,icon:const Icon(Icons.arrow_forward_rounded,size:16),label:Text(action))]));
+  final VoidCallback onCivilization;
+  final VoidCallback onHumanResidence;
+  final VoidCallback onGuest;
+  final VoidCallback onChat;
+
+  const WorldPortalPage({
+    super.key,
+    required this.onCivilization,
+    required this.onHumanResidence,
+    required this.onGuest,
+    required this.onChat,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 900;
+
+        return SingleChildScrollView(
+          padding: EdgeInsets.all(compact ? 18 : 30),
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  color: t.surface,
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: t.border),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      'WELCOME TO CRITERIVOX',
+                      style: TextStyle(
+                        color: t.primary,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Two gates. One living system.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: t.text,
+                        fontSize: compact ? 28 : 38,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'First understand the machine. Then bring your own problem into it.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: t.mutedText,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              if (compact)
+                Column(
+                  children: [
+                    _gate1(t),
+                    const SizedBox(height: 14),
+                    _gate2(t),
+                  ],
+                )
+              else
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: _gate1(t)),
+                    const SizedBox(width: 14),
+                    Expanded(child: _gate2(t)),
+                  ],
+                ),
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: onChat,
+                icon: const Icon(Icons.forum_rounded),
+                label: const Text('Independent character chat'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _gate1(CriterivoxTheme t) {
+    return _card(
+      t,
+      Icons.door_front_door_rounded,
+      'GATE 1',
+      'CRITERIVOX CIVILIZATION',
+      'Meet the people who assist you make the decision.',
+      'Visit characters, homes, relationships, evidence, collaboration and explanations.',
+      t.primary,
+      onCivilization,
+      'Enter civilization',
+    );
+  }
+
+  Widget _gate2(CriterivoxTheme t) {
+    return _card(
+      t,
+      Icons.home_work_rounded,
+      'GATE 2',
+      'HUMAN RESIDENCE',
+      'This is where your actual problem lives.',
+      'Get a personal house, create or join a club, or use a Guest Pass without creating a permanent residence.',
+      t.success,
+      onHumanResidence,
+      'Enter residence',
+    );
+  }
+
+  Widget _card(
+    CriterivoxTheme t,
+    IconData icon,
+    String eyebrow,
+    String title,
+    String sub,
+    String body,
+    Color accent,
+    VoidCallback onTap,
+    String action,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        color: t.surface,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: accent.withValues(alpha: .3),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            icon,
+            color: accent,
+            size: 30,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            eyebrow,
+            style: TextStyle(
+              color: accent,
+              fontSize: 9,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.5,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            title,
+            style: TextStyle(
+              color: t.text,
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            sub,
+            style: TextStyle(
+              color: t.text,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            body,
+            style: TextStyle(
+              color: t.mutedText,
+              fontSize: 11,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            onPressed: onTap,
+            icon: const Icon(
+              Icons.arrow_forward_rounded,
+              size: 16,
+            ),
+            label: Text(action),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-class CivilizationPage extends StatelessWidget {final VoidCallback onBloom,onChat;const CivilizationPage({super.key,required this.onBloom,required this.onChat});@override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);final homes=[('Sandre + Kaelen','Data Foundation / Data Stewardship',Icons.inventory_2_rounded),('Dharen + Anuka','Context',Icons.hub_rounded),('Vivren + Tarkis','Intelligence / Reasoning',Icons.psychology_rounded),('Medrus + Epistre + Veridat','Evidence / Experimentation / Verification',Icons.science_rounded),('Pramon + Bodhex','Planning / Decision',Icons.account_tree_rounded),('Manis','Human Challenge',Icons.record_voice_over_rounded),('Viveda','Knowledge',Icons.menu_book_rounded),('Anukor','Cross-home network roamer',Icons.device_hub_rounded)];return SingleChildScrollView(padding:const EdgeInsets.all(26),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('GATE 1',style:TextStyle(color:t.primary,fontSize:10,fontWeight:FontWeight.w800,letterSpacing:2)),const SizedBox(height:7),Text('Criterivox Civilization',style:TextStyle(color:t.text,fontSize:28,fontWeight:FontWeight.w800)),const SizedBox(height:6),Text('Come inside. See how the machine arrived here.',style:TextStyle(color:t.mutedText,fontSize:13)),const SizedBox(height:20),Wrap(spacing:12,runSpacing:12,children:[for(final h in homes)Container(width:300,padding:const EdgeInsets.all(16),decoration:BoxDecoration(color:t.surface,borderRadius:BorderRadius.circular(20),border:Border.all(color:t.border)),child:Row(children:[Icon(h.$3,color:t.primary),const SizedBox(width:12),Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(h.$1,style:TextStyle(color:t.text,fontWeight:FontWeight.w700,fontSize:11)),const SizedBox(height:4),Text(h.$2,style:TextStyle(color:t.mutedText,fontSize:9))]))]))]),const SizedBox(height:20),Row(children:[FilledButton.icon(onPressed:onBloom,icon:const Icon(Icons.spa_rounded),label:const Text('Enter Bloom')),const SizedBox(width:10),OutlinedButton.icon(onPressed:onChat,icon:const Icon(Icons.forum_rounded),label:const Text('Independent chat'))]) ]));}}
+class CivilizationPage extends StatelessWidget {
+  final VoidCallback onBloom;
+  final VoidCallback onChat;
 
-class HumanResidencePage extends StatefulWidget {final VoidCallback onGuest,onWorkspace;const HumanResidencePage({super.key,required this.onGuest,required this.onWorkspace});@override State<HumanResidencePage> createState()=>_HumanResidencePageState();}
-class _HumanResidencePageState extends State<HumanResidencePage>{final store=HumanResidenceStore();final name=TextEditingController();final email=TextEditingController();final clubName=TextEditingController();String mode='house';HumanResidenceRecord? residence;bool saving=false;String status='';@override void initState(){super.initState();_restore();}@override void dispose(){name.dispose();email.dispose();clubName.dispose();super.dispose();}Future<void> _restore()async{final r=await store.load();if(!mounted)return;if(r!=null)setState((){residence=r;mode=r.residenceType;name.text=r.displayName;email.text=r.email??'';clubName.text=r.residenceType=='club'?r.displayName:'';});}
-Future<void> _create()async{if(name.text.trim().isEmpty)return;setState(()=>saving=true);final id='res-${DateTime.now().millisecondsSinceEpoch}';final type=mode=='club'?'club':'private';final display=type=='club'&&clubName.text.trim().isNotEmpty?clubName.text.trim():name.text.trim();final record=HumanResidenceRecord(residenceId:id,ownerId:'local-${DateTime.now().millisecondsSinceEpoch}',displayName:display,email:email.text.trim().isEmpty?null:email.text.trim(),residenceType:type,createdAt:DateTime.now(),members:[{'role':'owner','owner_id':'local'}],metadata:{'rooms':type=='club'?['collaboration']:['private','collaboration'],'local_first':true});await store.save(record);try{final response=await http.post(Uri.base.resolve('/api/human-residence'),headers:{'content-type':'application/json'},body:jsonEncode(record.toJson())).timeout(const Duration(seconds:4));if(response.statusCode>=200&&response.statusCode<300){status='Saved to browser IndexedDB and Python local mirror.';}else{status='Saved to browser IndexedDB. Python mirror is currently unavailable.';}}catch(_){status='Saved to browser IndexedDB. Python mirror will sync when the runtime is available.'}if(!mounted)return;setState(()=>{residence=record;saving=false;});}
-@override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);if(residence!=null)return _home(t);return SingleChildScrollView(padding:const EdgeInsets.all(26),child:Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[Text('GATE 2',style:TextStyle(color:t.success,fontSize:10,fontWeight:FontWeight.w800,letterSpacing:2)),const SizedBox(height:7),Text('Human Residence',style:TextStyle(color:t.text,fontSize:28,fontWeight:FontWeight.w800)),const SizedBox(height:6),Text('Your house belongs to you. Choose your human workspace.',style:TextStyle(color:t.mutedText,fontSize:13)),const SizedBox(height:20),Container(padding:const EdgeInsets.all(22),decoration:BoxDecoration(color:t.surface,borderRadius:BorderRadius.circular(24),border:Border.all(color:t.border)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('CHOOSE YOUR RESIDENCE',style:TextStyle(color:t.text,fontWeight:FontWeight.w800,fontSize:14)),const SizedBox(height:14),Row(children:[Expanded(child:_mode(t,Icons.home_rounded,'Get a House','Private residence','house')),const SizedBox(width:10),Expanded(child:_mode(t,Icons.groups_rounded,'Create a Club','Collaboration building','club'))]),const SizedBox(height:18),TextField(controller:name,decoration:InputDecoration(labelText:mode=='club'?'Your name / owner':'Your name',border:const OutlineInputBorder())),const SizedBox(height:10),TextField(controller:email,decoration:const InputDecoration(labelText:'Email (local profile)',border:OutlineInputBorder())),if(mode=='club')... [const SizedBox(height:10),TextField(controller:clubName,decoration:const InputDecoration(labelText:'Club / building name',border:OutlineInputBorder()))],const SizedBox(height:16),Wrap(spacing:10,children:[FilledButton.icon(onPressed:saving?null:_create,icon:const Icon(Icons.home_work_rounded),label:Text(saving?'Creating…':mode=='club'?'Create club':'Create my house')),OutlinedButton.icon(onPressed:onGuest,icon:const Icon(Icons.confirmation_number_rounded),label:const Text('Guest Pass'))])])),const SizedBox(height:16),Text('For this local-first phase, this is not production authentication. No password or authentication secret is stored.',style:TextStyle(color:t.mutedText,fontSize:10,height:1.4))]));}
-Widget _mode(CriterivoxTheme t,IconData icon,String title,String sub,String value)=>InkWell(onTap:()=>setState(()=>mode=value),child:Container(padding:const EdgeInsets.all(14),decoration:BoxDecoration(color:mode==value?t.surfaceStrong:t.surface,borderRadius:BorderRadius.circular(16),border:Border.all(color:mode==value?t.success:t.border)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Icon(icon,color:mode==value?t.success:t.primary),const SizedBox(height:8),Text(title,style:TextStyle(color:t.text,fontWeight:FontWeight.w700,fontSize:11)),const SizedBox(height:4),Text(sub,style:TextStyle(color:t.mutedText,fontSize:9))])));
-Widget _home(CriterivoxTheme t)=>SingleChildScrollView(padding:const EdgeInsets.all(26),child:Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[Text('YOUR HUMAN RESIDENCE',style:TextStyle(color:t.success,fontSize:10,fontWeight:FontWeight.w800,letterSpacing:2)),const SizedBox(height:7),Text(residence!.displayName,style:TextStyle(color:t.text,fontSize:28,fontWeight:FontWeight.w800)),const SizedBox(height:5),Text(residence!.residenceType=='club'?'Collaboration building':'Private house',style:TextStyle(color:t.mutedText,fontSize:12)),if(status.isNotEmpty)...[const SizedBox(height:10),Text(status,style:TextStyle(color:t.success,fontSize:10))],const SizedBox(height:20),Row(crossAxisAlignment:CrossAxisAlignment.start,children:[Expanded(child:_room(t,Icons.bed_rounded,'Private Room',residence!.residenceType=='club'?'Personal decision space within your club':'Goal → Data + Context → Decisions + Options → Challenge → Act → Result')),const SizedBox(width:12),Expanded(child:_room(t,Icons.groups_rounded,'Collaboration Room','House Owner • Resident • Guest'))]),const SizedBox(height:16),Container(padding:const EdgeInsets.all(18),decoration:BoxDecoration(color:t.surfaceStrong,borderRadius:BorderRadius.circular(20),border:Border.all(color:t.border)),child:Text('RESULTS JOURNAL\n\nDecisions → actions → real results → future decisions',style:TextStyle(color:t.text,fontSize:11,height:1.6,fontWeight:FontWeight.w700))),const SizedBox(height:16),FilledButton.icon(onPressed:onWorkspace,icon:const Icon(Icons.play_arrow_rounded),label:const Text('Enter workspace'))]));
-Widget _room(CriterivoxTheme t,IconData i,String title,String body)=>Container(padding:const EdgeInsets.all(18),decoration:BoxDecoration(color:t.surface,borderRadius:BorderRadius.circular(20),border:Border.all(color:t.border)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Icon(i,color:t.primary),const SizedBox(height:10),Text(title,style:TextStyle(color:t.text,fontWeight:FontWeight.w700)),const SizedBox(height:7),Text(body,style:TextStyle(color:t.mutedText,fontSize:10,height:1.45))]));}
+  const CivilizationPage({
+    super.key,
+    required this.onBloom,
+    required this.onChat,
+  });
 
-class GuestPassPage extends StatelessWidget {final VoidCallback onWorkspace;const GuestPassPage({super.key,required this.onWorkspace});@override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);return Center(child:SingleChildScrollView(padding:const EdgeInsets.all(30),child:Container(constraints:const BoxConstraints(maxWidth:680),padding:const EdgeInsets.all(28),decoration:BoxDecoration(color:t.surface,borderRadius:BorderRadius.circular(26),border:Border.all(color:t.primary.withValues(alpha:.3))),child:Column(children:[const Icon(Icons.confirmation_number_rounded,size:42),const SizedBox(height:14),Text('GUEST PASS',style:TextStyle(color:t.primary,fontSize:11,fontWeight:FontWeight.w800,letterSpacing:2)),const SizedBox(height:8),Text('Experience Criterivox before building a house.',textAlign:TextAlign.center,style:TextStyle(color:t.text,fontSize:24,fontWeight:FontWeight.w800)),const SizedBox(height:10),Text('Bring a Goal + Data + Context. Inspect decision support, then leave without a permanent residence.',textAlign:TextAlign.center,style:TextStyle(color:t.mutedText,fontSize:12,height:1.5)),const SizedBox(height:20),FilledButton.icon(onPressed:onWorkspace,icon:const Icon(Icons.play_arrow_rounded),label:const Text('Start guest workspace'))]))));}}
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
 
-class BloomSyvaxCompanion extends StatefulWidget {final VoidCallback onBloom,onChat,onWorkspace;const BloomSyvaxCompanion({super.key,required this.onBloom,required this.onChat,required this.onWorkspace});@override State<BloomSyvaxCompanion> createState()=>_BloomSyvaxCompanionState();}
-class _BloomSyvaxCompanionState extends State<BloomSyvaxCompanion>{bool expanded=false;Offset position=const Offset(0,0);@override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);return Positioned(right:position.dx==0?18:null,bottom:position.dy==0?18:null,left:position.dx==0?null:position.dx,top:position.dy==0?null:position.dy,child:GestureDetector(onPanUpdate:(d){setState((){position=Offset((position.dx==0?MediaQuery.sizeOf(context).width-82:position.dx)+d.delta.dx,(position.dy==0?MediaQuery.sizeOf(context).height-82:position.dy)+d.delta.dy);});},child:Material(color:Colors.transparent,child:Column(crossAxisAlignment:CrossAxisAlignment.end,children:[if(expanded)Container(width:300,padding:const EdgeInsets.all(16),decoration:BoxDecoration(color:t.surface.withValues(alpha:.98),borderRadius:BorderRadius.circular(22),border:Border.all(color:t.primary.withValues(alpha:.4)),boxShadow:[BoxShadow(color:Colors.black.withValues(alpha:.28),blurRadius:24)]),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('BLOOM + SYVAX',style:TextStyle(color:t.primary,fontSize:10,fontWeight:FontWeight.w800,letterSpacing:1.4)),const SizedBox(height:5),Text('Your portable system companion',style:TextStyle(color:t.text,fontWeight:FontWeight.w700)),const SizedBox(height:8),Text('Teleport to a civilian or ask Syvax what is happening and where you can interrupt, steer or challenge.',style:TextStyle(color:t.mutedText,fontSize:10,height:1.45)),const SizedBox(height:10),Wrap(spacing:8,children:[_a(t,'Bloom',onBloom),_a(t,'Ask Syvax',onChat),_a(t,'Steer',onWorkspace)])]),const SizedBox(height:8),GestureDetector(onTap:()=>setState(()=>expanded=!expanded),child:Container(width:64,height:64,decoration:BoxDecoration(shape:BoxShape.circle,color:t.surfaceStrong,border:Border.all(color:t.primary,width:1.4),boxShadow:[BoxShadow(color:t.primary.withValues(alpha:.22),blurRadius:18)]),child:Stack(alignment:Alignment.center,children:[for(var i=0;i<8;i++)Transform.rotate(angle:i*3.1415926535/4,child:Container(width:8,height:22,decoration:BoxDecoration(color:t.primary.withValues(alpha:.65),borderRadius:BorderRadius.circular(10)))),const Icon(Icons.record_voice_over_rounded,color:Colors.white,size:20)])))])));}
-Widget _a(CriterivoxTheme t,String label,VoidCallback onTap)=>OutlinedButton(onPressed:onTap,child:Text(label,style:const TextStyle(fontSize:9)));}
+    final homes = [
+      (
+        'Sandre + Kaelen',
+        'Data Foundation / Data Stewardship',
+        Icons.inventory_2_rounded,
+      ),
+      (
+        'Dharen + Anuka',
+        'Context',
+        Icons.hub_rounded,
+      ),
+      (
+        'Vivren + Tarkis',
+        'Intelligence / Reasoning',
+        Icons.psychology_rounded,
+      ),
+      (
+        'Medrus + Epistre + Veridat',
+        'Evidence / Experimentation / Verification',
+        Icons.science_rounded,
+      ),
+      (
+        'Pramon + Bodhex',
+        'Planning / Decision',
+        Icons.account_tree_rounded,
+      ),
+      (
+        'Manis',
+        'Human Challenge',
+        Icons.record_voice_over_rounded,
+      ),
+      (
+        'Viveda',
+        'Knowledge',
+        Icons.menu_book_rounded,
+      ),
+      (
+        'Anukor',
+        'Cross-home network roamer',
+        Icons.device_hub_rounded,
+      ),
+    ];
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(26),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'GATE 1',
+            style: TextStyle(
+              color: t.primary,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 2,
+            ),
+          ),
+          const SizedBox(height: 7),
+          Text(
+            'Criterivox Civilization',
+            style: TextStyle(
+              color: t.text,
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Come inside. See how the machine arrived here.',
+            style: TextStyle(
+              color: t.mutedText,
+              fontSize: 13,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              for (final h in homes)
+                Container(
+                  width: 300,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: t.surface,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: t.border,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        h.$3,
+                        color: t.primary,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment:
+                              CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              h.$1,
+                              style: TextStyle(
+                                color: t.text,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 11,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              h.$2,
+                              style: TextStyle(
+                                color: t.mutedText,
+                                fontSize: 9,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              FilledButton.icon(
+                onPressed: onBloom,
+                icon: const Icon(Icons.spa_rounded),
+                label: const Text('Enter Bloom'),
+              ),
+              const SizedBox(width: 10),
+              OutlinedButton.icon(
+                onPressed: onChat,
+                icon: const Icon(Icons.forum_rounded),
+                label: const Text('Independent chat'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class HumanResidencePage extends StatefulWidget {
+  final VoidCallback onGuest;
+  final VoidCallback onWorkspace;
+
+  const HumanResidencePage({
+    super.key,
+    required this.onGuest,
+    required this.onWorkspace,
+  });
+
+  @override
+  State<HumanResidencePage> createState() =>
+      _HumanResidencePageState();
+}
+
+class _HumanResidencePageState extends State<HumanResidencePage> {
+  final store = HumanResidenceStore();
+
+  final name = TextEditingController();
+  final email = TextEditingController();
+  final clubName = TextEditingController();
+
+  String mode = 'house';
+  HumanResidenceRecord? residence;
+  bool saving = false;
+  String status = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _restore();
+  }
+
+  @override
+  void dispose() {
+    name.dispose();
+    email.dispose();
+    clubName.dispose();
+    super.dispose();
+  }
+
+  Future<void> _restore() async {
+    final r = await store.load();
+
+    if (!mounted) {
+      return;
+    }
+
+    if (r != null) {
+      setState(() {
+        residence = r;
+        mode = r.residenceType;
+        name.text = r.displayName;
+        email.text = r.email ?? '';
+        clubName.text =
+            r.residenceType == 'club' ? r.displayName : '';
+      });
+    }
+  }
+
+  Future<void> _create() async {
+    if (name.text.trim().isEmpty) {
+      return;
+    }
+
+    setState(() {
+      saving = true;
+    });
+
+    final id =
+        'res-${DateTime.now().millisecondsSinceEpoch}';
+
+    final type = mode == 'club' ? 'club' : 'private';
+
+    final display =
+        type == 'club' && clubName.text.trim().isNotEmpty
+            ? clubName.text.trim()
+            : name.text.trim();
+
+    final record = HumanResidenceRecord(
+      residenceId: id,
+      ownerId:
+          'local-${DateTime.now().millisecondsSinceEpoch}',
+      displayName: display,
+      email: email.text.trim().isEmpty
+          ? null
+          : email.text.trim(),
+      residenceType: type,
+      createdAt: DateTime.now(),
+      members: [
+        {
+          'role': 'owner',
+          'owner_id': 'local',
+        },
+      ],
+      metadata: {
+        'rooms': type == 'club'
+            ? ['collaboration']
+            : ['private', 'collaboration'],
+        'local_first': true,
+      },
+    );
+
+    await store.save(record);
+
+    try {
+      final response = await http
+          .post(
+            Uri.base.resolve('/api/human-residence'),
+            headers: {
+              'content-type': 'application/json',
+            },
+            body: jsonEncode(record.toJson()),
+          )
+          .timeout(
+            const Duration(seconds: 4),
+          );
+
+      if (response.statusCode >= 200 &&
+          response.statusCode < 300) {
+        status =
+            'Saved to browser IndexedDB and Python local mirror.';
+      } else {
+        status =
+            'Saved to browser IndexedDB. Python mirror is currently unavailable.';
+      }
+    } catch (_) {
+      status =
+          'Saved to browser IndexedDB. Python mirror will sync when the runtime is available.';
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      residence = record;
+      saving = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+
+    if (residence != null) {
+      return _home(t);
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(26),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'GATE 2',
+            style: TextStyle(
+              color: t.success,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 2,
+            ),
+          ),
+          const SizedBox(height: 7),
+          Text(
+            'Human Residence',
+            style: TextStyle(
+              color: t.text,
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Your house belongs to you. Choose your human workspace.',
+            style: TextStyle(
+              color: t.mutedText,
+              fontSize: 13,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              color: t.surface,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: t.border,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'CHOOSE YOUR RESIDENCE',
+                  style: TextStyle(
+                    color: t.text,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _mode(
+                        t,
+                        Icons.home_rounded,
+                        'Get a House',
+                        'Private residence',
+                        'house',
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _mode(
+                        t,
+                        Icons.groups_rounded,
+                        'Create a Club',
+                        'Collaboration building',
+                        'club',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                TextField(
+                  controller: name,
+                  decoration: InputDecoration(
+                    labelText: mode == 'club'
+                        ? 'Your name / owner'
+                        : 'Your name',
+                    border:
+                        const OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: email,
+                  decoration:
+                      const InputDecoration(
+                    labelText: 'Email (local profile)',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                if (mode == 'club') ...[
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: clubName,
+                    decoration:
+                        const InputDecoration(
+                      labelText: 'Club / building name',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 10,
+                  children: [
+                    FilledButton.icon(
+                      onPressed: saving ? null : _create,
+                      icon: const Icon(
+                        Icons.home_work_rounded,
+                      ),
+                      label: Text(
+                        saving
+                            ? 'Creating…'
+                            : mode == 'club'
+                                ? 'Create club'
+                                : 'Create my house',
+                      ),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: widget.onGuest,
+                      icon: const Icon(
+                        Icons.confirmation_number_rounded,
+                      ),
+                      label: const Text('Guest Pass'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'For this local-first phase, this is not production authentication. No password or authentication secret is stored.',
+            style: TextStyle(
+              color: t.mutedText,
+              fontSize: 10,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _mode(
+    CriterivoxTheme t,
+    IconData icon,
+    String title,
+    String sub,
+    String value,
+  ) {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          mode = value;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: mode == value
+              ? t.surfaceStrong
+              : t.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: mode == value
+                ? t.success
+                : t.border,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
+          children: [
+            Icon(
+              icon,
+              color: mode == value
+                  ? t.success
+                  : t.primary,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: TextStyle(
+                color: t.text,
+                fontWeight: FontWeight.w700,
+                fontSize: 11,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              sub,
+              style: TextStyle(
+                color: t.mutedText,
+                fontSize: 9,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _home(CriterivoxTheme t) {
+    final currentResidence = residence!;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(26),
+      child: Column(
+        crossAxisAlignment:
+            CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'YOUR HUMAN RESIDENCE',
+            style: TextStyle(
+              color: t.success,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 2,
+            ),
+          ),
+          const SizedBox(height: 7),
+          Text(
+            currentResidence.displayName,
+            style: TextStyle(
+              color: t.text,
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            currentResidence.residenceType == 'club'
+                ? 'Collaboration building'
+                : 'Private house',
+            style: TextStyle(
+              color: t.mutedText,
+              fontSize: 12,
+            ),
+          ),
+          if (status.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Text(
+              status,
+              style: TextStyle(
+                color: t.success,
+                fontSize: 10,
+              ),
+            ),
+          ],
+          const SizedBox(height: 20),
+          Row(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _room(
+                  t,
+                  Icons.bed_rounded,
+                  'Private Room',
+                  currentResidence.residenceType ==
+                          'club'
+                      ? 'Personal decision space within your club'
+                      : 'Goal → Data + Context → Decisions + Options → Challenge → Act → Result',
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _room(
+                  t,
+                  Icons.groups_rounded,
+                  'Collaboration Room',
+                  'House Owner • Resident • Guest',
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: t.surfaceStrong,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: t.border,
+              ),
+            ),
+            child: Text(
+              'RESULTS JOURNAL\n\n'
+              'Decisions → actions → real results → future decisions',
+              style: TextStyle(
+                color: t.text,
+                fontSize: 11,
+                height: 1.6,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            onPressed: widget.onWorkspace,
+            icon: const Icon(
+              Icons.play_arrow_rounded,
+            ),
+            label: const Text('Enter workspace'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _room(
+    CriterivoxTheme t,
+    IconData icon,
+    String title,
+    String body,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: t.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: t.border,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
+        children: [
+          Icon(
+            icon,
+            color: t.primary,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            title,
+            style: TextStyle(
+              color: t.text,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 7),
+          Text(
+            body,
+            style: TextStyle(
+              color: t.mutedText,
+              fontSize: 10,
+              height: 1.45,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class GuestPassPage extends StatelessWidget {
+  final VoidCallback onWorkspace;
+
+  const GuestPassPage({
+    super.key,
+    required this.onWorkspace,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(30),
+        child: Container(
+          constraints:
+              const BoxConstraints(maxWidth: 680),
+          padding: const EdgeInsets.all(28),
+          decoration: BoxDecoration(
+            color: t.surface,
+            borderRadius: BorderRadius.circular(26),
+            border: Border.all(
+              color: t.primary.withValues(alpha: .3),
+            ),
+          ),
+          child: Column(
+            children: [
+              const Icon(
+                Icons.confirmation_number_rounded,
+                size: 42,
+              ),
+              const SizedBox(height: 14),
+              Text(
+                'GUEST PASS',
+                style: TextStyle(
+                  color: t.primary,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 2,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Experience Criterivox before building a house.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: t.text,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Bring a Goal + Data + Context. Inspect decision support, then leave without a permanent residence.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: t.mutedText,
+                  fontSize: 12,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 20),
+              FilledButton.icon(
+                onPressed: onWorkspace,
+                icon: const Icon(
+                  Icons.play_arrow_rounded,
+                ),
+                label: const Text(
+                  'Start guest workspace',
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class BloomSyvaxCompanion extends StatefulWidget {
+  final VoidCallback onBloom;
+  final VoidCallback onChat;
+  final VoidCallback onWorkspace;
+
+  const BloomSyvaxCompanion({
+    super.key,
+    required this.onBloom,
+    required this.onChat,
+    required this.onWorkspace,
+  });
+
+  @override
+  State<BloomSyvaxCompanion> createState() =>
+      _BloomSyvaxCompanionState();
+}
+
+class _BloomSyvaxCompanionState
+    extends State<BloomSyvaxCompanion> {
+  bool expanded = false;
+  Offset position = Offset.zero;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+
+    return Positioned(
+      right: position == Offset.zero ? 18 : null,
+      bottom: position == Offset.zero ? 18 : null,
+      left: position == Offset.zero ? null : position.dx,
+      top: position == Offset.zero ? null : position.dy,
+      child: GestureDetector(
+        onPanUpdate: (details) {
+          setState(() {
+            final screen = MediaQuery.sizeOf(context);
+
+            final currentX = position == Offset.zero
+                ? screen.width - 82
+                : position.dx;
+
+            final currentY = position == Offset.zero
+                ? screen.height - 82
+                : position.dy;
+
+            position = Offset(
+              currentX + details.delta.dx,
+              currentY + details.delta.dy,
+            );
+          });
+        },
+        child: Material(
+          color: Colors.transparent,
+          child: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.end,
+            children: [
+              if (expanded)
+                Container(
+                  width: 300,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: t.surface.withValues(alpha: .98),
+                    borderRadius:
+                        BorderRadius.circular(22),
+                    border: Border.all(
+                      color: t.primary.withValues(alpha: .4),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color:
+                            Colors.black.withValues(alpha: .28),
+                        blurRadius: 24,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'BLOOM + SYVAX',
+                        style: TextStyle(
+                          color: t.primary,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        'Your portable system companion',
+                        style: TextStyle(
+                          color: t.text,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Teleport to a civilian or ask Syvax what is happening and where you can interrupt, steer or challenge.',
+                        style: TextStyle(
+                          color: t.mutedText,
+                          fontSize: 10,
+                          height: 1.45,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 8,
+                        children: [
+                          _a(
+                            t,
+                            'Bloom',
+                            widget.onBloom,
+                          ),
+                          _a(
+                            t,
+                            'Ask Syvax',
+                            widget.onChat,
+                          ),
+                          _a(
+                            t,
+                            'Steer',
+                            widget.onWorkspace,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+              const SizedBox(height: 8),
+
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    expanded = !expanded;
+                  });
+                },
+                child: Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: t.surfaceStrong,
+                    border: Border.all(
+                      color: t.primary,
+                      width: 1.4,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color:
+                            t.primary.withValues(alpha: .22),
+                        blurRadius: 18,
+                      ),
+                    ],
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      for (var i = 0; i < 8; i++)
+                        Transform.rotate(
+                          angle:
+                              i * 3.1415926535 / 4,
+                          child: Container(
+                            width: 8,
+                            height: 22,
+                            decoration: BoxDecoration(
+                              color:
+                                  t.primary.withValues(alpha: .65),
+                              borderRadius:
+                                  BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                      const Icon(
+                        Icons.record_voice_over_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _a(
+    CriterivoxTheme t,
+    String label,
+    VoidCallback onTap,
+  ) {
+    return OutlinedButton(
+      onPressed: onTap,
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 9,
+        ),
+      ),
+    );
+  }
+}

@@ -8,13 +8,18 @@ class CharacterDetailLayer extends StatelessWidget {
   final CharacterVisualProfile profile;
   final String state;
   final double progress;
-  const CharacterDetailLayer({super.key, required this.profile, required this.state, required this.progress});
+  const CharacterDetailLayer(
+      {super.key,
+      required this.profile,
+      required this.state,
+      required this.progress});
 
   @override
   Widget build(BuildContext context) => IgnorePointer(
         child: CustomPaint(
           size: Size.infinite,
-          painter: _DetailPainter(profile: profile, state: state.toUpperCase(), progress: progress),
+          painter: _DetailPainter(
+              profile: profile, state: state.toUpperCase(), progress: progress),
         ),
       );
 }
@@ -23,7 +28,8 @@ class _DetailPainter extends CustomPainter {
   final CharacterVisualProfile profile;
   final String state;
   final double progress;
-  const _DetailPainter({required this.profile, required this.state, required this.progress});
+  const _DetailPainter(
+      {required this.profile, required this.state, required this.progress});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -42,7 +48,8 @@ class _DetailPainter extends CustomPainter {
 
   void _signature(Canvas canvas, double t, double pulse) {
     final p = Paint()..color = profile.accent.withValues(alpha: .72);
-    final glow = Paint()..color = profile.accent.withValues(alpha: .12 + pulse * .12);
+    final glow = Paint()
+      ..color = profile.accent.withValues(alpha: .12 + pulse * .12);
     final drift = math.sin(t * .7) * 2.5;
     switch (profile.characterId) {
       case 'syvax':
@@ -52,7 +59,10 @@ class _DetailPainter extends CustomPainter {
       case 'anuka':
         for (var i = 0; i < 3; i++) {
           final a = t * .4 + i * math.pi * 2 / 3;
-          canvas.drawCircle(Offset(58 + math.cos(a) * 12, -54 + math.sin(a) * 12 + drift), 2.2, p);
+          canvas.drawCircle(
+              Offset(58 + math.cos(a) * 12, -54 + math.sin(a) * 12 + drift),
+              2.2,
+              p);
         }
         break;
       case 'sandre':
@@ -60,7 +70,8 @@ class _DetailPainter extends CustomPainter {
         canvas.drawCircle(Offset(27, 2 + drift), 10 + pulse * 2, glow);
         break;
       case 'dharen':
-        canvas.drawLine(const Offset(50, 0), Offset(50, 16 + drift), p..strokeWidth = 2);
+        canvas.drawLine(
+            const Offset(50, 0), Offset(50, 16 + drift), p..strokeWidth = 2);
         break;
       case 'kaelen':
         canvas.drawCircle(const Offset(-47, -91), 8 + pulse * 2, glow);
@@ -78,14 +89,28 @@ class _DetailPainter extends CustomPainter {
       ..strokeWidth = state == 'WARNING' ? 2.5 : 1.7;
     final radius = 43 + math.sin(t * 1.4) * 2.5;
     canvas.drawCircle(const Offset(0, -78), radius, p);
-    if (state == 'WARNING') canvas.drawArc(Rect.fromCircle(center: const Offset(0, -78), radius: radius + 6), t, 1.35, false, p);
-    if (state == 'COMPLETE') canvas.drawArc(Rect.fromCircle(center: const Offset(0, -78), radius: radius + 5), -t, math.pi * 1.4, false, p);
+    if (state == 'WARNING')
+      canvas.drawArc(
+          Rect.fromCircle(center: const Offset(0, -78), radius: radius + 6),
+          t,
+          1.35,
+          false,
+          p);
+    if (state == 'COMPLETE')
+      canvas.drawArc(
+          Rect.fromCircle(center: const Offset(0, -78), radius: radius + 5),
+          -t,
+          math.pi * 1.4,
+          false,
+          p);
   }
 
   void _facialHighlight(Canvas canvas) {
-    canvas.drawOval(const Rect.fromLTWH(-24, -101, 14, 9), Paint()..color = Colors.white.withValues(alpha: .11));
+    canvas.drawOval(const Rect.fromLTWH(-24, -101, 14, 9),
+        Paint()..color = Colors.white.withValues(alpha: .11));
   }
 
   @override
-  bool shouldRepaint(covariant _DetailPainter old) => old.profile != profile || old.state != state || old.progress != progress;
+  bool shouldRepaint(covariant _DetailPainter old) =>
+      old.profile != profile || old.state != state || old.progress != progress;
 }
