@@ -34,7 +34,7 @@ class CriterivoxStrings {
   String get chat => _text('Character Chat', 'कैरेक्टर चैट');
   String get live => _text('LIVE', 'लाइव');
   String get connecting => _text('CONNECTING', 'कनेक्ट हो रहा है');
-  String get language => _text('Language', 'भाषा');
+  String get languageLabel => _text('Language', 'भाषा');
   String get english => _text('English', 'अंग्रेज़ी');
   String get hindi => _text('Hindi', 'हिंदी');
   String get livingSystem => _text('Living system', 'सक्रिय सिस्टम');

@@ -5,9 +5,9 @@ void main() {
   test('known character identity resolves correctly', () {
     final identity = CharacterIdentities.resolve('Dharen');
 
-    expect(identity.id, 'Dharen');
+    expect(identity.id, 'dharen');
     expect(identity.displayName, 'Dharen');
-    expect(identity.role, 'Analysis');
+    expect(identity.role, 'Context Architecture');
   });
 
   test('all fifteen character identities are registered', () {

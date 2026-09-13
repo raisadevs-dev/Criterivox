@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../presentation/criterivox_theme.dart';
 import 'character_identity.dart';
-import 'character_runtime.dart';
+import 'character_runtime.dart' ;
 
 class LiveAgentPanel extends StatefulWidget {
   final String characterId;
