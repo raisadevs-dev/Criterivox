@@ -385,7 +385,9 @@ class _Dharen extends StatelessWidget {
           color: t.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: t.border),
-          boxShadow: const [BoxShadow(color: Color(0x12000000), blurRadius: 30)]),
+          boxShadow: const [
+            BoxShadow(color: Color(0x12000000), blurRadius: 30)
+          ]),
       child: LayoutBuilder(builder: (context, c) {
         final narrow = c.maxWidth < 760;
         final character = CharacterPresentation(state: s);

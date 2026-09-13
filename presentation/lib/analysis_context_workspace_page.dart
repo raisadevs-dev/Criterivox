@@ -32,7 +32,8 @@ class AnalysisContextWorkspacePage extends StatelessWidget {
     if (current == null) return 'IDLE';
     if (id == state?.agentId.toLowerCase()) return current;
     if (id == 'anuka' &&
-        (state?.contextUncertainty.isNotEmpty == true || current == 'WARNING')) {
+        (state?.contextUncertainty.isNotEmpty == true ||
+            current == 'WARNING')) {
       return 'RECEIVE';
     }
     return 'IDLE';
