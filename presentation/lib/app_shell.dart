@@ -2,21 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import 'analysis_context_workspace_page.dart';
-import 'app_introduction_page.dart';
-import 'bloom_page.dart';
-import 'home03_syvax_page.dart';
-import 'context/home02_context_console.dart';
-import 'stewardship_live_workspace_page.dart';
-import 'chat/character_chat_page.dart';
 import 'interaction/bloom.dart';
 import 'presentation/criterivox_theme.dart';
 import 'presentation/presentation_state.dart';
 import 'presentation/runtime_client.dart';
 import 'world_portal_page.dart';
-import 'guest_pass_experience_page.dart';
-import 'private_room_page.dart';
-import 'collaboration_room_page.dart';
 
 class CriterivoxShell extends StatefulWidget {
   final bool isDarkMode;
@@ -84,8 +74,7 @@ class _ShellState extends State<CriterivoxShell> {
         if (value.taskId != null) {
           _history.removeWhere(
             (item) =>
-                item.taskId == value.taskId &&
-                item.agentId == value.agentId,
+                item.taskId == value.taskId && item.agentId == value.agentId,
           );
 
           _history.insert(0, value);
@@ -177,8 +166,7 @@ class _ShellState extends State<CriterivoxShell> {
   void handoffFromBloom() {
     final id = state?.foundationId;
 
-    final confirmed =
-        state?.foundationConfirmation == 'user-confirmed' ||
+    final confirmed = state?.foundationConfirmation == 'user-confirmed' ||
         state?.foundationConfirmation == 'user-corrected';
 
     if (id == null || !confirmed) {
@@ -383,7 +371,6 @@ class _ShellState extends State<CriterivoxShell> {
         child: Stack(
           children: [
             const SizedBox.expand(),
-
             BloomSyvaxCompanion(
               key: const ValueKey('bloom-companion'),
               onBloom: () => open('bloom'),
@@ -454,9 +441,7 @@ class _Sidebar extends StatelessWidget {
                   ),
                 ],
                 IconButton(
-                  tooltip: expanded
-                      ? 'Collapse sidebar'
-                      : 'Open sidebar',
+                  tooltip: expanded ? 'Collapse sidebar' : 'Open sidebar',
                   onPressed: onToggle,
                   icon: Icon(
                     expanded
@@ -468,7 +453,6 @@ class _Sidebar extends StatelessWidget {
               ],
             ),
           ),
-
           Expanded(
             child: Scrollbar(
               thumbVisibility: expanded,
@@ -480,13 +464,11 @@ class _Sidebar extends StatelessWidget {
                   children: [
                     _StatusCard(expanded: expanded),
                     const SizedBox(height: 18),
-
                     _section(
                       'START HERE',
                       expanded,
                       t,
                     ),
-
                     _nav(
                       'Introduction',
                       Icons.auto_awesome_rounded,
@@ -495,15 +477,12 @@ class _Sidebar extends StatelessWidget {
                       expanded,
                       t,
                     ),
-
                     const SizedBox(height: 8),
-
                     _section(
                       'GATES',
                       expanded,
                       t,
                     ),
-
                     _nav(
                       'Gate 1 • Criterivox Civilization',
                       Icons.door_front_door_rounded,
@@ -512,7 +491,6 @@ class _Sidebar extends StatelessWidget {
                       expanded,
                       t,
                     ),
-
                     _nav(
                       'Gate 2 • Human Residence',
                       Icons.home_work_rounded,
@@ -524,15 +502,12 @@ class _Sidebar extends StatelessWidget {
                       expanded,
                       t,
                     ),
-
                     const SizedBox(height: 8),
-
                     _section(
                       'CIVILIAN ACCESS',
                       expanded,
                       t,
                     ),
-
                     _nav(
                       'Bloom • Global Nexus',
                       Icons.spa_rounded,
@@ -541,7 +516,6 @@ class _Sidebar extends StatelessWidget {
                       expanded,
                       t,
                     ),
-
                     _nav(
                       'Independent Character Chat',
                       Icons.forum_rounded,
@@ -550,15 +524,12 @@ class _Sidebar extends StatelessWidget {
                       expanded,
                       t,
                     ),
-
                     const SizedBox(height: 8),
-
                     _section(
                       'SYSTEM',
                       expanded,
                       t,
                     ),
-
                     _nav(
                       'Home 03 • Syvax Gateway',
                       Icons.record_voice_over_rounded,
@@ -567,7 +538,6 @@ class _Sidebar extends StatelessWidget {
                       expanded,
                       t,
                     ),
-
                     _nav(
                       'Data Stewardship',
                       Icons.inventory_2_rounded,
@@ -576,7 +546,6 @@ class _Sidebar extends StatelessWidget {
                       expanded,
                       t,
                     ),
-
                     _nav(
                       'Analysis & Context Workspace',
                       Icons.account_tree_rounded,
@@ -585,7 +554,6 @@ class _Sidebar extends StatelessWidget {
                       expanded,
                       t,
                     ),
-
                     _nav(
                       'Home 02 • Context Intelligence',
                       Icons.hub_rounded,
@@ -594,15 +562,12 @@ class _Sidebar extends StatelessWidget {
                       expanded,
                       t,
                     ),
-
                     const SizedBox(height: 16),
-
                     _section(
                       'FUTURE CAPABILITIES',
                       expanded,
                       t,
                     ),
-
                     _nav(
                       'Compare',
                       Icons.balance_rounded,
@@ -611,7 +576,6 @@ class _Sidebar extends StatelessWidget {
                       expanded,
                       t,
                     ),
-
                     _nav(
                       'Explore',
                       Icons.search_rounded,
@@ -620,7 +584,6 @@ class _Sidebar extends StatelessWidget {
                       expanded,
                       t,
                     ),
-
                     _nav(
                       'Plan',
                       Icons.calendar_month_rounded,
@@ -629,7 +592,6 @@ class _Sidebar extends StatelessWidget {
                       expanded,
                       t,
                     ),
-
                     _nav(
                       'Insights',
                       Icons.lightbulb_outline_rounded,
@@ -638,7 +600,6 @@ class _Sidebar extends StatelessWidget {
                       expanded,
                       t,
                     ),
-
                     _nav(
                       'Explain',
                       Icons.chat_bubble_outline_rounded,
@@ -718,9 +679,7 @@ class _Sidebar extends StatelessWidget {
                   style: TextStyle(
                     color: active ? t.text : t.mutedText,
                     fontSize: 12,
-                    fontWeight: active
-                        ? FontWeight.w700
-                        : FontWeight.w500,
+                    fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                   ),
                 )
               : null,
@@ -759,10 +718,8 @@ class _StatusCard extends StatelessWidget {
             color: t.primary,
             size: 19,
           ),
-
           if (expanded) ...[
             const SizedBox(width: 10),
-
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -789,7 +746,6 @@ class _StatusCard extends StatelessWidget {
               ),
             ),
           ],
-
           Container(
             width: 7,
             height: 7,
@@ -841,9 +797,7 @@ class _TopBar extends StatelessWidget {
               ),
             ),
           ),
-
           const SizedBox(width: 12),
-
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: 10,
@@ -861,9 +815,7 @@ class _TopBar extends StatelessWidget {
                 Icon(
                   Icons.circle,
                   size: 7,
-                  color: connectionLive
-                      ? t.success
-                      : t.warning,
+                  color: connectionLive ? t.success : t.warning,
                 ),
                 const SizedBox(width: 7),
                 Text(
@@ -877,18 +829,12 @@ class _TopBar extends StatelessWidget {
               ],
             ),
           ),
-
           const SizedBox(width: 8),
-
           IconButton(
-            tooltip: isDarkMode
-                ? 'Switch to day mode'
-                : 'Switch to night mode',
+            tooltip: isDarkMode ? 'Switch to day mode' : 'Switch to night mode',
             onPressed: onToggleTheme,
             icon: Icon(
-              isDarkMode
-                  ? Icons.light_mode_rounded
-                  : Icons.dark_mode_rounded,
+              isDarkMode ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
               color: t.mutedText,
             ),
           ),
@@ -943,7 +889,6 @@ class _BloomMark extends StatelessWidget {
                 ),
               ),
             ),
-
           Container(
             width: size * .24,
             height: size * .24,

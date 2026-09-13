@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:idb_shim/idb.dart';
 import 'package:idb_shim/idb_browser.dart';
 
 class HumanResidenceRecord {
@@ -49,8 +48,7 @@ class HumanResidenceRecord {
       email: m['email']?.toString(),
       residenceType: '${m['residence_type'] ?? ''}',
       createdAt:
-          DateTime.tryParse('${m['created_at'] ?? ''}') ??
-          DateTime.now(),
+          DateTime.tryParse('${m['created_at'] ?? ''}') ?? DateTime.now(),
       members: rawMembers is List
           ? rawMembers
               .whereType<Map>()
@@ -108,9 +106,7 @@ class HumanResidenceStore {
         idbModeReadOnly,
       );
 
-      final value = await transaction
-          .objectStore(_storeName)
-          .getObject(_key);
+      final value = await transaction.objectStore(_storeName).getObject(_key);
 
       await transaction.completed;
 
@@ -144,9 +140,7 @@ class HumanResidenceStore {
       idbModeReadWrite,
     );
 
-    await transaction
-        .objectStore(_storeName)
-        .put(record.toJson(), _key);
+    await transaction.objectStore(_storeName).put(record.toJson(), _key);
 
     await transaction.completed;
   }

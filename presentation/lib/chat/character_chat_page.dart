@@ -109,13 +109,16 @@ class _CharacterChatPageState extends State<CharacterChatPage> {
     final target = s.agentId.toLowerCase();
     if (message == null ||
         message.isEmpty ||
-        !conversations.containsKey(target)) return;
+        !conversations.containsKey(target)) {
+      return;
+    }
     final sig = '${s.taskId}|$target|$message|${s.taskUpdatedAt}';
     if (lastRuntimeSignature == sig) return;
     lastRuntimeSignature = sig;
-    if (mounted)
+    if (mounted) {
       setState(() => conversations[target]!
           .add(_ChatMessage(sender: target, text: message)));
+    }
   }
 
   List<_ChatMessage> get activeMessages =>
@@ -159,8 +162,9 @@ class _CharacterChatPageState extends State<CharacterChatPage> {
   }
 
   void _error(String t) {
-    if (mounted)
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t)));
+    }
   }
 
   @override

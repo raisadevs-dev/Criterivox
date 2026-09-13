@@ -277,11 +277,12 @@ class CharacterRuntimeClient {
   void _send(Map<String, dynamic> payload) {
     final channel = _channel;
     if (channel == null) {
-      if (_pending.length < _maxPending)
+      if (_pending.length < _maxPending) {
         _pending.add(Map<String, dynamic>.from(payload));
-      else
+      } else {
         _errors.add(
             'Runtime queue is full; the oldest unsent action was preserved and this action was rejected.');
+      }
       _scheduleReconnect();
       return;
     }
@@ -289,8 +290,9 @@ class CharacterRuntimeClient {
       channel.sink.add(jsonEncode(payload));
     } catch (_) {
       _channel = null;
-      if (_pending.length < _maxPending)
+      if (_pending.length < _maxPending) {
         _pending.add(Map<String, dynamic>.from(payload));
+      }
       _scheduleReconnect();
     }
   }

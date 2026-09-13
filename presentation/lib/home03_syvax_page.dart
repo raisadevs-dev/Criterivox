@@ -127,9 +127,8 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
 
       final intent = dispatchedPlan['intent'];
 
-      final intentType = intent is Map
-          ? '${intent['intent_type'] ?? 'task'}'
-          : 'task';
+      final intentType =
+          intent is Map ? '${intent['intent_type'] ?? 'task'}' : 'task';
 
       final renderResult = await post(
         '/api/syvax/render',
@@ -413,9 +412,7 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
               child: Text(
                 currentMode,
                 style: TextStyle(
-                  color: mode == currentMode
-                      ? theme.text
-                      : theme.mutedText,
+                  color: mode == currentMode ? theme.text : theme.mutedText,
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                 ),
@@ -508,13 +505,11 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
 
     final intent = currentPlan['intent'];
 
-    final intentType = intent is Map
-        ? '${intent['intent_type'] ?? 'task'}'
-        : 'task';
+    final intentType =
+        intent is Map ? '${intent['intent_type'] ?? 'task'}' : 'task';
 
-    final confidence = intent is Map
-        ? ((intent['confidence'] ?? 0) as num).toDouble()
-        : 0.0;
+    final confidence =
+        intent is Map ? ((intent['confidence'] ?? 0) as num).toDouble() : 0.0;
 
     return '$intentType · confidence ${(confidence * 100).round()}% · ${currentPlan['task_id']}';
   }
@@ -531,9 +526,7 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
         color: theme.surfaceStrong,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: title == 'SYVAX'
-              ? theme.primary
-              : theme.border,
+          color: title == 'SYVAX' ? theme.primary : theme.border,
         ),
       ),
       child: Column(
@@ -816,13 +809,11 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
     final traces = bloom?['traces'];
     final checkpoints = bloom?['checkpoints'];
 
-    final activeHomeCount =
-        activeHomes is List ? activeHomes.length : 0;
+    final activeHomeCount = activeHomes is List ? activeHomes.length : 0;
 
     final traceCount = traces is List ? traces.length : 0;
 
-    final checkpointCount =
-        checkpoints is List ? checkpoints.length : 0;
+    final checkpointCount = checkpoints is List ? checkpoints.length : 0;
 
     final bloomMode = bloom?['mode'] ?? mode;
 

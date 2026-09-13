@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../lib/character/character_visual_profile.dart';
-import '../lib/character/generated_vector_animation.dart';
-import '../lib/character/session_character_animation.dart';
+import 'package:presentation/character/character_visual_profile.dart';
+import 'package:presentation/character/generated_vector_animation.dart';
+import 'package:presentation/character/session_character_animation.dart';
 
 void main() {
   test('current sprint characters have complete visual profiles', () {

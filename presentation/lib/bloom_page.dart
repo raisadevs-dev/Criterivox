@@ -43,17 +43,19 @@ class _BloomPageState extends State<BloomPage> {
   void didUpdateWidget(covariant BloomPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.state?.taskId != widget.state?.taskId ||
-        oldWidget.state?.taskState != widget.state?.taskState)
+        oldWidget.state?.taskState != widget.state?.taskState) {
       _scheduleDoorway();
+    }
   }
 
   void _scheduleDoorway() {
     _idleTimer?.cancel();
-    if (mounted)
+    if (mounted) {
       setState(() {
         _doorwayVisible = false;
         _doorwayTaskId = null;
       });
+    }
     final s = widget.state;
     if (s?.taskId == null || s?.taskState != 'ANALYZING') return;
     final taskId = s!.taskId!;

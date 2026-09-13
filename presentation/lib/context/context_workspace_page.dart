@@ -371,9 +371,10 @@ class _GraphView extends StatelessWidget {
             .map((item) => Map<String, dynamic>.from(item))
             .toList()
         : const <Map<String, dynamic>>[];
-    if (nodes.isEmpty)
+    if (nodes.isEmpty) {
       return Text('No provenance graph has been built yet.',
           style: TextStyle(color: theme.mutedText, fontSize: 10.5));
+    }
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Wrap(spacing: 8, runSpacing: 8, children: [
         for (final node in nodes)

@@ -62,11 +62,11 @@ class _CollaborationRoomPageState extends State<CollaborationRoomPage> {
       final uri = _uri(path).replace(queryParameters: query);
       final headers = {'content-type': 'application/json'};
       late http.Response response;
-      if (method == 'GET')
+      if (method == 'GET') {
         response = await http
             .get(uri, headers: headers)
             .timeout(const Duration(seconds: 6));
-      else if (method == 'POST')
+      } else if (method == 'POST')
         response = await http
             .post(uri, headers: headers, body: jsonEncode(body ?? {}))
             .timeout(const Duration(seconds: 6));
@@ -75,8 +75,9 @@ class _CollaborationRoomPageState extends State<CollaborationRoomPage> {
       final decoded = response.body.isEmpty
           ? <String, dynamic>{}
           : jsonDecode(response.body);
-      if (decoded is Map<String, dynamic> && response.statusCode < 300)
+      if (decoded is Map<String, dynamic> && response.statusCode < 300) {
         return decoded;
+      }
       final message = decoded is Map && decoded['error'] != null
           ? '${decoded['error']}'
           : 'HTTP ${response.statusCode}';
@@ -148,9 +149,9 @@ class _CollaborationRoomPageState extends State<CollaborationRoomPage> {
     final r = residence;
     final sid = sessionId;
     if (r == null || sid == null) return;
-    if (newRole == 'owner')
+    if (newRole == 'owner') {
       actor = r.ownerId;
-    else {
+    } else {
       final members = List<dynamic>.from(session['members'] ?? []);
       final wanted = members.firstWhere((m) => '${m['role']}' == newRole,
           orElse: () => null);
@@ -251,9 +252,10 @@ class _CollaborationRoomPageState extends State<CollaborationRoomPage> {
       'Which evidence would make the team reject this option?',
       'What failure mode is least visible in the current consensus?'
     ];
-    for (final text in prompts)
+    for (final text in prompts) {
       await _request('POST', '/api/collaboration/session/$sid/challenge',
           {'actor': actor, 'text': text});
+    }
     await _refresh();
   }
 
@@ -328,9 +330,10 @@ class _CollaborationRoomPageState extends State<CollaborationRoomPage> {
         'POST',
         '/api/collaboration/session/$sid/learning-proposal',
         {'actor': actor, 'outcome_id': outcomeId});
-    if (data != null)
+    if (data != null) {
       setState(() =>
           learningProposal = Map<String, dynamic>.from(data['proposal'] ?? {}));
+    }
   }
 
   Future<void> _approveLearning() async {
@@ -340,9 +343,10 @@ class _CollaborationRoomPageState extends State<CollaborationRoomPage> {
         'POST',
         '/api/collaboration/learning-proposal/$proposalId/approve',
         {'actor': actor});
-    if (data != null)
+    if (data != null) {
       setState(() =>
           learningProposal = Map<String, dynamic>.from(data['proposal'] ?? {}));
+    }
   }
 
   @override

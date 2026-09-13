@@ -89,20 +89,22 @@ class _DetailPainter extends CustomPainter {
       ..strokeWidth = state == 'WARNING' ? 2.5 : 1.7;
     final radius = 43 + math.sin(t * 1.4) * 2.5;
     canvas.drawCircle(const Offset(0, -78), radius, p);
-    if (state == 'WARNING')
+    if (state == 'WARNING') {
       canvas.drawArc(
           Rect.fromCircle(center: const Offset(0, -78), radius: radius + 6),
           t,
           1.35,
           false,
           p);
-    if (state == 'COMPLETE')
+    }
+    if (state == 'COMPLETE') {
       canvas.drawArc(
           Rect.fromCircle(center: const Offset(0, -78), radius: radius + 5),
           -t,
           math.pi * 1.4,
           false,
           p);
+    }
   }
 
   void _facialHighlight(Canvas canvas) {

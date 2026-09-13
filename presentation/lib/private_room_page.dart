@@ -93,10 +93,8 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
       var restoredReliability = 50.0;
 
       if (rawTradeoff is Map) {
-        restoredSpeed =
-            _numberValue(rawTradeoff['speed'], fallback: 50);
-        restoredCost =
-            _numberValue(rawTradeoff['cost'], fallback: 50);
+        restoredSpeed = _numberValue(rawTradeoff['speed'], fallback: 50);
+        restoredCost = _numberValue(rawTradeoff['cost'], fallback: 50);
         restoredReliability =
             _numberValue(rawTradeoff['reliability'], fallback: 50);
       }
@@ -112,8 +110,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
 
         speed = restoredSpeed.clamp(0, 100).toDouble();
         cost = restoredCost.clamp(0, 100).toDouble();
-        reliability =
-            restoredReliability.clamp(0, 100).toDouble();
+        reliability = restoredReliability.clamp(0, 100).toDouble();
       });
     } catch (e) {
       if (!mounted) {
@@ -218,16 +215,14 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
 
       if (response.statusCode >= 400) {
         setState(() {
-          status =
-              'SAVED LOCALLY • IndexedDB authoritative • '
+          status = 'SAVED LOCALLY • IndexedDB authoritative • '
               'Python mirror rejected update';
         });
         return;
       }
 
       setState(() {
-        status =
-            'SAVED • IndexedDB authoritative • Python mirror updated';
+        status = 'SAVED • IndexedDB authoritative • Python mirror updated';
       });
     } catch (_) {
       if (!mounted) {
@@ -235,8 +230,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
       }
 
       setState(() {
-        status =
-            'SAVED LOCALLY • IndexedDB authoritative • '
+        status = 'SAVED LOCALLY • IndexedDB authoritative • '
             'Python mirror unavailable';
       });
     }
@@ -261,8 +255,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
 
     setState(() {
       running = true;
-      status =
-          'DHAREN + TARKIS + PRAMON • framing and option sparring';
+      status = 'DHAREN + TARKIS + PRAMON • framing and option sparring';
       options = <String>[];
       challenges = <String>[];
       challengedIndexes.clear();
@@ -278,8 +271,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
             body: jsonEncode(
               <String, dynamic>{
                 'message': goal.text.trim(),
-                'task_id':
-                    'private-${currentResidence.residenceId}',
+                'task_id': 'private-${currentResidence.residenceId}',
               },
             ),
           )
@@ -316,28 +308,21 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
           ? plan['steps'] as List
           : const <dynamic>[];
 
-      final executionTrace = steps
-          .take(6)
-          .map(
-            (step) {
-              if (step is Map) {
-                final character =
-                    step['character_id'] ??
-                    step['agent_id'] ??
-                    'Agent';
+      final executionTrace = steps.take(6).map(
+        (step) {
+          if (step is Map) {
+            final character =
+                step['character_id'] ?? step['agent_id'] ?? 'Agent';
 
-                final action =
-                    step['action'] ??
-                    step['purpose'] ??
-                    'inspectable contribution';
+            final action =
+                step['action'] ?? step['purpose'] ?? 'inspectable contribution';
 
-                return '$character: $action';
-              }
+            return '$character: $action';
+          }
 
-              return '$step';
-            },
-          )
-          .toList();
+          return '$step';
+        },
+      ).toList();
 
       final generated = <String>[
         'Option A • High Speed / Higher Risk • '
@@ -392,8 +377,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
       <String, dynamic>{
         'at': DateTime.now().toIso8601String(),
         'goal': goal.text.trim(),
-        'prediction':
-            'Selected trade-off: '
+        'prediction': 'Selected trade-off: '
             'speed ${speed.round()} • '
             'cost ${cost.round()} • '
             'reliability ${reliability.round()}',
@@ -411,8 +395,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
   }
 
   Future<void> _logResult() async {
-    if (residence == null ||
-        resultCtl.text.trim().isEmpty) {
+    if (residence == null || resultCtl.text.trim().isEmpty) {
       return;
     }
 
@@ -428,8 +411,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
 
     first['real_result'] = resultCtl.text.trim();
     first['variance'] = 'QUALITATIVE_REVIEW_REQUIRED';
-    first['learning'] =
-        'Outcome recorded for Medrus + Viveda review; '
+    first['learning'] = 'Outcome recorded for Medrus + Viveda review; '
         'no unsupported numeric calibration is invented.';
 
     resultCtl.clear();
@@ -469,8 +451,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     }
 
     setState(() {
-      status =
-          'BODHEX DISPATCH GATE UNLOCKED • '
+      status = 'BODHEX DISPATCH GATE UNLOCKED • '
           'awaiting explicit tool execution boundary';
     });
 
@@ -601,15 +582,11 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
             children: [
               _tag(
                 theme,
-                goal.text.trim().isEmpty
-                    ? 'GOAL_MISSING'
-                    : 'GOAL_PRESENT',
+                goal.text.trim().isEmpty ? 'GOAL_MISSING' : 'GOAL_PRESENT',
               ),
               _tag(
                 theme,
-                data.text.trim().isEmpty
-                    ? 'DATA_MISSING'
-                    : 'DATA_COMPLETE',
+                data.text.trim().isEmpty ? 'DATA_MISSING' : 'DATA_COMPLETE',
               ),
               _tag(
                 theme,
@@ -619,8 +596,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
               ),
               _tag(
                 theme,
-                goal.text.trim().isEmpty ||
-                        contextCtl.text.trim().isEmpty
+                goal.text.trim().isEmpty || contextCtl.text.trim().isEmpty
                     ? 'BOUNDS_REVIEW'
                     : 'BOUNDS_SUPPLIED',
               ),
@@ -635,9 +611,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
                 Icons.auto_awesome_rounded,
               ),
               label: Text(
-                running
-                    ? 'Sparring…'
-                    : 'Generate decision vectors',
+                running ? 'Sparring…' : 'Generate decision vectors',
               ),
             ),
           ),
@@ -697,12 +671,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
               ),
             )
           else
-            ...options
-                .take(3)
-                .toList()
-                .asMap()
-                .entries
-                .map(
+            ...options.take(3).toList().asMap().entries.map(
                   (entry) => Container(
                     margin: const EdgeInsets.only(
                       bottom: 8,
@@ -852,8 +821,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
                     ),
                   ),
                   contentPadding: EdgeInsets.zero,
-                  controlAffinity:
-                      ListTileControlAffinity.leading,
+                  controlAffinity: ListTileControlAffinity.leading,
                 );
               },
             ),
@@ -924,8 +892,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
             contentPadding: EdgeInsets.zero,
           ),
           FilledButton.icon(
-            onPressed:
-                actApproved && secondFactor ? _dispatch : null,
+            onPressed: actApproved && secondFactor ? _dispatch : null,
             icon: const Icon(
               Icons.lock_open_rounded,
             ),
@@ -963,31 +930,31 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
             )
           else
             ...journal.take(8).map(
-              (entry) => Container(
-                margin: const EdgeInsets.only(
-                  bottom: 8,
-                ),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: theme.surfaceStrong,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Text(
-                  'Goal: ${entry['goal']}\n'
-                  'Prediction: ${entry['prediction']}\n'
-                  'Real result: '
-                  '${entry['real_result'] ?? 'pending'}\n'
-                  'Variance: '
-                  '${entry['variance'] ?? 'pending'}\n'
-                  'Learning: ${entry['learning']}',
-                  style: TextStyle(
-                    color: theme.mutedText,
-                    fontSize: 9,
-                    height: 1.45,
+                  (entry) => Container(
+                    margin: const EdgeInsets.only(
+                      bottom: 8,
+                    ),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: theme.surfaceStrong,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Text(
+                      'Goal: ${entry['goal']}\n'
+                      'Prediction: ${entry['prediction']}\n'
+                      'Real result: '
+                      '${entry['real_result'] ?? 'pending'}\n'
+                      'Variance: '
+                      '${entry['variance'] ?? 'pending'}\n'
+                      'Learning: ${entry['learning']}',
+                      style: TextStyle(
+                        color: theme.mutedText,
+                        fontSize: 9,
+                        height: 1.45,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
           const SizedBox(height: 8),
           TextField(
             controller: resultCtl,

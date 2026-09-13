@@ -307,27 +307,32 @@ class PresentationState {
 
   factory PresentationState.fromJson(String raw) {
     final decoded = jsonDecode(raw);
-    if (decoded is! Map<String, dynamic>)
+    if (decoded is! Map<String, dynamic>) {
       throw const FormatException('Runtime message must be an object.');
-    if (decoded['contract_version'] != 1)
+    }
+    if (decoded['contract_version'] != 1) {
       throw const FormatException('Unsupported presentation contract version.');
+    }
     final agentId = decoded['character_id'];
     final stateValue = decoded['character_state'];
     final active = decoded['active'];
     final prominence = decoded['prominence'];
     if (agentId is! String ||
         agentId.trim().isEmpty ||
-        !CharacterIdentities.all.containsKey(agentId))
+        !CharacterIdentities.all.containsKey(agentId)) {
       throw const FormatException('Runtime message has an unknown character.');
+    }
     if (stateValue is! String ||
-        !allowedStates.contains(stateValue.toUpperCase()))
+        !allowedStates.contains(stateValue.toUpperCase())) {
       throw const FormatException('Runtime message has an unsupported state.');
+    }
     if (active is! bool ||
         prominence is! num ||
         prominence < 0 ||
-        prominence > 1)
+        prominence > 1) {
       throw const FormatException(
           'Runtime message has invalid character state.');
+    }
     List<Map<String, dynamic>> maps(dynamic value) => value is List
         ? value
             .whereType<Map>()

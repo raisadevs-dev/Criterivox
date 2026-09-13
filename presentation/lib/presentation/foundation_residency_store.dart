@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:idb_shim/idb.dart';
 import 'package:idb_shim/idb_browser.dart';
 
 /// Durable browser residency for the authoritative S5 DataFoundation copy.
@@ -15,8 +14,9 @@ class FoundationResidencyStore {
     final db = await idbFactoryBrowser.open(_dbName, version: 1,
         onUpgradeNeeded: (event) {
       final database = event.database;
-      if (!database.objectStoreNames.contains(_store))
+      if (!database.objectStoreNames.contains(_store)) {
         database.createObjectStore(_store);
+      }
     });
     _db = db;
     return db;

@@ -19,8 +19,9 @@ class StewardshipLiveWorkspacePage extends StatelessWidget {
   String _stateFor(String id) {
     final current = state?.characterState.toUpperCase();
     if (id == state?.agentId.toLowerCase() && current != null) return current;
-    if (id == 'kaelen' && (current == 'HANDOFF' || current == 'WORK'))
+    if (id == 'kaelen' && (current == 'HANDOFF' || current == 'WORK')) {
       return 'WORK';
+    }
     return 'IDLE';
   }
 

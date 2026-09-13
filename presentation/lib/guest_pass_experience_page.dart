@@ -20,8 +20,7 @@ class GuestPassExperiencePage extends StatefulWidget {
       _GuestPassExperiencePageState();
 }
 
-class _GuestPassExperiencePageState
-    extends State<GuestPassExperiencePage> {
+class _GuestPassExperiencePageState extends State<GuestPassExperiencePage> {
   String? sessionId;
   DateTime? expiresAt;
   Timer? timer;
@@ -72,10 +71,8 @@ class _GuestPassExperiencePageState
           )
           .timeout(const Duration(seconds: 5));
 
-      if (response.statusCode >= 200 &&
-          response.statusCode < 300) {
-        final decoded =
-            jsonDecode(response.body) as Map<String, dynamic>;
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final decoded = jsonDecode(response.body) as Map<String, dynamic>;
 
         sessionId = '${decoded['session_id']}';
         expiresAt = DateTime.parse('${decoded['expires_at']}');
@@ -190,8 +187,7 @@ class _GuestPassExperiencePageState
         throw Exception('routing rejected');
       }
 
-      final decoded =
-          jsonDecode(planResponse.body) as Map<String, dynamic>;
+      final decoded = jsonDecode(planResponse.body) as Map<String, dynamic>;
 
       _addTrace(
         'Anukor',
@@ -214,22 +210,16 @@ class _GuestPassExperiencePageState
       );
 
       final plan = decoded['plan'];
-      final rawSteps =
-          plan is Map ? plan['steps'] : null;
+      final rawSteps = plan is Map ? plan['steps'] : null;
 
       final steps = rawSteps is List ? rawSteps : const [];
 
       for (final step in steps.take(4)) {
         if (step is Map) {
-          final character =
-              step['character_id'] ??
-              step['agent_id'] ??
-              'Agent';
+          final character = step['character_id'] ?? step['agent_id'] ?? 'Agent';
 
           final action =
-              step['action'] ??
-              step['purpose'] ??
-              'inspectable contribution';
+              step['action'] ?? step['purpose'] ?? 'inspectable contribution';
 
           decisions.add('$character: $action');
         } else {
@@ -305,8 +295,7 @@ class _GuestPassExperiencePageState
 
     if (!silent && mounted) {
       setState(() {
-        status =
-            'SESSION_VAPORIZED • no guest residence was created';
+        status = 'SESSION_VAPORIZED • no guest residence was created';
       });
     }
   }
@@ -335,19 +324,15 @@ class _GuestPassExperiencePageState
         throw Exception('claim rejected');
       }
 
-      final decoded =
-          jsonDecode(response.body) as Map<String, dynamic>;
+      final decoded = jsonDecode(response.body) as Map<String, dynamic>;
 
-      final migratable =
-          Map<String, dynamic>.from(
+      final migratable = Map<String, dynamic>.from(
         decoded['migratable'] as Map,
       );
 
       final now = DateTime.now();
-      final residenceId =
-          'res-guest-${now.millisecondsSinceEpoch}';
-      final ownerId =
-          'local-${now.millisecondsSinceEpoch}';
+      final residenceId = 'res-guest-${now.millisecondsSinceEpoch}';
+      final ownerId = 'local-${now.millisecondsSinceEpoch}';
 
       final record = HumanResidenceRecord(
         residenceId: residenceId,
@@ -367,18 +352,12 @@ class _GuestPassExperiencePageState
             'private',
             'collaboration',
           ],
-          'claimed_from_guest':
-              migratable['claimed_from_guest'],
-          'guest_decisions':
-              migratable['decisions'],
-          'guest_trace':
-              migratable['trace'],
-          'goal':
-              migratable['goal'],
-          'data':
-              migratable['data'],
-          'context':
-              migratable['context'],
+          'claimed_from_guest': migratable['claimed_from_guest'],
+          'guest_decisions': migratable['decisions'],
+          'guest_trace': migratable['trace'],
+          'goal': migratable['goal'],
+          'data': migratable['data'],
+          'context': migratable['context'],
         },
       );
 
@@ -402,8 +381,7 @@ class _GuestPassExperiencePageState
       if (mounted) {
         setState(() {
           claiming = false;
-          status =
-              'CLAIMED • decision migrated to your Human Residence';
+          status = 'CLAIMED • decision migrated to your Human Residence';
         });
       }
 
@@ -432,13 +410,9 @@ class _GuestPassExperiencePageState
       );
     }
 
-    final minutes =
-        remaining.inMinutes.toString().padLeft(2, '0');
+    final minutes = remaining.inMinutes.toString().padLeft(2, '0');
 
-    final seconds =
-        (remaining.inSeconds % 60)
-            .toString()
-            .padLeft(2, '0');
+    final seconds = (remaining.inSeconds % 60).toString().padLeft(2, '0');
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
@@ -598,8 +572,7 @@ class _GuestPassExperiencePageState
             maxLines: 3,
             decoration: const InputDecoration(
               labelText: 'Data',
-              hintText:
-                  'Paste trial data or describe the dataset',
+              hintText: 'Paste trial data or describe the dataset',
             ),
           ),
           const SizedBox(height: 10),
@@ -608,8 +581,7 @@ class _GuestPassExperiencePageState
             maxLines: 2,
             decoration: const InputDecoration(
               labelText: 'Context',
-              hintText:
-                  'Constraints, assumptions, timing, stakeholders',
+              hintText: 'Constraints, assumptions, timing, stakeholders',
             ),
           ),
           const SizedBox(height: 14),
@@ -619,9 +591,7 @@ class _GuestPassExperiencePageState
               onPressed: running ? null : _run,
               icon: const Icon(Icons.play_arrow_rounded),
               label: Text(
-                running
-                    ? 'Running…'
-                    : 'Run isolated evaluation',
+                running ? 'Running…' : 'Run isolated evaluation',
               ),
             ),
           ),
@@ -659,14 +629,12 @@ class _GuestPassExperiencePageState
               (entry) => Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
                       width: 8,
                       height: 8,
-                      margin:
-                          const EdgeInsets.only(top: 4),
+                      margin: const EdgeInsets.only(top: 4),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: theme.primary,
@@ -683,8 +651,7 @@ class _GuestPassExperiencePageState
                           ),
                           children: [
                             TextSpan(
-                              text:
-                                  '${entry['character']}  ',
+                              text: '${entry['character']}  ',
                               style: TextStyle(
                                 color: theme.text,
                                 fontWeight: FontWeight.w800,
@@ -714,8 +681,7 @@ class _GuestPassExperiencePageState
             const SizedBox(height: 6),
             ...decisions.map(
               (decision) => Padding(
-                padding:
-                    const EdgeInsets.only(bottom: 5),
+                padding: const EdgeInsets.only(bottom: 5),
                 child: Text(
                   '• $decision',
                   style: TextStyle(
@@ -849,9 +815,7 @@ class _GuestPassExperiencePageState
             onPressed: claiming ? null : _claim,
             icon: const Icon(Icons.home_work_rounded),
             label: Text(
-              claiming
-                  ? 'Claiming…'
-                  : 'Claim House & Save Decision',
+              claiming ? 'Claiming…' : 'Claim House & Save Decision',
             ),
           ),
         ],

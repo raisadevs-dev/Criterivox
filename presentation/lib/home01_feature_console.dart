@@ -19,14 +19,11 @@ class Home01FeatureConsole extends StatefulWidget {
   });
 
   @override
-  State<Home01FeatureConsole> createState() =>
-      _Home01FeatureConsoleState();
+  State<Home01FeatureConsole> createState() => _Home01FeatureConsoleState();
 }
 
-class _Home01FeatureConsoleState
-    extends State<Home01FeatureConsole> {
-  final BrowserResidencyStore _residency =
-      BrowserResidencyStore();
+class _Home01FeatureConsoleState extends State<Home01FeatureConsole> {
+  final BrowserResidencyStore _residency = BrowserResidencyStore();
 
   bool _synthetic = false;
   bool _trainingConsent = false;
@@ -48,14 +45,12 @@ class _Home01FeatureConsoleState
 
     setState(() {
       _synthetic = prefs['synthetic'] == true;
-      _trainingConsent =
-          prefs['trainingConsent'] == true;
+      _trainingConsent = prefs['trainingConsent'] == true;
     });
   }
 
   Future<void> _save() async {
-    final raw =
-        await _residency.load() ?? <String, dynamic>{};
+    final raw = await _residency.load() ?? <String, dynamic>{};
 
     raw['home01_preferences'] = <String, dynamic>{
       'synthetic': _synthetic,
@@ -96,8 +91,7 @@ class _Home01FeatureConsoleState
     final theme = CriterivoxTheme.of(context);
     final state = widget.state;
 
-    final readiness = ((state?.foundationMatchRatio ?? 0.0) *
-            100)
+    final readiness = ((state?.foundationMatchRatio ?? 0.0) * 100)
         .clamp(0.0, 100.0)
         .toDouble();
 
@@ -111,8 +105,7 @@ class _Home01FeatureConsoleState
           30,
         ),
         child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _hero(theme, readiness),
             const SizedBox(height: 14),
@@ -124,22 +117,19 @@ class _Home01FeatureConsoleState
             const SizedBox(height: 10),
             LayoutBuilder(
               builder: (context, constraints) {
-                final columns =
-                    constraints.maxWidth > 1250
-                        ? 4
-                        : constraints.maxWidth > 780
-                            ? 2
-                            : 1;
+                final columns = constraints.maxWidth > 1250
+                    ? 4
+                    : constraints.maxWidth > 780
+                        ? 2
+                        : 1;
 
                 return GridView.count(
                   shrinkWrap: true,
-                  physics:
-                      const NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   crossAxisCount: columns,
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
-                  childAspectRatio:
-                      columns == 1 ? 2.2 : 1.35,
+                  childAspectRatio: columns == 1 ? 2.2 : 1.35,
                   children: [
                     _readiness(theme, readiness),
                     _pipeline(theme),
@@ -205,8 +195,7 @@ class _Home01FeatureConsoleState
           const SizedBox(width: 15),
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   "Sandre's Data Foundation Home",
@@ -247,8 +236,7 @@ class _Home01FeatureConsoleState
       Icons.monitor_heart_outlined,
       theme,
       Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _metric(
             'Completeness',
@@ -267,13 +255,9 @@ class _Home01FeatureConsoleState
           ),
           const SizedBox(height: 5),
           Text(
-            value >= 85
-                ? 'PROVISIONAL READY'
-                : 'REVIEW REQUIRED',
+            value >= 85 ? 'PROVISIONAL READY' : 'REVIEW REQUIRED',
             style: TextStyle(
-              color: value >= 85
-                  ? theme.success
-                  : theme.warning,
+              color: value >= 85 ? theme.success : theme.warning,
               fontSize: 9,
               fontWeight: FontWeight.w800,
             ),
@@ -300,8 +284,7 @@ class _Home01FeatureConsoleState
       Icons.account_tree_outlined,
       theme,
       Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Wrap(
             spacing: 4,
@@ -334,8 +317,7 @@ class _Home01FeatureConsoleState
       Icons.timeline_outlined,
       theme,
       Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'RAW PAYLOAD → CURATED FOUNDATION',
@@ -392,8 +374,7 @@ class _Home01FeatureConsoleState
       Icons.science_outlined,
       theme,
       Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
@@ -453,8 +434,7 @@ class _Home01FeatureConsoleState
       Icons.label_outline,
       theme,
       Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'AGENT READABILITY SCORE',
@@ -505,8 +485,7 @@ class _Home01FeatureConsoleState
       Icons.schema_outlined,
       theme,
       Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -561,8 +540,7 @@ class _Home01FeatureConsoleState
       Icons.grid_view_outlined,
       theme,
       Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'EMBEDDING-READY REPRESENTATION',
@@ -615,20 +593,17 @@ class _Home01FeatureConsoleState
   }
 
   Widget _edd(CriterivoxTheme theme) {
-    final confirmation =
-        widget.state?.foundationConfirmation;
+    final confirmation = widget.state?.foundationConfirmation;
 
     final userConfirmed =
-        confirmation == 'user-confirmed' ||
-        confirmation == 'user-corrected';
+        confirmation == 'user-confirmed' || confirmation == 'user-corrected';
 
     return _card(
       '08  EVALUATION GATES',
       Icons.fact_check_outlined,
       theme,
       Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'EVALUATION-DRIVEN DATA QUALITY',
@@ -691,8 +666,7 @@ class _Home01FeatureConsoleState
           const SizedBox(width: 10),
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'BROWSER-LOCAL DATA POLICY',
@@ -756,8 +730,7 @@ class _Home01FeatureConsoleState
         ),
       ),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -795,8 +768,7 @@ class _Home01FeatureConsoleState
     CriterivoxTheme theme,
   ) {
     return Column(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
@@ -893,13 +865,9 @@ class _Home01FeatureConsoleState
         child: Column(
           children: [
             Icon(
-              ready
-                  ? Icons.check_circle_outline
-                  : Icons.pause_circle_outline,
+              ready ? Icons.check_circle_outline : Icons.pause_circle_outline,
               size: 15,
-              color: ready
-                  ? theme.success
-                  : theme.mutedText,
+              color: ready ? theme.success : theme.mutedText,
             ),
             const SizedBox(height: 3),
             Text(
@@ -925,13 +893,9 @@ class _Home01FeatureConsoleState
       child: Row(
         children: [
           Icon(
-            pass
-                ? Icons.check_circle
-                : Icons.radio_button_unchecked,
+            pass ? Icons.check_circle : Icons.radio_button_unchecked,
             size: 13,
-            color: pass
-                ? theme.success
-                : theme.warning,
+            color: pass ? theme.success : theme.warning,
           ),
           const SizedBox(width: 6),
           Text(
@@ -984,10 +948,7 @@ class _Home01FeatureConsoleState
     return SizedBox(
       height: 30,
       child: OutlinedButton.icon(
-        onPressed:
-            widget.state?.foundationId == null
-                ? null
-                : onTap,
+        onPressed: widget.state?.foundationId == null ? null : onTap,
         icon: Icon(
           icon,
           size: 13,

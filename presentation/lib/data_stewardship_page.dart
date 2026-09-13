@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
@@ -227,9 +226,8 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
         }
       }
 
-      final unresolved = conflicts
-          .where((field) => !_winner.containsKey(field))
-          .toList();
+      final unresolved =
+          conflicts.where((field) => !_winner.containsKey(field)).toList();
 
       if (conflicts.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -286,11 +284,9 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
 
     final ready = _foundationId != null;
     final ratio = s?.foundationMatchRatio;
-    final guesses =
-        s?.foundationIntentGuesses ?? const <String>[];
+    final guesses = s?.foundationIntentGuesses ?? const <String>[];
 
-    final needsClarification =
-        s?.event == 'USER_CONFIRMATION_REQUIRED' &&
+    final needsClarification = s?.event == 'USER_CONFIRMATION_REQUIRED' &&
         ratio != null &&
         ratio < 0.80;
 
@@ -357,12 +353,10 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
                   why: _why,
                   confirm: s?.foundationConfirmation ?? 'uncertain',
                   recipient: _recipient,
-                  onRecipient: (value) =>
-                      setState(() => _recipient = value),
+                  onRecipient: (value) => setState(() => _recipient = value),
                   guesses: guesses,
                   approvedIntent: _approvedIntent,
-                  onIntent: (value) =>
-                      setState(() => _approvedIntent = value),
+                  onIntent: (value) => setState(() => _approvedIntent = value),
                   onApproveIntent: () => _approveIntent(guesses),
                   onAction: _action,
                   t: t,
@@ -390,8 +384,7 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
                         needsClarification: needsClarification,
                         what: _what,
                         why: _why,
-                        confirm:
-                            s?.foundationConfirmation ?? 'uncertain',
+                        confirm: s?.foundationConfirmation ?? 'uncertain',
                         recipient: _recipient,
                         onRecipient: (value) =>
                             setState(() => _recipient = value),
@@ -430,8 +423,7 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
                 home: _homeJson,
                 chat: _chatJson,
                 winner: _winner,
-                onWinner: (key, value) =>
-                    setState(() => _winner[key] = value),
+                onWinner: (key, value) => setState(() => _winner[key] = value),
                 onMerge: _merge,
                 t: t,
               ),
@@ -474,8 +466,7 @@ class _Pipeline extends StatelessWidget {
       'SAFEGUARD',
     ];
 
-    final current =
-        (state?.characterState ?? 'IDLE').toUpperCase();
+    final current = (state?.characterState ?? 'IDLE').toUpperCase();
 
     final active = current == 'RECEIVE'
         ? 1
@@ -497,9 +488,8 @@ class _Pipeline extends StatelessWidget {
             height: 58,
             padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
-              color: i <= active
-                  ? t.primary.withValues(alpha: 0.13)
-                  : t.surface,
+              color:
+                  i <= active ? t.primary.withValues(alpha: 0.13) : t.surface,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: i <= active ? t.primary : t.border,
@@ -513,9 +503,7 @@ class _Pipeline extends StatelessWidget {
                       ? Icons.check_circle_outline
                       : Icons.radio_button_unchecked,
                   size: 16,
-                  color: i <= active
-                      ? t.primary
-                      : t.mutedText,
+                  color: i <= active ? t.primary : t.mutedText,
                 ),
                 const SizedBox(height: 5),
                 Text(
@@ -586,8 +574,7 @@ class _Intake extends StatelessWidget {
             maxLines: 3,
             decoration: const InputDecoration(
               labelText: 'Direct text / context',
-              hintText:
-                  'Paste material or user-supplied context here',
+              hintText: 'Paste material or user-supplied context here',
             ),
           ),
           const SizedBox(height: 7),
@@ -879,27 +866,20 @@ class _Review extends StatelessWidget {
             runSpacing: 6,
             children: [
               OutlinedButton(
-                onPressed: ready
-                    ? () => onAction('confirm')
-                    : null,
+                onPressed: ready ? () => onAction('confirm') : null,
                 child: const Text('Confirm'),
               ),
               OutlinedButton(
-                onPressed: ready
-                    ? () => onAction('correct')
-                    : null,
+                onPressed: ready ? () => onAction('correct') : null,
                 child: const Text('Correct'),
               ),
               OutlinedButton(
-                onPressed: ready
-                    ? () => onAction('exclude')
-                    : null,
+                onPressed: ready ? () => onAction('exclude') : null,
                 child: const Text('Exclude'),
               ),
               FilledButton.icon(
                 onPressed:
-                    confirm == 'user-confirmed' ||
-                            confirm == 'user-corrected'
+                    confirm == 'user-confirmed' || confirm == 'user-corrected'
                         ? () => onAction(
                               'handoff',
                               recipient: recipient,
@@ -957,8 +937,7 @@ class _Provenance extends StatelessWidget {
               dense: true,
               contentPadding: EdgeInsets.zero,
               value: entry.value,
-              onChanged: (value) =>
-                  onChanged(entry.key, value ?? false),
+              onChanged: (value) => onChanged(entry.key, value ?? false),
               title: Text(
                 entry.key.replaceAll('_', ' '),
                 style: TextStyle(
@@ -974,8 +953,7 @@ class _Provenance extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: OutlinedButton(
-              onPressed:
-                  s?.foundationId == null ? null : onSave,
+              onPressed: s?.foundationId == null ? null : onSave,
               child: const Text('Save provenance choices'),
             ),
           ),
@@ -1019,8 +997,7 @@ class _LogPanel extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               FilledButton(
-                onPressed:
-                    s?.foundationId == null ? null : onQuery,
+                onPressed: s?.foundationId == null ? null : onQuery,
                 child: const Text('Search'),
               ),
             ],
@@ -1034,9 +1011,7 @@ class _LogPanel extends StatelessWidget {
             ),
           ),
           for (final entry
-              in (s?.foundationLogEntries ??
-                      const <String>[])
-                  .take(20))
+              in (s?.foundationLogEntries ?? const <String>[]).take(20))
             ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
@@ -1098,8 +1073,7 @@ class _ConflictPanel extends StatelessWidget {
     }).toList()
       ..sort();
 
-    final conflicts =
-        fields.where((field) => h[field] != c[field]).toList();
+    final conflicts = fields.where((field) => h[field] != c[field]).toList();
 
     final unresolved =
         conflicts.where((field) => !winner.containsKey(field)).toList();
@@ -1197,9 +1171,7 @@ class _ConflictPanel extends StatelessWidget {
           const SizedBox(height: 5),
           FilledButton.icon(
             onPressed:
-                conflicts.isEmpty || unresolved.isNotEmpty
-                    ? null
-                    : onMerge,
+                conflicts.isEmpty || unresolved.isNotEmpty ? null : onMerge,
             icon: const Icon(
               Icons.merge_type,
               size: 15,
@@ -1235,9 +1207,7 @@ class _Quality extends StatelessWidget {
       Row(
         children: [
           Icon(
-            failed
-                ? Icons.warning_amber_rounded
-                : Icons.verified_outlined,
+            failed ? Icons.warning_amber_rounded : Icons.verified_outlined,
             color: failed ? t.warning : t.success,
             size: 20,
           ),
@@ -1312,8 +1282,7 @@ class _Sandre extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   s?.agentId.toLowerCase() == 'sandre'
-                      ? (s?.message ??
-                          'Safeguarding the foundation.')
+                      ? (s?.message ?? 'Safeguarding the foundation.')
                       : 'Sandre is ready to receive foundational material.',
                   style: TextStyle(
                     color: t.mutedText,

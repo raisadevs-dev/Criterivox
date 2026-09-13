@@ -91,8 +91,7 @@ class Home02ContextConsole extends StatelessWidget {
               children: [
                 _Metric(
                   'Authoritative input',
-                  s?.contextAuthoritativeInput ==
-                          'complete_data_foundation'
+                  s?.contextAuthoritativeInput == 'complete_data_foundation'
                       ? 'S5 DataFoundation'
                       : 'Not active',
                   t,
@@ -120,10 +119,7 @@ class Home02ContextConsole extends StatelessWidget {
               runSpacing: 8,
               children: [
                 FilledButton.icon(
-                  onPressed:
-                      s?.foundationId == null
-                          ? null
-                          : onBuildContext,
+                  onPressed: s?.foundationId == null ? null : onBuildContext,
                   icon: const Icon(
                     Icons.account_tree_rounded,
                     size: 16,
@@ -133,10 +129,7 @@ class Home02ContextConsole extends StatelessWidget {
                   ),
                 ),
                 OutlinedButton.icon(
-                  onPressed:
-                      s?.foundationId == null
-                          ? null
-                          : onManualAdapt,
+                  onPressed: s?.foundationId == null ? null : onManualAdapt,
                   icon: const Icon(
                     Icons.tune_rounded,
                     size: 16,
@@ -159,8 +152,7 @@ class Home02ContextConsole extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             _Panel(
-              title:
-                  '01 • DYNAMIC CONTEXT PRUNING + ATTENTIVE COMPRESSION',
+              title: '01 • DYNAMIC CONTEXT PRUNING + ATTENTIVE COMPRESSION',
               subtitle: 'Dharen frame',
               t: t,
               child: Column(
@@ -168,22 +160,18 @@ class Home02ContextConsole extends StatelessWidget {
                 children: [
                   _Bar(
                     label: 'Original context items',
-                    value:
-                        s?.contextOriginalItemCount ?? 0,
-                    max:
-                        (s?.contextOriginalItemCount ?? 1)
-                            .clamp(1, 1000)
-                            .toInt(),
+                    value: s?.contextOriginalItemCount ?? 0,
+                    max: (s?.contextOriginalItemCount ?? 1)
+                        .clamp(1, 1000)
+                        .toInt(),
                     t: t,
                   ),
                   _Bar(
                     label: 'Retained context items',
-                    value:
-                        s?.contextRetainedItemCount ?? 0,
-                    max:
-                        (s?.contextOriginalItemCount ?? 1)
-                            .clamp(1, 1000)
-                            .toInt(),
+                    value: s?.contextRetainedItemCount ?? 0,
+                    max: (s?.contextOriginalItemCount ?? 1)
+                        .clamp(1, 1000)
+                        .toInt(),
                     t: t,
                   ),
                   Text(
@@ -200,8 +188,7 @@ class Home02ContextConsole extends StatelessWidget {
               ),
             ),
             _Panel(
-              title:
-                  '02 • ADAPTIVE CONTEXT SHIFT INTERCEPTOR',
+              title: '02 • ADAPTIVE CONTEXT SHIFT INTERCEPTOR',
               subtitle: 'Anuka adaptation desk',
               t: t,
               child: _DiffView(
@@ -210,8 +197,7 @@ class Home02ContextConsole extends StatelessWidget {
               ),
             ),
             _Panel(
-              title:
-                  '03 • HIERARCHICAL CONTEXT TREE + SCOPE BOUNDARY',
+              title: '03 • HIERARCHICAL CONTEXT TREE + SCOPE BOUNDARY',
               subtitle: 'Critical → High → Medium → Low',
               t: t,
               child: Column(
@@ -252,8 +238,7 @@ class Home02ContextConsole extends StatelessWidget {
               ),
             ),
             _Panel(
-              title:
-                  '04 • CONTEXTUAL REPLAY + SHADOW TESTING',
+              title: '04 • CONTEXTUAL REPLAY + SHADOW TESTING',
               subtitle: 'Anuka sandbox',
               t: t,
               child: Column(
@@ -276,9 +261,7 @@ class Home02ContextConsole extends StatelessWidget {
                     children: [
                       FilledButton.icon(
                         onPressed:
-                            s?.foundationId == null
-                                ? null
-                                : onCreateSandbox,
+                            s?.foundationId == null ? null : onCreateSandbox,
                         icon: const Icon(
                           Icons.add_box_outlined,
                           size: 15,
@@ -288,10 +271,7 @@ class Home02ContextConsole extends StatelessWidget {
                         ),
                       ),
                       OutlinedButton.icon(
-                        onPressed:
-                            sandboxReady
-                                ? onRunSandbox
-                                : null,
+                        onPressed: sandboxReady ? onRunSandbox : null,
                         icon: const Icon(
                           Icons.play_arrow_rounded,
                           size: 15,
@@ -301,10 +281,7 @@ class Home02ContextConsole extends StatelessWidget {
                         ),
                       ),
                       OutlinedButton.icon(
-                        onPressed:
-                            sandboxReady
-                                ? onInspectSandbox
-                                : null,
+                        onPressed: sandboxReady ? onInspectSandbox : null,
                         icon: const Icon(
                           Icons.visibility_outlined,
                           size: 15,
@@ -314,10 +291,7 @@ class Home02ContextConsole extends StatelessWidget {
                         ),
                       ),
                       OutlinedButton.icon(
-                        onPressed:
-                            sandboxReady
-                                ? onPromoteSandbox
-                                : null,
+                        onPressed: sandboxReady ? onPromoteSandbox : null,
                         icon: const Icon(
                           Icons.publish_outlined,
                           size: 15,
@@ -327,10 +301,7 @@ class Home02ContextConsole extends StatelessWidget {
                         ),
                       ),
                       OutlinedButton.icon(
-                        onPressed:
-                            sandboxReady
-                                ? onDiscardSandbox
-                                : null,
+                        onPressed: sandboxReady ? onDiscardSandbox : null,
                         icon: const Icon(
                           Icons.delete_outline_rounded,
                           size: 15,
@@ -345,8 +316,7 @@ class Home02ContextConsole extends StatelessWidget {
               ),
             ),
             _Panel(
-              title:
-                  '05 • CONTEXT CLASH + POISONING FIREWALL',
+              title: '05 • CONTEXT CLASH + POISONING FIREWALL',
               subtitle: 'Dharen boundary interceptor',
               t: t,
               child: Row(
@@ -355,10 +325,9 @@ class Home02ContextConsole extends StatelessWidget {
                     (s?.contextViolationCount ?? 0) == 0
                         ? Icons.verified_user_outlined
                         : Icons.warning_amber_rounded,
-                    color:
-                        (s?.contextViolationCount ?? 0) == 0
-                            ? t.success
-                            : t.warning,
+                    color: (s?.contextViolationCount ?? 0) == 0
+                        ? t.success
+                        : t.warning,
                     size: 25,
                   ),
                   const SizedBox(width: 10),
@@ -381,8 +350,7 @@ class Home02ContextConsole extends StatelessWidget {
               ),
             ),
             _Panel(
-              title:
-                  '06 • ISOLATED EXECUTION SANDBOXES',
+              title: '06 • ISOLATED EXECUTION SANDBOXES',
               subtitle: 'Transient state isolation',
               t: t,
               child: Column(
@@ -399,7 +367,7 @@ class Home02ContextConsole extends StatelessWidget {
                       ),
                       _Chip(
                         'FORK STATES: '
-                            '${s?.contextSandboxCount ?? 0}',
+                        '${s?.contextSandboxCount ?? 0}',
                         t,
                         false,
                       ),
@@ -425,35 +393,27 @@ class Home02ContextConsole extends StatelessWidget {
               ),
             ),
             _Panel(
-              title:
-                  '07 • PERSISTENT AGENT SCRATCHPAD + CHECKPOINTING',
+              title: '07 • PERSISTENT AGENT SCRATCHPAD + CHECKPOINTING',
               subtitle: 'External working memory',
               t: t,
               child: _KeyGrid(
                 t,
                 <String, String>{
-                  'State version':
-                      '${s?.contextStateVersion ?? 0}',
-                  'Checkpoint':
-                      s?.contextCheckpointId ??
-                          'Not created',
-                  'Persistence':
-                      'Browser residency + runtime event stream',
-                  'Provenance':
-                      '${_sourceIdCount(s)} source IDs',
+                  'State version': '${s?.contextStateVersion ?? 0}',
+                  'Checkpoint': s?.contextCheckpointId ?? 'Not created',
+                  'Persistence': 'Browser residency + runtime event stream',
+                  'Provenance': '${_sourceIdCount(s)} source IDs',
                 },
               ),
             ),
             _Panel(
-              title:
-                  '08 • PRIORITY-TIERED TOKEN BUDGETING',
+              title: '08 • PRIORITY-TIERED TOKEN BUDGETING',
               subtitle: 'Dharen dynamic allocator',
               t: t,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  for (final entry
-                      in _tierBudget(s).entries)
+                  for (final entry in _tierBudget(s).entries)
                     _BudgetRow(
                       entry.key,
                       entry.value,
@@ -472,23 +432,17 @@ class Home02ContextConsole extends StatelessWidget {
               ),
             ),
             _Panel(
-              title:
-                  'STATEFUL MULTI-AGENT HANDOFF',
+              title: 'STATEFUL MULTI-AGENT HANDOFF',
               subtitle: 'Dharen → Tarkis / Sandre',
               t: t,
               child: _KeyGrid(
                 t,
                 <String, String>{
-                  'Frame':
-                      s?.contextId ?? 'Not built',
-                  'State':
-                      '${s?.contextStateVersion ?? 0}',
-                  'Recipient':
-                      s?.deliveryRecipient ??
-                          'Tarkis + Sandre',
+                  'Frame': s?.contextId ?? 'Not built',
+                  'State': '${s?.contextStateVersion ?? 0}',
+                  'Recipient': s?.deliveryRecipient ?? 'Tarkis + Sandre',
                   'Authoritative boundary':
-                      s?.contextAuthoritativeInput ??
-                          'Not active',
+                      s?.contextAuthoritativeInput ?? 'Not active',
                 },
               ),
             ),
@@ -526,8 +480,7 @@ class Home02ContextConsole extends StatelessWidget {
   static int _sourceIdCount(
     PresentationState? s,
   ) {
-    final snapshot =
-        _normalizeMap(s?.lineageSnapshot);
+    final snapshot = _normalizeMap(s?.lineageSnapshot);
 
     final sourceIds = snapshot['source_ids'];
 
@@ -548,8 +501,7 @@ class Home02ContextConsole extends StatelessWidget {
       'low': .1,
     };
 
-    final normalized =
-        _normalizeMap(s?.contextTierBudget);
+    final normalized = _normalizeMap(s?.contextTierBudget);
 
     if (normalized.isEmpty) {
       return fallback;
@@ -596,8 +548,7 @@ class _Panel extends StatelessWidget {
         ),
       ),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -653,8 +604,7 @@ class _Metric extends StatelessWidget {
         ),
       ),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
@@ -697,17 +647,12 @@ class _Bar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double progress =
-        max == 0
-            ? 0.0
-            : (value / max)
-                .clamp(0.0, 1.0)
-                .toDouble();
+        max == 0 ? 0.0 : (value / max).clamp(0.0, 1.0).toDouble();
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 9),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -754,8 +699,7 @@ class _DiffView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final diff =
-        _normalizeMap(s?.contextDiff);
+    final diff = _normalizeMap(s?.contextDiff);
 
     final added = _listLength(
       diff['added'],
@@ -769,11 +713,9 @@ class _DiffView extends StatelessWidget {
       diff['removed'],
     );
 
-    final goalShift =
-        diff['goal_shift'] == true;
+    final goalShift = diff['goal_shift'] == true;
 
-    final constraintShift =
-        diff['constraint_shift'] == true;
+    final constraintShift = diff['constraint_shift'] == true;
 
     return Wrap(
       spacing: 8,
@@ -795,16 +737,12 @@ class _DiffView extends StatelessWidget {
           false,
         ),
         _Chip(
-          goalShift
-              ? 'GOAL SHIFT'
-              : 'GOAL STABLE',
+          goalShift ? 'GOAL SHIFT' : 'GOAL STABLE',
           t,
           goalShift,
         ),
         _Chip(
-          constraintShift
-              ? 'CONSTRAINT SHIFT'
-              : 'CONSTRAINT STABLE',
+          constraintShift ? 'CONSTRAINT SHIFT' : 'CONSTRAINT STABLE',
           t,
           constraintShift,
         ),
@@ -815,9 +753,7 @@ class _DiffView extends StatelessWidget {
   static int _listLength(
     dynamic value,
   ) {
-    return value is List
-        ? value.length
-        : 0;
+    return value is List ? value.length : 0;
   }
 }
 
@@ -842,8 +778,7 @@ class _TreeNode extends StatelessWidget {
         bottom: 7,
       ),
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
             depth == 0
@@ -896,8 +831,7 @@ class _BudgetRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progress =
-        value.clamp(0.0, 1.0).toDouble();
+    final progress = value.clamp(0.0, 1.0).toDouble();
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -918,10 +852,8 @@ class _BudgetRow extends StatelessWidget {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 8,
-              borderRadius:
-                  BorderRadius.circular(8),
-              backgroundColor:
-                  t.surfaceStrong,
+              borderRadius: BorderRadius.circular(8),
+              backgroundColor: t.surfaceStrong,
             ),
           ),
           const SizedBox(width: 8),
@@ -961,26 +893,16 @@ class _Chip extends StatelessWidget {
         vertical: 7,
       ),
       decoration: BoxDecoration(
-        color:
-            active
-                ? t.primary.withValues(alpha: .12)
-                : t.surfaceStrong,
-        borderRadius:
-            BorderRadius.circular(999),
+        color: active ? t.primary.withValues(alpha: .12) : t.surfaceStrong,
+        borderRadius: BorderRadius.circular(999),
         border: Border.all(
-          color:
-              active
-                  ? t.primary.withValues(alpha: .38)
-                  : t.border,
+          color: active ? t.primary.withValues(alpha: .38) : t.border,
         ),
       ),
       child: Text(
         text,
         style: TextStyle(
-          color:
-              active
-                  ? t.text
-                  : t.mutedText,
+          color: active ? t.text : t.mutedText,
           fontSize: 8.5,
           fontWeight: FontWeight.w700,
         ),
@@ -1008,8 +930,7 @@ class _KeyGrid extends StatelessWidget {
           SizedBox(
             width: 245,
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   entry.key,

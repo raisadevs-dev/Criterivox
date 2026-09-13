@@ -63,8 +63,9 @@ class ReferenceAttachmentPicker extends StatelessWidget {
     final additions = <ChatReference>[];
     for (final file in result.files) {
       final bytes = file.bytes;
-      if (bytes == null || bytes.isEmpty || bytes.length > 4 * 1024 * 1024)
+      if (bytes == null || bytes.isEmpty || bytes.length > 4 * 1024 * 1024) {
         continue;
+      }
       final item = ChatReference(
         label: file.name,
         kind: _kindFor(file.extension),
@@ -183,6 +184,8 @@ Future<ChatReference?> showReferenceLinkDialog(BuildContext context) async {
   final uri = Uri.tryParse(value);
   if (uri == null ||
       (uri.scheme != 'http' && uri.scheme != 'https') ||
-      uri.host.isEmpty) return null;
+      uri.host.isEmpty) {
+    return null;
+  }
   return ChatReference(label: value, kind: 'link', sizeBytes: 0);
 }

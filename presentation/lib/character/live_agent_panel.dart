@@ -56,9 +56,7 @@ class _LiveAgentPanelState extends State<LiveAgentPanel> {
         color: theme.surface,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: active
-              ? theme.primary.withValues(alpha: 0.42)
-              : theme.border,
+          color: active ? theme.primary.withValues(alpha: 0.42) : theme.border,
         ),
         boxShadow: [
           BoxShadow(

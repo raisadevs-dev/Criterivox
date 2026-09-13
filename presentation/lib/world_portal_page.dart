@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -326,8 +325,7 @@ class CivilizationPage extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               h.$1,
@@ -386,8 +384,7 @@ class HumanResidencePage extends StatefulWidget {
   });
 
   @override
-  State<HumanResidencePage> createState() =>
-      _HumanResidencePageState();
+  State<HumanResidencePage> createState() => _HumanResidencePageState();
 }
 
 class _HumanResidencePageState extends State<HumanResidencePage> {
@@ -429,8 +426,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
         mode = r.residenceType;
         name.text = r.displayName;
         email.text = r.email ?? '';
-        clubName.text =
-            r.residenceType == 'club' ? r.displayName : '';
+        clubName.text = r.residenceType == 'club' ? r.displayName : '';
       });
     }
   }
@@ -444,24 +440,19 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
       saving = true;
     });
 
-    final id =
-        'res-${DateTime.now().millisecondsSinceEpoch}';
+    final id = 'res-${DateTime.now().millisecondsSinceEpoch}';
 
     final type = mode == 'club' ? 'club' : 'private';
 
-    final display =
-        type == 'club' && clubName.text.trim().isNotEmpty
-            ? clubName.text.trim()
-            : name.text.trim();
+    final display = type == 'club' && clubName.text.trim().isNotEmpty
+        ? clubName.text.trim()
+        : name.text.trim();
 
     final record = HumanResidenceRecord(
       residenceId: id,
-      ownerId:
-          'local-${DateTime.now().millisecondsSinceEpoch}',
+      ownerId: 'local-${DateTime.now().millisecondsSinceEpoch}',
       displayName: display,
-      email: email.text.trim().isEmpty
-          ? null
-          : email.text.trim(),
+      email: email.text.trim().isEmpty ? null : email.text.trim(),
       residenceType: type,
       createdAt: DateTime.now(),
       members: [
@@ -471,9 +462,8 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
         },
       ],
       metadata: {
-        'rooms': type == 'club'
-            ? ['collaboration']
-            : ['private', 'collaboration'],
+        'rooms':
+            type == 'club' ? ['collaboration'] : ['private', 'collaboration'],
         'local_first': true,
       },
     );
@@ -493,10 +483,8 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
             const Duration(seconds: 4),
           );
 
-      if (response.statusCode >= 200 &&
-          response.statusCode < 300) {
-        status =
-            'Saved to browser IndexedDB and Python local mirror.';
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        status = 'Saved to browser IndexedDB and Python local mirror.';
       } else {
         status =
             'Saved to browser IndexedDB. Python mirror is currently unavailable.';
@@ -566,8 +554,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
               ),
             ),
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'CHOOSE YOUR RESIDENCE',
@@ -605,18 +592,15 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
                 TextField(
                   controller: name,
                   decoration: InputDecoration(
-                    labelText: mode == 'club'
-                        ? 'Your name / owner'
-                        : 'Your name',
-                    border:
-                        const OutlineInputBorder(),
+                    labelText:
+                        mode == 'club' ? 'Your name / owner' : 'Your name',
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 10),
                 TextField(
                   controller: email,
-                  decoration:
-                      const InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Email (local profile)',
                     border: OutlineInputBorder(),
                   ),
@@ -625,8 +609,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
                   const SizedBox(height: 10),
                   TextField(
                     controller: clubName,
-                    decoration:
-                        const InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Club / building name',
                       border: OutlineInputBorder(),
                     ),
@@ -691,25 +674,18 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: mode == value
-              ? t.surfaceStrong
-              : t.surface,
+          color: mode == value ? t.surfaceStrong : t.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: mode == value
-                ? t.success
-                : t.border,
+            color: mode == value ? t.success : t.border,
           ),
         ),
         child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(
               icon,
-              color: mode == value
-                  ? t.success
-                  : t.primary,
+              color: mode == value ? t.success : t.primary,
             ),
             const SizedBox(height: 8),
             Text(
@@ -740,8 +716,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(26),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
             'YOUR HUMAN RESIDENCE',
@@ -783,16 +758,14 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
           ],
           const SizedBox(height: 20),
           Row(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: _room(
                   t,
                   Icons.bed_rounded,
                   'Private Room',
-                  currentResidence.residenceType ==
-                          'club'
+                  currentResidence.residenceType == 'club'
                       ? 'Personal decision space within your club'
                       : 'Goal → Data + Context → Decisions + Options → Challenge → Act → Result',
                 ),
@@ -858,8 +831,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
         ),
       ),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
             icon,
@@ -904,8 +876,7 @@ class GuestPassPage extends StatelessWidget {
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(30),
         child: Container(
-          constraints:
-              const BoxConstraints(maxWidth: 680),
+          constraints: const BoxConstraints(maxWidth: 680),
           padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
             color: t.surface,
@@ -981,12 +952,10 @@ class BloomSyvaxCompanion extends StatefulWidget {
   });
 
   @override
-  State<BloomSyvaxCompanion> createState() =>
-      _BloomSyvaxCompanionState();
+  State<BloomSyvaxCompanion> createState() => _BloomSyvaxCompanionState();
 }
 
-class _BloomSyvaxCompanionState
-    extends State<BloomSyvaxCompanion> {
+class _BloomSyvaxCompanionState extends State<BloomSyvaxCompanion> {
   bool expanded = false;
   Offset position = Offset.zero;
 
@@ -1004,13 +973,11 @@ class _BloomSyvaxCompanionState
           setState(() {
             final screen = MediaQuery.sizeOf(context);
 
-            final currentX = position == Offset.zero
-                ? screen.width - 82
-                : position.dx;
+            final currentX =
+                position == Offset.zero ? screen.width - 82 : position.dx;
 
-            final currentY = position == Offset.zero
-                ? screen.height - 82
-                : position.dy;
+            final currentY =
+                position == Offset.zero ? screen.height - 82 : position.dy;
 
             position = Offset(
               currentX + details.delta.dx,
@@ -1021,8 +988,7 @@ class _BloomSyvaxCompanionState
         child: Material(
           color: Colors.transparent,
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               if (expanded)
                 Container(
@@ -1030,22 +996,19 @@ class _BloomSyvaxCompanionState
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: t.surface.withValues(alpha: .98),
-                    borderRadius:
-                        BorderRadius.circular(22),
+                    borderRadius: BorderRadius.circular(22),
                     border: Border.all(
                       color: t.primary.withValues(alpha: .4),
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color:
-                            Colors.black.withValues(alpha: .28),
+                        color: Colors.black.withValues(alpha: .28),
                         blurRadius: 24,
                       ),
                     ],
                   ),
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'BLOOM + SYVAX',
@@ -1097,9 +1060,7 @@ class _BloomSyvaxCompanionState
                     ],
                   ),
                 ),
-
               const SizedBox(height: 8),
-
               GestureDetector(
                 onTap: () {
                   setState(() {
@@ -1118,8 +1079,7 @@ class _BloomSyvaxCompanionState
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color:
-                            t.primary.withValues(alpha: .22),
+                        color: t.primary.withValues(alpha: .22),
                         blurRadius: 18,
                       ),
                     ],
@@ -1129,16 +1089,13 @@ class _BloomSyvaxCompanionState
                     children: [
                       for (var i = 0; i < 8; i++)
                         Transform.rotate(
-                          angle:
-                              i * 3.1415926535 / 4,
+                          angle: i * 3.1415926535 / 4,
                           child: Container(
                             width: 8,
                             height: 22,
                             decoration: BoxDecoration(
-                              color:
-                                  t.primary.withValues(alpha: .65),
-                              borderRadius:
-                                  BorderRadius.circular(10),
+                              color: t.primary.withValues(alpha: .65),
+                              borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                         ),

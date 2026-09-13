@@ -32,8 +32,9 @@ class AnalysisContextWorkspacePage extends StatelessWidget {
     if (current == null) return 'IDLE';
     if (id == state?.agentId.toLowerCase()) return current;
     if (id == 'anuka' &&
-        (state?.contextUncertainty.isNotEmpty == true || current == 'WARNING'))
+        (state?.contextUncertainty.isNotEmpty == true || current == 'WARNING')) {
       return 'RECEIVE';
+    }
     return 'IDLE';
   }
 
@@ -342,9 +343,10 @@ class _Graph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final nodes = s.provenanceGraph?['nodes'];
-    if (nodes is! List || nodes.isEmpty)
+    if (nodes is! List || nodes.isEmpty) {
       return Text('No provenance graph has been built yet.',
           style: TextStyle(color: theme.mutedText, fontSize: 10.5));
+    }
     return Wrap(spacing: 8, runSpacing: 8, children: [
       for (final node in nodes.whereType<Map>())
         Container(

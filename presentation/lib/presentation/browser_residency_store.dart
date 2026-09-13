@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:idb_shim/idb.dart';
 import 'package:idb_shim/idb_browser.dart';
 
 class BrowserResidencyStore {
@@ -10,8 +9,9 @@ class BrowserResidencyStore {
   Future<Database> _open() => idbFactoryBrowser.open(_databaseName, version: 1,
           onUpgradeNeeded: (event) {
         final db = event.database;
-        if (!db.objectStoreNames.contains(_storeName))
+        if (!db.objectStoreNames.contains(_storeName)) {
           db.createObjectStore(_storeName);
+        }
       });
 
   Future<void> save(Map<String, dynamic> snapshot) async {

@@ -148,8 +148,7 @@ class _Home03BloomState extends State<Home03Bloom>
     final radius = size * .32;
 
     for (var i = 0; i < homes.length; i++) {
-      final angle =
-          -math.pi / 2 + i * 2 * math.pi / homes.length;
+      final angle = -math.pi / 2 + i * 2 * math.pi / homes.length;
 
       final x = size / 2 + math.cos(angle) * radius;
       final y = height / 2 + math.sin(angle) * radius;
@@ -261,8 +260,7 @@ class _VinePainter extends CustomPainter {
     final radius = size.width * .32;
 
     for (var i = 0; i < 8; i++) {
-      final angle =
-          -math.pi / 2 + i * 2 * math.pi / 8;
+      final angle = -math.pi / 2 + i * 2 * math.pi / 8;
 
       final point = center +
           Offset(
@@ -286,16 +284,14 @@ class _VinePainter extends CustomPainter {
       canvas.drawCircle(
         point,
         3 + pulse * 2,
-        Paint()
-          ..color = Colors.white.withValues(alpha: .5),
+        Paint()..color = Colors.white.withValues(alpha: .5),
       );
     }
   }
 
   @override
   bool shouldRepaint(covariant _VinePainter oldDelegate) {
-    return oldDelegate.pulse != pulse ||
-        oldDelegate.active != active;
+    return oldDelegate.pulse != pulse || oldDelegate.active != active;
   }
 }
 /*

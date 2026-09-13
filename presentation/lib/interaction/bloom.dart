@@ -139,13 +139,11 @@ class Bloom extends StatefulWidget {
   State<Bloom> createState() => _BloomState();
 }
 
-class _BloomState extends State<Bloom>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _pulse =
-      AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 1100),
-      )..repeat(reverse: true);
+class _BloomState extends State<Bloom> with SingleTickerProviderStateMixin {
+  late final AnimationController _pulse = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1100),
+  )..repeat(reverse: true);
 
   BloomCapability? expanded;
 
@@ -157,8 +155,7 @@ class _BloomState extends State<Bloom>
 
   void _select(BloomCapability capability) {
     setState(() {
-      expanded =
-          expanded == capability ? null : capability;
+      expanded = expanded == capability ? null : capability;
     });
 
     widget.onSelected(capability);
@@ -170,16 +167,14 @@ class _BloomState extends State<Bloom>
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final availableWidth =
-            math.min(constraints.maxWidth, 820.0);
+        final availableWidth = math.min(constraints.maxWidth, 820.0);
 
         final compact = availableWidth < 600;
         final ratio = compact ? 0.98 : 0.82;
 
-        final heightLimitedSize =
-            constraints.hasBoundedHeight
-                ? constraints.maxHeight / ratio
-                : double.infinity;
+        final heightLimitedSize = constraints.hasBoundedHeight
+            ? constraints.maxHeight / ratio
+            : double.infinity;
 
         final size = math.max(
           240.0,
@@ -204,8 +199,7 @@ class _BloomState extends State<Bloom>
                   return CustomPaint(
                     size: Size(size, height),
                     painter: _BloomPainter(
-                      selected:
-                          widget.selected ?? expanded,
+                      selected: widget.selected ?? expanded,
                       pulse: _pulse.value,
                       accentMap: Bloom.accents,
                     ),
@@ -304,13 +298,9 @@ class _BloomState extends State<Bloom>
     double size,
     bool compact,
   ) {
-    final radius = compact
-        ? size * 0.34
-        : size * 0.32;
+    final radius = compact ? size * 0.34 : size * 0.32;
 
-    final cy = compact
-        ? size * 0.49
-        : size * 0.44;
+    final cy = compact ? size * 0.49 : size * 0.44;
 
     final d = compact ? 94.0 : 138.0;
     final count = BloomCapability.values.length;
@@ -320,25 +310,21 @@ class _BloomState extends State<Bloom>
         Positioned(
           left: size / 2 +
               math.cos(
-                    -math.pi / 2 +
-                        i * 2 * math.pi / count,
+                    -math.pi / 2 + i * 2 * math.pi / count,
                   ) *
                   radius -
               d / 2,
           top: cy +
               math.sin(
-                    -math.pi / 2 +
-                        i * 2 * math.pi / count,
+                    -math.pi / 2 + i * 2 * math.pi / count,
                   ) *
                   radius -
               d / 2,
           child: _Node(
             capability: BloomCapability.values[i],
             compact: compact,
-            selected:
-                expanded == BloomCapability.values[i],
-            onTap: () =>
-                _select(BloomCapability.values[i]),
+            selected: expanded == BloomCapability.values[i],
+            onTap: () => _select(BloomCapability.values[i]),
           ),
         ),
     ];
@@ -349,23 +335,16 @@ class _BloomState extends State<Bloom>
     bool compact,
     BloomCapability capability,
   ) {
-    final radius = compact
-        ? size * 0.34
-        : size * 0.32;
+    final radius = compact ? size * 0.34 : size * 0.32;
 
-    final cy = compact
-        ? size * 0.49
-        : size * 0.44;
+    final cy = compact ? size * 0.49 : size * 0.44;
 
     final d = compact ? 94.0 : 138.0;
     final count = BloomCapability.values.length;
 
-    final index =
-        BloomCapability.values.indexOf(capability);
+    final index = BloomCapability.values.indexOf(capability);
 
-    final angle =
-        -math.pi / 2 +
-            index * 2 * math.pi / count;
+    final angle = -math.pi / 2 + index * 2 * math.pi / count;
 
     final nodeCenter = Offset(
       size / 2 + math.cos(angle) * radius,
@@ -374,23 +353,19 @@ class _BloomState extends State<Bloom>
 
     final owner = Bloom.owners[capability]!;
 
-    final workspaceAction =
-        capability == BloomCapability.stewardship
-            ? BloomSuboption.stewardshipHome
-            : BloomSuboption.workspace;
+    final workspaceAction = capability == BloomCapability.stewardship
+        ? BloomSuboption.stewardshipHome
+        : BloomSuboption.workspace;
 
     final chipY = math.max(
       4.0,
-      nodeCenter.dy -
-          d / 2 -
-          (compact ? 44.0 : 50.0),
+      nodeCenter.dy - d / 2 - (compact ? 44.0 : 50.0),
     );
 
     return Positioned(
       left: math.max(
         4.0,
-        nodeCenter.dx -
-            (compact ? 126.0 : 148.0),
+        nodeCenter.dx - (compact ? 126.0 : 148.0),
       ),
       top: chipY,
       child: Row(
@@ -409,8 +384,7 @@ class _BloomState extends State<Bloom>
             icon: owner.icon,
             label: owner.name,
             accent: Bloom.accents[capability]!,
-            onTap: () =>
-                widget.onOwnerChat?.call(capability),
+            onTap: () => widget.onOwnerChat?.call(capability),
             avatar: true,
           ),
         ],
@@ -438,17 +412,14 @@ class _Node extends StatelessWidget {
     final accent = Bloom.accents[capability]!;
     final owner = Bloom.owners[capability]!;
 
-    final reserved =
-        capability != BloomCapability.analyze &&
-            capability !=
-                BloomCapability.stewardship;
+    final reserved = capability != BloomCapability.analyze &&
+        capability != BloomCapability.stewardship;
 
     return Material(
       color: Colors.transparent,
       child: Semantics(
         button: true,
-        label:
-            '${Bloom.labels[capability]} capability, '
+        label: '${Bloom.labels[capability]} capability, '
             '${owner.name} responsible for '
             '${owner.responsibility}'
             '${reserved ? ', reserved' : ''}',
@@ -488,8 +459,7 @@ class _Node extends StatelessWidget {
               ],
             ),
             child: Column(
-              mainAxisAlignment:
-                  MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   Bloom.icons[capability],
@@ -652,8 +622,7 @@ class _BloomMark extends StatelessWidget {
                 width: size * 0.22,
                 height: size * 0.48,
                 decoration: BoxDecoration(
-                  borderRadius:
-                      BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(20),
                   gradient: const LinearGradient(
                     colors: [
                       Color(0xFF9A7BFF),
@@ -711,9 +680,7 @@ class _BloomPainter extends CustomPainter {
     for (var i = 0; i < count; i++) {
       final capability = BloomCapability.values[i];
 
-      final angle =
-          -math.pi / 2 +
-              i * 2 * math.pi / count;
+      final angle = -math.pi / 2 + i * 2 * math.pi / count;
 
       final end = center +
           Offset(
@@ -728,19 +695,15 @@ class _BloomPainter extends CustomPainter {
         end,
         Paint()
           ..style = PaintingStyle.stroke
-          ..strokeWidth =
-              selected == capability ? 2.2 : 1
+          ..strokeWidth = selected == capability ? 2.2 : 1
           ..color = accent.withValues(
-            alpha:
-                selected == capability ? 0.88 : 0.30,
+            alpha: selected == capability ? 0.88 : 0.30,
           ),
       );
 
       canvas.drawCircle(
         end,
-        selected == capability
-            ? 4 + pulse * 2
-            : 3.2,
+        selected == capability ? 4 + pulse * 2 : 3.2,
         Paint()..color = accent,
       );
     }
@@ -750,8 +713,7 @@ class _BloomPainter extends CustomPainter {
   bool shouldRepaint(
     covariant _BloomPainter old,
   ) {
-    return old.selected != selected ||
-        old.pulse != pulse;
+    return old.selected != selected || old.pulse != pulse;
   }
 }
 /*
