@@ -3,8 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:presentation/app_shell.dart';
 
 void main() {
-  testWidgets('Criterivox opens on Bloom and exposes navigation', (tester) async {
-    await tester.pumpWidget(MaterialApp(
+  testWidgets('Criterivox opens on Bloom and exposes navigation',
+      (tester) async {
+    await tester.pumpWidget(const MaterialApp(
       home: CriterivoxShell(isDarkMode: true, connectRuntime: false),
     ));
     await tester.pump();
@@ -16,8 +17,9 @@ void main() {
     expect(find.text('App Introduction'), findsOneWidget);
   });
 
-  testWidgets('navigation moves to the real workspace and chat surfaces', (tester) async {
-    await tester.pumpWidget(MaterialApp(
+  testWidgets('navigation moves to the real workspace and chat surfaces',
+      (tester) async {
+    await tester.pumpWidget(const MaterialApp(
       home: CriterivoxShell(isDarkMode: true, connectRuntime: false),
     ));
     await tester.pump();
@@ -34,7 +36,7 @@ void main() {
   });
 
   testWidgets('Bloom Analyze expands only its relevant paths', (tester) async {
-    await tester.pumpWidget(MaterialApp(
+    await tester.pumpWidget(const MaterialApp(
       home: CriterivoxShell(isDarkMode: true, connectRuntime: false),
     ));
     await tester.pump();
@@ -45,8 +47,10 @@ void main() {
     expect(find.text('Chat'), findsOneWidget);
   });
 
-  testWidgets('App Introduction explains both characters and implemented capabilities', (tester) async {
-    await tester.pumpWidget(MaterialApp(
+  testWidgets(
+      'App Introduction explains both characters and implemented capabilities',
+      (tester) async {
+    await tester.pumpWidget(const MaterialApp(
       home: CriterivoxShell(isDarkMode: true, connectRuntime: false),
     ));
     await tester.pump();

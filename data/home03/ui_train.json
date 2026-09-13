@@ -1,0 +1,450 @@
+[
+  {
+    "text": "please brief conclusion",
+    "label": "executive"
+  },
+  {
+    "text": "summarize the result with evidence",
+    "label": "executive"
+  },
+  {
+    "text": "give me the key points",
+    "label": "executive"
+  },
+  {
+    "text": "executive summary",
+    "label": "executive"
+  },
+  {
+    "text": "brief conclusion for the current task",
+    "label": "executive"
+  },
+  {
+    "text": "please summarize the result",
+    "label": "executive"
+  },
+  {
+    "text": "give me the key points with evidence",
+    "label": "executive"
+  },
+  {
+    "text": "please give me the key points",
+    "label": "executive"
+  },
+  {
+    "text": "executive summary with evidence",
+    "label": "executive"
+  },
+  {
+    "text": "brief conclusion",
+    "label": "executive"
+  },
+  {
+    "text": "summarize this result",
+    "label": "executive"
+  },
+  {
+    "text": "give me the key points for the current task",
+    "label": "executive"
+  },
+  {
+    "text": "please executive summary",
+    "label": "executive"
+  },
+  {
+    "text": "brief conclusion with evidence",
+    "label": "executive"
+  },
+  {
+    "text": "please brief conclusion",
+    "label": "executive"
+  },
+  {
+    "text": "summarize the result with evidence",
+    "label": "executive"
+  },
+  {
+    "text": "give me the key points",
+    "label": "executive"
+  },
+  {
+    "text": "executive summary",
+    "label": "executive"
+  },
+  {
+    "text": "brief conclusion for the current task",
+    "label": "executive"
+  },
+  {
+    "text": "please summarize the result",
+    "label": "executive"
+  },
+  {
+    "text": "give me the key points with evidence",
+    "label": "executive"
+  },
+  {
+    "text": "explain this reasoning tree",
+    "label": "reasoning"
+  },
+  {
+    "text": "show the decision path for the current task",
+    "label": "reasoning"
+  },
+  {
+    "text": "please detail the analysis",
+    "label": "reasoning"
+  },
+  {
+    "text": "show the reasoning with evidence",
+    "label": "reasoning"
+  },
+  {
+    "text": "explain the reasoning tree",
+    "label": "reasoning"
+  },
+  {
+    "text": "show this decision path",
+    "label": "reasoning"
+  },
+  {
+    "text": "detail the analysis for the current task",
+    "label": "reasoning"
+  },
+  {
+    "text": "detail this analysis",
+    "label": "reasoning"
+  },
+  {
+    "text": "show the reasoning for the current task",
+    "label": "reasoning"
+  },
+  {
+    "text": "please explain the reasoning tree",
+    "label": "reasoning"
+  },
+  {
+    "text": "show the decision path with evidence",
+    "label": "reasoning"
+  },
+  {
+    "text": "detail the analysis",
+    "label": "reasoning"
+  },
+  {
+    "text": "show this reasoning",
+    "label": "reasoning"
+  },
+  {
+    "text": "explain the reasoning tree for the current task",
+    "label": "reasoning"
+  },
+  {
+    "text": "explain this reasoning tree",
+    "label": "reasoning"
+  },
+  {
+    "text": "show the decision path for the current task",
+    "label": "reasoning"
+  },
+  {
+    "text": "please detail the analysis",
+    "label": "reasoning"
+  },
+  {
+    "text": "show the reasoning with evidence",
+    "label": "reasoning"
+  },
+  {
+    "text": "explain the reasoning tree",
+    "label": "reasoning"
+  },
+  {
+    "text": "show this decision path",
+    "label": "reasoning"
+  },
+  {
+    "text": "detail the analysis for the current task",
+    "label": "reasoning"
+  },
+  {
+    "text": "detail this analysis",
+    "label": "reasoning"
+  },
+  {
+    "text": "return json",
+    "label": "json"
+  },
+  {
+    "text": "machine readable output",
+    "label": "json"
+  },
+  {
+    "text": "raw json payload for the current task",
+    "label": "json"
+  },
+  {
+    "text": "please structured json",
+    "label": "json"
+  },
+  {
+    "text": "return json with evidence",
+    "label": "json"
+  },
+  {
+    "text": "machine readable output",
+    "label": "json"
+  },
+  {
+    "text": "machine readable output with evidence",
+    "label": "json"
+  },
+  {
+    "text": "raw json payload",
+    "label": "json"
+  },
+  {
+    "text": "structured json",
+    "label": "json"
+  },
+  {
+    "text": "return json for the current task",
+    "label": "json"
+  },
+  {
+    "text": "please machine readable output",
+    "label": "json"
+  },
+  {
+    "text": "raw json payload with evidence",
+    "label": "json"
+  },
+  {
+    "text": "structured json",
+    "label": "json"
+  },
+  {
+    "text": "structured json with evidence",
+    "label": "json"
+  },
+  {
+    "text": "return json",
+    "label": "json"
+  },
+  {
+    "text": "machine readable output",
+    "label": "json"
+  },
+  {
+    "text": "raw json payload for the current task",
+    "label": "json"
+  },
+  {
+    "text": "please structured json",
+    "label": "json"
+  },
+  {
+    "text": "return json with evidence",
+    "label": "json"
+  },
+  {
+    "text": "machine readable output",
+    "label": "json"
+  },
+  {
+    "text": "machine readable output with evidence",
+    "label": "json"
+  },
+  {
+    "text": "raw json payload",
+    "label": "json"
+  },
+  {
+    "text": "structured json",
+    "label": "json"
+  },
+  {
+    "text": "compare in a table",
+    "label": "comparison"
+  },
+  {
+    "text": "show tradeoffs",
+    "label": "comparison"
+  },
+  {
+    "text": "comparison matrix for the current task",
+    "label": "comparison"
+  },
+  {
+    "text": "please compare alternatives",
+    "label": "comparison"
+  },
+  {
+    "text": "compare alternatives for the current task",
+    "label": "comparison"
+  },
+  {
+    "text": "please compare in a table",
+    "label": "comparison"
+  },
+  {
+    "text": "show tradeoffs with evidence",
+    "label": "comparison"
+  },
+  {
+    "text": "comparison matrix",
+    "label": "comparison"
+  },
+  {
+    "text": "compare alternatives",
+    "label": "comparison"
+  },
+  {
+    "text": "compare in a table for the current task",
+    "label": "comparison"
+  },
+  {
+    "text": "please show tradeoffs",
+    "label": "comparison"
+  },
+  {
+    "text": "show tradeoffs for the current task",
+    "label": "comparison"
+  },
+  {
+    "text": "please comparison matrix",
+    "label": "comparison"
+  },
+  {
+    "text": "compare alternatives with evidence",
+    "label": "comparison"
+  },
+  {
+    "text": "compare in a table",
+    "label": "comparison"
+  },
+  {
+    "text": "show tradeoffs",
+    "label": "comparison"
+  },
+  {
+    "text": "comparison matrix for the current task",
+    "label": "comparison"
+  },
+  {
+    "text": "please compare alternatives",
+    "label": "comparison"
+  },
+  {
+    "text": "compare alternatives for the current task",
+    "label": "comparison"
+  },
+  {
+    "text": "please compare in a table",
+    "label": "comparison"
+  },
+  {
+    "text": "show tradeoffs with evidence",
+    "label": "comparison"
+  },
+  {
+    "text": "comparison matrix",
+    "label": "comparison"
+  },
+  {
+    "text": "compare alternatives",
+    "label": "comparison"
+  },
+  {
+    "text": "give implementation code",
+    "label": "code"
+  },
+  {
+    "text": "show this code",
+    "label": "code"
+  },
+  {
+    "text": "show the code",
+    "label": "code"
+  },
+  {
+    "text": "provide a code solution",
+    "label": "code"
+  },
+  {
+    "text": "implementation output for the current task",
+    "label": "code"
+  },
+  {
+    "text": "please give implementation code",
+    "label": "code"
+  },
+  {
+    "text": "show the code with evidence",
+    "label": "code"
+  },
+  {
+    "text": "provide a code solution",
+    "label": "code"
+  },
+  {
+    "text": "implementation output",
+    "label": "code"
+  },
+  {
+    "text": "implementation output",
+    "label": "code"
+  },
+  {
+    "text": "give implementation code",
+    "label": "code"
+  },
+  {
+    "text": "show the code for the current task",
+    "label": "code"
+  },
+  {
+    "text": "please provide a code solution",
+    "label": "code"
+  },
+  {
+    "text": "implementation output with evidence",
+    "label": "code"
+  },
+  {
+    "text": "give implementation code",
+    "label": "code"
+  },
+  {
+    "text": "show this code",
+    "label": "code"
+  },
+  {
+    "text": "show the code",
+    "label": "code"
+  },
+  {
+    "text": "provide a code solution",
+    "label": "code"
+  },
+  {
+    "text": "implementation output for the current task",
+    "label": "code"
+  },
+  {
+    "text": "please give implementation code",
+    "label": "code"
+  },
+  {
+    "text": "show the code with evidence",
+    "label": "code"
+  },
+  {
+    "text": "provide a code solution",
+    "label": "code"
+  },
+  {
+    "text": "implementation output",
+    "label": "code"
+  }
+]

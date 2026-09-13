@@ -15,7 +15,8 @@ class CriterivoxLanguage {
     return hindiText ?? englishText;
   }
 
-  static CriterivoxLanguage fromCode(String? value) => value == 'hi' ? hindi : english;
+  static CriterivoxLanguage fromCode(String? value) =>
+      value == 'hi' ? hindi : english;
 }
 
 class CriterivoxLanguageScope extends InheritedWidget {
@@ -39,9 +40,27 @@ class CriterivoxLanguageScope extends InheritedWidget {
 
 class CriterivoxLocalizedText {
   static const technicalTerms = <String>{
-    'Criterivox', 'S5', 'S6', 'IDLE', 'RECEIVE', 'WORK', 'COMMUNICATE',
-    'HANDOFF', 'COMPLETE', 'WARNING', 'EVIDENCE', 'DECISION', 'ASSUMPTION',
-    'HYPOTHESIS', 'IMPLEMENTED', 'FUTURE', 'UNKNOWN', 'HIGH', 'MEDIUM', 'LOW', 'MCP',
+    'Criterivox',
+    'S5',
+    'S6',
+    'IDLE',
+    'RECEIVE',
+    'WORK',
+    'COMMUNICATE',
+    'HANDOFF',
+    'COMPLETE',
+    'WARNING',
+    'EVIDENCE',
+    'DECISION',
+    'ASSUMPTION',
+    'HYPOTHESIS',
+    'IMPLEMENTED',
+    'FUTURE',
+    'UNKNOWN',
+    'HIGH',
+    'MEDIUM',
+    'LOW',
+    'MCP',
   };
 
   static String preserveTechnical(String value) => value;

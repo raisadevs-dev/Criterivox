@@ -1,0 +1,18 @@
+{
+  "intent": {
+    "dataset_size": 240,
+    "train": 168,
+    "test": 48,
+    "validate": 24,
+    "algorithm": "multinomial naive bayes text classifier",
+    "artifact": "data/home03/intent_model.json"
+  },
+  "ui": {
+    "dataset_size": 160,
+    "train": 112,
+    "test": 32,
+    "validate": 16,
+    "algorithm": "multinomial naive bayes text classifier",
+    "artifact": "data/home03/ui_model.json"
+  }
+}

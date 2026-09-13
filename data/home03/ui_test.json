@@ -1,0 +1,130 @@
+[
+  {
+    "text": "give me this key points",
+    "label": "executive"
+  },
+  {
+    "text": "executive summary for the current task",
+    "label": "executive"
+  },
+  {
+    "text": "brief conclusion",
+    "label": "executive"
+  },
+  {
+    "text": "summarize the result for the current task",
+    "label": "executive"
+  },
+  {
+    "text": "give me this key points",
+    "label": "executive"
+  },
+  {
+    "text": "executive summary for the current task",
+    "label": "executive"
+  },
+  {
+    "text": "brief conclusion",
+    "label": "executive"
+  },
+  {
+    "text": "show the reasoning",
+    "label": "reasoning"
+  },
+  {
+    "text": "explain the reasoning tree with evidence",
+    "label": "reasoning"
+  },
+  {
+    "text": "show the decision path",
+    "label": "reasoning"
+  },
+  {
+    "text": "detail the analysis with evidence",
+    "label": "reasoning"
+  },
+  {
+    "text": "show the reasoning",
+    "label": "reasoning"
+  },
+  {
+    "text": "explain the reasoning tree with evidence",
+    "label": "reasoning"
+  },
+  {
+    "text": "show the decision path",
+    "label": "reasoning"
+  },
+  {
+    "text": "structured json for the current task",
+    "label": "json"
+  },
+  {
+    "text": "please return json",
+    "label": "json"
+  },
+  {
+    "text": "machine readable output for the current task",
+    "label": "json"
+  },
+  {
+    "text": "please raw json payload",
+    "label": "json"
+  },
+  {
+    "text": "structured json for the current task",
+    "label": "json"
+  },
+  {
+    "text": "please return json",
+    "label": "json"
+  },
+  {
+    "text": "show tradeoffs",
+    "label": "comparison"
+  },
+  {
+    "text": "comparison matrix",
+    "label": "comparison"
+  },
+  {
+    "text": "compare alternatives",
+    "label": "comparison"
+  },
+  {
+    "text": "compare in a table",
+    "label": "comparison"
+  },
+  {
+    "text": "show tradeoffs",
+    "label": "comparison"
+  },
+  {
+    "text": "comparison matrix",
+    "label": "comparison"
+  },
+  {
+    "text": "please implementation output",
+    "label": "code"
+  },
+  {
+    "text": "give implementation code with evidence",
+    "label": "code"
+  },
+  {
+    "text": "please show the code",
+    "label": "code"
+  },
+  {
+    "text": "provide a code solution with evidence",
+    "label": "code"
+  },
+  {
+    "text": "please implementation output",
+    "label": "code"
+  },
+  {
+    "text": "give implementation code with evidence",
+    "label": "code"
+  }
+]

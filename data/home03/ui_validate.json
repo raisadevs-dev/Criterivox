@@ -1,0 +1,66 @@
+[
+  {
+    "text": "summarize the result",
+    "label": "executive"
+  },
+  {
+    "text": "executive summary",
+    "label": "executive"
+  },
+  {
+    "text": "summarize the result",
+    "label": "executive"
+  },
+  {
+    "text": "executive summary",
+    "label": "executive"
+  },
+  {
+    "text": "please show the reasoning",
+    "label": "reasoning"
+  },
+  {
+    "text": "please show the decision path",
+    "label": "reasoning"
+  },
+  {
+    "text": "please show the reasoning",
+    "label": "reasoning"
+  },
+  {
+    "text": "raw json payload",
+    "label": "json"
+  },
+  {
+    "text": "return json",
+    "label": "json"
+  },
+  {
+    "text": "raw json payload",
+    "label": "json"
+  },
+  {
+    "text": "compare in a table with evidence",
+    "label": "comparison"
+  },
+  {
+    "text": "comparison matrix with evidence",
+    "label": "comparison"
+  },
+  {
+    "text": "compare in a table with evidence",
+    "label": "comparison"
+  },
+  {
+    "text": "provide a code solution for the current task",
+    "label": "code"
+  },
+  {
+    "text": "give implementation code for the current task",
+    "label": "code"
+  },
+  {
+    "text": "provide a code solution for the current task",
+    "label": "code"
+  }
+]

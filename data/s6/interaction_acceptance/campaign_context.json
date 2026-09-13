@@ -1,0 +1,9 @@
+{
+  "goal": "Choose the next content experiment for the next campaign period.",
+  "audience": "existing_subscribers",
+  "platform": "instagram",
+  "period": "2026-09",
+  "hard_constraints": ["Do not treat missing conversion observations as zero.", "Separate observed metrics from interpretation."],
+  "decision_preference": "evidence_first",
+  "source_ids": ["TEST-CAMPAIGN-CSV", "TEST-CONTEXT-JSON"]
+}
