@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
 from .orchestrator import ReasoningResearchBureau
+from .mechanisms import mechanism_registry
 
 router = APIRouter(prefix="/api/s7", tags=["s7-reasoning-research-bureau"])
 bureau = ReasoningResearchBureau()
@@ -16,12 +17,7 @@ def health():
 
 @router.get("/mechanisms")
 def mechanisms():
-    return {"mechanisms": [m.__dict__ for m in bureau_mechanisms()]}
-
-
-def bureau_mechanisms():
-    from .mechanisms import mechanism_registry
-    return mechanism_registry()
+    return {"mechanisms": [{"mechanism_id": m.mechanism_id, "name": m.name, "classification": m.classification, "purpose": m.purpose, "provenance": m.provenance, "limitations": m.limitations} for m in mechanism_registry()]}
 
 
 @router.post("/sessions")
