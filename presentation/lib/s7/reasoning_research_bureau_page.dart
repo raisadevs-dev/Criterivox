@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class ReasoningResearchBureauPage extends StatefulWidget {
   const ReasoningResearchBureauPage({super.key});
@@ -15,6 +17,44 @@ class _S7State extends State<ReasoningResearchBureauPage> {
   Map<String, dynamic>? _session;
   bool _busy = false;
   String? _error;
+  WebSocketChannel? _socket;
+  StreamSubscription? _socketSubscription;
+  bool _socketConnected = false;
+
+  @override
+  void dispose() {
+    _socketSubscription?.cancel();
+    _socket?.sink.close();
+    _task.dispose();
+    _context.dispose();
+    super.dispose();
+  }
+
+  void _connectWebSocket(String sessionId) {
+    _socketSubscription?.cancel();
+    _socket?.sink.close();
+    try {
+      final channel = WebSocketChannel.connect(Uri.parse('ws://127.0.0.1:8017/api/s7/ws'));
+      _socket = channel;
+      _socketSubscription = channel.stream.listen((raw) {
+        final message = jsonDecode(raw as String) as Map<String, dynamic>;
+        if (!mounted) return;
+        if (message['type'] == 'connected') {
+          setState(() => _socketConnected = true);
+          channel.sink.add(jsonEncode({'type': 'subscribe', 'session_id': sessionId}));
+        } else if (message['type'] == 'subscribed' || message['type'] == 'session_updated') {
+          final snapshot = message['snapshot'] ?? message['session'];
+          if (snapshot is Map<String, dynamic>) setState(() => _session = snapshot);
+        }
+      }, onError: (_) {
+        if (mounted) setState(() => _socketConnected = false);
+      }, onDone: () {
+        if (mounted) setState(() => _socketConnected = false);
+      });
+    } catch (_) {
+      setState(() => _socketConnected = false);
+    }
+  }
 
   Future<void> _start() async {
     setState(() { _busy = true; _error = null; });
@@ -23,14 +63,25 @@ class _S7State extends State<ReasoningResearchBureauPage> {
       final body = jsonDecode(response.body) as Map<String, dynamic>;
       if (response.statusCode >= 400) throw Exception(body['error'] ?? 'S7 request failed');
       setState(() => _session = body);
+      _connectWebSocket(body['session_id'].toString());
     } catch (e) {
       setState(() => _error = 'S7 runtime unavailable: $e');
     } finally { if (mounted) setState(() => _busy = false); }
   }
 
+  void _sendChallenge(String artifactId, String challenge) {
+    final id = _session?['session_id']?.toString();
+    if (id == null || _socket == null || !_socketConnected) return;
+    _socket!.sink.add(jsonEncode({'type': 'challenge', 'session_id': id, 'artifact_id': artifactId, 'challenge': challenge}));
+  }
+
   Future<void> _challenge(String artifactId) async {
     final challenge = await showDialog<String>(context: context, builder: (context) => _ChallengeDialog());
     if (challenge == null || challenge.trim().isEmpty || _session == null) return;
+    if (_socketConnected) {
+      _sendChallenge(artifactId, challenge);
+      return;
+    }
     setState(() => _busy = true);
     try {
       final id = _session!['session_id'];
@@ -68,7 +119,7 @@ class _S7State extends State<ReasoningResearchBureauPage> {
     _statusChip(),
   ]));
 
-  Widget _statusChip() => Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), decoration: BoxDecoration(color: Colors.white.withValues(alpha: .07), borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white12)), child: Text(_session?['status']?.toString().toUpperCase() ?? 'READY', style: const TextStyle(fontSize: 11, letterSpacing: .8)));
+  Widget _statusChip() => Row(children: [Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), decoration: BoxDecoration(color: Colors.white.withValues(alpha: .07), borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white12)), child: Text(_session?['status']?.toString().toUpperCase() ?? 'READY', style: const TextStyle(fontSize: 11, letterSpacing: .8))), const SizedBox(width: 8), Icon(Icons.circle, size: 9, color: _socketConnected ? Colors.greenAccent : Colors.white24), const SizedBox(width: 5), Text(_socketConnected ? 'LIVE' : 'HTTP', style: const TextStyle(color: Colors.white54, fontSize: 10))]);
 
   Widget _roomRail() => SizedBox(width: 150, child: Padding(padding: const EdgeInsets.all(14), child: Column(children: [
     _roomButton('collaboration', Icons.groups_rounded, 'Collaboration'),
@@ -104,7 +155,7 @@ class _S7State extends State<ReasoningResearchBureauPage> {
 
   Widget _glass(String title, Widget child) => Container(padding: const EdgeInsets.all(16), margin: const EdgeInsets.only(bottom: 14), decoration: BoxDecoration(color: Colors.white.withValues(alpha: .055), borderRadius: BorderRadius.circular(18), border: Border.all(color: Colors.white.withValues(alpha: .10))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(color: Colors.white54, fontSize: 10, letterSpacing: 1.2, fontWeight: FontWeight.w700)), const SizedBox(height: 12), Expanded(child: child)]));
 
-  Widget _artifactList(List<Map<String, dynamic>> artifacts, {Set<String>? filter}) { final shown = filter == null ? artifacts : artifacts.where((a) => filter.contains(a['kind'])).toList(); return ListView.separated(itemCount: shown.length, separatorBuilder: (_, __) => const SizedBox(height: 8), itemBuilder: (_, i) { final a = shown[i]; return ListTile(tileColor: Colors.white.withValues(alpha: .035), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), title: Text('${a['title']}  ·  v${a['version']}'), subtitle: Text('${a['kind']}  •  branch ${a['branch_id']}\n${a['content']}'), trailing: IconButton(tooltip: 'Challenge', onPressed: () => _challenge(a['artifact_id']), icon: const Icon(Icons.gavel_rounded, size: 19)); }); }
+  Widget _artifactList(List<Map<String, dynamic>> artifacts, {Set<String>? filter}) { final shown = filter == null ? artifacts : artifacts.where((a) => filter.contains(a['kind'])).toList(); return ListView.separated(itemCount: shown.length, separatorBuilder: (_, __) => const SizedBox(height: 8), itemBuilder: (_, i) { final a = shown[i]; return ListTile(tileColor: Colors.white.withValues(alpha: .035), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), title: Text('${a['title']}  ·  v${a['version']}'), subtitle: Text('${a['kind']}  •  branch ${a['branch_id']}\n${a['content']}'), trailing: IconButton(tooltip: _socketConnected ? 'Challenge over live channel' : 'Challenge', onPressed: () => _challenge(a['artifact_id']), icon: const Icon(Icons.gavel_rounded, size: 19)); }); }
 }
 
 class _EmptyState extends StatelessWidget { const _EmptyState(); @override Widget build(BuildContext context) => const Center(child: Text('No analytical activity yet. Submit a task to begin.', style: TextStyle(color: Colors.white38))); }
