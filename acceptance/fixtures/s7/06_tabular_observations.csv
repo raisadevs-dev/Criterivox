@@ -1,0 +1,4 @@
+period,intervention,value,measurement_method,source
+P1,0,10,method-A,fixture-csv-01
+P2,1,12,method-A,fixture-csv-01
+P3,1,15,method-B,fixture-csv-01
