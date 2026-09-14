@@ -11,21 +11,29 @@ class FoundationResidencyStore {
   Future<Database> _open() async {
     final existing = _db;
     if (existing != null) return existing;
-    final db = await idbFactoryBrowser.open(_dbName, version: 1,
-        onUpgradeNeeded: (event) {
-      final database = event.database;
-      if (!database.objectStoreNames.contains(_store)) {
-        database.createObjectStore(_store);
-      }
-    });
+
+    final db = await idbFactoryBrowser.open(
+      _dbName,
+      version: 1,
+      onUpgradeNeeded: (event) {
+        final database = event.database;
+        if (!database.objectStoreNames.contains(_store)) {
+          database.createObjectStore(_store);
+        }
+      },
+    );
+
     _db = db;
     return db;
   }
 
-  Future<void> put(Map<String, dynamic> foundation,
-      {required int revision}) async {
+  Future<void> put(
+    Map<String, dynamic> foundation, {
+    required int revision,
+  }) async {
     final db = await _open();
     final id = '${foundation['foundation_id']}';
+
     final envelope = {
       'schema_version': 1,
       'foundation_id': id,
@@ -33,6 +41,7 @@ class FoundationResidencyStore {
       'updated_at': DateTime.now().toUtc().toIso8601String(),
       'foundation': jsonDecode(jsonEncode(foundation)),
     };
+
     final tx = db.transaction(_store, idbModeReadWrite);
     await tx.objectStore(_store).put(envelope, id);
     await tx.completed;
@@ -43,6 +52,7 @@ class FoundationResidencyStore {
     final tx = db.transaction(_store, idbModeReadOnly);
     final value = await tx.objectStore(_store).getObject(id);
     await tx.completed;
+
     if (value is! Map) return null;
     return Map<String, dynamic>.from(value);
   }
@@ -52,6 +62,7 @@ class FoundationResidencyStore {
     final tx = db.transaction(_store, idbModeReadOnly);
     final values = await tx.objectStore(_store).getAll();
     await tx.completed;
+
     return values
         .whereType<Map>()
         .map(Map<String, dynamic>.from)

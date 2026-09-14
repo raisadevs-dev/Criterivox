@@ -1,0 +1,4 @@
+Analyzing presentation...                                       
+
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre. Try replacing the use of the deprecated member with the replacement - lib\home01_feature_console.dart:30:892 - deprecated_member_use
+

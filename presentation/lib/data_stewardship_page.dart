@@ -88,17 +88,14 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
         'channel': 'file',
         'content': file.bytes == null
             ? null
-            : utf8.decode(file.bytes!, allowMalformed: true),
+            : utf8.decode(
+                file.bytes!,
+                allowMalformed: true,
+              ),
       });
     }
 
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
-      _sources.addAll(staged);
-    });
+    setState(() => _sources.addAll(staged));
   }
 
   Future<void> _folder() async {
@@ -118,18 +115,16 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
         recentTaskIds: _recentTaskIds,
       );
     } catch (_) {
-      if (!mounted) {
-        return;
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Folder selection is unavailable on this browser target. '
-            'Use Upload Files so selected contents are sent safely to Python.',
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Folder selection is unavailable on this browser target. '
+              'Use Upload Files so selected contents are sent safely to Python.',
+            ),
           ),
-        ),
-      );
+        );
+      }
     }
   }
 
@@ -226,8 +221,9 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
         }
       }
 
-      final unresolved =
-          conflicts.where((field) => !_winner.containsKey(field)).toList();
+      final unresolved = conflicts
+          .where((field) => !_winner.containsKey(field))
+          .toList();
 
       if (conflicts.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -284,15 +280,17 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
 
     final ready = _foundationId != null;
     final ratio = s?.foundationMatchRatio;
-    final guesses = s?.foundationIntentGuesses ?? const <String>[];
+    final guesses =
+        s?.foundationIntentGuesses ?? const <String>[];
 
-    final needsClarification = s?.event == 'USER_CONFIRMATION_REQUIRED' &&
+    final needsClarification =
+        s?.event == 'USER_CONFIRMATION_REQUIRED' &&
         ratio != null &&
-        ratio < 0.80;
+        ratio < .80;
 
     return LayoutBuilder(
-      builder: (context, constraints) {
-        final narrow = constraints.maxWidth < 1050;
+      builder: (context, c) {
+        final narrow = c.maxWidth < 1050;
 
         return SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(22, 20, 22, 30),
@@ -325,7 +323,10 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
                     ),
                   ),
                   if (s?.agentId.toLowerCase() == 'sandre')
-                    _StatePill(s!.characterState, t),
+                    _StatePill(
+                      s!.characterState,
+                      t,
+                    ),
                 ],
               ),
               const SizedBox(height: 16),
@@ -353,10 +354,11 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
                   why: _why,
                   confirm: s?.foundationConfirmation ?? 'uncertain',
                   recipient: _recipient,
-                  onRecipient: (value) => setState(() => _recipient = value),
+                  onRecipient: (v) => setState(() => _recipient = v),
                   guesses: guesses,
                   approvedIntent: _approvedIntent,
-                  onIntent: (value) => setState(() => _approvedIntent = value),
+                  onIntent: (v) =>
+                      setState(() => _approvedIntent = v),
                   onApproveIntent: () => _approveIntent(guesses),
                   onAction: _action,
                   t: t,
@@ -384,15 +386,17 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
                         needsClarification: needsClarification,
                         what: _what,
                         why: _why,
-                        confirm: s?.foundationConfirmation ?? 'uncertain',
+                        confirm:
+                            s?.foundationConfirmation ?? 'uncertain',
                         recipient: _recipient,
-                        onRecipient: (value) =>
-                            setState(() => _recipient = value),
+                        onRecipient: (v) =>
+                            setState(() => _recipient = v),
                         guesses: guesses,
                         approvedIntent: _approvedIntent,
-                        onIntent: (value) =>
-                            setState(() => _approvedIntent = value),
-                        onApproveIntent: () => _approveIntent(guesses),
+                        onIntent: (v) =>
+                            setState(() => _approvedIntent = v),
+                        onApproveIntent: () =>
+                            _approveIntent(guesses),
                         onAction: _action,
                         t: t,
                       ),
@@ -403,8 +407,8 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
               _Provenance(
                 s: s,
                 choices: _provenance,
-                onChanged: (key, value) =>
-                    setState(() => _provenance[key] = value),
+                onChanged: (k, v) =>
+                    setState(() => _provenance[k] = v),
                 onSave: _saveProvenance,
                 t: t,
               ),
@@ -414,7 +418,9 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
                 query: _logQuery,
                 onQuery: () => _action(
                   'log_search',
-                  values: {'query': _logQuery.text},
+                  values: {
+                    'query': _logQuery.text,
+                  },
                 ),
                 t: t,
               ),
@@ -423,7 +429,8 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
                 home: _homeJson,
                 chat: _chatJson,
                 winner: _winner,
-                onWinner: (key, value) => setState(() => _winner[key] = value),
+                onWinner: (k, v) =>
+                    setState(() => _winner[k] = v),
                 onMerge: _merge,
                 t: t,
               ),
@@ -466,7 +473,8 @@ class _Pipeline extends StatelessWidget {
       'SAFEGUARD',
     ];
 
-    final current = (state?.characterState ?? 'IDLE').toUpperCase();
+    final current =
+        (state?.characterState ?? 'IDLE').toUpperCase();
 
     final active = current == 'RECEIVE'
         ? 1
@@ -488,8 +496,9 @@ class _Pipeline extends StatelessWidget {
             height: 58,
             padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
-              color:
-                  i <= active ? t.primary.withValues(alpha: 0.13) : t.surface,
+              color: i <= active
+                  ? t.primary.withValues(alpha: .13)
+                  : t.surface,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: i <= active ? t.primary : t.border,
@@ -512,7 +521,7 @@ class _Pipeline extends StatelessWidget {
                     color: t.text,
                     fontSize: 8,
                     fontWeight: FontWeight.w800,
-                    letterSpacing: 0.6,
+                    letterSpacing: .6,
                   ),
                 ),
               ],
@@ -543,93 +552,99 @@ class _Intake extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return _Panel(
-      'Material Intake',
-      t,
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            spacing: 7,
-            runSpacing: 7,
-            children: [
-              _Button(
-                'Upload Files',
-                Icons.upload_file,
-                onFiles,
-                t,
-              ),
-              _Button(
-                'Add Folder to Python',
-                Icons.folder_open,
-                onFolder,
-                t,
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          TextField(
-            controller: text,
-            maxLines: 3,
-            decoration: const InputDecoration(
-              labelText: 'Direct text / context',
-              hintText: 'Paste material or user-supplied context here',
+  Widget build(BuildContext context) => _Panel(
+        'Material Intake',
+        t,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Wrap(
+              spacing: 7,
+              runSpacing: 7,
+              children: [
+                _Button(
+                  'Upload Files',
+                  Icons.upload_file,
+                  onFiles,
+                  t,
+                ),
+                _Button(
+                  'Add Folder to Python',
+                  Icons.folder_open,
+                  onFolder,
+                  t,
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 7),
-          Row(
-            children: [
-              OutlinedButton.icon(
-                onPressed: onText,
-                icon: const Icon(Icons.add, size: 15),
-                label: const Text('Add text'),
+            const SizedBox(height: 10),
+            TextField(
+              controller: text,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Direct text / context',
+                hintText:
+                    'Paste material or user-supplied context here',
               ),
-              const Spacer(),
-              FilledButton.icon(
-                onPressed: sources.isEmpty ? null : onIngest,
-                icon: const Icon(Icons.play_arrow, size: 15),
-                label: const Text('Receive material'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            '${sources.length} source(s) staged locally • '
-            'original content is preserved before Python processing',
-            style: TextStyle(
-              color: t.mutedText,
-              fontSize: 10,
             ),
-          ),
-          for (final source in sources.take(8))
-            ListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              leading: Icon(
-                Icons.description_outlined,
-                size: 18,
-                color: t.primary,
+            const SizedBox(height: 7),
+            Row(
+              children: [
+                OutlinedButton.icon(
+                  onPressed: onText,
+                  icon: const Icon(
+                    Icons.add,
+                    size: 15,
+                  ),
+                  label: const Text('Add text'),
+                ),
+                const Spacer(),
+                FilledButton.icon(
+                  onPressed:
+                      sources.isEmpty ? null : onIngest,
+                  icon: const Icon(
+                    Icons.play_arrow,
+                    size: 15,
+                  ),
+                  label: const Text('Receive material'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '${sources.length} source(s) staged locally • '
+              'original content is preserved before Python processing',
+              style: TextStyle(
+                color: t.mutedText,
+                fontSize: 10,
               ),
-              title: Text(
-                '${source['name']}',
-                style: TextStyle(
-                  color: t.text,
-                  fontSize: 10,
+            ),
+            for (final source in sources.take(8))
+              ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(
+                  Icons.description_outlined,
+                  size: 18,
+                  color: t.primary,
+                ),
+                title: Text(
+                  '${source['name']}',
+                  style: TextStyle(
+                    color: t.text,
+                    fontSize: 10,
+                  ),
+                ),
+                subtitle: Text(
+                  '${source['channel']} • original preserved',
+                  style: TextStyle(
+                    color: t.mutedText,
+                    fontSize: 8,
+                  ),
                 ),
               ),
-              subtitle: Text(
-                '${source['channel']} • original preserved',
-                style: TextStyle(
-                  color: t.mutedText,
-                  fontSize: 8,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 }
 
 class _Review extends StatelessWidget {
@@ -726,10 +741,10 @@ class _Review extends StatelessWidget {
                         isDense: true,
                       ),
                       items: [
-                        for (final guess in guesses)
+                        for (final g in guesses)
                           DropdownMenuItem(
-                            value: guess,
-                            child: Text(guess),
+                            value: g,
+                            child: Text(g),
                           ),
                       ],
                       onChanged: onIntent,
@@ -737,7 +752,9 @@ class _Review extends StatelessWidget {
                     const SizedBox(height: 5),
                     OutlinedButton(
                       onPressed: onApproveIntent,
-                      child: const Text('Approve selected intent'),
+                      child: const Text(
+                        'Approve selected intent',
+                      ),
                     ),
                   ],
                   if (ratio != null)
@@ -854,9 +871,9 @@ class _Review extends StatelessWidget {
                 ),
               ),
             ],
-            onChanged: (value) {
-              if (value != null) {
-                onRecipient(value);
+            onChanged: (v) {
+              if (v != null) {
+                onRecipient(v);
               }
             },
           ),
@@ -866,26 +883,33 @@ class _Review extends StatelessWidget {
             runSpacing: 6,
             children: [
               OutlinedButton(
-                onPressed: ready ? () => onAction('confirm') : null,
+                onPressed:
+                    ready ? () => onAction('confirm') : null,
                 child: const Text('Confirm'),
               ),
               OutlinedButton(
-                onPressed: ready ? () => onAction('correct') : null,
+                onPressed:
+                    ready ? () => onAction('correct') : null,
                 child: const Text('Correct'),
               ),
               OutlinedButton(
-                onPressed: ready ? () => onAction('exclude') : null,
+                onPressed:
+                    ready ? () => onAction('exclude') : null,
                 child: const Text('Exclude'),
               ),
               FilledButton.icon(
                 onPressed:
-                    confirm == 'user-confirmed' || confirm == 'user-corrected'
+                    confirm == 'user-confirmed' ||
+                            confirm == 'user-corrected'
                         ? () => onAction(
                               'handoff',
                               recipient: recipient,
                             )
                         : null,
-                icon: const Icon(Icons.send, size: 15),
+                icon: const Icon(
+                  Icons.send,
+                  size: 15,
+                ),
                 label: Text(
                   'Handoff to '
                   '${recipient[0].toUpperCase()}'
@@ -916,51 +940,55 @@ class _Provenance extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return _Panel(
-      'Conditional Provenance',
-      t,
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Mandatory source identity remains preserved. These '
-            'additional provenance categories require explicit Yes/No user choices.',
-            style: TextStyle(
-              color: t.mutedText,
-              fontSize: 10,
-              height: 1.4,
+  Widget build(BuildContext context) => _Panel(
+        'Conditional Provenance',
+        t,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Mandatory source identity remains preserved. These additional '
+              'provenance categories require explicit Yes/No user choices.',
+              style: TextStyle(
+                color: t.mutedText,
+                fontSize: 10,
+                height: 1.4,
+              ),
             ),
-          ),
-          for (final entry in choices.entries)
-            CheckboxListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              value: entry.value,
-              onChanged: (value) => onChanged(entry.key, value ?? false),
-              title: Text(
-                entry.key.replaceAll('_', ' '),
-                style: TextStyle(
-                  color: t.text,
-                  fontSize: 10,
+            for (final e in choices.entries)
+              CheckboxListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                value: e.value,
+                onChanged: (v) => onChanged(
+                  e.key,
+                  v ?? false,
+                ),
+                title: Text(
+                  e.key.replaceAll('_', ' '),
+                  style: TextStyle(
+                    color: t.text,
+                    fontSize: 10,
+                  ),
+                ),
+                subtitle: const Text(
+                  'Yes = retain after extraction',
+                  style: TextStyle(fontSize: 8),
                 ),
               ),
-              subtitle: const Text(
-                'Yes = retain after extraction',
-                style: TextStyle(fontSize: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: OutlinedButton(
+                onPressed:
+                    s?.foundationId == null ? null : onSave,
+                child: const Text(
+                  'Save provenance choices',
+                ),
               ),
             ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: OutlinedButton(
-              onPressed: s?.foundationId == null ? null : onSave,
-              child: const Text('Save provenance choices'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 }
 
 class _LogPanel extends StatelessWidget {
@@ -977,61 +1005,61 @@ class _LogPanel extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return _Panel(
-      'Searchable Stewardship Log',
-      t,
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: query,
-                  decoration: const InputDecoration(
-                    labelText:
-                        'Search Material Set ID, task ID, event, recipient...',
+  Widget build(BuildContext context) => _Panel(
+        'Searchable Stewardship Log',
+        t,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: query,
+                    decoration: const InputDecoration(
+                      labelText:
+                          'Search Material Set ID, task ID, event, recipient...',
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                FilledButton(
+                  onPressed:
+                      s?.foundationId == null ? null : onQuery,
+                  child: const Text('Search'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${s?.foundationLogCount ?? 0} matching record(s)',
+              style: TextStyle(
+                color: t.mutedText,
+                fontSize: 9,
+              ),
+            ),
+            for (final entry in
+                (s?.foundationLogEntries ?? const <String>[])
+                    .take(20))
+              ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(
+                  Icons.history,
+                  size: 16,
+                  color: t.primary,
+                ),
+                title: Text(
+                  entry,
+                  style: TextStyle(
+                    color: t.text,
+                    fontSize: 9,
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
-              FilledButton(
-                onPressed: s?.foundationId == null ? null : onQuery,
-                child: const Text('Search'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '${s?.foundationLogCount ?? 0} matching record(s)',
-            style: TextStyle(
-              color: t.mutedText,
-              fontSize: 9,
-            ),
-          ),
-          for (final entry
-              in (s?.foundationLogEntries ?? const <String>[]).take(20))
-            ListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              leading: Icon(
-                Icons.history,
-                size: 16,
-                color: t.primary,
-              ),
-              title: Text(
-                entry,
-                style: TextStyle(
-                  color: t.text,
-                  fontSize: 9,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 }
 
 class _ConflictPanel extends StatelessWidget {
@@ -1063,20 +1091,21 @@ class _ConflictPanel extends StatelessWidget {
       c = Map<String, dynamic>.from(
         jsonDecode(chat.text),
       );
-    } catch (_) {
-      // Invalid JSON is surfaced by the merge action.
-    }
+    } catch (_) {}
 
     final fields = (<String>{
-      ...h.keys.map((key) => key.toString()),
-      ...c.keys.map((key) => key.toString()),
+      ...h.keys,
+      ...c.keys,
     }).toList()
       ..sort();
 
-    final conflicts = fields.where((field) => h[field] != c[field]).toList();
+    final conflicts = fields
+        .where((f) => h[f] != c[f])
+        .toList();
 
-    final unresolved =
-        conflicts.where((field) => !winner.containsKey(field)).toList();
+    final unresolved = conflicts
+        .where((f) => !winner.containsKey(f))
+        .toList();
 
     return _Panel(
       'Home ↔ Chat Conflict Merge',
@@ -1085,8 +1114,8 @@ class _ConflictPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'No hard overwrite. Every conflicting field requires an '
-            'explicit user winner before the merge can be committed.',
+            'No hard overwrite. Every conflicting field requires an explicit '
+            'user winner before the merge can be committed.',
             style: TextStyle(
               color: t.mutedText,
               fontSize: 10,
@@ -1111,7 +1140,7 @@ class _ConflictPanel extends StatelessWidget {
           ),
           if (conflicts.isNotEmpty) ...[
             const SizedBox(height: 10),
-            for (final field in conflicts)
+            for (final f in conflicts)
               Container(
                 margin: const EdgeInsets.only(bottom: 7),
                 padding: const EdgeInsets.all(8),
@@ -1124,7 +1153,7 @@ class _ConflictPanel extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      field,
+                      f,
                       style: TextStyle(
                         color: t.text,
                         fontSize: 10,
@@ -1132,14 +1161,14 @@ class _ConflictPanel extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Home: ${h[field]}',
+                      'Home: ${h[f]}',
                       style: TextStyle(
                         color: t.mutedText,
                         fontSize: 9,
                       ),
                     ),
                     Text(
-                      'Chat: ${c[field]}',
+                      'Chat: ${c[f]}',
                       style: TextStyle(
                         color: t.mutedText,
                         fontSize: 9,
@@ -1147,7 +1176,7 @@ class _ConflictPanel extends StatelessWidget {
                     ),
                     DropdownButton<String>(
                       hint: const Text('Choose winner'),
-                      value: winner[field],
+                      value: winner[f],
                       items: const [
                         DropdownMenuItem(
                           value: 'home',
@@ -1158,30 +1187,32 @@ class _ConflictPanel extends StatelessWidget {
                           child: Text('Keep Chat'),
                         ),
                       ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          onWinner(field, value);
+                      onChanged: (v) {
+                        if (v != null) {
+                          onWinner(f, v);
                         }
                       },
                     ),
                   ],
                 ),
               ),
+            const SizedBox(height: 5),
+            FilledButton.icon(
+              onPressed:
+                  conflicts.isEmpty || unresolved.isNotEmpty
+                      ? null
+                      : onMerge,
+              icon: const Icon(
+                Icons.merge_type,
+                size: 15,
+              ),
+              label: Text(
+                unresolved.isEmpty
+                    ? 'Commit explicit merge'
+                    : 'Choose ${unresolved.length} remaining winner(s)',
+              ),
+            ),
           ],
-          const SizedBox(height: 5),
-          FilledButton.icon(
-            onPressed:
-                conflicts.isEmpty || unresolved.isNotEmpty ? null : onMerge,
-            icon: const Icon(
-              Icons.merge_type,
-              size: 15,
-            ),
-            label: Text(
-              unresolved.isEmpty
-                  ? 'Commit explicit merge'
-                  : 'Choose ${unresolved.length} remaining winner(s)',
-            ),
-          ),
         ],
       ),
     );
@@ -1198,36 +1229,36 @@ class _Quality extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final failed = s?.event == 'EXTRACTION_FAILED';
-
-    return _Panel(
-      'Data Quality',
-      t,
-      Row(
-        children: [
-          Icon(
-            failed ? Icons.warning_amber_rounded : Icons.verified_outlined,
-            color: failed ? t.warning : t.success,
-            size: 20,
-          ),
-          const SizedBox(width: 9),
-          Expanded(
-            child: Text(
-              s?.message ??
-                  'Waiting for material. Raw source and lineage '
-                      'are preserved before transformation.',
-              style: TextStyle(
-                color: t.mutedText,
-                fontSize: 10,
-                height: 1.4,
+  Widget build(BuildContext context) => _Panel(
+        'Data Quality',
+        t,
+        Row(
+          children: [
+            Icon(
+              s?.event == 'EXTRACTION_FAILED'
+                  ? Icons.warning_amber_rounded
+                  : Icons.verified_outlined,
+              color: s?.event == 'EXTRACTION_FAILED'
+                  ? t.warning
+                  : t.success,
+              size: 20,
+            ),
+            const SizedBox(width: 9),
+            Expanded(
+              child: Text(
+                s?.message ??
+                    'Waiting for material. Raw source and lineage are '
+                        'preserved before transformation.',
+                style: TextStyle(
+                  color: t.mutedText,
+                  fontSize: 10,
+                  height: 1.4,
+                ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 }
 
 class _Sandre extends StatelessWidget {
@@ -1240,63 +1271,62 @@ class _Sandre extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return _Panel(
-      'Sandre',
-      t,
-      Row(
-        children: [
-          Container(
-            width: 90,
-            height: 90,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: t.border),
+  Widget build(BuildContext context) => _Panel(
+        'Sandre',
+        t,
+        Row(
+          children: [
+            Container(
+              width: 90,
+              height: 90,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: t.border),
+              ),
+              child: Icon(
+                Icons.person_outline_rounded,
+                size: 45,
+                color: t.primary,
+              ),
             ),
-            child: Icon(
-              Icons.person_outline_rounded,
-              size: 45,
-              color: t.primary,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'SANDRE',
+                    style: TextStyle(
+                      color: t.text,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  Text(
+                    'Data Stewardship • House Owner',
+                    style: TextStyle(
+                      color: t.primary,
+                      fontSize: 10,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    s?.agentId.toLowerCase() == 'sandre'
+                        ? (s?.message ??
+                            'Safeguarding the foundation.')
+                        : 'Sandre is ready to receive foundational material.',
+                    style: TextStyle(
+                      color: t.mutedText,
+                      fontSize: 10,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'SANDRE',
-                  style: TextStyle(
-                    color: t.text,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                Text(
-                  'Data Stewardship • House Owner',
-                  style: TextStyle(
-                    color: t.primary,
-                    fontSize: 10,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  s?.agentId.toLowerCase() == 'sandre'
-                      ? (s?.message ?? 'Safeguarding the foundation.')
-                      : 'Sandre is ready to receive foundational material.',
-                  style: TextStyle(
-                    color: t.mutedText,
-                    fontSize: 10,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 }
 
 class _StatePill extends StatelessWidget {
@@ -1309,26 +1339,24 @@ class _StatePill extends StatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 6,
-      ),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: t.primary),
-      ),
-      child: Text(
-        state,
-        style: TextStyle(
-          color: t.primary,
-          fontSize: 9,
-          fontWeight: FontWeight.w800,
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 10,
+          vertical: 6,
         ),
-      ),
-    );
-  }
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: t.primary),
+        ),
+        child: Text(
+          state,
+          style: TextStyle(
+            color: t.primary,
+            fontSize: 9,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      );
 }
 
 class _Panel extends StatelessWidget {
@@ -1343,31 +1371,29 @@ class _Panel extends StatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: t.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: t.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              color: t.text,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: t.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: t.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                color: t.text,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
-          const SizedBox(height: 11),
-          child,
-        ],
-      ),
-    );
-  }
+            const SizedBox(height: 11),
+            child,
+          ],
+        ),
+      );
 }
 
 class _Meta extends StatelessWidget {
@@ -1382,35 +1408,33 @@ class _Meta extends StatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 90,
-            child: Text(
-              a,
-              style: TextStyle(
-                color: t.mutedText,
-                fontSize: 9,
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 90,
+              child: Text(
+                a,
+                style: TextStyle(
+                  color: t.mutedText,
+                  fontSize: 9,
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: Text(
-              b,
-              style: TextStyle(
-                color: t.text,
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
+            Expanded(
+              child: Text(
+                b,
+                style: TextStyle(
+                  color: t.text,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 }
 
 class _Button extends StatelessWidget {
@@ -1427,14 +1451,12 @@ class _Button extends StatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context) {
-    return OutlinedButton.icon(
-      onPressed: onTap,
-      icon: Icon(
-        icon,
-        size: 15,
-      ),
-      label: Text(label),
-    );
-  }
+  Widget build(BuildContext context) => OutlinedButton.icon(
+        onPressed: onTap,
+        icon: Icon(
+          icon,
+          size: 15,
+        ),
+        label: Text(label),
+      );
 }

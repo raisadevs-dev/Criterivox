@@ -2,35 +2,31 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 enum CriterivoxLanguage { english, hindi }
 
-extension CriterivoxLanguageCode on CriterivoxLanguage {
-  String get code => name;
-
-  static CriterivoxLanguage fromCode(String? value) =>
-      value == CriterivoxLanguage.hindi.name
-          ? CriterivoxLanguage.hindi
-          : CriterivoxLanguage.english;
-}
-
 class CriterivoxLanguageMode {
   static const _key = 'criterivox.language_mode';
 
   static Future<CriterivoxLanguage> load() async {
     final preferences = await SharedPreferences.getInstance();
-    return CriterivoxLanguageCode.fromCode(preferences.getString(_key));
+    return _parse(preferences.getString(_key));
   }
 
   static Future<void> save(CriterivoxLanguage language) async {
     final preferences = await SharedPreferences.getInstance();
-    await preferences.setString(_key, language.code);
+    await preferences.setString(_key, language.name);
   }
 
-  static CriterivoxLanguage parse(String? value) =>
-      CriterivoxLanguageCode.fromCode(value);
+  static CriterivoxLanguage _parse(String? value) {
+    return value == CriterivoxLanguage.hindi.name
+        ? CriterivoxLanguage.hindi
+        : CriterivoxLanguage.english;
+  }
 }
 
 class CriterivoxStrings {
   final CriterivoxLanguage language;
+
   const CriterivoxStrings(this.language);
+
   String get bloom => _text('Bloom', 'ब्लूम');
   String get stewardship => _text('Data Stewardship', 'डेटा प्रबंधन');
   String get context => _text('Context Workspace', 'कॉन्टेक्स्ट वर्कस्पेस');
@@ -42,6 +38,7 @@ class CriterivoxStrings {
   String get english => _text('English', 'अंग्रेज़ी');
   String get hindi => _text('Hindi', 'हिंदी');
   String get livingSystem => _text('Living system', 'सक्रिय सिस्टम');
+
   String _text(String englishText, String hindiText) =>
       language == CriterivoxLanguage.hindi ? hindiText : englishText;
 }

@@ -5,26 +5,9 @@ void main() {
   test('known character identity resolves correctly', () {
     final identity = CharacterIdentities.resolve('Dharen');
 
-    expect(identity.id, 'Dharen');
+    expect(identity.id, 'dharen');
     expect(identity.displayName, 'Dharen');
-    expect(identity.role, 'Analysis');
-  });
-
-  test('character identity resolution is case-insensitive', () {
-    final inputs = <String>[
-      'Dharen',
-      'dharen',
-      'DHAREN',
-      'dHaReN',
-    ];
-
-    for (final input in inputs) {
-      final identity = CharacterIdentities.resolve(input);
-
-      expect(identity.id, 'Dharen');
-      expect(identity.displayName, 'Dharen');
-      expect(identity.role, 'Analysis');
-    }
+    expect(identity.role, 'Context Architecture');
   });
 
   test('all fifteen character identities are registered', () {

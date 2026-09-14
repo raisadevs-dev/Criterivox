@@ -1,14 +1,15 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:presentation/character/character_identity.dart';
 
-import 'character_visual_profile.dart';
-
-/// Primary procedural character renderer.
+/// Flutter-side visual runtime for a Criterivox character.
 ///
-/// CharacterVisualProfile is the single source of visual identity. This
-/// renderer contains drawing behavior only and never owns per-character
-/// colors, clothing, hair, or accessory definitions.
+/// This class is intentionally presentation-only:
+/// - Character identity comes from CharacterIdentities.
+/// - Runtime truth/state is supplied through [characterId] and [state].
+/// - Rendering is performed entirely by Flutter's CustomPainter.
+/// - No computational or persistence responsibilities live here.
 class CharacterRuntimeView extends StatefulWidget {
   final String characterId;
   final String state;
@@ -21,12 +22,13 @@ class CharacterRuntimeView extends StatefulWidget {
     required this.characterId,
     required this.state,
     this.reducedMotion = false,
-    this.width = 180,
-    this.height = 240,
+    this.width = 180.0,
+    this.height = 240.0,
   });
 
   @override
-  State<CharacterRuntimeView> createState() => _CharacterRuntimeViewState();
+  State<CharacterRuntimeView> createState() =>
+      _CharacterRuntimeViewState();
 }
 
 class _CharacterRuntimeViewState extends State<CharacterRuntimeView>
@@ -67,7 +69,7 @@ class _CharacterRuntimeViewState extends State<CharacterRuntimeView>
   @override
   Widget build(BuildContext context) {
     final identity = CharacterIdentities.resolve(widget.characterId);
-    final profile = CharacterVisualProfile.forId(widget.characterId);
+    final normalizedState = widget.state.trim().toUpperCase();
 
     return SizedBox(
       width: widget.width,
@@ -75,15 +77,17 @@ class _CharacterRuntimeViewState extends State<CharacterRuntimeView>
       child: Semantics(
         container: true,
         label: '${identity.displayName} character',
-        value: widget.state.toUpperCase(),
+        value: normalizedState,
         child: AnimatedBuilder(
           animation: _controller,
           builder: (context, child) {
             return CustomPaint(
               painter: _CharacterPainter(
-                profile: profile,
-                state: widget.state.toUpperCase(),
-                progress: widget.reducedMotion ? 0.35 : _controller.value,
+                characterId: widget.characterId,
+                state: normalizedState,
+                progress: widget.reducedMotion
+                    ? 0.35
+                    : _controller.value,
               ),
             );
           },
@@ -94,40 +98,42 @@ class _CharacterRuntimeViewState extends State<CharacterRuntimeView>
 }
 
 class _CharacterPainter extends CustomPainter {
-  final CharacterVisualProfile? profile;
+  final String characterId;
   final String state;
   final double progress;
 
-  _CharacterPainter({
-    required this.profile,
+  const _CharacterPainter({
+    required this.characterId,
     required this.state,
     required this.progress,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final character = profile;
+    final character = _CharacterStyle.forId(characterId);
 
-    if (character == null) {
-      return;
-    }
+    final double t = progress * math.pi * 2.0;
 
-    final double t = progress * math.pi * 2;
-
-    final double breathe =
-        (state == 'IDLE' || state == 'WORK' || state == 'COMMUNICATE')
-            ? math.sin(t) * 2.2
-            : 0.0;
+    final double breathe = _isBreathingState(state)
+        ? math.sin(t) * 2.2
+        : 0.0;
 
     final double weight =
-        (state == 'WORK' || state == 'IDLE') ? math.sin(t * 0.5) * 3.0 : 0.0;
+        (state == 'WORK' || state == 'IDLE')
+            ? math.sin(t * 0.5) * 3.0
+            : 0.0;
 
     final double attention =
-        (state == 'RECEIVE' || state == 'HANDOFF') ? math.sin(t) * 1.5 : 0.0;
+        (state == 'RECEIVE' || state == 'HANDOFF')
+            ? math.sin(t) * 1.5
+            : 0.0;
 
-    final double gesture = state == 'COMMUNICATE' ? math.sin(t * 2.2) : 0.0;
+    final double gesture =
+        state == 'COMMUNICATE'
+            ? math.sin(t * 2.2)
+            : 0.0;
 
-    final double pulse = math.sin(t * 2) * 0.5 + 0.5;
+    final double pulse = math.sin(t * 2.0) * 0.5 + 0.5;
 
     final double scale = math.min(
       size.width / 238.0,
@@ -137,7 +143,7 @@ class _CharacterPainter extends CustomPainter {
     canvas.save();
 
     canvas.translate(
-      size.width / 2 + weight,
+      size.width / 2.0 + weight,
       size.height * 0.53,
     );
 
@@ -146,19 +152,60 @@ class _CharacterPainter extends CustomPainter {
     _ground(canvas, character, pulse);
     _legs(canvas, character, weight);
     _torso(canvas, character, breathe);
-    _arms(canvas, character, state, gesture, attention);
-    _head(canvas, character, breathe, attention, gesture);
-    _hair(canvas, character, t, breathe, attention);
-    _clothingDetails(canvas, character, state, breathe);
-    _accessory(canvas, character, state, t, pulse);
-    _face(canvas, character, state, gesture, attention);
+    _arms(
+      canvas,
+      character,
+      state,
+      gesture,
+      attention,
+    );
+    _head(
+      canvas,
+      character,
+      breathe,
+      attention,
+      gesture,
+    );
+    _hair(
+      canvas,
+      character,
+      t,
+      breathe,
+      attention,
+    );
+    _clothingDetails(
+      canvas,
+      character,
+      state,
+      breathe,
+    );
+    _accessory(
+      canvas,
+      character,
+      state,
+      t,
+      pulse,
+    );
+    _face(
+      canvas,
+      character,
+      state,
+      gesture,
+      attention,
+    );
 
     canvas.restore();
   }
 
+  bool _isBreathingState(String value) {
+    return value == 'IDLE' ||
+        value == 'WORK' ||
+        value == 'COMMUNICATE';
+  }
+
   void _ground(
     Canvas canvas,
-    CharacterVisualProfile character,
+    _CharacterStyle character,
     double pulse,
   ) {
     final paint = Paint()
@@ -168,9 +215,9 @@ class _CharacterPainter extends CustomPainter {
 
     canvas.drawOval(
       Rect.fromCenter(
-        center: const Offset(0, 116),
-        width: 126,
-        height: 20,
+        center: const Offset(0.0, 116.0),
+        width: 126.0,
+        height: 20.0,
       ),
       paint,
     );
@@ -178,39 +225,41 @@ class _CharacterPainter extends CustomPainter {
 
   void _legs(
     Canvas canvas,
-    CharacterVisualProfile character,
+    _CharacterStyle character,
     double weight,
   ) {
-    final trousers = Paint()..color = character.trousers;
+    final trousers = Paint()
+      ..color = character.trousers;
 
-    final left = Path()
-      ..moveTo(-25, 48)
-      ..lineTo(-8, 48)
-      ..lineTo(-12 + weight * 0.25, 102)
-      ..lineTo(-31, 102)
+    final leftLeg = Path()
+      ..moveTo(-25.0, 48.0)
+      ..lineTo(-8.0, 48.0)
+      ..lineTo(-12.0 + weight * 0.25, 102.0)
+      ..lineTo(-31.0, 102.0)
       ..close();
 
-    final right = Path()
-      ..moveTo(8, 48)
-      ..lineTo(25, 48)
-      ..lineTo(31 - weight * 0.25, 102)
-      ..lineTo(12, 102)
+    final rightLeg = Path()
+      ..moveTo(8.0, 48.0)
+      ..lineTo(25.0, 48.0)
+      ..lineTo(31.0 - weight * 0.25, 102.0)
+      ..lineTo(12.0, 102.0)
       ..close();
 
-    canvas.drawPath(left, trousers);
-    canvas.drawPath(right, trousers);
+    canvas.drawPath(leftLeg, trousers);
+    canvas.drawPath(rightLeg, trousers);
 
-    final shoe = Paint()..color = character.dark;
+    final shoe = Paint()
+      ..color = character.dark;
 
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromLTWH(
-          -36 - weight * 0.25,
-          97,
-          28,
-          13,
+          -36.0 - weight * 0.25,
+          97.0,
+          28.0,
+          13.0,
         ),
-        const Radius.circular(6),
+        const Radius.circular(6.0),
       ),
       shoe,
     );
@@ -218,12 +267,12 @@ class _CharacterPainter extends CustomPainter {
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromLTWH(
-          8 + weight * 0.25,
-          97,
-          28,
-          13,
+          8.0 + weight * 0.25,
+          97.0,
+          28.0,
+          13.0,
         ),
-        const Radius.circular(6),
+        const Radius.circular(6.0),
       ),
       shoe,
     );
@@ -231,51 +280,60 @@ class _CharacterPainter extends CustomPainter {
 
   void _torso(
     Canvas canvas,
-    CharacterVisualProfile character,
+    _CharacterStyle character,
     double breathe,
   ) {
-    final bodyPaint = Paint()..color = character.body;
+    final bodyPaint = Paint()
+      ..color = character.body;
 
     final body = Path()
-      ..moveTo(-42, -36 + breathe * 0.2)
-      ..quadraticBezierTo(
-        0,
-        -48 - breathe * 0.15,
-        42,
-        -36 + breathe * 0.2,
+      ..moveTo(
+        -42.0,
+        -36.0 + breathe * 0.2,
       )
-      ..lineTo(31, 50)
-      ..quadraticBezierTo(0, 61, -31, 50)
+      ..quadraticBezierTo(
+        0.0,
+        -48.0 - breathe * 0.15,
+        42.0,
+        -36.0 + breathe * 0.2,
+      )
+      ..lineTo(31.0, 50.0)
+      ..quadraticBezierTo(
+        0.0,
+        61.0,
+        -31.0,
+        50.0,
+      )
       ..close();
 
     canvas.drawPath(body, bodyPaint);
 
     final trim = Paint()
-      ..color = character.accent
-      ..strokeWidth = 4
+      ..color = character.accent.withValues(alpha: 0.8)
+      ..strokeWidth = 4.0
       ..style = PaintingStyle.stroke;
 
     canvas.drawLine(
-      const Offset(0, -36),
-      const Offset(0, 42),
+      const Offset(0.0, -36.0),
+      const Offset(0.0, 42.0),
       trim,
     );
   }
 
   void _arms(
     Canvas canvas,
-    CharacterVisualProfile character,
+    _CharacterStyle character,
     String state,
     double gesture,
     double attention,
   ) {
-    final double left = state == 'COMMUNICATE'
+    final double leftAngle = state == 'COMMUNICATE'
         ? -0.28 + gesture * 0.16
         : state == 'HANDOFF'
             ? -0.32
             : -0.08;
 
-    final double right = state == 'WORK'
+    final double rightAngle = state == 'WORK'
         ? 0.35 + gesture * 0.12
         : state == 'COMMUNICATE'
             ? 0.25 + gesture * 0.12
@@ -285,7 +343,7 @@ class _CharacterPainter extends CustomPainter {
       canvas,
       character,
       -1,
-      left,
+      leftAngle,
       state,
       gesture,
     );
@@ -294,7 +352,7 @@ class _CharacterPainter extends CustomPainter {
       canvas,
       character,
       1,
-      right,
+      rightAngle,
       state,
       gesture,
     );
@@ -302,7 +360,7 @@ class _CharacterPainter extends CustomPainter {
 
   void _arm(
     Canvas canvas,
-    CharacterVisualProfile character,
+    _CharacterStyle character,
     int side,
     double angle,
     String state,
@@ -310,35 +368,57 @@ class _CharacterPainter extends CustomPainter {
   ) {
     canvas.save();
 
-    canvas.translate(side * 39.0, -25.0);
-    canvas.rotate(side * angle);
+    canvas.translate(
+      side.toDouble() * 39.0,
+      -25.0,
+    );
 
-    final sleeve = Paint()..color = character.body;
-    final skin = Paint()..color = character.skin;
+    canvas.rotate(
+      side.toDouble() * angle,
+    );
+
+    final sleeve = Paint()
+      ..color = character.body;
+
+    final skin = Paint()
+      ..color = character.skin;
 
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        const Rect.fromLTWH(-8, -4, 16, 43),
-        const Radius.circular(8),
+        const Rect.fromLTWH(
+          -8.0,
+          -4.0,
+          16.0,
+          43.0,
+        ),
+        const Radius.circular(8.0),
       ),
       sleeve,
     );
 
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        const Rect.fromLTWH(-7, 36, 14, 27),
-        const Radius.circular(7),
+        const Rect.fromLTWH(
+          -7.0,
+          36.0,
+          14.0,
+          27.0,
+        ),
+        const Radius.circular(7.0),
       ),
       skin,
     );
 
-    final double handY = 63.0 + (state == 'COMMUNICATE' ? gesture * 3.0 : 0.0);
+    final double handY = 63.0 +
+        (state == 'COMMUNICATE'
+            ? gesture * 3.0
+            : 0.0);
 
     canvas.drawOval(
       Rect.fromCenter(
-        center: Offset(0, handY),
-        width: 13,
-        height: 10,
+        center: Offset(0.0, handY),
+        width: 13.0,
+        height: 10.0,
       ),
       skin,
     );
@@ -346,13 +426,13 @@ class _CharacterPainter extends CustomPainter {
     if (state == 'COMMUNICATE') {
       final finger = Paint()
         ..color = character.skin
-        ..strokeWidth = 3
+        ..strokeWidth = 3.0
         ..strokeCap = StrokeCap.round;
 
       canvas.drawLine(
-        const Offset(0, 64),
+        const Offset(0.0, 64.0),
         Offset(
-          side * 3.0,
+          side.toDouble() * 3.0,
           74.0 + gesture * 2.0,
         ),
         finger,
@@ -364,22 +444,23 @@ class _CharacterPainter extends CustomPainter {
 
   void _head(
     Canvas canvas,
-    CharacterVisualProfile character,
+    _CharacterStyle character,
     double breathe,
     double attention,
     double gesture,
   ) {
-    final skin = Paint()..color = character.skin;
+    final skin = Paint()
+      ..color = character.skin;
 
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromLTWH(
-          -12,
-          -61 + breathe * 0.1,
-          24,
-          22,
+          -12.0,
+          -61.0 + breathe * 0.1,
+          24.0,
+          22.0,
         ),
-        const Radius.circular(8),
+        const Radius.circular(8.0),
       ),
       skin,
     );
@@ -388,7 +469,7 @@ class _CharacterPainter extends CustomPainter {
 
     canvas.translate(
       attention * 0.5,
-      -79 + breathe * 0.2,
+      -79.0 + breathe * 0.2,
     );
 
     canvas.rotate(
@@ -397,20 +478,23 @@ class _CharacterPainter extends CustomPainter {
 
     canvas.drawOval(
       Rect.fromCenter(
-        center: const Offset(0, 0),
-        width: 78,
-        height: 86,
+        center: Offset.zero,
+        width: 78.0,
+        height: 86.0,
       ),
       skin,
     );
 
+    final facePaint = Paint()
+      ..color = character.face;
+
     canvas.drawOval(
       Rect.fromCenter(
-        center: const Offset(0, 3),
-        width: 68,
-        height: 77,
+        center: const Offset(0.0, 3.0),
+        width: 68.0,
+        height: 77.0,
       ),
-      Paint()..color = character.face,
+      facePaint,
     );
 
     canvas.restore();
@@ -418,70 +502,78 @@ class _CharacterPainter extends CustomPainter {
 
   void _hair(
     Canvas canvas,
-    CharacterVisualProfile character,
+    _CharacterStyle character,
     double time,
     double breathe,
     double attention,
   ) {
-    final paint = Paint()..color = character.hair;
+    final paint = Paint()
+      ..color = character.hair;
 
-    final double sway = math.sin(time) * 1.8 + attention * 0.4;
+    final double sway =
+        math.sin(time) * 1.8 +
+        attention * 0.4 +
+        breathe * 0.1;
 
     switch (character.hairStyle) {
-      case CharacterHairStyle.bun:
+      case 'bun':
         canvas.drawCircle(
-          Offset(-27 + sway, -112),
-          14,
+          Offset(-27.0 + sway, -112.0),
+          14.0,
           paint,
         );
 
         canvas.drawCircle(
-          Offset(27 + sway, -112),
-          14,
+          Offset(27.0 + sway, -112.0),
+          14.0,
           paint,
         );
 
         canvas.drawOval(
           Rect.fromCenter(
-            center: const Offset(0, -105),
-            width: 75,
-            height: 48,
+            center: const Offset(0.0, -105.0),
+            width: 75.0,
+            height: 48.0,
+          ),
+          paint,
+        );
+        break;
+
+      case 'visor':
+        canvas.drawOval(
+          Rect.fromCenter(
+            center: const Offset(0.0, -106.0),
+            width: 82.0,
+            height: 35.0,
           ),
           paint,
         );
 
-      case CharacterHairStyle.visor:
-        canvas.drawOval(
-          Rect.fromCenter(
-            center: const Offset(0, -106),
-            width: 82,
-            height: 35,
-          ),
-          paint,
-        );
+        final visorPaint = Paint()
+          ..color = character.accent.withValues(
+            alpha: 0.65,
+          );
 
         canvas.drawRRect(
           RRect.fromRectAndRadius(
             const Rect.fromLTWH(
-              -31,
-              -103,
-              62,
-              13,
+              -31.0,
+              -103.0,
+              62.0,
+              13.0,
             ),
-            const Radius.circular(7),
+            const Radius.circular(7.0),
           ),
-          Paint()
-            ..color = character.accent.withValues(
-              alpha: 0.65,
-            ),
+          visorPaint,
         );
+        break;
 
-      case CharacterHairStyle.longHair:
+      case 'long':
         canvas.drawOval(
           Rect.fromCenter(
-            center: const Offset(0, -104),
-            width: 83,
-            height: 43,
+            center: const Offset(0.0, -104.0),
+            width: 83.0,
+            height: 43.0,
           ),
           paint,
         );
@@ -489,12 +581,12 @@ class _CharacterPainter extends CustomPainter {
         canvas.drawRRect(
           RRect.fromRectAndRadius(
             Rect.fromLTWH(
-              -39 + sway,
-              -104,
-              16,
-              72,
+              -39.0 + sway,
+              -104.0,
+              16.0,
+              72.0,
             ),
-            const Radius.circular(8),
+            const Radius.circular(8.0),
           ),
           paint,
         );
@@ -502,41 +594,49 @@ class _CharacterPainter extends CustomPainter {
         canvas.drawRRect(
           RRect.fromRectAndRadius(
             Rect.fromLTWH(
-              23 + sway,
-              -104,
-              16,
-              72,
+              23.0 + sway,
+              -104.0,
+              16.0,
+              72.0,
             ),
-            const Radius.circular(8),
+            const Radius.circular(8.0),
           ),
           paint,
         );
+        break;
 
-      case CharacterHairStyle.messy:
-        final path = Path()..moveTo(-42, -92);
+      case 'messy':
+        final path = Path()
+          ..moveTo(-42.0, -92.0);
 
-        for (var i = 0; i < 9; i++) {
+        for (int i = 0; i < 9; i++) {
           final double x = -42.0 + i * 10.5;
 
           path.lineTo(
             x,
-            -112 - math.sin(i + time * 0.18) * 7 - attention.abs(),
+            -112.0 -
+                math.sin(
+                  i + time * 0.18,
+                ) *
+                    7.0 -
+                attention.abs(),
           );
         }
 
         path
-          ..lineTo(42, -86)
-          ..lineTo(-42, -86)
+          ..lineTo(42.0, -86.0)
+          ..lineTo(-42.0, -86.0)
           ..close();
 
         canvas.drawPath(path, paint);
+        break;
 
       default:
         canvas.drawOval(
           Rect.fromCenter(
-            center: const Offset(0, -104),
-            width: 82,
-            height: 42,
+            center: const Offset(0.0, -104.0),
+            width: 82.0,
+            height: 42.0,
           ),
           paint,
         );
@@ -545,7 +645,7 @@ class _CharacterPainter extends CustomPainter {
 
   void _clothingDetails(
     Canvas canvas,
-    CharacterVisualProfile character,
+    _CharacterStyle character,
     String state,
     double breathe,
   ) {
@@ -554,96 +654,91 @@ class _CharacterPainter extends CustomPainter {
       ..strokeWidth = 2.5
       ..style = PaintingStyle.stroke;
 
-    switch (character.clothing) {
-      case CharacterClothing.jacket:
-        canvas.drawLine(
-          const Offset(-31, -30),
-          const Offset(-24, 42),
-          line,
-        );
+    if (character.clothing == 'jacket') {
+      canvas.drawLine(
+        const Offset(-31.0, -30.0),
+        Offset(-24.0, 42.0 + breathe * 0.2),
+        line,
+      );
 
-        canvas.drawLine(
-          const Offset(31, -30),
-          const Offset(24, 42),
-          line,
-        );
+      canvas.drawLine(
+        const Offset(31.0, -30.0),
+        Offset(24.0, 42.0 + breathe * 0.2),
+        line,
+      );
+    }
 
-      case CharacterClothing.collar:
-        final paint = Paint()..color = character.accent;
+    if (character.clothing == 'collar') {
+      final collarPaint = Paint()
+        ..color = character.accent;
 
-        final left = Path()
-          ..moveTo(-18, -38)
-          ..lineTo(-3, -25)
-          ..lineTo(-13, -18)
-          ..close();
+      final left = Path()
+        ..moveTo(-18.0, -38.0)
+        ..lineTo(-3.0, -25.0)
+        ..lineTo(-13.0, -18.0)
+        ..close();
 
-        final right = Path()
-          ..moveTo(18, -38)
-          ..lineTo(3, -25)
-          ..lineTo(13, -18)
-          ..close();
+      final right = Path()
+        ..moveTo(18.0, -38.0)
+        ..lineTo(3.0, -25.0)
+        ..lineTo(13.0, -18.0)
+        ..close();
 
-        canvas.drawPath(left, paint);
-        canvas.drawPath(right, paint);
+      canvas.drawPath(left, collarPaint);
+      canvas.drawPath(right, collarPaint);
+    }
 
-      case CharacterClothing.hoodie:
-        canvas.drawArc(
-          const Rect.fromLTWH(-32, -51, 64, 42),
-          math.pi,
-          math.pi,
-          false,
-          line,
-        );
+    if (character.clothing == 'scarf') {
+      final scarfPaint = Paint()
+        ..color = character.accent;
 
-      case CharacterClothing.utility:
-        canvas.drawLine(
-          const Offset(-31, -30),
-          const Offset(-24, 42),
-          line,
-        );
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          const Rect.fromLTWH(
+            -8.0,
+            -40.0,
+            16.0,
+            72.0,
+          ),
+          const Radius.circular(6.0),
+        ),
+        scarfPaint,
+      );
+    }
 
-        canvas.drawLine(
-          const Offset(31, -30),
-          const Offset(24, 42),
-          line,
-        );
+    if (character.clothing == 'hoodie') {
+      canvas.drawArc(
+        const Rect.fromLTWH(
+          -32.0,
+          -51.0,
+          64.0,
+          42.0,
+        ),
+        math.pi,
+        math.pi,
+        false,
+        line,
+      );
+    }
 
-        canvas.drawRect(
-          const Rect.fromLTWH(-25, -2, 15, 18),
-          line,
-        );
+    if (state == 'WARNING') {
+      final warningLine = Paint()
+        ..color = character.accent.withValues(
+          alpha: 0.5,
+        )
+        ..strokeWidth = 1.5;
 
-        canvas.drawRect(
-          const Rect.fromLTWH(10, -2, 15, 18),
-          line,
-        );
-
-      case CharacterClothing.layered:
-        canvas.drawArc(
-          const Rect.fromLTWH(-34, -48, 68, 50),
-          0,
-          math.pi,
-          false,
-          line,
-        );
-
-        canvas.drawLine(
-          const Offset(-28, -28),
-          const Offset(-23, 40),
-          line,
-        );
-
-        canvas.drawLine(
-          const Offset(28, -28),
-          const Offset(23, 40),
-          line,
-        );
+      canvas.drawLine(
+        Offset(-20.0, 47.0 + breathe * 0.2),
+        Offset(20.0, 47.0 + breathe * 0.2),
+        warningLine,
+      );
     }
   }
 
   void _accessory(
     Canvas canvas,
-    CharacterVisualProfile character,
+    _CharacterStyle character,
     String state,
     double time,
     double pulse,
@@ -651,284 +746,450 @@ class _CharacterPainter extends CustomPainter {
     final double bob = math.sin(time * 1.5) * 2.0;
 
     switch (character.accessory) {
-      case CharacterAccessory.notebook:
-        final paint = Paint()..color = character.accent;
+      case 'notebook':
+        final notebookPaint = Paint()
+          ..color = character.accent;
 
         canvas.drawRRect(
           RRect.fromRectAndRadius(
             Rect.fromLTWH(
-              42,
-              -7 + bob,
-              22,
-              29,
+              42.0,
+              -7.0 + bob,
+              22.0,
+              29.0,
             ),
-            const Radius.circular(3),
+            const Radius.circular(3.0),
           ),
-          paint,
+          notebookPaint,
         );
 
-        final linePaint = Paint()
+        final notebookLine = Paint()
           ..color = character.dark
           ..strokeWidth = 1.5;
 
         canvas.drawLine(
-          Offset(47, -2 + bob),
-          Offset(59, -2 + bob),
-          linePaint,
+          Offset(47.0, -2.0 + bob),
+          Offset(59.0, -2.0 + bob),
+          notebookLine,
         );
 
-      case CharacterAccessory.headphones:
-        final paint = Paint()
+        canvas.drawLine(
+          Offset(47.0, 3.0 + bob),
+          Offset(59.0, 3.0 + bob),
+          notebookLine,
+        );
+        break;
+
+      case 'headphones':
+        final headphones = Paint()
           ..color = character.accent
           ..style = PaintingStyle.stroke
-          ..strokeWidth = 4;
+          ..strokeWidth = 4.0;
 
         canvas.drawArc(
           const Rect.fromLTWH(
-            -49,
-            -125,
-            98,
-            64,
+            -49.0,
+            -125.0,
+            98.0,
+            64.0,
           ),
           math.pi,
           math.pi,
           false,
-          paint,
+          headphones,
         );
 
         canvas.drawCircle(
-          const Offset(-47, -91),
-          7,
-          paint,
+          const Offset(-47.0, -91.0),
+          7.0,
+          headphones,
         );
 
         canvas.drawCircle(
-          const Offset(47, -91),
-          7,
-          paint,
+          const Offset(47.0, -91.0),
+          7.0,
+          headphones,
         );
+        break;
 
-      case CharacterAccessory.orb:
-        final paint = Paint()
+      case 'orb':
+        final orb = Paint()
           ..color = character.accent.withValues(
             alpha: 0.42 + pulse * 0.3,
           );
 
         canvas.drawCircle(
-          Offset(58, -54 + bob),
-          10 + pulse * 2,
-          paint,
+          Offset(
+            58.0,
+            -54.0 + bob,
+          ),
+          10.0 + pulse * 2.0,
+          orb,
         );
-
-      case CharacterAccessory.badge:
-        canvas.drawCircle(
-          Offset(27, 2 + bob),
-          8,
-          Paint()..color = character.accent,
-        );
-
-      case CharacterAccessory.none:
         break;
+
+      case 'star':
+        final starPaint = Paint()
+          ..color = character.accent;
+
+        final starPath = Path();
+
+        for (int i = 0; i < 10; i++) {
+          final double radius =
+              i.isEven ? 11.0 : 4.5;
+
+          final double angle =
+              -math.pi / 2.0 +
+              i * math.pi / 5.0;
+
+          final Offset point = Offset(
+            53.0 + math.cos(angle) * radius,
+            -48.0 +
+                math.sin(angle) * radius +
+                bob,
+          );
+
+          if (i == 0) {
+            starPath.moveTo(
+              point.dx,
+              point.dy,
+            );
+          } else {
+            starPath.lineTo(
+              point.dx,
+              point.dy,
+            );
+          }
+        }
+
+        starPath.close();
+        canvas.drawPath(starPath, starPaint);
+        break;
+
+      case 'badge':
+        final badgePaint = Paint()
+          ..color = character.accent;
+
+        canvas.drawCircle(
+          Offset(27.0, 2.0 + bob),
+          8.0,
+          badgePaint,
+        );
+        break;
+
+      case 'glasses':
+        final glasses = Paint()
+          ..color = character.accent
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.0;
+
+        canvas.drawOval(
+          const Rect.fromLTWH(
+            -27.0,
+            -88.0,
+            22.0,
+            14.0,
+          ),
+          glasses,
+        );
+
+        canvas.drawOval(
+          const Rect.fromLTWH(
+            5.0,
+            -88.0,
+            22.0,
+            14.0,
+          ),
+          glasses,
+        );
+
+        canvas.drawLine(
+          const Offset(-5.0, -81.0),
+          const Offset(5.0, -81.0),
+          glasses,
+        );
+        break;
+    }
+
+    if (state == 'COMPLETE' && character.accessory == 'badge') {
+      final shine = Paint()
+        ..color = Colors.white.withValues(alpha: 0.45);
+
+      canvas.drawCircle(
+        Offset(24.5, -0.5 + bob),
+        2.0,
+        shine,
+      );
     }
   }
 
   void _face(
     Canvas canvas,
-    CharacterVisualProfile character,
+    _CharacterStyle character,
     String state,
     double gesture,
     double attention,
   ) {
-    final eye = Paint()..color = character.dark;
+    final eyePaint = Paint()
+      ..color = character.dark;
 
-    final double y = -78 + attention * 0.2;
+    final double eyeY =
+        -78.0 + attention * 0.2;
 
-    final bool blink = math.sin(progress * math.pi * 4).abs() > 0.985;
+    final bool blink =
+        math.sin(progress * math.pi * 4.0).abs() >
+            0.985;
 
     if (!blink) {
       canvas.drawOval(
         Rect.fromCenter(
-          center: Offset(-15, y),
-          width: 5,
-          height: state == 'WARNING' ? 7 : 5,
+          center: Offset(-15.0, eyeY),
+          width: 5.0,
+          height: state == 'WARNING'
+              ? 7.0
+              : 5.0,
         ),
-        eye,
+        eyePaint,
       );
 
       canvas.drawOval(
         Rect.fromCenter(
-          center: Offset(15, y),
-          width: 5,
-          height: state == 'WARNING' ? 7 : 5,
+          center: Offset(15.0, eyeY),
+          width: 5.0,
+          height: state == 'WARNING'
+              ? 7.0
+              : 5.0,
         ),
-        eye,
+        eyePaint,
       );
     }
 
     if (state == 'WARNING') {
-      final paint = Paint()
+      final warningFace = Paint()
         ..color = character.dark
-        ..strokeWidth = 3
+        ..strokeWidth = 3.0
         ..strokeCap = StrokeCap.round;
 
       canvas.drawLine(
-        const Offset(-22, -89),
-        const Offset(-9, -92),
-        paint,
+        const Offset(-22.0, -89.0),
+        const Offset(-9.0, -92.0),
+        warningFace,
       );
 
       canvas.drawLine(
-        const Offset(9, -92),
-        const Offset(22, -89),
-        paint,
+        const Offset(9.0, -92.0),
+        const Offset(22.0, -89.0),
+        warningFace,
       );
     }
 
     if (state == 'COMPLETE') {
-      final paint = Paint()
+      final smile = Paint()
         ..color = character.dark
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 3;
+        ..strokeWidth = 3.0;
 
       canvas.drawArc(
-        const Rect.fromLTWH(-12, -77, 24, 18),
+        const Rect.fromLTWH(
+          -12.0,
+          -77.0,
+          24.0,
+          18.0,
+        ),
         0.2,
         math.pi - 0.4,
         false,
-        paint,
+        smile,
       );
     }
 
-    if (state == 'RECEIVE' || state == 'HANDOFF') {
+    if (state == 'RECEIVE' ||
+        state == 'HANDOFF') {
+      final attentionRing = Paint()
+        ..color = character.accent.withValues(
+          alpha: 0.28,
+        )
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.0;
+
       canvas.drawCircle(
-        const Offset(0, -78),
-        34 + attention.abs(),
-        Paint()
-          ..color = character.accent.withValues(alpha: 0.28)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2,
+        const Offset(0.0, -78.0),
+        34.0 + attention.abs(),
+        attentionRing,
       );
     }
 
     if (state == 'COMMUNICATE') {
+      final mouth = Paint()
+        ..color = character.dark.withValues(
+          alpha: 0.7,
+        );
+
       canvas.drawOval(
         Rect.fromCenter(
-          center: const Offset(0, -70),
-          width: 9 + gesture.abs() * 4,
-          height: 3 + gesture.abs(),
+          center: const Offset(0.0, -70.0),
+          width: 9.0 + gesture.abs() * 4.0,
+          height: 3.0 + gesture.abs(),
         ),
-        Paint()..color = character.dark.withValues(alpha: 0.7),
+        mouth,
       );
     }
   }
 
   @override
-  bool shouldRepaint(covariant _CharacterPainter old) {
-    return old.profile?.characterId != profile?.characterId ||
-        old.state != state ||
-        old.progress != progress;
+  bool shouldRepaint(
+    covariant _CharacterPainter oldDelegate,
+  ) {
+    return oldDelegate.characterId != characterId ||
+        oldDelegate.state != state ||
+        oldDelegate.progress != progress;
   }
 }
 
-class CharacterIdentity {
-  final String id;
-  final String displayName;
-  final String role;
+/// Visual style definition for each Criterivox character.
+///
+/// This is deliberately separate from [CharacterIdentities]:
+/// identity answers "who is this?", while style answers "how is this
+/// character rendered in Flutter?"
+class _CharacterStyle {
+  final Color skin;
+  final Color face;
+  final Color body;
+  final Color trousers;
+  final Color hair;
+  final Color accent;
+  final Color dark;
 
-  const CharacterIdentity({
-    required this.id,
-    required this.displayName,
-    required this.role,
+  final String hairStyle;
+  final String accessory;
+  final String clothing;
+
+  const _CharacterStyle({
+    required this.skin,
+    required this.face,
+    required this.body,
+    required this.trousers,
+    required this.hair,
+    required this.accent,
+    required this.dark,
+    required this.hairStyle,
+    required this.accessory,
+    required this.clothing,
   });
-}
 
-class CharacterIdentities {
-  CharacterIdentities._();
-
-  static const Map<String, CharacterIdentity> all = {
-    'dharen': CharacterIdentity(
-      id: 'dharen',
-      displayName: 'Dharen',
-      role: 'Context Architecture',
-    ),
-    'vivren': CharacterIdentity(
-      id: 'vivren',
-      displayName: 'Vivren',
-      role: 'Discernment',
-    ),
-    'tarkis': CharacterIdentity(
-      id: 'tarkis',
-      displayName: 'Tarkis',
-      role: 'Hypothesis + Evidence',
-    ),
-    'sandre': CharacterIdentity(
-      id: 'sandre',
-      displayName: 'Sandre',
-      role: 'Data Stewardship',
-    ),
-    'pramon': CharacterIdentity(
-      id: 'pramon',
-      displayName: 'Pramon',
-      role: 'Proof',
-    ),
-    'syvax': CharacterIdentity(
-      id: 'syvax',
-      displayName: 'Syvax',
-      role: 'Dialogue + Orchestration',
-    ),
-    'bodhex': CharacterIdentity(
-      id: 'bodhex',
-      displayName: 'Bodhex',
-      role: 'Insight',
-    ),
-    'medrus': CharacterIdentity(
-      id: 'medrus',
-      displayName: 'Medrus',
-      role: 'Knowledge',
-    ),
-    'epistre': CharacterIdentity(
-      id: 'epistre',
-      displayName: 'Epistre',
-      role: 'Transfer',
-    ),
-    'manis': CharacterIdentity(
-      id: 'manis',
-      displayName: 'Manis',
-      role: 'Deliberation',
-    ),
-    'anuka': CharacterIdentity(
-      id: 'anuka',
-      displayName: 'Anuka',
-      role: 'Adaptive Context',
-    ),
-    'veridat': CharacterIdentity(
-      id: 'veridat',
-      displayName: 'Veridat',
-      role: 'Verification',
-    ),
-    'viveda': CharacterIdentity(
-      id: 'viveda',
-      displayName: 'Viveda',
-      role: 'Knowledge Delivery',
-    ),
-    'kaelen': CharacterIdentity(
-      id: 'kaelen',
-      displayName: 'Kaelen',
-      role: 'Build + Experimentation',
-    ),
-    'anukor': CharacterIdentity(
-      id: 'anukor',
-      displayName: 'Anukor',
-      role: 'Context Transfer',
-    ),
-  };
-
-  static CharacterIdentity resolve(String id) {
-    return all[id.trim().toLowerCase()] ??
-        CharacterIdentity(
-          id: id,
-          displayName: id,
-          role: 'Criterivox Agent',
+  static _CharacterStyle forId(String id) {
+    switch (id.trim().toLowerCase()) {
+      case 'dharen':
+        return const _CharacterStyle(
+          skin: Color(0xffc98964),
+          face: Color(0xffffd7bc),
+          body: Color(0xff8b5e3c),
+          trousers: Color(0xff403d46),
+          hair: Color(0xff34251f),
+          accent: Color(0xffd98b43),
+          dark: Color(0xff201b1a),
+          hairStyle: 'messy',
+          accessory: 'notebook',
+          clothing: 'jacket',
         );
+
+      case 'syvax':
+        return const _CharacterStyle(
+          skin: Color(0xffb87c63),
+          face: Color(0xffffd4bd),
+          body: Color(0xff344d63),
+          trousers: Color(0xff252d36),
+          hair: Color(0xff17232e),
+          accent: Color(0xff62d8f5),
+          dark: Color(0xff14202a),
+          hairStyle: 'visor',
+          accessory: 'headphones',
+          clothing: 'hoodie',
+        );
+
+      case 'sandre':
+        return const _CharacterStyle(
+          skin: Color(0xffa96f58),
+          face: Color(0xffffcbb5),
+          body: Color(0xff496d6d),
+          trousers: Color(0xff343f43),
+          hair: Color(0xff2d2522),
+          accent: Color(0xff63b9a8),
+          dark: Color(0xff1d2527),
+          hairStyle: 'long',
+          accessory: 'badge',
+          clothing: 'collar',
+        );
+
+      case 'kaelen':
+        return const _CharacterStyle(
+          skin: Color(0xffbd805e),
+          face: Color(0xffffd1b8),
+          body: Color(0xff50575f),
+          trousers: Color(0xff20252a),
+          hair: Color(0xff1d1b1b),
+          accent: Color(0xfff19a3e),
+          dark: Color(0xff17191c),
+          hairStyle: 'messy',
+          accessory: 'headphones',
+          clothing: 'jacket',
+        );
+
+      case 'anuka':
+        return const _CharacterStyle(
+          skin: Color(0xffd69a79),
+          face: Color(0xffffdfcf),
+          body: Color(0xfff0b9c8),
+          trousers: Color(0xff343044),
+          hair: Color(0xff2a2025),
+          accent: Color(0xffbd7fe4),
+          dark: Color(0xff221b27),
+          hairStyle: 'bun',
+          accessory: 'orb',
+          clothing: 'hoodie',
+        );
+
+      case 'vivren':
+        return const _CharacterStyle(
+          skin: Color(0xffc7957e),
+          face: Color(0xffffd8c7),
+          body: Color(0xffd5d0dc),
+          trousers: Color(0xff36333e),
+          hair: Color(0xffc8bdd9),
+          accent: Color(0xffa68ad7),
+          dark: Color(0xff26222d),
+          hairStyle: 'long',
+          accessory: 'glasses',
+          clothing: 'scarf',
+        );
+
+      case 'tarkis':
+        return const _CharacterStyle(
+          skin: Color(0xffa96f56),
+          face: Color(0xffffcdb6),
+          body: Color(0xff34383f),
+          trousers: Color(0xff171a1e),
+          hair: Color(0xff171719),
+          accent: Color(0xffee8b31),
+          dark: Color(0xff111214),
+          hairStyle: 'messy',
+          accessory: 'star',
+          clothing: 'hoodie',
+        );
+
+      default:
+        return const _CharacterStyle(
+          skin: Color(0xffb98068),
+          face: Color(0xffffd5c0),
+          body: Color(0xff59636d),
+          trousers: Color(0xff30343a),
+          hair: Color(0xff24272b),
+          accent: Color(0xff7aa9d8),
+          dark: Color(0xff17191c),
+          hairStyle: 'messy',
+          accessory: 'notebook',
+          clothing: 'jacket',
+        );
+    }
   }
 }
