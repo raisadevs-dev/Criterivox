@@ -31,7 +31,7 @@ void main() {
       await pumpCharacter(tester, 'WORK');
 
       expect(find.text('Dharen'), findsOneWidget);
-      expect(find.text('Analysis'), findsOneWidget);
+      expect(find.text('Context Architecture'), findsOneWidget);
       expect(find.text('WORK'), findsOneWidget);
     },
   );
@@ -41,6 +41,8 @@ void main() {
     (WidgetTester tester) async {
       await pumpCharacter(tester, 'COMMUNICATE');
 
+      expect(find.text('Dharen'), findsOneWidget);
+      expect(find.text('Context Architecture'), findsOneWidget);
       expect(find.text('COMMUNICATE'), findsOneWidget);
     },
   );
@@ -50,6 +52,8 @@ void main() {
     (WidgetTester tester) async {
       await pumpCharacter(tester, 'HANDOFF');
 
+      expect(find.text('Dharen'), findsOneWidget);
+      expect(find.text('Context Architecture'), findsOneWidget);
       expect(find.text('HANDOFF'), findsOneWidget);
     },
   );
@@ -59,6 +63,8 @@ void main() {
     (WidgetTester tester) async {
       await pumpCharacter(tester, 'COMPLETE');
 
+      expect(find.text('Dharen'), findsOneWidget);
+      expect(find.text('Context Architecture'), findsOneWidget);
       expect(find.text('COMPLETE'), findsOneWidget);
     },
   );
@@ -68,6 +74,8 @@ void main() {
     (WidgetTester tester) async {
       await pumpCharacter(tester, 'WARNING');
 
+      expect(find.text('Dharen'), findsOneWidget);
+      expect(find.text('Context Architecture'), findsOneWidget);
       expect(find.text('WARNING'), findsOneWidget);
     },
   );
@@ -87,6 +95,18 @@ void main() {
 
       for (final state in states) {
         await pumpCharacter(tester, state);
+
+        expect(
+          find.text('Dharen'),
+          findsOneWidget,
+          reason: 'Dharen identity was not rendered for state $state.',
+        );
+
+        expect(
+          find.text('Context Architecture'),
+          findsOneWidget,
+          reason: 'Dharen role was not rendered for state $state.',
+        );
 
         expect(
           find.text(state),

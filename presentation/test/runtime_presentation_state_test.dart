@@ -5,7 +5,7 @@ void main() {
   test('decodes a Python presentation contract', () {
     const raw = '''{
       "contract_version": 1,
-      "character_id": "Dharen",
+      "character_id": "dharen",
       "character_state": "work",
       "animation": "work",
       "active": true,
@@ -17,7 +17,7 @@ void main() {
 
     final state = PresentationState.fromJson(raw);
 
-    expect(state.agentId, 'Dharen');
+    expect(state.agentId, 'dharen');
     expect(state.characterState, 'WORK');
     expect(state.active, isTrue);
     expect(state.prominence, 0.75);
@@ -29,7 +29,7 @@ void main() {
     expect(
       () => PresentationState.fromJson('''{
         "contract_version": 2,
-        "character_id": "Dharen",
+        "character_id": "dharen",
         "character_state": "work",
         "active": true,
         "prominence": 0.75
@@ -42,7 +42,7 @@ void main() {
     expect(
       () => PresentationState.fromJson('''{
         "contract_version": 1,
-        "character_id": "Dharen",
+        "character_id": "dharen",
         "character_state": "unknown",
         "active": true,
         "prominence": 0.75

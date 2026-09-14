@@ -6,18 +6,24 @@ class ContextResidencyStore {
   static const _storeName = 'context_states';
   static const _key = 'active';
 
-  Future<Database> _open() => idbFactoryBrowser.open(_databaseName, version: 1,
-          onUpgradeNeeded: (event) {
-        final db = event.database;
-        if (!db.objectStoreNames.contains(_storeName)) {
-          db.createObjectStore(_storeName);
-        }
-      });
+  Future<Database> _open() => idbFactoryBrowser.open(
+        _databaseName,
+        version: 1,
+        onUpgradeNeeded: (event) {
+          final db = event.database;
+          if (!db.objectStoreNames.contains(_storeName)) {
+            db.createObjectStore(_storeName);
+          }
+        },
+      );
 
   Future<void> save(Map<String, dynamic> payload) async {
     final db = await _open();
     final tx = db.transaction(_storeName, idbModeReadWrite);
-    await tx.objectStore(_storeName).put(jsonDecode(jsonEncode(payload)), _key);
+    await tx.objectStore(_storeName).put(
+          jsonDecode(jsonEncode(payload)),
+          _key,
+        );
     await tx.completed;
     db.close();
   }
@@ -28,6 +34,7 @@ class ContextResidencyStore {
     final value = await tx.objectStore(_storeName).getObject(_key);
     await tx.completed;
     db.close();
+
     if (value is! Map) return null;
     return Map<String, dynamic>.from(value);
   }
