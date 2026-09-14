@@ -2,6 +2,8 @@ $ErrorActionPreference = 'Stop'
 
 # Standalone Sprint 7 launcher.
 # This intentionally does NOT start the normal Criterivox runtime, Syvax, or the main presentation shell.
+# WebSocket control is managed here as a launcher/runtime concern: the S7 backend remains the
+# authoritative computational service, while this script verifies that its WebSocket endpoint is reachable.
 
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $DiagnosticsRoot = Join-Path $Root 'diagnostics'
@@ -15,6 +17,7 @@ $Port = if ($env:CRITERIVOX_S7_BACKEND_PORT) { $env:CRITERIVOX_S7_BACKEND_PORT }
 $WebPort = if ($env:CRITERIVOX_S7_WEB_PORT) { $env:CRITERIVOX_S7_WEB_PORT } else { '8018' }
 $BackendUrl = "http://127.0.0.1:$Port"
 $HealthUrl = "$BackendUrl/health"
+$WebSocketUrl = "ws://127.0.0.1:$Port/api/s7/ws"
 $PresentationUrl = "http://127.0.0.1:$WebPort"
 $PythonExecutable = Join-Path $Root '.venv\Scripts\python.exe'
 $FlutterProject = Join-Path $Root 'presentation'
@@ -26,6 +29,32 @@ $FlutterProcess = $null
 
 function Write-LauncherLog([string]$Message) {
     "[$(Get-Date -Format o)] $Message" | Tee-Object -FilePath $RuntimeLog -Append
+}
+
+function Test-WebSocketEndpoint([string]$Uri) {
+    # PowerShell's WebSocket client is used only as a control-channel preflight.
+    # No reasoning or application state is implemented in the launcher.
+    $socket = $null
+    try {
+        $socket = [System.Net.WebSockets.ClientWebSocket]::new()
+        $cts = [System.Threading.CancellationTokenSource]::new(3000)
+        $socket.ConnectAsync([System.Uri]$Uri, $cts.Token).GetAwaiter().GetResult()
+        if ($socket.State -ne [System.Net.WebSockets.WebSocketState]::Open) {
+            return $false
+        }
+        $bytes = [System.Text.Encoding]::UTF8.GetBytes('{"type":"ping"}')
+        $segment = [System.ArraySegment[byte]]::new($bytes)
+        $socket.SendAsync($segment, [System.Net.WebSockets.WebSocketMessageType]::Text, $true, $cts.Token).GetAwaiter().GetResult()
+        return $true
+    }
+    catch {
+        return $false
+    }
+    finally {
+        if ($socket) {
+            try { $socket.Dispose() } catch { }
+        }
+    }
 }
 
 function New-Incident([string]$Stage, [string]$Expected, [string]$Observed, [string]$Recommendation) {
@@ -42,9 +71,9 @@ function New-Incident([string]$Stage, [string]$Expected, [string]$Observed, [str
         component = 's7_reasoning_research_bureau'
         expected = $Expected
         observed = $Observed
-        affected_boundary = 'standalone S7 local runtime / Python / Flutter'
+        affected_boundary = 'standalone S7 local runtime / Python / Flutter / WebSocket control channel'
         user_visible_effect = 'The standalone S7 Reasoning Research Bureau could not establish or maintain its local runtime.'
-        runtime = [ordered]@{ python = $pythonVersion; flutter = $flutterVersion; backend_url = $BackendUrl; presentation_url = $PresentationUrl; working_directory = $Root }
+        runtime = [ordered]@{ python = $pythonVersion; flutter = $flutterVersion; backend_url = $BackendUrl; websocket_url = $WebSocketUrl; presentation_url = $PresentationUrl; working_directory = $Root }
         evidence = [ordered]@{ launcher_log = $RuntimeLog; python_log = $BackendLog; python_error_log = $BackendErrorLog; flutter_log = $FlutterLog; flutter_error_log = $FlutterErrorLog }
         recommended_investigation = $Recommendation
     }
@@ -83,6 +112,7 @@ $Recommendation
 - Python: `$pythonVersion`
 - Flutter: `$flutterVersion`
 - Backend: `$BackendUrl`
+- WebSocket: `$WebSocketUrl`
 - Presentation: `$PresentationUrl`
 "@ | Set-Content (Join-Path $dir 'incident.md') -Encoding UTF8
     Write-LauncherLog "Developer incident created: $dir"
@@ -141,6 +171,12 @@ try {
     }
 
     Write-LauncherLog 'S7 Python backend is ready.'
+    Write-LauncherLog "Verifying S7 WebSocket control endpoint at $WebSocketUrl."
+    if (-not (Test-WebSocketEndpoint $WebSocketUrl)) {
+        throw "S7 WebSocket control endpoint could not be established at $WebSocketUrl. The presentation was not started."
+    }
+    Write-LauncherLog 'S7 WebSocket control endpoint is reachable.'
+
     Write-LauncherLog "Starting standalone S7 Flutter presentation on $PresentationUrl."
     $FlutterProcess = Start-Process -FilePath 'flutter' -ArgumentList 'run','-d','chrome','-t','lib/s7_main.dart','--web-port',$WebPort -WorkingDirectory $FlutterProject -RedirectStandardOutput $FlutterLog -RedirectStandardError $FlutterErrorLog -PassThru -WindowStyle Minimized
     Start-Sleep -Seconds 5
@@ -151,6 +187,7 @@ try {
     Write-LauncherLog 'Standalone S7 Reasoning Research Bureau is running.'
     Write-LauncherLog "Presentation: $PresentationUrl"
     Write-LauncherLog "Backend health: $HealthUrl"
+    Write-LauncherLog "WebSocket control: $WebSocketUrl"
     Write-LauncherLog 'This launcher does not start the normal Criterivox shell or Syvax.'
 
     while ($true) {
@@ -166,7 +203,7 @@ try {
 catch {
     $message = $_.Exception.Message
     Write-LauncherLog "CRITICAL S7 runtime failure: $message"
-    New-Incident -Stage 's7_managed_startup_or_runtime' -Expected 'The standalone S7 Python backend and Flutter presentation remain running.' -Observed $message -Recommendation 'Inspect incident.md first, then the referenced logs. Verify .venv, Python dependencies, Flutter installation, ports 8017/8018, and the S7 entrypoints before changing application code.'
+    New-Incident -Stage 's7_managed_startup_or_runtime' -Expected 'The standalone S7 Python backend, WebSocket control endpoint, and Flutter presentation remain available.' -Observed $message -Recommendation 'Inspect incident.md first, then the referenced logs. Verify .venv, Python dependencies, Flutter installation, ports 8017/8018, the S7 entrypoints, and the WebSocket endpoint before changing application code.'
     exit 1
 }
 finally {
