@@ -1,0 +1,43 @@
+name: S7 room label fix
+
+on:
+  push:
+    branches:
+      - reasoning-research-bureau
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: reasoning-research-bureau
+          fetch-depth: 0
+      - name: Fix canonical S7 room labels
+        shell: python
+        run: |
+          from pathlib import Path
+          path = Path('presentation/lib/s7/s7_environment_page.dart')
+          text = path.read_text()
+          replacements = {
+              "_nav('vivren', Icons.visibility_rounded, 'VIVREN', 'critical inspection'),": "_nav('vivren', Icons.visibility_rounded, 'CRITICAL INTELLIGENCE CHAMBER', 'Vivren · critical inspection'),",
+              "_nav('tarkis', Icons.account_tree_rounded, 'TARKIS', 'hypothesis exploration'),": "_nav('tarkis', Icons.account_tree_rounded, 'HYPOTHESIS EXPLORATION CHAMBER', 'Tarkis · hypothesis exploration'),",
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f'Expected room label not found: {old}')
+              text = text.replace(old, new, 1)
+          path.write_text(text)
+      - name: Commit fix and remove temporary workflow
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/s7-room-label-fix.yml
+          git add presentation/lib/s7/s7_environment_page.dart
+          git commit -m "fix(s7): use canonical room names"
+          git push origin reasoning-research-bureau
