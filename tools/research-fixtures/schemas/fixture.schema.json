@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Criterivox Research Fixture",
+  "type": "object",
+  "required": ["fixture_id", "scenario", "simulated_upstream_component", "task", "context", "provenance", "synthetic"],
+  "properties": {
+    "fixture_id": {"type": "string"},
+    "scenario": {"type": "string"},
+    "simulated_upstream_component": {"type": "string"},
+    "task": {"type": "string"},
+    "context": {"type": "object"},
+    "observations": {"type": "array", "items": {"type": "object"}},
+    "hypotheses": {"type": "array", "items": {"type": "object"}},
+    "contradictions": {"type": "array", "items": {"type": "object"}},
+    "human_interventions": {"type": "array", "items": {"type": "object"}},
+    "provenance": {"type": "object"},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "synthetic": {"const": true}
+  }
+}
