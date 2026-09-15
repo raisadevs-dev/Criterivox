@@ -48,8 +48,9 @@ def challenge(session_id: str, payload: dict):
 
 @router.websocket("/ws")
 async def control_websocket(websocket: WebSocket):
-    """Live S7 control channel. Every mutation is delegated to the authoritative bureau."""
+    """Live S7 control channel. Mutations are delegated to the authoritative bureau."""
     await websocket.accept()
+    await websocket.send_json({"type": "connected", "bureau": "Reasoning Research Bureau", "protocol": "s7-live-control-v1"})
     try:
         while True:
             message = await websocket.receive_json()
@@ -57,9 +58,8 @@ async def control_websocket(websocket: WebSocket):
             if message_type == "ping":
                 await websocket.send_json({"type": "pong", "bureau": "Reasoning Research Bureau"})
             elif message_type == "subscribe":
-                session_id = str(message.get("session_id", ""))
                 try:
-                    await websocket.send_json({"type": "subscribed", "session": bureau.snapshot(session_id)})
+                    await websocket.send_json({"type": "subscribed", "session": bureau.snapshot(str(message.get("session_id", "")))})
                 except ValueError as exc:
                     await websocket.send_json({"type": "error", "error": str(exc)})
             elif message_type == "challenge":
