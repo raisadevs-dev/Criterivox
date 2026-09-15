@@ -1,169 +1,54 @@
 #!/usr/bin/env python3
-"""Criterivox Test Dataset & Fixture Laboratory.
-
-Generates synthetic upstream stimuli for integration/acceptance tests. These files
-simulate structured requests that internal Criterivox components could emit; they
-are not a production S7 ingestion path and never perform S7 reasoning.
-"""
 from __future__ import annotations
-
-import argparse
-import csv
-import json
-import random
-import sys
+import argparse, csv, json, random, sys
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
-
 try:
     from openpyxl import Workbook
-except ImportError:  # XLSX generation is optional at runtime.
+except ImportError:
     Workbook = None
-
-ROOT = Path(__file__).resolve().parent
-OUT = ROOT / "generated"
-
-
+ROOT=Path(__file__).resolve().parent; OUT=ROOT/'generated'
 @dataclass
 class Fixture:
-    fixture_id: str
-    scenario: str
-    upstream_component: str
-    task: str
-    context: dict[str, Any]
-    provenance: dict[str, Any]
-    expected_conditions: list[str]
+    fixture_id:str; scenario:str; upstream_component:str; task:str; input_kind:str; records:list[dict]
+    competing_hypotheses:bool; contradictory_evidence:bool; provenance:dict; human_intervention:bool
+    limitations:list[str]; synthetic:bool=True
 
-
-def ask(prompt: str, default: str = "") -> str:
-    suffix = f" [{default}]" if default else ""
-    value = input(f"{prompt}{suffix}: ").strip()
-    return value or default
-
-
-def ask_int(prompt: str, default: int) -> int:
-    try:
-        return max(1, int(ask(prompt, str(default))))
-    except ValueError:
-        return default
-
-
-def fixture_from_answers(scenario: str, component: str, task: str, count: int) -> list[Fixture]:
-    now = datetime.now(timezone.utc).isoformat()
-    result: list[Fixture] = []
-    for index in range(1, count + 1):
-        context: dict[str, Any] = {
-            "request_id": f"fixture-{scenario}-{index:03d}",
-            "source_component": component,
-            "observations": [
-                {"id": "obs-1", "statement": "Observation supplied by an upstream component."},
-                {"id": "obs-2", "statement": "Second observation intentionally available for comparison."},
-            ],
-            "constraints": ["Use only supplied context", "Preserve provenance"],
-        }
-        expected: list[str] = ["create_reasoning_artifact", "preserve_provenance"]
-        if scenario in {"hypothesis", "contradiction"}:
-            context["candidate_hypotheses"] = [
-                {"id": "H1", "statement": "The first supplied explanation."},
-                {"id": "H2", "statement": "An alternative explanation."},
-            ]
-            expected.append("explore_or_compare_hypotheses")
-        if scenario == "contradiction":
-            context["observations"].append({"id": "obs-3", "statement": "Contradictory observation against obs-1."})
-            expected.append("surface_disagreement_without_fabrication")
-        if scenario == "insufficient_context":
-            context = {"request_id": context["request_id"], "source_component": component}
-            expected = ["stop_for_missing_information", "identify_missing_context"]
-        if scenario == "intervention":
-            context["human_intervention"] = {"type": "challenge", "instruction": "Reconsider the weakest supported step."}
-            expected.append("create_new_branch_from_intervention")
-        result.append(Fixture(f"FX-{scenario.upper()}-{index:03d}", scenario, component, task, context, {"generated_at": now, "generator": "Criterivox Test Dataset & Fixture Laboratory", "synthetic": True}, expected))
-    return result
-
-
-def write_json(fixtures: list[Fixture], path: Path) -> None:
-    path.write_text(json.dumps([asdict(item) for item in fixtures], indent=2), encoding="utf-8")
-
-
-def write_csv(fixtures: list[Fixture], path: Path) -> None:
-    fields = ["fixture_id", "scenario", "upstream_component", "task", "context", "provenance", "expected_conditions"]
-    with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fields)
-        writer.writeheader()
-        for item in fixtures:
-            row = asdict(item)
-            row["context"] = json.dumps(row["context"], separators=(",", ":"))
-            row["provenance"] = json.dumps(row["provenance"], separators=(",", ":"))
-            row["expected_conditions"] = json.dumps(row["expected_conditions"])
-            writer.writerow(row)
-
-
-def write_xlsx(fixtures: list[Fixture], path: Path) -> None:
-    if Workbook is None:
-        raise RuntimeError("XLSX output requires openpyxl. Install the project dependencies first.")
-    book = Workbook()
-    sheet = book.active
-    sheet.title = "fixtures"
-    fields = ["fixture_id", "scenario", "upstream_component", "task", "context_json", "provenance_json", "expected_conditions"]
-    sheet.append(fields)
-    for item in fixtures:
-        sheet.append([item.fixture_id, item.scenario, item.upstream_component, item.task, json.dumps(item.context), json.dumps(item.provenance), json.dumps(item.expected_conditions)])
-    book.save(path)
-
-
-def write_manifest(fixtures: list[Fixture], path: Path, formats: list[str]) -> None:
-    manifest = {
-        "laboratory": "Criterivox Test Dataset & Fixture Laboratory",
-        "generated_at": datetime.now(timezone.utc).isoformat(),
-        "synthetic": True,
-        "production_ingestion": False,
-        "formats": formats,
-        "fixture_ids": [item.fixture_id for item in fixtures],
-    }
-    path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-
-
-def main() -> int:
-    parser = argparse.ArgumentParser(description="Generate reusable Criterivox research fixtures.")
-    parser.add_argument("--non-interactive", action="store_true", help="Use safe defaults without prompts.")
-    parser.add_argument("--scenario", choices=["reasoning", "hypothesis", "contradiction", "insufficient_context", "intervention"], default=None)
-    parser.add_argument("--component", default=None, help="Simulated upstream component, e.g. Dharen, Anuka, Syvax, Tarkis.")
-    parser.add_argument("--task", default=None)
-    parser.add_argument("--count", type=int, default=None)
-    parser.add_argument("--formats", default=None, help="Comma-separated: json,csv,xlsx")
-    parser.add_argument("--seed", type=int, default=7)
-    args = parser.parse_args()
-    random.seed(args.seed)
-
-    if args.non_interactive:
-        scenario = args.scenario or "reasoning"
-        component = args.component or "Dharen"
-        task = args.task or "Analyze the supplied observations and identify supported conclusions."
-        count = args.count or 5
-        formats = [x.strip() for x in (args.formats or "json,csv,xlsx").split(",")]
-    else:
-        print("\nCriterivox Test Dataset & Fixture Laboratory")
-        print("Synthetic fixtures simulate internal upstream requests. They are test stimuli, not a production S7 ingestion mechanism.\n")
-        scenario = args.scenario or ask("Scenario (reasoning/hypothesis/contradiction/insufficient_context/intervention)", "reasoning")
-        component = args.component or ask("Simulated upstream component", "Dharen")
-        task = args.task or ask("Analytical task", "Analyze the supplied observations and identify supported conclusions.")
-        count = args.count or ask_int("Number of fixtures", 5)
-        formats = [x.strip().lower() for x in (args.formats or ask("Formats (json,csv,xlsx)", "json,csv,xlsx")).split(",")]
-
-    fixtures = fixture_from_answers(scenario, component, task, count)
-    OUT.mkdir(parents=True, exist_ok=True)
-    if "json" in formats:
-        write_json(fixtures, OUT / f"{scenario}.json")
-    if "csv" in formats:
-        write_csv(fixtures, OUT / f"{scenario}.csv")
-    if "xlsx" in formats:
-        write_xlsx(fixtures, OUT / f"{scenario}.xlsx")
-    write_manifest(fixtures, OUT / f"{scenario}.manifest.json", formats)
-    print(f"Generated {len(fixtures)} fixture(s) in {OUT}")
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main())
+def ask(prompt, default=''):
+    value=input(f'{prompt}\n> ').strip(); return value or default
+def ask_bool(prompt, default=False):
+    value=ask(f'{prompt} (yes/no)', 'yes' if default else 'no').lower(); return value in {'y','yes','true','1'}
+def ask_int(prompt, default):
+    try:return max(1,int(ask(prompt,str(default))))
+    except ValueError:return default
+def make(args):
+    now=datetime.now(timezone.utc).isoformat(); out=[]
+    for i in range(args.count):
+        records=[{'record_id':f'obs-{i+1:04d}-{j+1:03d}','observation':f'Synthetic structured observation {j+1} for {args.task}','source_component':args.component} for j in range(args.records)]
+        if args.contradictory: records.append({'record_id':f'conflict-{i+1:04d}','observation':'Synthetic contradictory observation requiring conflict handling','conflict':True})
+        if args.hypotheses: records += [{'hypothesis_id':'H1','statement':'Synthetic explanation A'},{'hypothesis_id':'H2','statement':'Synthetic explanation B'}]
+        if args.intervention: records.append({'intervention_id':'I1','type':'challenge','instruction':'Reconsider the weakest supported inference'})
+        out.append(Fixture(f'FX-{args.scenario.upper()}-{i+1:04d}',args.scenario,args.component,args.task,args.input_kind,records,args.hypotheses,args.contradictory,{'generated_at':now,'generator':'Criterivox Test Dataset & Fixture Laboratory','origin_component':args.component},args.intervention,['Synthetic material; not real-world evidence.']))
+    return out
+def write(fixtures, formats):
+    OUT.mkdir(parents=True,exist_ok=True); data=[asdict(x) for x in fixtures]; scenario=fixtures[0].scenario
+    if 'json' in formats:(OUT/'json').mkdir(exist_ok=True); (OUT/'json'/f'{scenario}.json').write_text(json.dumps(data,indent=2),encoding='utf-8')
+    if 'csv' in formats:
+        (OUT/'csv').mkdir(exist_ok=True); p=OUT/'csv'/f'{scenario}.csv'; fields=list(data[0]);
+        with p.open('w',newline='',encoding='utf-8') as h:
+            w=csv.DictWriter(h,fieldnames=fields); w.writeheader();
+            for row in data:w.writerow({k:json.dumps(v) if isinstance(v,(dict,list)) else v for k,v in row.items()})
+    if 'xlsx' in formats:
+        if Workbook is None: raise RuntimeError('XLSX output requires openpyxl')
+        (OUT/'xlsx').mkdir(exist_ok=True); book=Workbook(); sheet=book.active; sheet.title='fixtures'; sheet.append(list(data[0]))
+        for row in data:sheet.append([json.dumps(v) if isinstance(v,(dict,list)) else v for v in row.values()])
+        book.save(OUT/'xlsx'/f'{scenario}.xlsx')
+    (OUT/'manifests').mkdir(exist_ok=True); (OUT/'manifests'/f'{scenario}.manifest.json').write_text(json.dumps({'synthetic':True,'production_ingestion':False,'formats':formats,'fixture_ids':[x.fixture_id for x in fixtures]},indent=2),encoding='utf-8')
+def main():
+    p=argparse.ArgumentParser(); p.add_argument('--non-interactive',action='store_true'); p.add_argument('--scenario',default='reasoning'); p.add_argument('--component',default='Dharen'); p.add_argument('--task'); p.add_argument('--input-kind',default='structured observations'); p.add_argument('--count',type=int,default=1); p.add_argument('--records',type=int,default=5); p.add_argument('--hypotheses',action='store_true'); p.add_argument('--contradictory',action='store_true'); p.add_argument('--provenance',action='store_true'); p.add_argument('--intervention',action='store_true'); p.add_argument('--formats',default='json,csv,xlsx'); p.add_argument('--seed',type=int,default=7); a=p.parse_args(); random.seed(a.seed)
+    if not a.non_interactive:
+        print('\nCriterivox Research Fixture Generator\n'); a.task=ask('What are you testing?','S7 reasoning analysis'); a.input_kind=ask('What kind of input should simulate the upstream system?','structured observations'); a.records=ask_int('How many records?',50); a.hypotheses=ask_bool('Should there be competing hypotheses?',True); a.contradictory=ask_bool('Should there be contradictory evidence?',True); a.provenance=ask_bool('Should provenance be included?',True); a.intervention=ask_bool('Should human intervention be included?',False); a.formats=ask('Output formats (JSON, CSV, XLSX)','JSON, CSV, XLSX'); a.component=ask('Which Criterivox component should this simulate?','Dharen'); a.scenario=ask('Scenario','reasoning'); a.count=ask_int('How many fixture cases?',1); a.formats=','.join(x.strip().lower() for x in a.formats.split(','))
+    else:a.task=a.task or 'Analyze supplied structured observations.'; a.formats=','.join(x.strip().lower() for x in a.formats.split(','))
+    write(make(a),a.formats.split(',')); print(f'Generated fixtures under {OUT}')
+if __name__=='__main__':sys.exit(main())
