@@ -8,14 +8,14 @@ from uuid import uuid4
 
 
 class SessionStatus(str, Enum):
-    RECEIVED = "received"
-    WAITING_FOR_INFORMATION = "waiting_for_information"
-    RUNNING = "running"
-    AWAITING_HUMAN = "awaiting_human"
-    COMPLETED = "completed"
-    UNRESOLVED = "unresolved"
-    CANCELLED = "cancelled"
-    FAILED = "failed"
+    RECEIVED = "RECEIVING"
+    WAITING_FOR_INFORMATION = "WAITING_FOR_INFORMATION"
+    RUNNING = "RUNNING"
+    AWAITING_HUMAN = "AWAITING_HUMAN"
+    COMPLETED = "COMPLETED"
+    UNRESOLVED = "UNRESOLVED"
+    CANCELLED = "CANCELLED"
+    FAILED = "FAILED"
 
 
 class ArtifactKind(str, Enum):

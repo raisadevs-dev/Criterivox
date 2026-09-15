@@ -1,5 +1,4 @@
 from __future__ import annotations
-<<<<<<< HEAD
 from dataclasses import asdict,dataclass
 from datetime import datetime,timezone
 from hashlib import sha256
@@ -55,7 +54,6 @@ class SyvaxEngine:
   canonical=repr(sorted(state.items())).encode();item={'checkpoint_id':f'cp-{len(self.checkpoints)+1:06d}','task_id':task_id,'state_hash':sha256(canonical).hexdigest(),'state':state,'created_at':self._now()};self.checkpoints[item['checkpoint_id']]=item;return item
  def record_trace(self,task_id,source,target,score,status='ok',reason=''):
   item=Trace(f'trace-{len(self.traces)+1:06d}',task_id,source,target,status,max(0,min(1,float(score))),reason,self._now());self.traces.append(item);return asdict(item)
-=======
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from hashlib import sha256
@@ -123,5 +121,4 @@ class SyvaxEngine:
         if key not in self.budgets:raise KeyError(f'Unknown home: {home}')
         self.budgets[key]=max(1,min(1000,int(limit))); return self.budgets[key]
     def record_trace(self,task_id,source,target,score,reason):self.traces.append({'task_id':task_id,'source':source,'target':target,'score':score,'reason':reason,'at':datetime.now(timezone.utc).isoformat()})
->>>>>>> origin/main
 syvax_engine=SyvaxEngine()

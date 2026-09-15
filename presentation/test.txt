@@ -1,5 +1,16 @@
+Resolving dependencies...
+Downloading packages...
+  file_picker 10.3.10 (12.3.0 available)
+  flutter_lints 3.0.2 (6.0.0 available)
+  lints 3.0.0 (6.1.0 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  test_api 0.7.12 (0.7.14 available)
+  win32 5.15.0 (6.4.0 available)
+Got dependencies!
+6 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
 00:00 +0: loading F:/Rsearch Project/Criterivox-S4/presentation/test/activity_presentation_test.dart
-00:00 +0: F:/Rsearch Project/Criterivox-S4/presentation/test/activity_presentation_test.dart: quiet state becomes inactive and idle
+00:00 +0: F:/Rsearch Project/Criterivox-S4/presentation/test/agent_activation_test.dart: activation marks an agent as active
 00:00 +1: F:/Rsearch Project/Criterivox-S4/presentation/test/activity_presentation_test.dart: quiet state becomes inactive and idle
 00:00 +2: F:/Rsearch Project/Criterivox-S4/presentation/test/activity_presentation_test.dart: quiet state becomes inactive and idle
 00:00 +3: F:/Rsearch Project/Criterivox-S4/presentation/test/activity_presentation_test.dart: active state is recognized
@@ -7,63 +18,115 @@
 00:02 +4: F:/Rsearch Project/Criterivox-S4/presentation/test/attention_presentation_test.dart: inactive agent has no visual prominence
 00:02 +5: F:/Rsearch Project/Criterivox-S4/presentation/test/attention_presentation_test.dart: active working agent has moderate prominence
 00:02 +6: F:/Rsearch Project/Criterivox-S4/presentation/test/attention_presentation_test.dart: warning has highest prominence
-00:03 +7: F:/Rsearch Project/Criterivox-S4/presentation/test/bloom_presentation_test.dart: opening Bloom activates presentation
-00:03 +8: F:/Rsearch Project/Criterivox-S4/presentation/test/bloom_presentation_test.dart: closing Bloom deactivates presentation
-00:05 +9: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
-00:05 +10: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
-00:05 +11: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
-00:05 +12: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
-00:10 +13: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: character presentation renders identity and idle state
-00:10 +14: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: character presentation renders identity and idle state
-00:10 +15: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: character presentation renders identity and idle state
-00:10 +16: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: character presentation renders identity and idle state
-00:10 +17: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: character presentation renders identity and idle state
-00:11 +18: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: character presentation renders identity and idle state
-00:12 +19: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: character presentation renders Vivren identity
-00:12 +20: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: inactive character still renders
-00:12 +21: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: reduced motion still renders character without animation dependency
-00:13 +22: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: pure Flutter runtime renders all semantic states
-00:14 +23: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: reduced motion renders a deterministic frame
-00:22 +24: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:22 +25: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:22 +26: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:22 +27: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:22 +28: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:22 +29: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:22 +30: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:22 +31: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:22 +32: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:22 +33: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:22 +34: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:22 +35: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:22 +36: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:24 +37: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders receive state
-00:24 +38: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: inactive character remains rendered
-00:24 +39: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: inactive character remains rendered
-00:24 +40: F:/Rsearch Project/Criterivox-S4/presentation/test/communication_presentation_test.dart: communication activates an inactive agent
-00:24 +41: loading F:/Rsearch Project/Criterivox-S4/presentation/test/handoff_presentation_test.dart
-00:25 +41: F:/Rsearch Project/Criterivox-S4/presentation/test/handoff_presentation_test.dart: sender enters handoff presentation state
-00:25 +42: F:/Rsearch Project/Criterivox-S4/presentation/test/handoff_presentation_test.dart: receiver enters receive presentation state
-00:26 +43: F:/Rsearch Project/Criterivox-S4/presentation/test/motion_presentation_test.dart: normal presentation allows animation
-00:26 +44: F:/Rsearch Project/Criterivox-S4/presentation/test/motion_presentation_test.dart: reduced motion disables animation
-00:26 +45: F:/Rsearch Project/Criterivox-S4/presentation/test/motion_presentation_test.dart: reduced motion preserves the character state
-00:27 +46: F:/Rsearch Project/Criterivox-S4/presentation/test/presentation_adapter_test.dart: adapter creates presentation state from application state
-00:27 +47: F:/Rsearch Project/Criterivox-S4/presentation/test/presentation_adapter_test.dart: adapter preserves reduced-motion state
-00:27 +48: F:/Rsearch Project/Criterivox-S4/presentation/test/presentation_state_test.dart: presentation state preserves its contract
-00:27 +49: F:/Rsearch Project/Criterivox-S4/presentation/test/presentation_state_test.dart: presentation state supports reduced motion
-00:27 +50: F:/Rsearch Project/Criterivox-S4/presentation/test/presentation_state_test.dart: copyWith preserves unchanged values
-00:28 +51: F:/Rsearch Project/Criterivox-S4/presentation/test/responsive_presentation_test.dart: small screens use compact scale
-00:28 +52: F:/Rsearch Project/Criterivox-S4/presentation/test/responsive_presentation_test.dart: medium screens use standard scale
-00:28 +53: F:/Rsearch Project/Criterivox-S4/presentation/test/responsive_presentation_test.dart: large screens use expanded scale
-00:28 +54: F:/Rsearch Project/Criterivox-S4/presentation/test/responsive_presentation_test.dart: responsive adaptation preserves presentation state
-00:29 +55: F:/Rsearch Project/Criterivox-S4/presentation/test/runtime_presentation_state_test.dart: decodes a Python presentation contract
-00:29 +56: F:/Rsearch Project/Criterivox-S4/presentation/test/runtime_presentation_state_test.dart: rejects an unsupported contract version
-00:29 +57: F:/Rsearch Project/Criterivox-S4/presentation/test/runtime_presentation_state_test.dart: rejects an unsupported character state
-00:32 +58: F:/Rsearch Project/Criterivox-S4/presentation/test/s3_interaction_test.dart: Bloom exposes capability gateway and activates Analyze
-00:34 +59: F:/Rsearch Project/Criterivox-S4/presentation/test/s3_interaction_test.dart: Bloom keeps future capabilities visibly reserved
-00:34 +60: F:/Rsearch Project/Criterivox-S4/presentation/test/s3_interaction_test.dart: Syvax accepts suggested input and submits it
-00:39 +61: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: Criterivox opens on Bloom and exposes navigation
-00:42 +62: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: navigation moves to the real workspace and chat surfaces
-00:43 +63: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: Bloom Analyze expands only its currently implemented paths
-00:44 +64: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: App Introduction explains characters and implemented capabilities
-00:45 +65: All tests passed!
+00:13 +7: F:/Rsearch Project/Criterivox-S4/presentation/test/bloom_presentation_test.dart: opening Bloom activates presentation
+00:13 +8: F:/Rsearch Project/Criterivox-S4/presentation/test/bloom_presentation_test.dart: closing Bloom deactivates presentation
+00:20 +9 -1: loading F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart [E]
+  Failed to load "F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart":
+  Compilation failed for testPath=F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: lib/character/character_presentation.dart:28:11: Error: The method 'CharacterRuntimeView' isn't defined for the type 'CharacterPresentation'.
+   - 'CharacterPresentation' is from 'package:presentation/character/character_presentation.dart' ('lib/character/character_presentation.dart').
+  Try correcting the name to the name of an existing method, or defining a method named 'CharacterRuntimeView'.
+            CharacterRuntimeView(
+            ^^^^^^^^^^^^^^^^^^^^
+  .
+00:24 +9 -2: loading F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart [E]
+  Failed to load "F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart":
+  Compilation failed for testPath=F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: lib/character/character_presentation.dart:28:11: Error: The method 'CharacterRuntimeView' isn't defined for the type 'CharacterPresentation'.
+   - 'CharacterPresentation' is from 'package:presentation/character/character_presentation.dart' ('lib/character/character_presentation.dart').
+  Try correcting the name to the name of an existing method, or defining a method named 'CharacterRuntimeView'.
+            CharacterRuntimeView(
+            ^^^^^^^^^^^^^^^^^^^^
+  .
+00:26 +9 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/character_identity_test.dart: known character identity resolves correctly
+00:26 +10 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/character_identity_test.dart: all fifteen character identities are registered
+00:26 +11 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/character_identity_test.dart: unknown character gets a safe fallback identity
+00:30 +12 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_animation_system_test.dart: current sprint characters have complete visual profiles
+00:30 +13 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_animation_system_test.dart: session animation is character-specific and session stable
+00:30 +14 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: pure Flutter runtime renders all semantic states
+00:31 +15 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: pure Flutter runtime renders all semantic states
+00:31 +15 -3: loading F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart [E]
+  Failed to load "F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart":
+  Compilation failed for testPath=F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: lib/character/character_presentation.dart:28:11: Error: The method 'CharacterRuntimeView' isn't defined for the type 'CharacterPresentation'.
+   - 'CharacterPresentation' is from 'package:presentation/character/character_presentation.dart' ('lib/character/character_presentation.dart').
+  Try correcting the name to the name of an existing method, or defining a method named 'CharacterRuntimeView'.
+            CharacterRuntimeView(
+            ^^^^^^^^^^^^^^^^^^^^
+  .
+00:34 +16 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: reduced motion renders a deterministic frame
+00:37 +17 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState maps active IDLE state correctly
+00:37 +18 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState maps active WORK state correctly
+00:37 +19 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState maps RECEIVE state correctly
+00:37 +20 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState maps COMMUNICATE state correctly
+00:37 +21 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState maps HANDOFF state correctly
+00:37 +22 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState maps COMPLETE state correctly
+00:37 +23 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState maps WARNING state correctly
+00:37 +24 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState inactive character has zero prominence
+00:37 +25 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState reduced motion is preserved
+00:37 +26 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState normal active state allows motion
+00:37 +27 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState NEEDS_USER requires attention
+00:37 +28 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState unknown state remains safe and low prominence
+00:37 +29 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/communication_presentation_test.dart: communication changes character presentation state
+00:38 +30 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/communication_presentation_test.dart: communication activates an inactive agent
+00:39 +31 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/handoff_presentation_test.dart: sender enters handoff presentation state
+00:40 +32 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/handoff_presentation_test.dart: receiver enters receive presentation state
+00:40 +33 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/motion_presentation_test.dart: normal presentation allows animation
+00:40 +34 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/motion_presentation_test.dart: reduced motion disables animation
+00:40 +35 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/motion_presentation_test.dart: reduced motion preserves the character state
+00:41 +36 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/presentation_adapter_test.dart: adapter creates presentation state from application state
+00:42 +37 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/presentation_adapter_test.dart: adapter preserves reduced-motion state
+00:42 +38 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/presentation_state_test.dart: presentation state preserves its contract
+00:43 +39 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/presentation_state_test.dart: presentation state supports reduced motion
+00:43 +40 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/presentation_state_test.dart: copyWith preserves unchanged values
+00:43 +41 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/responsive_presentation_test.dart: small screens use compact scale
+00:43 +42 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/responsive_presentation_test.dart: medium screens use standard scale
+00:43 +43 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/responsive_presentation_test.dart: large screens use expanded scale
+00:43 +44 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/responsive_presentation_test.dart: responsive adaptation preserves presentation state
+00:53 +45 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/runtime_presentation_state_test.dart: decodes a Python presentation contract
+00:53 +46 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/runtime_presentation_state_test.dart: rejects an unsupported contract version
+00:53 +47 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/runtime_presentation_state_test.dart: rejects an unsupported character state
+00:56 +48 -4: loading F:/Rsearch Project/Criterivox-S4/presentation/test/s7_environment_contract_test.dart [E]
+  Failed to load "F:/Rsearch Project/Criterivox-S4/presentation/test/s7_environment_contract_test.dart":
+  Compilation failed for testPath=F:/Rsearch Project/Criterivox-S4/presentation/test/s7_environment_contract_test.dart: lib/s7/s7_environment_page.dart:22:164: Error: Can't find ')' to match '('.
+   Widget _chamber(String title,String character,String sub,Color accent,List<Map<String,dynamic>> a)=>_frame(title,'$character · $sub',accent,Row(children:[Expanded(flex:2,child:_panel('CANONICAL PARTICIPANT',Center(child:Column(mainAxisAlignment:MainAxisAlignment.center,children:[_orb(character,accent),const SizedBox(height:12),Text(character,style:const TextStyle(fontWeight:FontWeight.w900,letterSpacing:2)),Text(_characterState(character),style:TextStyle(fontSize:8,color:accent))]))),const SizedBox(width:12),Expanded(flex:5,child:_panel(character=='VIVREN'?'CRITICAL FINDINGS':'HYPOTHESIS FIELD',a.isEmpty?const _Empty('No matching analytical objects yet.'):ListView(children:[for(final x in a)_object(x,accent)]))),if(selected!=null)const SizedBox(width:12),if(selected!=null)Expanded(flex:3,child:_panel('DEEP INSPECTION',_inspection()))]));
+                                                                                                                                                                     ^
+  lib/s7/s7_environment_page.dart:25:61: Error: Can't find ')' to match '('.
+   Widget _object(Map<String,dynamic> x,Color accent)=>InkWell(onTap:()=>_select(x),child:Container(margin:const EdgeInsets.only(bottom:8),padding:const EdgeInsets.all(12),decoration:BoxDecoration(color:Colors.white.withValues(alpha:.035),borderRadius:BorderRadius.circular(12)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Row(children:[Expanded(child:Text(x['title']?.toString()??'Analytical object',style:const TextStyle(fontSize:10,fontWeight:FontWeight.w700))),Text('v${x['version']??1}',style:TextStyle(fontSize:8,color:accent))]),Text('${x['kind']} · branch ${x['branch_id']}',style:const TextStyle(fontSize:8,color:Colors.white30)),const SizedBox(height:5),Text(_json(x['content']),maxLines:3,overflow:TextOverflow.ellipsis,style:const TextStyle(fontSize:9,color:Colors.white54))]));
+                                                              ^
+  lib/s7/s7_environment_page.dart:22:724: Error: Expected an identifier, but got 'if'.
+  Try inserting an identifier before 'if'.
+   Widget _chamber(String title,String character,String sub,Color accent,List<Map<String,dynamic>> a)=>_frame(title,'$character · $sub',accent,Row(children:[Expanded(flex:2,child:_panel('CANONICAL PARTICIPANT',Center(child:Column(mainAxisAlignment:MainAxisAlignment.center,children:[_orb(character,accent),const SizedBox(height:12),Text(character,style:const TextStyle(fontWeight:FontWeight.w900,letterSpacing:2)),Text(_characterState(character),style:TextStyle(fontSize:8,color:accent))]))),const SizedBox(width:12),Expanded(flex:5,child:_panel(character=='VIVREN'?'CRITICAL FINDINGS':'HYPOTHESIS FIELD',a.isEmpty?const _Empty('No matching analytical objects yet.'):ListView(children:[for(final x in a)_object(x,accent)]))),if(selected!=null)const SizedBox(width:12),if(selected!=null)Expanded(flex:3,child:_panel('DEEP INSPECTION',_inspection()))]));
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^^
+  lib/s7/s7_environment_page.dart:22:724: Error: Expected ',' before this.
+   Widget _chamber(String title,String character,String sub,Color accent,List<Map<String,dynamic>> a)=>_frame(title,'$character · $sub',accent,Row(children:[Expanded(flex:2,child:_panel('CANONICAL PARTICIPANT',Center(child:Column(mainAxisAlignment:MainAxisAlignment.center,children:[_orb(character,accent),const SizedBox(height:12),Text(character,style:const TextStyle(fontWeight:FontWeight.w900,letterSpacing:2)),Text(_characterState(character),style:TextStyle(fontSize:8,color:accent))]))),const SizedBox(width:12),Expanded(flex:5,child:_panel(character=='VIVREN'?'CRITICAL FINDINGS':'HYPOTHESIS FIELD',a.isEmpty?const _Empty('No matching analytical objects yet.'):ListView(children:[for(final x in a)_object(x,accent)]))),if(selected!=null)const SizedBox(width:12),if(selected!=null)Expanded(flex:3,child:_panel('DEEP INSPECTION',_inspection()))]));
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^^
+  lib/s7/s7_environment_page.dart:22:164: Error: Too many positional arguments: 0 allowed, but 3 found.
+  Try removing the extra positional arguments.
+   Widget _chamber(String title,String character,String sub,Color accent,List<Map<String,dynamic>> a)=>_frame(title,'$character · $sub',accent,Row(children:[Expanded(flex:2,child:_panel('CANONICAL PARTICIPANT',Center(child:Column(mainAxisAlignment:MainAxisAlignment.center,children:[_orb(character,accent),const SizedBox(height:12),Text(character,style:const TextStyle(fontWeight:FontWeight.w900,letterSpacing:2)),Text(_characterState(character),style:TextStyle(fontSize:8,color:accent))]))),const SizedBox(width:12),Expanded(flex:5,child:_panel(character=='VIVREN'?'CRITICAL FINDINGS':'HYPOTHESIS FIELD',a.isEmpty?const _Empty('No matching analytical objects yet.'):ListView(children:[for(final x in a)_object(x,accent)]))),if(selected!=null)const SizedBox(width:12),if(selected!=null)Expanded(flex:3,child:_panel('DEEP INSPECTION',_inspection()))]));
+                                                                                                                                                                     ^
+  /F:/Development/flutter/flutter/packages/flutter/lib/src/widgets/basic.dart:6025:9: Context: Found this candidate, but the arguments don't match.
+    const Expanded({super.key, super.flex, required super.child}) : super(fit: FlexFit.tight);
+          ^^^^^^^^
+  lib/s7/s7_environment_page.dart:29:178: Error: Member not found: 'white45'.
+   Widget _stat(String l,int v)=>ListTile(dense:true,leading:const Icon(Icons.data_object,size:15,color:Colors.white30),title:Text(l,style:const TextStyle(fontSize:9,color:Colors.white45)),trailing:Text('$v',style:const TextStyle(fontWeight:FontWeight.w800)));
+                                                                                                                                                                                   ^^^^^^^
+  .
+00:57 +48 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/s3_interaction_test.dart: Bloom exposes capability gateway and activates Analyze
+01:01 +49 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/s3_interaction_test.dart: Bloom keeps future capabilities visibly reserved
+01:01 +50 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/s3_interaction_test.dart: Syvax accepts suggested input and submits it
+01:08 +51 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/session_character_animation_test.dart: current sprint characters are registered
+01:08 +52 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/session_character_animation_test.dart: profiles are deterministic within a session and character-specific
+01:21 +53 -5: loading F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart [E]
+  Failed to load "F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart":
+  Compilation failed for testPath=F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: lib/character/live_agent_panel.dart:97:23: Error: The method 'CharacterRuntimeView' isn't defined for the type '_LiveAgentPanelState'.
+   - '_LiveAgentPanelState' is from 'package:presentation/character/live_agent_panel.dart' ('lib/character/live_agent_panel.dart').
+  Try correcting the name to the name of an existing method, or defining a method named 'CharacterRuntimeView'.
+                        CharacterRuntimeView(characterId: widget.characterId, state: widget.state, width: 190, height: 228),
+                        ^^^^^^^^^^^^^^^^^^^^
+  .
+01:21 +53 -5: Some tests failed.
+
+Failing tests:
+  F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: loading F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart
+  F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: loading F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart
+  F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: loading F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart
+  F:/Rsearch Project/Criterivox-S4/presentation/test/s7_environment_contract_test.dart: loading F:/Rsearch Project/Criterivox-S4/presentation/test/s7_environment_contract_test.dart
+  F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: loading F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart

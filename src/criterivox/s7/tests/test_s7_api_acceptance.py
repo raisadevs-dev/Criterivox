@@ -15,8 +15,15 @@ def test_standalone_health_and_websocket_preflight():
     assert bureau_health.json()["standalone"] is True
 
     with client.websocket_connect("/api/s7/ws") as websocket:
+        connected = websocket.receive_json()
+
+        assert connected["type"] == "connected"
+        assert connected["bureau"] == "Reasoning Research Bureau"
+
         websocket.send_json({"type": "ping"})
+
         message = websocket.receive_json()
+
         assert message["type"] == "pong"
         assert message["bureau"] == "Reasoning Research Bureau"
 
@@ -28,24 +35,48 @@ def test_http_session_round_trip_and_human_challenge():
         "/api/s7/sessions",
         json={
             "task": "Evaluate the supplied claim.",
-            "context": {"facts": ["Observation exists"], "sources": ["fixture-api-01"]},
+            "context": {
+                "facts": ["Observation exists"],
+                "sources": ["fixture-api-01"],
+            },
         },
     )
+
     assert created.status_code == 200
+
     snapshot = created.json()
+
     assert snapshot["status"] == "COMPLETED"
     assert snapshot["artifacts"]
 
-    reasoning = next(a for a in snapshot["artifacts"] if a["kind"] == "reasoning")
+    reasoning = next(
+        artifact
+        for artifact in snapshot["artifacts"]
+        if artifact["kind"] == "reasoning"
+    )
+
     challenged = client.post(
         f"/api/s7/sessions/{snapshot['session_id']}/challenge",
         json={
             "artifact_id": reasoning["artifact_id"],
-            "challenge": "Add the missing contextual constraint before continuing.",
+            "challenge": (
+                "Add the missing contextual constraint before continuing."
+            ),
         },
     )
+
     assert challenged.status_code == 200
+
     updated = challenged.json()
+
     assert updated["branch_id"] != "main"
-    assert any(a["kind"] == "human_intervention" for a in updated["artifacts"])
-    assert any(e["event_type"] == "HUMAN_CHALLENGE" for e in updated["events"])
+
+    assert any(
+        artifact["kind"] == "human_intervention"
+        for artifact in updated["artifacts"]
+    )
+
+    assert any(
+        event["event_type"] == "HUMAN_CHALLENGE"
+        for event in updated["events"]
+    )

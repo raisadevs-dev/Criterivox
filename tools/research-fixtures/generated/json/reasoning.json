@@ -1,0 +1,57 @@
+[
+  {
+    "fixture_id": "FX-REASONING-0001",
+    "scenario": "reasoning",
+    "simulated_upstream_component": "Dharen",
+    "task": "Analyze supplied structured observations.",
+    "context": {
+      "input_kind": "structured observations",
+      "record_count": 3
+    },
+    "observations": [
+      {
+        "record_id": "obs-0001-001",
+        "observation": "Synthetic structured observation 1 for Analyze supplied structured observations.",
+        "source_component": "Dharen"
+      },
+      {
+        "record_id": "obs-0001-002",
+        "observation": "Synthetic structured observation 2 for Analyze supplied structured observations.",
+        "source_component": "Dharen"
+      },
+      {
+        "record_id": "obs-0001-003",
+        "observation": "Synthetic structured observation 3 for Analyze supplied structured observations.",
+        "source_component": "Dharen"
+      }
+    ],
+    "hypotheses": [
+      {
+        "hypothesis_id": "H1",
+        "statement": "Synthetic explanation A"
+      },
+      {
+        "hypothesis_id": "H2",
+        "statement": "Synthetic explanation B"
+      }
+    ],
+    "contradictions": [
+      {
+        "contradiction_id": "C1",
+        "description": "Synthetic contradictory observation requiring conflict handling",
+        "related_observation": "obs-0001-001"
+      }
+    ],
+    "human_interventions": [],
+    "provenance": {
+      "generated_at": "2026-09-15T10:21:25.590962+00:00",
+      "generator": "Criterivox Test Dataset & Fixture Laboratory",
+      "origin_component": "Dharen",
+      "synthetic": true
+    },
+    "limitations": [
+      "Synthetic material; not real-world evidence."
+    ],
+    "synthetic": true
+  }
+]
