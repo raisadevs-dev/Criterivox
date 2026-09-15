@@ -17,28 +17,13 @@ def health():
 
 @router.get("/mechanisms")
 def mechanisms():
-    return {
-        "mechanisms": [
-            {
-                "mechanism_id": m.mechanism_id,
-                "name": m.name,
-                "classification": m.classification,
-                "purpose": m.purpose,
-                "provenance": m.provenance,
-                "limitations": m.limitations,
-            }
-            for m in mechanism_registry()
-        ]
-    }
+    return {"mechanisms": [{"mechanism_id": m.mechanism_id, "name": m.name, "classification": m.classification, "purpose": m.purpose, "provenance": m.provenance, "limitations": m.limitations} for m in mechanism_registry()]}
 
 
 @router.post("/sessions")
 def create_session(payload: dict):
     try:
-        session = bureau.start(
-            str(payload.get("task", "")),
-            payload.get("context") if isinstance(payload.get("context"), dict) else {},
-        )
+        session = bureau.start(str(payload.get("task", "")), payload.get("context") if isinstance(payload.get("context"), dict) else {})
         return bureau.snapshot(session.session_id)
     except ValueError as exc:
         return JSONResponse({"accepted": False, "error": str(exc)}, status_code=400)
@@ -55,11 +40,7 @@ def get_session(session_id: str):
 @router.post("/sessions/{session_id}/challenge")
 def challenge(session_id: str, payload: dict):
     try:
-        session = bureau.challenge(
-            session_id,
-            str(payload.get("artifact_id", "")),
-            str(payload.get("challenge", "")),
-        )
+        session = bureau.challenge(session_id, str(payload.get("artifact_id", "")), str(payload.get("challenge", "")))
         return bureau.snapshot(session.session_id)
     except ValueError as exc:
         return JSONResponse({"accepted": False, "error": str(exc)}, status_code=400)
@@ -67,7 +48,7 @@ def challenge(session_id: str, payload: dict):
 
 @router.websocket("/ws")
 async def control_websocket(websocket: WebSocket):
-    """Runtime preflight/control channel; S7 state remains in the bureau."""
+    """Live S7 control channel. Every mutation is delegated to the authoritative bureau."""
     await websocket.accept()
     try:
         while True:
@@ -75,11 +56,19 @@ async def control_websocket(websocket: WebSocket):
             message_type = str(message.get("type", "")).lower()
             if message_type == "ping":
                 await websocket.send_json({"type": "pong", "bureau": "Reasoning Research Bureau"})
+            elif message_type == "subscribe":
+                session_id = str(message.get("session_id", ""))
+                try:
+                    await websocket.send_json({"type": "subscribed", "session": bureau.snapshot(session_id)})
+                except ValueError as exc:
+                    await websocket.send_json({"type": "error", "error": str(exc)})
+            elif message_type == "challenge":
+                try:
+                    session = bureau.challenge(str(message.get("session_id", "")), str(message.get("artifact_id", "")), str(message.get("challenge", "")))
+                    await websocket.send_json({"type": "session_updated", "session": bureau.snapshot(session.session_id)})
+                except ValueError as exc:
+                    await websocket.send_json({"type": "error", "error": str(exc)})
             else:
-                await websocket.send_json({
-                    "type": "control_ack",
-                    "accepted": False,
-                    "reason": "Unsupported control message",
-                })
+                await websocket.send_json({"type": "control_ack", "accepted": False, "reason": "Unsupported control message"})
     except WebSocketDisconnect:
         return
