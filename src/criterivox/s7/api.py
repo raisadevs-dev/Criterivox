@@ -4,16 +4,30 @@ from fastapi.responses import JSONResponse
 from .orchestrator import ReasoningResearchBureau
 from .inspection import enrich_snapshot, compare_branches
 from .mechanisms import mechanism_registry
+from .models import ArtifactKind, SessionStatus
 router=APIRouter(prefix='/api/s7',tags=['s7-reasoning-research-bureau']); bureau=ReasoningResearchBureau()
 def view(session_id:str): return enrich_snapshot(bureau.snapshot(session_id))
+def apply_intervention(session_id:str,artifact_id:str,action:str,instruction:str=''):
+    session=bureau._get(session_id); target=next((a for a in session.artifacts if a.artifact_id==artifact_id),None)
+    if target is None: raise ValueError('Unknown analytical artifact.')
+    action=action.strip().lower()
+    if action=='challenge': return bureau.challenge(session_id,artifact_id,instruction)
+    if action not in {'request_context','reject','continue'}: raise ValueError('Unsupported intervention action.')
+    item=session.artifact(ArtifactKind.HUMAN_INTERVENTION,f'Human {action.replace("_"," ")}',{'action':action,'target_artifact_id':artifact_id,'instruction':instruction.strip(),'provenance':'human_intervention'},parents=(artifact_id,))
+    session.event('HUMAN_INTERVENTION',action=action,intervention_id=item.artifact_id,target_artifact_id=artifact_id)
+    if action=='request_context': session.status=SessionStatus.WAITING_FOR_INFORMATION
+    elif action=='reject': session.status=SessionStatus.UNRESOLVED; session.event('ANALYSIS_REJECTED',target_artifact_id=artifact_id)
+    elif action=='continue': bureau._compute(session)
+    else: bureau.store.save(session)
+    bureau.store.save(session); return session
 @router.get('/health')
 def health(): return {'bureau':'Reasoning Research Bureau','status':'ready','standalone':True}
 @router.get('/mechanisms')
 def mechanisms(): return {'mechanisms':[{'mechanism_id':m.mechanism_id,'name':m.name,'classification':m.classification,'purpose':m.purpose,'provenance':m.provenance,'limitations':m.limitations} for m in mechanism_registry()]}
 @router.post('/sessions')
 def create_session(payload:dict):
-    try: return view(bureau.start(str(payload.get('task','')),payload.get('context') if isinstance(payload.get('context'),dict) else {}).session_id)
-    except ValueError as exc: return JSONResponse({'accepted':False,'error':str(exc)},status_code=400)
+    try:return view(bureau.start(str(payload.get('task','')),payload.get('context') if isinstance(payload.get('context'),dict) else {}).session_id)
+    except ValueError as exc:return JSONResponse({'accepted':False,'error':str(exc)},status_code=400)
 @router.get('/sessions/{session_id}')
 def get_session(session_id:str):
     try:return view(session_id)
@@ -28,10 +42,10 @@ def artifact_lineage(session_id:str,artifact_id:str):
         s=view(session_id); item=s.get('lineage',{}).get(artifact_id)
         if not item:return JSONResponse({'accepted':False,'error':'Unknown analytical artifact.'},status_code=404)
         return {'artifact':next(a for a in s['artifacts'] if a['artifact_id']==artifact_id),'lineage':item,'provenance':s.get('provenance',{}).get(artifact_id,{})}
-    except ValueError as exc:return JSONResponse({'accepted':False,'error':str(exc)},status_code=404)
+    except (ValueError,StopIteration) as exc:return JSONResponse({'accepted':False,'error':str(exc)},status_code=404)
 @router.post('/sessions/{session_id}/intervene')
 def intervene(session_id:str,payload:dict):
-    try:return view(bureau.intervene(session_id,str(payload.get('artifact_id','')),str(payload.get('action','')),str(payload.get('instruction',''))).session_id)
+    try:return view(apply_intervention(session_id,str(payload.get('artifact_id','')),str(payload.get('action','')),str(payload.get('instruction',''))).session_id)
     except ValueError as exc:return JSONResponse({'accepted':False,'error':str(exc)},status_code=400)
 @router.post('/sessions/{session_id}/challenge')
 def challenge(session_id:str,payload:dict):
@@ -45,10 +59,10 @@ async def control_websocket(websocket:WebSocket):
             m=await websocket.receive_json(); t=str(m.get('type','')).lower()
             if t=='ping': await websocket.send_json({'type':'pong','bureau':'Reasoning Research Bureau'})
             elif t=='subscribe':
-                try: await websocket.send_json({'type':'subscribed','session':view(str(m.get('session_id','')))})
-                except ValueError as exc: await websocket.send_json({'type':'error','error':str(exc)})
+                try:await websocket.send_json({'type':'subscribed','session':view(str(m.get('session_id','')))})
+                except ValueError as exc:await websocket.send_json({'type':'error','error':str(exc)})
             elif t=='intervene':
-                try: await websocket.send_json({'type':'session_updated','session':view(bureau.intervene(str(m.get('session_id','')),str(m.get('artifact_id','')),str(m.get('action','')),str(m.get('instruction',''))).session_id)})
-                except ValueError as exc: await websocket.send_json({'type':'error','error':str(exc)})
-            else: await websocket.send_json({'type':'control_ack','accepted':False,'reason':'Unsupported control message'})
+                try:await websocket.send_json({'type':'session_updated','session':view(apply_intervention(str(m.get('session_id','')),str(m.get('artifact_id','')),str(m.get('action','')),str(m.get('instruction',''))).session_id)})
+                except ValueError as exc:await websocket.send_json({'type':'error','error':str(exc)})
+            else:await websocket.send_json({'type':'control_ack','accepted':False,'reason':'Unsupported control message'})
     except WebSocketDisconnect:return
