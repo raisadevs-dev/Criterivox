@@ -34,6 +34,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('Presentation consumes artifacts/events/state'), findsOneWidget);
     expect(find.textContaining('Artifact content hashes'), findsOneWidget);
-    expect(find.textContaining('does not require Syvax'), findsOneWidget);
+    expect(find.text('Boundary'), findsOneWidget);
   });
 }
