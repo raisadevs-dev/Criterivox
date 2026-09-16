@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 's7_local_nlp.dart';
 import 's7_nlp_debate_arena.dart';
+import 's7_nlp_debate_arena.dart';
 
 const _s7Violet = Color(0xffb59cff);
 const _s7Amber = Color(0xffffb463);
@@ -203,7 +204,7 @@ class _ArtifactAction extends StatelessWidget {
       Container(width: 5, height: 26, decoration: BoxDecoration(color: accent, borderRadius: BorderRadius.circular(4))),
       const SizedBox(width: 8),
       Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Colors.white70)), Text(kind.toUpperCase(), style: const TextStyle(fontSize: 7, letterSpacing: 1.0, color: Colors.white30))])),
-      IconButton(tooltip: 'Inspect', visualDensity: VisualDensity.compact, onPressed: onInspect, icon: const Icon(Icons.search_rounded, size: 16, color: Colors.white45)),
+      IconButton(tooltip: 'Inspect', visualDensity: VisualDensity.compact, onPressed: onInspect, icon: const Icon(Icons.search_rounded, size: 16, color: Colors.white.withValues(alpha: .45))),
       IconButton(tooltip: 'Open visualization', visualDensity: VisualDensity.compact, onPressed: onVisualize, icon: Icon(Icons.auto_graph_rounded, size: 16, color: accent)),
     ]),
   );
@@ -271,11 +272,11 @@ class _FloatingVisualizationDialog extends StatelessWidget {
         decoration: BoxDecoration(color: _s7Glass.withValues(alpha: .97), borderRadius: BorderRadius.circular(24), border: Border.all(color: accent.withValues(alpha: .25)), boxShadow: [BoxShadow(color: accent.withValues(alpha: .10), blurRadius: 38)]),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [Icon(Icons.auto_graph_rounded, color: accent), const SizedBox(width: 10), Expanded(child: Text(viz.title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1.0, color: Colors.white, shadows: [Shadow(color: accent.withValues(alpha: .45), blurRadius: 10)]))), IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close, color: Colors.white54))]),
-          Text(viz.description, style: const TextStyle(fontSize: 10, color: Colors.white45)),
+          Text(viz.description, style: const TextStyle(fontSize: 10, color: Colors.white54)),
           const SizedBox(height: 14),
           Expanded(child: _TraceGraphic(kind: viz.title, data: viz.data, accent: accent)),
           const SizedBox(height: 12),
-          S7GlassPanel(title: 'SOURCE SNAPSHOT', accent: accent, child: SelectableText(pretty, style: const TextStyle(fontSize: 9, height: 1.45, color: Colors.white54, fontFamily: 'monospace'))),
+          S7FunctionalGlassPanel(title: 'SOURCE SNAPSHOT', accent: accent, child: SelectableText(pretty, style: const TextStyle(fontSize: 9, height: 1.45, color: Colors.white54, fontFamily: 'monospace'))),
         ]),
       ),
     );
@@ -402,8 +403,8 @@ class _DebateBubble extends StatelessWidget {
   Widget build(BuildContext context) => Align(alignment: message.actor == 'HUMAN' ? Alignment.centerRight : Alignment.centerLeft, child: Container(width: MediaQuery.sizeOf(context).width * .72, margin: const EdgeInsets.only(bottom: 9), padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: message.accent.withValues(alpha: .055), borderRadius: BorderRadius.circular(15), border: Border.all(color: message.accent.withValues(alpha: .16))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(message.actor, style: TextStyle(fontSize: 8, letterSpacing: 1.4, fontWeight: FontWeight.w900, color: message.accent)), const SizedBox(height: 5), Text(message.text, style: const TextStyle(fontSize: 11, height: 1.45, color: Colors.white70))])));
 }
 
-class S7GlassPanel extends StatelessWidget {
-  const S7GlassPanel({super.key, required this.title, required this.child, this.accent});
+class S7FunctionalGlassPanel extends StatelessWidget {
+  const S7FunctionalGlassPanel({super.key, required this.title, required this.child, this.accent});
   final String title;
   final Widget child;
   final Color? accent;
