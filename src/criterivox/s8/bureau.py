@@ -9,16 +9,11 @@ from .models import Artifact, ArtifactKind, BureauEvent, VerificationResult, utc
 from .interventions import InterventionRegistry
 from .persistence import S8SQLiteStore
 from .policy import AccessRequest, S8Policy
+from .research import TemporalRetriever
 
 
 class EvidenceResearchBureau:
-    """Deterministic artifact-first S8 coordinator.
-
-    Characters only consume the artifacts/events produced here. The bureau keeps
-    unknown, contradiction and uncertainty states explicit and never invents a
-    universal confidence score.
-    """
-
+    """Deterministic artifact-first S8 coordinator."""
     CHARACTERS = {
         "medrus": "knowledge retention / temporal evidence",
         "epistre": "explanation / provenance / audit narrative",
@@ -31,6 +26,7 @@ class EvidenceResearchBureau:
         self.store = store
         self.policy = policy or S8Policy()
         self.interventions = InterventionRegistry()
+        self.temporal = TemporalRetriever()
         self._sequence = 0
 
     def _id(self, prefix: str) -> str:
@@ -69,25 +65,20 @@ class EvidenceResearchBureau:
         return self.add_artifact(ArtifactKind.INTEGRITY, {"subject_artifact_id": artifact_id, "expected_hash": expected, "recorded_hash": artifact.content_hash, "valid": valid, "method": "sha256-payload-integrity"}, source_ids=(artifact_id,), parent_ids=(artifact_id,), tenant_id=artifact.tenant_id, context_id=artifact.context_id, status="verified" if valid else "tampered")
 
     def verify_claim(self, claim: str, evidence_ids: tuple[str, ...], *, tenant_id: str | None = None, context_id: str | None = None) -> VerificationResult:
-        evidence = [self.artifacts[eid] for eid in evidence_ids if eid in self.artifacts and self.artifacts[eid].tenant_id == tenant_id and self.artifacts[eid].context_id == context_id]
+        evidence = [self.artifacts[eid] for eid in evidence_ids if eid in self.artifacts and self.artifacts[eid].tenant_id == tenant_id and self.artifacts[eid].context_id == context_id and self.artifacts[eid].status != "invalidated"]
         missing = [eid for eid in evidence_ids if eid not in self.artifacts]
         inaccessible = [eid for eid in evidence_ids if eid in self.artifacts and eid not in {a.artifact_id for a in evidence}]
-        if inaccessible:
-            missing.extend(f"{eid} (inaccessible)" for eid in inaccessible)
+        missing.extend(f"{eid} (inaccessible)" for eid in inaccessible)
         contradictions = [a.artifact_id for a in evidence if a.kind is ArtifactKind.CONTRADICTION]
         if missing or not evidence:
-            status = "insufficient_evidence"
-            limitations = (f"Unknown or inaccessible evidence artifact(s): {', '.join(missing)}",) if missing else ("No evidence artifacts were supplied.",)
+            status, limitations = "insufficient_evidence", ((f"Unknown, inaccessible, or invalidated evidence artifact(s): {', '.join(missing)}",) if missing else ("No evidence artifacts were supplied.",))
         elif contradictions:
-            status = "contradictory"
-            limitations = ("Supplied evidence includes an explicit contradiction artifact.",)
+            status, limitations = "contradictory", ("Supplied evidence includes an explicit contradiction artifact.",)
         else:
-            status = "grounded_pending_validation"
-            limitations = ()
+            status, limitations = "grounded_pending_validation", ()
         provenance = self.add_artifact(ArtifactKind.PROVENANCE, {"claim": claim, "evidence_ids": evidence_ids, "method": "artifact-reference-trace"}, source_ids=tuple(a.artifact_id for a in evidence), tenant_id=tenant_id, context_id=context_id)
         result = VerificationResult(self._id("S8V"), claim, status, evidence_ids, limitations, tuple(contradictions), provenance.artifact_id)
-        verification = self.add_artifact(ArtifactKind.VERIFICATION, {"verification_id": result.verification_id, "claim": claim, "status": status, "evidence_ids": evidence_ids, "limitations": limitations, "contradiction_ids": tuple(contradictions)}, source_ids=tuple(a.artifact_id for a in evidence), parent_ids=(provenance.artifact_id,), tenant_id=tenant_id, context_id=context_id, status=status)
-        self._record("VERIFICATION_COMPLETED", (verification.artifact_id, provenance.artifact_id), tenant_id=tenant_id, context_id=context_id, status=status)
+        self.add_artifact(ArtifactKind.VERIFICATION, {"verification_id": result.verification_id, "claim": claim, "status": status, "evidence_ids": evidence_ids, "limitations": limitations, "contradiction_ids": tuple(contradictions)}, source_ids=tuple(a.artifact_id for a in evidence), parent_ids=(provenance.artifact_id,), tenant_id=tenant_id, context_id=context_id, status=status)
         return result
 
     def add_contradiction(self, artifact_ids: tuple[str, ...], *, description: str, tenant_id: str | None = None, context_id: str | None = None) -> Artifact:
@@ -99,12 +90,15 @@ class EvidenceResearchBureau:
     def record_temporal_fact(self, subject: str, predicate: str, value: Any, *, valid_from=None, valid_to=None, recorded_at=None, source_ids: tuple[str, ...] = (), tenant_id: str | None = None, context_id: str | None = None) -> Artifact:
         return self.add_artifact(ArtifactKind.TEMPORAL, {"subject": subject, "predicate": predicate, "value": value, "valid_from": valid_from.isoformat() if valid_from else None, "valid_to": valid_to.isoformat() if valid_to else None, "recorded_at": (recorded_at or utc_now()).isoformat(), "bitemporal": True}, source_ids=source_ids, tenant_id=tenant_id, context_id=context_id)
 
+    def retrieve_temporal(self, subject: str, *, at=None, tenant_id=None, context_id=None) -> list[Artifact]:
+        matches = self.temporal.retrieve(self.artifacts, subject=subject, at=at)
+        return [a for a in matches if a.tenant_id == tenant_id and a.context_id == context_id]
+
     def invalidate(self, artifact_id: str, *, reason: str, affected_artifact_ids: tuple[str, ...] = ()) -> BureauEvent:
         artifact = self.artifacts[artifact_id]
         updated = Artifact(**{**artifact.__dict__, "status": "invalidated"})
         self.artifacts[artifact_id] = updated
-        if self.store:
-            self.store.save_artifact(updated)
+        if self.store: self.store.save_artifact(updated)
         affected = (artifact_id,) + tuple(affected_artifact_ids)
         return self._record("ARTIFACT_INVALIDATED", affected, tenant_id=artifact.tenant_id, context_id=artifact.context_id, reason=reason)
 
@@ -112,14 +106,11 @@ class EvidenceResearchBureau:
         artifact = self.artifacts[artifact_id]
         self._authorized(artifact, actor_id=actor_id, operation="inspect", tenant_id=tenant_id, context_id=context_id)
         payload = {"subject_artifact_id": artifact_id, "kind": artifact.kind.value, "sources": artifact.source_ids, "parents": artifact.parent_ids, "created_at": artifact.created_at.isoformat(), "status": artifact.status, "content_hash": artifact.content_hash, "limitations": artifact.payload.get("limitations", ()), "provenance_available": bool(artifact.parent_ids or artifact.source_ids)}
-        explanation = self.add_artifact(ArtifactKind.EXPLANATION, payload, source_ids=(artifact_id,), parent_ids=artifact.parent_ids, tenant_id=artifact.tenant_id, context_id=artifact.context_id)
-        self._record("EXPLANATION_AVAILABLE", (explanation.artifact_id,), tenant_id=artifact.tenant_id, context_id=artifact.context_id)
-        return explanation
+        return self.add_artifact(ArtifactKind.EXPLANATION, payload, source_ids=(artifact_id,), parent_ids=artifact.parent_ids, tenant_id=artifact.tenant_id, context_id=artifact.context_id)
 
     def challenge(self, actor_id: str, target_artifact_ids: tuple[str, ...], *, evidence_ids: tuple[str, ...] = (), context: str = "", proposed_alternative: str = "", tenant_id: str | None = None, context_id: str | None = None):
-        targets = [self.artifacts[i] for i in target_artifact_ids if i in self.artifacts]
-        if not targets:
-            raise ValueError("A challenge target must identify an existing artifact.")
+        targets = [self.artifacts[i] for i in target_artifact_ids if i in self.artifacts and self.artifacts[i].tenant_id == tenant_id and self.artifacts[i].context_id == context_id]
+        if not targets: raise ValueError("A challenge target must identify an accessible artifact.")
         intervention = self.interventions.create(actor_id, target_artifact_ids, evidence_ids=evidence_ids, context=context, proposed_alternative=proposed_alternative)
         self._record("HUMAN_CHALLENGE_RECORDED", target_artifact_ids, actor=actor_id, tenant_id=tenant_id, context_id=context_id, intervention_id=intervention.intervention_id)
         return intervention
@@ -129,9 +120,11 @@ class EvidenceResearchBureau:
         self._record("HUMAN_INTERVENTION_AUTHORIZED", intervention.target_artifact_ids, actor=actor_id, intervention_id=intervention_id)
         return intervention
 
-    def record_revision(self, intervention_id: str, original_ids: tuple[str, ...], revised_ids: tuple[str, ...], affected_ids: tuple[str, ...]) -> Any:
+    def record_revision(self, intervention_id: str, original_ids: tuple[str, ...], revised_ids: tuple[str, ...], affected_ids: tuple[str, ...], *, authorized_by: str | None = None) -> Any:
+        intervention = self.interventions.get(intervention_id)
+        if not intervention.authorized: raise PermissionError("Revision requires an authorized intervention.")
         revision = self.interventions.revise(intervention_id, original_ids, revised_ids, affected_ids)
-        self._record("REVISED_STATE_RECORDED", original_ids + revised_ids, intervention_id=intervention_id, revision_id=revision.revision_id, affected_artifact_ids=affected_ids)
+        self._record("REVISED_STATE_RECORDED", original_ids + revised_ids, actor=authorized_by or intervention.authorized_by or "system", intervention_id=intervention_id, revision_id=revision.revision_id, affected_artifact_ids=affected_ids)
         return revision
 
     def snapshot(self) -> dict[str, Any]:
