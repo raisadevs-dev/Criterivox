@@ -43,9 +43,19 @@ jobs:
       - name: Dependencies
         working-directory: presentation
         run: flutter pub get
-      - name: Analyze S8 entrypoint and presentation adapters
+      - name: Analyze all S8 presentation layers
         working-directory: presentation
-        run: dart analyze lib/s8_main.dart lib/s8_evidence_bureau_page.dart lib/s8_artifact_store.dart
+        run: >-
+          dart analyze
+          lib/s8_main.dart
+          lib/s8_evidence_bureau_page.dart
+          lib/s8_artifact_store.dart
+          lib/s8_character_presentation.dart
+          lib/s8_character_details.dart
+          lib/s8_environment.dart
+          lib/s8_environment_entities.dart
+          lib/s8_intervention_arena.dart
+          lib/s8_presentation_state.dart
       - name: Test S8 presentation
         working-directory: presentation
         run: flutter test test/s8
