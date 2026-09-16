@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import '../../lib/s8_evidence_bureau_page.dart';
+import 'package:presentation/s8_evidence_bureau_page.dart';
 
 void main() {
   testWidgets('S8 opens on Home with three specialist identities', (tester) async {
