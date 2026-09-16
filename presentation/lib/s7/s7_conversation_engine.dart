@@ -1,3 +1,4 @@
+import 's7_character_response_policy.dart';
 import 's7_context_resolver.dart';
 import 's7_conversation_state.dart';
 import 's7_local_nlp.dart';
@@ -32,9 +33,8 @@ class S7ConversationEngine {
   S7ConversationAction process(String input) {
     final parsed = S7LocalNlp.analyze(input);
     final intent = _intentFromWireName(parsed.intent);
-    final explicitTarget = _extractExplicitTarget(input, intent);
     final resolved = S7ContextResolver.resolve(
-      explicitTarget: explicitTarget,
+      explicitTarget: parsed.target,
       input: input,
       intent: intent,
       state: state,
@@ -54,7 +54,7 @@ class S7ConversationEngine {
       requiresClarification: needsClarification,
       message: needsClarification
           ? 'The request is ambiguous. A target is required before an analytical action can be selected.'
-          : S7LocalNlp.response(actor, parsed),
+          : S7CharacterResponsePolicy.respond(actor, parsed),
     );
 
     state.remember(S7ConversationTurn(
@@ -81,20 +81,6 @@ class S7ConversationEngine {
       'why' => S7NlpIntent.askReasoning,
       _ => S7NlpIntent.general,
     };
-  }
-
-  static String? _extractExplicitTarget(String input, S7NlpIntent intent) {
-    final lower = input.toLowerCase();
-    if (lower.contains('hypothesis') || lower.contains('hypotheses')) {
-      return 'hypotheses';
-    }
-    if (lower.contains('claim')) return 'claim';
-    if (lower.contains('evidence')) return 'evidence';
-    if (lower.contains('reasoning')) return 'reasoning';
-    if (lower.contains('assumption')) return 'assumption';
-    if (lower.contains('contradiction')) return 'contradiction';
-    if (lower.contains('provenance') || lower.contains('lineage')) return 'provenance';
-    return null;
   }
 
   static bool _requiresTarget(S7NlpIntent intent) => <S7NlpIntent>{
@@ -129,6 +115,6 @@ class S7ConversationEngine {
 
   static double _combinedConfidence(double parser, double resolver) {
     if (resolver == 0) return parser;
-    return ((parser * .65) + (resolver * .35)).clamp(.0, .99);
+    return ((parser * .65) + (resolver * .35)).clamp(.0, .99).toDouble();
   }
 }
