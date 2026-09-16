@@ -59,7 +59,7 @@ class InterventionRegistry:
     def authorize(self, intervention_id: str, *, actor_id: str) -> HumanIntervention:
         current = self.get(intervention_id)
         updated = HumanIntervention(**{**current.__dict__, "authorization": f"authorized-by:{actor_id}"})
-        self.interventions[intervention_id] = updated
+        self.interventions[intervention.intervention_id] = updated
         return updated
 
     def revise(self, intervention_id: str, original_ids: tuple[str, ...], revised_ids: tuple[str, ...], affected_ids: tuple[str, ...]) -> RevisionRecord:
