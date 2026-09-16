@@ -49,8 +49,9 @@ class _S7State extends State<ReasoningResearchBureauPage> {
         } else if (message['type'] == 'subscribed' ||
             message['type'] == 'session_updated') {
           final snapshot = message['snapshot'] ?? message['session'];
-          if (snapshot is Map<String, dynamic>)
+          if (snapshot is Map<String, dynamic>) {
             setState(() => _session = snapshot);
+          }
         }
       }, onError: (_) {
         if (mounted) setState(() => _socketConnected = false);
@@ -76,8 +77,9 @@ class _S7State extends State<ReasoningResearchBureauPage> {
                 'context': {'description': _context.text}
               }));
       final body = jsonDecode(response.body) as Map<String, dynamic>;
-      if (response.statusCode >= 400)
+      if (response.statusCode >= 400) {
         throw Exception(body['error'] ?? 'S7 request failed');
+      }
       setState(() => _session = body);
       _connectWebSocket(body['session_id'].toString());
     } catch (e) {
@@ -101,8 +103,9 @@ class _S7State extends State<ReasoningResearchBureauPage> {
   Future<void> _challenge(String artifactId) async {
     final challenge = await showDialog<String>(
         context: context, builder: (context) => _ChallengeDialog());
-    if (challenge == null || challenge.trim().isEmpty || _session == null)
+    if (challenge == null || challenge.trim().isEmpty || _session == null) {
       return;
+    }
     if (_socketConnected) {
       _sendChallenge(artifactId, challenge);
       return;
@@ -116,8 +119,9 @@ class _S7State extends State<ReasoningResearchBureauPage> {
           body:
               jsonEncode({'artifact_id': artifactId, 'challenge': challenge}));
       final body = jsonDecode(response.body) as Map<String, dynamic>;
-      if (response.statusCode >= 400)
+      if (response.statusCode >= 400) {
         throw Exception(body['error'] ?? 'Challenge failed');
+      }
       setState(() => _session = body);
     } catch (e) {
       setState(() => _error = '$e');

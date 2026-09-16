@@ -22,12 +22,10 @@ class S7CharacterCinematics extends StatefulWidget {
   });
 
   @override
-  State<S7CharacterCinematics> createState() =>
-      _S7CharacterCinematicsState();
+  State<S7CharacterCinematics> createState() => _S7CharacterCinematicsState();
 }
 
-class _S7CharacterCinematicsState
-    extends State<S7CharacterCinematics>
+class _S7CharacterCinematicsState extends State<S7CharacterCinematics>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
@@ -73,12 +71,10 @@ class _CharacterPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final bool vivren = character.toLowerCase() == 'vivren';
 
-    final Color accent = vivren
-        ? const Color(0xffb9a4ff)
-        : const Color(0xffffbd72);
+    final Color accent =
+        vivren ? const Color(0xffb9a4ff) : const Color(0xffffbd72);
 
-    final double pulse =
-        1.0 + 0.025 * math.sin(t * math.pi * 2.0);
+    final double pulse = 1.0 + 0.025 * math.sin(t * math.pi * 2.0);
 
     final Offset center = Offset(
       size.width / 2.0,
@@ -138,12 +134,9 @@ class _CharacterPainter extends CustomPainter {
     );
 
     final bool isWorking =
-        state == S7CharacterState.work ||
-        state == S7CharacterState.receive;
+        state == S7CharacterState.work || state == S7CharacterState.receive;
 
-    final double motion = isWorking
-        ? math.sin(t * math.pi * 4.0) * 8.0
-        : 0.0;
+    final double motion = isWorking ? math.sin(t * math.pi * 4.0) * 8.0 : 0.0;
 
     canvas.drawLine(
       center.translate(-46, motion),

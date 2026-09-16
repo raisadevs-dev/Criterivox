@@ -39,14 +39,10 @@ class S7IndexedDbCache {
       'readwrite',
     );
 
-    await transaction
-        .objectStore(_storeName)
-        .put({
-          ...snapshot,
-          'cached_at': DateTime.now()
-              .toUtc()
-              .toIso8601String(),
-        });
+    await transaction.objectStore(_storeName).put({
+      ...snapshot,
+      'cached_at': DateTime.now().toUtc().toIso8601String(),
+    });
 
     await transaction.completed;
   }
@@ -61,9 +57,8 @@ class S7IndexedDbCache {
       'readonly',
     );
 
-    final value = await transaction
-        .objectStore(_storeName)
-        .getObject(sessionId);
+    final value =
+        await transaction.objectStore(_storeName).getObject(sessionId);
 
     await transaction.completed;
 
@@ -82,9 +77,7 @@ class S7IndexedDbCache {
       'readwrite',
     );
 
-    await transaction
-        .objectStore(_storeName)
-        .delete(sessionId);
+    await transaction.objectStore(_storeName).delete(sessionId);
 
     await transaction.completed;
   }
