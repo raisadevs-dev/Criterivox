@@ -10,9 +10,11 @@ S7 is the **Reasoning Research Bureau** under the Intelligence Bureau. It contai
 
 There is **no S7 Home/Intelligence Home room**. Global Intelligence Home is deliberately deferred until after S8.
 
-## Completion target
+## Completion status
 
-The target is 97–99% of the requirements that belong to S7. A percentage is not counted as complete merely because a screen exists. A requirement is complete only when its computation/state, persistence where applicable, user interaction and presentation are connected end-to-end.
+**S7 branch status: COMPLETE / CLOSED FOR INTEGRATION.**
+
+The implementation branch `reasoning-research-bureau` is closed at the sprint boundary and is intended to be integrated into `intelligence-bureau`. Future refinements are recorded separately in `S7_DEFERRED_INTEGRATION_BACKLOG.md` rather than being treated as unfinished S7 work.
 
 ## Implementation sequence
 
@@ -81,13 +83,25 @@ The target is 97–99% of the requirements that belong to S7. A percentage is no
 
 ## Release gate
 
-S7 is release-candidate quality when the full path works without mocked UI-only state:
+S7's integration boundary is the complete research-bureau architecture and its connected presentation/interactions. The intended end-to-end path remains:
 
-`Receive → Interpret → prerequisites → capabilities → mechanisms → reasoning → alternatives → evaluation → artifacts/provenance → human inspection → challenge/intervention → branch/revision → recomputation → updated analysis or unresolved state`.
+`Receive → Interpret → prerequisites → capabilities → mechanisms → reasoning → alternatives → evaluation → artifacts/provenance → human inspection → challenge/intervention → branch/revision → recomputation → updated analysis or unresolved state`
 
 ## Explicitly deferred
 
-- Intelligence Home / global Home control.
-- Post-S8 cross-bureau navigation and orchestration.
-- Future S8 functionality.
-- Global UX work that depends on the completed S8 bureau.
+The following are intentionally not blockers to S7 branch closure and are recorded in `S7_DEFERRED_INTEGRATION_BACKLOG.md`:
+
+- richer character facial/eyebrow/lip animation and styling refinement;
+- more varied semantic visualization forms and richer internal labels;
+- always-visible room-level analytical objects;
+- further navigation compaction;
+- dedicated Criterivox interior-design/rendering refinement;
+- Intelligence Home / global Home control;
+- post-S8 cross-bureau navigation and orchestration;
+- future S8 functionality.
+
+## Closure documents
+
+- `docs/s7/S7_COMPLETION_RECORD.md` — final branch closure and scope record.
+- `docs/s7/S7_ARCHITECTURE_FINAL.md` — final S7 architecture and boundaries.
+- `docs/s7/S7_DEFERRED_INTEGRATION_BACKLOG.md` — later refinements preserved for future work.
