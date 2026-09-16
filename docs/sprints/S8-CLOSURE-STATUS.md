@@ -23,9 +23,22 @@ The launcher does **not** start `CriterivoxShell`. The S8 Fixtures Lab is simila
 - Deterministic S8 Fixtures Lab and PowerShell launcher.
 - Dedicated S8 validation workflow for Python and Flutter.
 
-## Validation statement
+## Validation status
 
-The implementation has been committed and the repository contains CI commands for the Python test suite, Fixtures Lab, Flutter analysis and Flutter tests. Local execution is environment-dependent; no local result is represented as passing unless the CI run reports it.
+The first repository CI run against commit `ab0a1d921a96814231ae4c484d51d8f521705bd9` did **not** pass. The Python job stopped during dependency installation because the workflow selected Python 3.11 while the repository declares `requires-python = ">=3.13,<3.14"`. The Flutter job reached analysis but failed before tests because the existing presentation tree uses APIs newer than the pinned Flutter 3.24.5 SDK, including `Color.withValues` and `Color.toARGB32`; S8 also had one nullable IndexedDB factory call in `s8_artifact_store.dart`.
+
+The validation workflow has now been corrected to Python 3.13 and Flutter 3.29.3, and the IndexedDB adapter now explicitly handles an unavailable factory. These changes are committed after the failed run. A new CI run is therefore required before declaring S8 validation green. No passing result is claimed here until GitHub Actions reports one.
+
+## Remaining truth-status gates
+
+- Complete and validate the full epistemic lifecycle, including richer transformation relationships and dependency-aware downstream re-evaluation.
+- Exercise adversarial memory/write protection and cross-tenant/context isolation through acceptance fixtures.
+- Complete the structured human correction loop with explicit authorization and inspectable original/revised lineage.
+- Expand the Fixtures Lab beyond smoke scenarios into member-language, temporal, contradiction, missing-context, tamper, authorization-denial and revised-state assertions.
+- Validate the concrete S7↔S8 artifact-exchange contract against the actual S7 boundary without creating a runtime dependency.
+- Implement the human-understanding/XAI research evaluation protocol, not merely the recording primitive.
+- Validate selective cryptographic integrity coverage beyond the baseline artifact hash where research requirements justify it.
+- Run the corrected CI and repair any remaining implementation failures.
 
 ## Intentionally not integrated
 
