@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 's7_local_nlp.dart';
+import 's7_nlp_debate_arena.dart';
 
 const _s7Violet = Color(0xffb59cff);
 const _s7Amber = Color(0xffffb463);
