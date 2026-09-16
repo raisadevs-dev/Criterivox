@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:criterivox/s8_evidence_bureau_page.dart';
+import 'package:presentation/s8_evidence_bureau_page.dart';
 
 void main() {
   testWidgets('renders exactly four S8 rooms', (tester) async {
