@@ -6,13 +6,14 @@ from .interventions import HumanIntervention, InterventionRegistry, RevisionReco
 from .models import Artifact, ArtifactKind, BureauEvent, VerificationResult
 from .persistence import S8SQLiteStore
 from .policy import AccessRequest, AuthorizationError, S8Policy
-from .research import EvaluationRecorder, ExperimentRecord, MemoryConsolidator, TemporalRetriever
+from .research import EvaluationRecorder, ExperimentRecord, MemoryConsolidator, TemporalRetriever, impacted_downstream
 from .s7_adapter import S7Adapter, S7ArtifactEnvelope
+from .intake import CriterivoxMessage, S8Intake, CONTRACT
 
 __all__ = [
-    "AccessRequest", "ArenaInterpretation", "Artifact", "ArtifactKind", "AuthorizationError",
-    "BureauEvent", "DebateArena", "EvaluationRecorder", "EvidenceResearchBureau", "ExperimentRecord",
-    "HumanIntervention", "InterventionRegistry", "LocalLayeredNLP", "MemoryConsolidator",
-    "RevisionRecord", "S7Adapter", "S7ArtifactEnvelope", "S8Policy", "S8SQLiteStore",
-    "TemporalRetriever", "VerificationResult",
+    "AccessRequest", "ArenaInterpretation", "Artifact", "ArtifactKind", "AuthorizationError", "BureauEvent",
+    "CONTRACT", "CriterivoxMessage", "DebateArena", "EvaluationRecorder", "EvidenceResearchBureau",
+    "ExperimentRecord", "HumanIntervention", "InterventionRegistry", "LocalLayeredNLP", "MemoryConsolidator",
+    "RevisionRecord", "S7Adapter", "S7ArtifactEnvelope", "S8Intake", "S8Policy", "S8SQLiteStore",
+    "TemporalRetriever", "VerificationResult", "impacted_downstream",
 ]
