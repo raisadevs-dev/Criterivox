@@ -9,7 +9,7 @@ from .models import Artifact, ArtifactKind, BureauEvent, VerificationResult, utc
 from .interventions import InterventionRegistry
 from .persistence import S8SQLiteStore
 from .policy import AccessRequest, S8Policy
-from .research import TemporalRetriever
+from .research import MemoryConsolidator, TemporalRetriever, impacted_downstream
 
 
 class EvidenceResearchBureau:
@@ -108,6 +108,29 @@ class EvidenceResearchBureau:
         self._authorized(artifact, actor_id=actor_id, operation="inspect", tenant_id=tenant_id, context_id=context_id)
         payload = {"subject_artifact_id": artifact_id, "kind": artifact.kind.value, "sources": artifact.source_ids, "parents": artifact.parent_ids, "created_at": artifact.created_at.isoformat(), "status": artifact.status, "content_hash": artifact.content_hash, "limitations": artifact.payload.get("limitations", ()), "provenance_available": bool(artifact.parent_ids or artifact.source_ids)}
         return self.add_artifact(ArtifactKind.EXPLANATION, payload, source_ids=(artifact_id,), parent_ids=artifact.parent_ids, tenant_id=artifact.tenant_id, context_id=artifact.context_id)
+
+    def consolidate_memory(self, artifact_ids: tuple[str, ...], *, tenant_id: str | None = None, context_id: str | None = None) -> Artifact:
+        derived = MemoryConsolidator().consolidate(self.artifacts, artifact_ids=artifact_ids, tenant_id=tenant_id, context_id=context_id)
+        self.artifacts[derived.artifact_id] = derived
+        if self.store:
+            self.store.save_artifact(derived)
+        self._record("MEMORY_CONSOLIDATED", artifact_ids + (derived.artifact_id,), tenant_id=tenant_id, context_id=context_id)
+        return derived
+
+    def downstream_impact(self, changed_ids: tuple[str, ...], *, tenant_id: str | None = None, context_id: str | None = None) -> tuple[str, ...]:
+        return tuple(i for i in impacted_downstream(self.artifacts, changed_ids) if self.artifacts[i].tenant_id == tenant_id and self.artifacts[i].context_id == context_id)
+
+    def reevaluate(self, intervention_id: str, *, actor_id: str, tenant_id: str | None = None, context_id: str | None = None) -> BureauEvent:
+        intervention = self.interventions.get(intervention_id)
+        if not intervention.authorization.startswith("authorized-by:"):
+            raise PermissionError("Explicit authorization is required before re-evaluation.")
+        targets = tuple(i for i in intervention.target_artifact_ids if i in self.artifacts)
+        if not targets:
+            raise ValueError("Re-evaluation requires an accessible target artifact.")
+        artifact = self.artifacts[targets[0]]
+        self._authorized(artifact, actor_id=actor_id, operation="reevaluate", tenant_id=tenant_id, context_id=context_id, authorized=True)
+        affected = self.downstream_impact(targets, tenant_id=tenant_id, context_id=context_id)
+        return self._record("REEVALUATION_REQUESTED", targets + affected, actor=actor_id, tenant_id=tenant_id, context_id=context_id, intervention_id=intervention_id, affected_artifact_ids=affected)
 
     def challenge(self, actor_id: str, target_artifact_ids: tuple[str, ...], *, evidence_ids: tuple[str, ...] = (), context: str = "", proposed_alternative: str = "", tenant_id: str | None = None, context_id: str | None = None):
         targets = [self.artifacts[i] for i in target_artifact_ids if i in self.artifacts and self.artifacts[i].tenant_id == tenant_id and self.artifacts[i].context_id == context_id]
