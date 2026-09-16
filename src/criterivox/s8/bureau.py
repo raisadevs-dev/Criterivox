@@ -98,7 +98,8 @@ class EvidenceResearchBureau:
         artifact = self.artifacts[artifact_id]
         updated = Artifact(**{**artifact.__dict__, "status": "invalidated"})
         self.artifacts[artifact_id] = updated
-        if self.store: self.store.save_artifact(updated)
+        if self.store:
+            self.store.save_artifact(updated)
         affected = (artifact_id,) + tuple(affected_artifact_ids)
         return self._record("ARTIFACT_INVALIDATED", affected, tenant_id=artifact.tenant_id, context_id=artifact.context_id, reason=reason)
 
@@ -110,7 +111,8 @@ class EvidenceResearchBureau:
 
     def challenge(self, actor_id: str, target_artifact_ids: tuple[str, ...], *, evidence_ids: tuple[str, ...] = (), context: str = "", proposed_alternative: str = "", tenant_id: str | None = None, context_id: str | None = None):
         targets = [self.artifacts[i] for i in target_artifact_ids if i in self.artifacts and self.artifacts[i].tenant_id == tenant_id and self.artifacts[i].context_id == context_id]
-        if not targets: raise ValueError("A challenge target must identify an accessible artifact.")
+        if not targets:
+            raise ValueError("A challenge target must identify an accessible artifact.")
         intervention = self.interventions.create(actor_id, target_artifact_ids, evidence_ids=evidence_ids, context=context, proposed_alternative=proposed_alternative)
         self._record("HUMAN_CHALLENGE_RECORDED", target_artifact_ids, actor=actor_id, tenant_id=tenant_id, context_id=context_id, intervention_id=intervention.intervention_id)
         return intervention
@@ -122,9 +124,10 @@ class EvidenceResearchBureau:
 
     def record_revision(self, intervention_id: str, original_ids: tuple[str, ...], revised_ids: tuple[str, ...], affected_ids: tuple[str, ...], *, authorized_by: str | None = None) -> Any:
         intervention = self.interventions.get(intervention_id)
-        if not intervention.authorized: raise PermissionError("Revision requires an authorized intervention.")
+        if not intervention.authorization.startswith("authorized-by:"):
+            raise PermissionError("Revision requires an authorized intervention.")
         revision = self.interventions.revise(intervention_id, original_ids, revised_ids, affected_ids)
-        self._record("REVISED_STATE_RECORDED", original_ids + revised_ids, actor=authorized_by or intervention.authorized_by or "system", intervention_id=intervention_id, revision_id=revision.revision_id, affected_artifact_ids=affected_ids)
+        self._record("REVISED_STATE_RECORDED", original_ids + revised_ids, actor=authorized_by or intervention.authorization.removeprefix("authorized-by:") or "system", intervention_id=intervention_id, revision_id=revision.revision_id, affected_artifact_ids=affected_ids)
         return revision
 
     def snapshot(self) -> dict[str, Any]:
