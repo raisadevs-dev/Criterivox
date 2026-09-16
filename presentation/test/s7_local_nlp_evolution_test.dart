@@ -3,6 +3,7 @@ import 'package:presentation/s7/s7_context_resolver.dart';
 import 'package:presentation/s7/s7_conversation_engine.dart';
 import 'package:presentation/s7/s7_conversation_state.dart';
 import 'package:presentation/s7/s7_local_nlp.dart';
+import 'package:presentation/s7/s7_nlp_intents.dart';
 
 void main() {
   test('classifies evidence request deterministically', () {
@@ -25,9 +26,7 @@ void main() {
     final resolved = S7ContextResolver.resolve(
       explicitTarget: null,
       input: 'Compare them.',
-      intent: S7LocalNlp.analyze('Compare them.').intent == 'COMPARE_HYPOTHESES'
-          ? _compareIntent
-          : _compareIntent,
+      intent: S7NlpIntent.compareHypotheses,
       state: state,
     );
     expect(resolved.value, 'H1-alternatives');
@@ -47,5 +46,3 @@ void main() {
     expect(second.actor, 'tarkis');
   });
 }
-
-const _compareIntent = S7NlpIntent.compareHypotheses;
