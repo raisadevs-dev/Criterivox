@@ -15,6 +15,9 @@ class S8IndexedDbArtifactStore {
   Future<void> open() async {
     if (_database != null) return;
     final factory = getIdbFactory();
+    if (factory == null) {
+      throw StateError('IndexedDB is unavailable in this runtime.');
+    }
     _database = await factory.open(
       _databaseName,
       version: 1,
