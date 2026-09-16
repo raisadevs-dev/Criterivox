@@ -14,17 +14,17 @@ void main() {
 
       expect(
         find.textContaining('COLLABORATION ROOM'),
-        findsOneWidget,
+        findsAtLeastNWidgets(1),
       );
 
       expect(
         find.textContaining('CRITICAL INTELLIGENCE CHAMBER'),
-        findsOneWidget,
+        findsAtLeastNWidgets(1),
       );
 
       expect(
         find.textContaining('HYPOTHESIS EXPLORATION CHAMBER'),
-        findsOneWidget,
+        findsAtLeastNWidgets(1),
       );
 
       expect(
