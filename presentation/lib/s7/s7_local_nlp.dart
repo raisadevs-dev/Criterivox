@@ -1,12 +1,17 @@
-/// Deterministic, offline NLP for S7 Debate Arena.
-///
-/// This deliberately does not call an online LLM, remote inference API, or
-/// network service. It performs lightweight intent/entity extraction and
-/// routes the result to the existing character-specific reasoning roles.
+import 's7_nlp_intents.dart';
+
+/// Result of deterministic local language interpretation.
 class S7LocalNlpResult {
-  const S7LocalNlpResult({required this.intent, required this.target, required this.tokens, required this.confidence});
+  const S7LocalNlpResult({
+    required this.intent,
+    required this.target,
+    required this.tokens,
+    required this.confidence,
+  });
+
+  /// Stable wire name retained for compatibility with the existing S7 UI.
   final String intent;
-  final String target;
+  final String? target;
   final List<String> tokens;
   final double confidence;
 }
@@ -15,52 +20,112 @@ class S7LocalNlp {
   const S7LocalNlp._();
 
   static S7LocalNlpResult analyze(String input) {
-    final normalized = input.toLowerCase().replaceAll(RegExp(r'[^a-z0-9? ]'), ' ');
-    final tokens = normalized.split(RegExp(r'\s+')).where((x) => x.isNotEmpty).toList();
-    final score = <String, int>{
-      'challenge': _hits(tokens, const ['challenge', 'disagree', 'wrong', 'flaw', 'problem', 'critique', 'contradict']),
-      'evidence': _hits(tokens, const ['evidence', 'source', 'proof', 'support', 'provenance', 'data']),
-      'context': _hits(tokens, const ['context', 'assumption', 'missing', 'limit', 'limitation', 'background']),
-      'hypothesis': _hits(tokens, const ['hypothesis', 'alternative', 'possibility', 'scenario', 'branch', 'option', 'explain']),
-      'compare': _hits(tokens, const ['compare', 'versus', 'vs', 'difference', 'better', 'both']),
-      'why': _hits(tokens, const ['why', 'reason', 'cause', 'because']),
+    final normalized = input
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9? ]'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+    final tokens = normalized.isEmpty
+        ? <String>[]
+        : normalized.split(' ');
+
+    final scores = <S7NlpIntent, int>{
+      for (final intent in S7NlpIntent.values)
+        intent: _phraseHits(normalized, tokens, S7NlpIntentRegistry.phrases[intent] ?? const []),
     };
-    final ranked = score.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
-    final intent = ranked.first.value == 0 ? 'general' : ranked.first.key;
-    final confidence = ranked.first.value == 0 ? .35 : (0.55 + ranked.first.value * .12).clamp(.55, .95);
-    final target = intent == 'hypothesis' || intent == 'compare' ? 'tarkis' : intent == 'general' ? 'both' : 'vivren';
-    return S7LocalNlpResult(intent: intent, target: target, tokens: tokens, confidence: confidence.toDouble());
+
+    // Contextual overrides make short follow-ups deterministic.
+    if (normalized == 'why' || normalized == 'why?') {
+      scores[S7NlpIntent.askReasoning] = (scores[S7NlpIntent.askReasoning] ?? 0) + 3;
+    }
+    if (normalized == 'yes') scores[S7NlpIntent.confirm] = 3;
+    if (normalized == 'no') scores[S7NlpIntent.reject] = 3;
+
+    final ranked = scores.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final winner = ranked.first;
+    final intent = winner.value == 0 ? S7NlpIntent.general : winner.key;
+    final hits = winner.value;
+    final confidence = hits == 0 ? .35 : (0.52 + hits * .11).clamp(.52, .94).toDouble();
+
+    return S7LocalNlpResult(
+      intent: intent.wireName,
+      target: _targetFor(intent, normalized),
+      tokens: tokens,
+      confidence: confidence,
+    );
   }
 
-  static int _hits(List<String> tokens, List<String> words) => tokens.where(words.contains).length;
+  static int _phraseHits(String input, List<String> tokens, List<String> phrases) {
+    var hits = 0;
+    for (final phrase in phrases) {
+      if (phrase.contains(' ')) {
+        if (input.contains(phrase)) hits++;
+      } else if (tokens.contains(phrase)) {
+        hits++;
+      }
+    }
+    return hits;
+  }
+
+  static String? _targetFor(S7NlpIntent intent, String input) {
+    if (input.contains('hypothesis') || input.contains('hypotheses')) return 'hypotheses';
+    if (input.contains('claim')) return 'claim';
+    if (input.contains('evidence')) return 'evidence';
+    if (input.contains('reasoning')) return 'reasoning';
+    if (input.contains('assumption')) return 'assumption';
+    if (input.contains('contradiction')) return 'contradiction';
+    if (input.contains('provenance') || input.contains('lineage')) return 'provenance';
+    return switch (intent) {
+      S7NlpIntent.findAlternatives || S7NlpIntent.compareHypotheses => 'hypotheses',
+      _ => null,
+    };
+  }
 
   static String response(String actor, S7LocalNlpResult result) {
     final isVivren = actor.toLowerCase() == 'vivren';
     switch (result.intent) {
-      case 'challenge':
+      case 'ASK_EVIDENCE':
         return isVivren
-            ? 'I will test the claim for contradictions, unsupported assumptions, missing context, and reasoning integrity.'
-            : 'I will construct an alternative path and identify the observation that could distinguish it from the current claim.';
-      case 'evidence':
+            ? 'Critical inspection will examine supporting evidence, source, provenance, and evidentiary limits.'
+            : 'The evidence will be treated as a constraint while candidate explanations are explored.';
+      case 'CHALLENGE_CLAIM':
         return isVivren
-            ? 'Evidence request routed to critical inspection: source, support, provenance, and evidentiary limits should remain explicit.'
-            : 'I will treat the available evidence as constraints and explore which candidate hypotheses remain compatible with it.';
-      case 'context':
+            ? 'I will inspect the claim for contradictions, unsupported assumptions, missing context, and reasoning gaps.'
+            : 'I will explore an alternative path and identify observations that could distinguish it from the current claim.';
+      case 'ASK_CONTEXT':
         return isVivren
-            ? 'Context inspection: I will separate what is established from assumptions, omissions, and scope limitations.'
+            ? 'I will separate established context from assumptions, omissions, and scope limitations.'
             : 'I will examine how changing the surrounding assumptions alters the available hypothesis branches.';
-      case 'hypothesis':
+      case 'ASK_PROVENANCE':
+        return isVivren
+            ? 'I will trace the available provenance and keep the source lineage explicit.'
+            : 'I will use source lineage as a constraint when exploring candidate explanations.';
+      case 'ASK_LIMITATIONS':
+        return isVivren
+            ? 'I will identify uncertainty, scope limits, and unsupported transitions in the inspection path.'
+            : 'I will examine how uncertainty changes the hypothesis space and possible branches.';
+      case 'ASK_REASONING':
+        return isVivren
+            ? 'I will trace the supported reasoning path and mark where evidence stops carrying the conclusion.'
+            : 'I will examine multiple explanatory paths rather than collapsing immediately to one.';
+      case 'INSPECT_ASSUMPTION':
+        return 'I will isolate the assumption and determine how it affects the analytical result.';
+      case 'INSPECT_CONTRADICTION':
+        return 'I will isolate the conflicting findings and preserve their source references.';
+      case 'FIND_ALTERNATIVES':
+      case 'EXPLORE_HYPOTHESIS':
+      case 'EXPAND_BRANCH':
+      case 'TEST_HYPOTHESIS':
+      case 'REFINE_HYPOTHESIS':
+      case 'EXPLORE_COUNTERFACTUAL':
         return isVivren
             ? 'I will inspect the proposed hypothesis for evidence, contradictions, and hidden assumptions.'
-            : 'Hypothesis exploration: I will generate alternative explanations, branches, and tests that could discriminate between them.';
-      case 'compare':
+            : 'I will explore candidate explanations, branches, tests, and refinements without treating exploration as established truth.';
+      case 'COMPARE_HYPOTHESES':
         return isVivren
-            ? 'Comparison from the inspection side: I will compare evidence quality, assumptions, provenance, and contradictions.'
-            : 'Comparison from the exploration side: I will contrast candidate paths, consequences, and discriminating observations.';
-      case 'why':
-        return isVivren
-            ? 'Reasoning inspection: I will trace the supported path and mark where the evidence stops carrying the conclusion.'
-            : 'Reasoning exploration: I will examine multiple causal or explanatory paths rather than collapsing immediately to one.';
+            ? 'I will compare evidence quality, assumptions, provenance, contradictions, and limitations.'
+            : 'I will compare candidate paths, consequences, and observations that could discriminate between them.';
       default:
         return isVivren
             ? 'Critical inspection is active. Ask about evidence, contradictions, context, provenance, or reasoning integrity.'
