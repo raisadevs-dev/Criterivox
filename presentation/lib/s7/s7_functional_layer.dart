@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
@@ -20,7 +21,8 @@ class S7CharacterStateResolver {
       ...source,
       'presentation_state': mapped.$1,
       'behavior': mapped.$2,
-      'state': mapped.$3,
+      'state': raw,
+      'animation_state': mapped.$3,
       'state_machine': isVivren ? 'VivrenCriticalInspectionStateMachine' : 'TarkisHypothesisExplorationStateMachine',
     };
   }

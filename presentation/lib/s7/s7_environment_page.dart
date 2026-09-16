@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 's7_visuals.dart';
+import 's7_functional_layer.dart';
 
 class S7EnvironmentPage extends StatefulWidget {
   const S7EnvironmentPage({super.key});
@@ -144,7 +145,8 @@ class _S7EnvironmentPageState extends State<S7EnvironmentPage>
     final value = states is Map ? states[id] : null;
 
     if (value is Map) {
-      return Map<String, dynamic>.from(value);
+      final raw = Map<String, dynamic>.from(value);
+      return S7CharacterStateResolver.resolve(id, raw);
     }
 
     return <String, dynamic>{
@@ -565,6 +567,15 @@ class _S7EnvironmentPageState extends State<S7EnvironmentPage>
                 ),
               ),
             if (error != null) _errorBanner(),
+            Positioned(
+              right: 18,
+              bottom: 18,
+              child: S7FunctionalDock(
+                room: room,
+                artifacts: artifacts,
+                onSelectArtifact: select,
+              ),
+            ),
           ],
         ),
       ),
