@@ -7,16 +7,28 @@ import 'package:presentation/s7/s7_nlp_intents.dart';
 
 void main() {
   test('classifies evidence request deterministically', () {
-    final result = S7LocalNlp.analyze('Show me the evidence behind this claim.');
+    final result = S7LocalNlp.analyze(
+      'Show me the evidence behind this claim.',
+    );
     expect(result.intent, 'ASK_EVIDENCE');
     expect(result.target, 'claim');
     expect(result.confidence, greaterThan(.5));
   });
 
-  test('keeps exploration intents distinct from inspection', () {
-    final result = S7LocalNlp.analyze('Find alternatives and compare hypotheses.');
+  test('classifies alternatives as an exploration intent', () {
+    final result = S7LocalNlp.analyze(
+      'Find alternatives for this hypothesis.',
+    );
+    expect(result.intent, 'FIND_ALTERNATIVES');
+    expect(result.target, 'hypotheses');
+    expect(result.confidence, greaterThan(.5));
+  });
+
+  test('classifies hypothesis comparison as a comparison intent', () {
+    final result = S7LocalNlp.analyze('Compare hypotheses.');
     expect(result.intent, 'COMPARE_HYPOTHESES');
     expect(result.target, 'hypotheses');
+    expect(result.confidence, greaterThan(.5));
   });
 
   test('resolves a follow-up reference from conversation state', () {
