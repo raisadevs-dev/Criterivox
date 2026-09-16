@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 const _violet = Color(0xffb59cff);
 const _amber = Color(0xffffb463);
-const _ink = Color(0xff070914);
 const _glass = Color(0xff111526);
 
 class S7BureauBackdrop extends CustomPainter {
@@ -31,14 +30,13 @@ class S7BureauBackdrop extends CustomPainter {
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [
-          const Color(0xff17152d),
-          const Color(0xff0b0d1b),
-          const Color(0xff050713),
+        colors: const [
+          Color(0xff17152d),
+          Color(0xff0b0d1b),
+          Color(0xff050713),
         ],
       ).createShader(Offset.zero & size);
     canvas.drawRect(Offset.zero & size, bg);
-
     _drawSky(canvas, size, p);
     _drawWindows(canvas, size);
     _drawArchitecture(canvas, size);
@@ -62,12 +60,10 @@ class S7BureauBackdrop extends CustomPainter {
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height * .45));
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height * .45), sky);
-
     final sun = Paint()
       ..color = accent.withValues(alpha: .11 + .025 * p)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 42);
     canvas.drawCircle(Offset(size.width * .78, size.height * .18), 38, sun);
-
     final skyline = Paint()..color = Colors.white.withValues(alpha: .035);
     for (var i = 0; i < 18; i++) {
       final x = size.width * (i / 18);
@@ -87,10 +83,7 @@ class S7BureauBackdrop extends CustomPainter {
         end: Alignment.bottomCenter,
         colors: [accent.withValues(alpha: .10), Colors.white.withValues(alpha: .018)],
       ).createShader(Rect.fromLTWH(size.width * .05, size.height * .07, size.width * .9, size.height * .38));
-    final rect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(size.width * .05, size.height * .07, size.width * .90, size.height * .36),
-      const Radius.circular(24),
-    );
+    final rect = RRect.fromRectAndRadius(Rect.fromLTWH(size.width * .05, size.height * .07, size.width * .90, size.height * .36), const Radius.circular(24));
     canvas.drawRRect(rect, fill);
     canvas.drawRRect(rect, frame);
     final x1 = size.width * .34;
@@ -111,13 +104,7 @@ class S7BureauBackdrop extends CustomPainter {
       ..color = Colors.white.withValues(alpha: .045);
     for (var i = 0; i < 7; i++) {
       final x = size.width * (.04 + i * .16);
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromLTWH(x, size.height * .12, size.width * .025, size.height * .58),
-          const Radius.circular(10),
-        ),
-        line,
-      );
+      canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x, size.height * .12, size.width * .025, size.height * .58), const Radius.circular(10)), line);
     }
     canvas.drawLine(Offset(0, size.height * .69), Offset(size.width, size.height * .69), line);
     canvas.drawLine(Offset(0, size.height * .48), Offset(size.width, size.height * .48), line);
@@ -240,12 +227,7 @@ class S7BureauCharacter extends StatelessWidget {
             width: 360,
             margin: const EdgeInsets.all(22),
             padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: _glass.withValues(alpha: .92),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: accent.withValues(alpha: .30)),
-              boxShadow: [BoxShadow(color: accent.withValues(alpha: .12), blurRadius: 34)],
-            ),
+            decoration: BoxDecoration(color: _glass.withValues(alpha: .92), borderRadius: BorderRadius.circular(24), border: Border.all(color: accent.withValues(alpha: .30)), boxShadow: [BoxShadow(color: accent.withValues(alpha: .12), blurRadius: 34)]),
             child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
                 Container(width: 42, height: 42, decoration: BoxDecoration(shape: BoxShape.circle, color: accent.withValues(alpha: .10), border: Border.all(color: accent.withValues(alpha: .30))), child: Icon(isVivren ? Icons.visibility_rounded : Icons.account_tree_rounded, color: accent)),
@@ -256,11 +238,11 @@ class S7BureauCharacter extends StatelessWidget {
               const SizedBox(height: 18),
               Text('PERSONALITY REFLECTION', style: TextStyle(fontSize: 9, letterSpacing: 1.5, fontWeight: FontWeight.w800, color: accent)),
               const SizedBox(height: 7),
-              Text(quote, style: const TextStyle(fontSize: 14, height: 1.5, fontStyle: FontStyle.italic, color: Colors.white80)),
+              Text(quote, style: TextStyle(fontSize: 14, height: 1.5, fontStyle: FontStyle.italic, color: Colors.white.withValues(alpha: .80))),
               const SizedBox(height: 16),
-              Wrap(spacing: 7, runSpacing: 7, children: traits.map((t) => Chip(label: Text(t, style: const TextStyle(fontSize: 8, color: Colors.white70)), backgroundColor: accent.withValues(alpha: .08), side: BorderSide(color: accent.withValues(alpha: .16)))).toList()),
+              Wrap(spacing: 7, runSpacing: 7, children: traits.map((t) => Chip(label: Text(t, style: const TextStyle(fontSize: 8, color: Colors.white70)), backgroundColor: accent.withValues(alpha: .08), side: BorderSide(color: accent.withValues(alpha: .16))).toList()),
               const SizedBox(height: 12),
-              Text(isVivren ? 'Visual responsibility: critique, assumptions, evidence quality, epistemic limits.' : 'Visual responsibility: hypotheses, branches, alternatives, counterfactual exploration.', style: const TextStyle(fontSize: 9, height: 1.5, color: Colors.white45)),
+              Text(isVivren ? 'Visual responsibility: critique, assumptions, evidence quality, epistemic limits.' : 'Visual responsibility: hypotheses, branches, alternatives, counterfactual exploration.', style: TextStyle(fontSize: 9, height: 1.5, color: Colors.white.withValues(alpha: .45))),
             ]),
           ),
         ),
@@ -293,10 +275,11 @@ class _CharacterPainter extends CustomPainter {
 
     final glow = Paint()..color = accent.withValues(alpha: active ? .17 : .09)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 25);
     canvas.drawOval(Rect.fromCenter(center: Offset(95, 292), width: 115 + dance * 2, height: 25), glow);
-
     final halo = Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = accent.withValues(alpha: active ? .42 : .16 + .04 * (math.sin(cycle) + 1));
     canvas.drawOval(Rect.fromCenter(center: Offset(95, 145 + bob), width: 118 + 8 * math.sin(cycle), height: 224), halo);
-    if (active) canvas.drawArc(Rect.fromCenter(center: Offset(95, 145), width: 132, height: 238), cycle, math.pi * .75, false, halo);
+    if (active) {
+      canvas.drawArc(Rect.fromCenter(center: Offset(95, 145), width: 132, height: 238), cycle, math.pi * .75, false, halo);
+    }
 
     canvas.translate(0, bob + dance);
     final skin = Paint()..color = isVivren ? const Color(0xffd9d5df) : const Color(0xffcbb8ad);
@@ -316,19 +299,18 @@ class _CharacterPainter extends CustomPainter {
     canvas.drawPath(body, seam);
     canvas.drawPath(Path()..moveTo(88, 132)..lineTo(80, 231)..lineTo(95, 238)..lineTo(103, 132)..close(), shade);
 
-    // Hands and individual fingers are intentionally visible.
     canvas.save();
     canvas.translate(57, 158);
     canvas.rotate(armLift);
     canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(-11, 0, 20, 72), const Radius.circular(8)), shade);
-    _drawHand(canvas, Offset(-1, 77), skin, accent, open: normalized == 'communicate' || normalized == 'handoff');
+    _drawHand(canvas, const Offset(-1, 77), skin, accent, open: normalized == 'communicate' || normalized == 'handoff');
     canvas.restore();
 
     canvas.save();
     canvas.translate(112, 160);
     canvas.rotate(-armLift * .72);
     canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(-1, 0, 20, 68), const Radius.circular(8)), shade);
-    _drawHand(canvas, Offset(9, 73), skin, accent, open: normalized == 'communicate' || normalized == 'receive');
+    _drawHand(canvas, const Offset(9, 73), skin, accent, open: normalized == 'communicate' || normalized == 'receive');
     canvas.restore();
 
     canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(76, 106, 38, 30), const Radius.circular(9)), skin);
@@ -354,14 +336,13 @@ class _CharacterPainter extends CustomPainter {
     final mouthRect = Rect.fromLTWH(89, 93, 15, normalized == 'smiling' ? 9 : 6);
     canvas.drawArc(mouthRect, normalized == 'smiling' ? 0 : math.pi, math.pi, false, mouth);
 
-    // Signature accessories / expert toolsets.
     final pendant = Path()..moveTo(95, 139)..lineTo(103, 150)..lineTo(95, 162)..lineTo(87, 150)..close();
     canvas.drawPath(pendant, Paint()..color = accent.withValues(alpha: .86));
     canvas.drawPath(pendant, seam);
-    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(116, 216, 18, 9), const Radius.circular(3)), Paint()..color = accent.withValues(alpha: .86));
+    canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(116, 216, 18, 9), const Radius.circular(3)), Paint()..color = accent.withValues(alpha: .86));
     if (active) {
       final tool = Paint()..style = PaintingStyle.stroke..strokeWidth = 1..color = accent.withValues(alpha: .52);
-      final center = Offset(95, 184);
+      final center = const Offset(95, 184);
       canvas.drawCircle(center, 24, tool);
       canvas.drawCircle(center, 12, tool);
       for (var i = 0; i < 6; i++) {
@@ -396,6 +377,7 @@ class _CharacterPainter extends CustomPainter {
 
 class S7GlassPanel extends StatefulWidget {
   const S7GlassPanel({super.key, required this.title, required this.child, this.accent, this.initiallyExpanded = true, this.width});
+
   final String title;
   final Widget child;
   final Color? accent;
@@ -421,38 +403,84 @@ class _S7GlassPanelState extends State<S7GlassPanel> {
         boxShadow: [BoxShadow(color: accent.withValues(alpha: .045), blurRadius: 28), BoxShadow(color: Colors.black.withValues(alpha: .24), blurRadius: 18)],
       ),
       clipBehavior: Clip.antiAlias,
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        InkWell(
-          onTap: () => setState(() => expanded = !expanded),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(15, 13, 13, 12),
-            child: Row(children: [
-              Container(width: 3, height: 20, decoration: BoxDecoration(color: accent, borderRadius: BorderRadius.circular(4), boxShadow: [BoxShadow(color: accent.withValues(alpha: .7), blurRadius: 10)])),
-              const SizedBox(width: 10),
-              Expanded(child: Text(widget.title, style: TextStyle(fontSize: 10, letterSpacing: 1.55, fontWeight: FontWeight.w900, color: Colors.white.withValues(alpha: .88), shadows: [Shadow(color: accent.withValues(alpha: .25), blurRadius: 8)]))),
-              Icon(expanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded, size: 19, color: Colors.white38),
-            ]),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          InkWell(
+            onTap: () => setState(() => expanded = !expanded),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(15, 13, 13, 12),
+              child: Row(
+                children: <Widget>[
+                  Container(width: 3, height: 20, decoration: BoxDecoration(color: accent, borderRadius: BorderRadius.circular(4), boxShadow: [BoxShadow(color: accent.withValues(alpha: .7), blurRadius: 10)])),
+                  const SizedBox(width: 10),
+                  Expanded(child: Text(widget.title, style: TextStyle(fontSize: 10, letterSpacing: 1.55, fontWeight: FontWeight.w900, color: Colors.white.withValues(alpha: .88), shadows: [Shadow(color: accent.withValues(alpha: .25), blurRadius: 8)]))),
+                  Icon(expanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded, size: 19, color: Colors.white38),
+                ],
+              ),
+            ),
           ),
-        ),
-        AnimatedCrossFade(firstChild: const SizedBox.shrink(), secondChild: Padding(padding: const EdgeInsets.fromLTRB(15, 0, 15, 15), child: widget.child), crossFadeState: expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst, duration: const Duration(milliseconds: 180)),
-      ]),
+          AnimatedCrossFade(
+            firstChild: const SizedBox.shrink(),
+            secondChild: Padding(padding: const EdgeInsets.fromLTRB(15, 0, 15, 15), child: widget.child),
+            crossFadeState: expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 180),
+          ),
+        ],
+      ),
     );
   }
 }
 
 class S7SectionLabel extends StatelessWidget {
   const S7SectionLabel(this.text, {super.key, this.accent});
+
   final String text;
   final Color? accent;
+
   @override
-  Widget build(BuildContext context) => Text(text.toUpperCase(), style: TextStyle(fontSize: 9, letterSpacing: 1.6, fontWeight: FontWeight.w900, color: accent ?? Colors.white38, shadows: accent == null ? null : [Shadow(color: accent!.withValues(alpha: .5), blurRadius: 9)]));
+  Widget build(BuildContext context) {
+    return Text(
+      text.toUpperCase(),
+      style: TextStyle(
+        fontSize: 9,
+        letterSpacing: 1.6,
+        fontWeight: FontWeight.w900,
+        color: accent ?? Colors.white38,
+        shadows: accent == null ? null : [Shadow(color: accent!.withValues(alpha: .5), blurRadius: 9)],
+      ),
+    );
+  }
 }
 
 class S7Metric extends StatelessWidget {
   const S7Metric(this.label, this.value, {super.key, this.accent});
+
   final String label;
   final String value;
   final Color? accent;
+
   @override
-  Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: accent ?? Colors.white, shadows: [Shadow(color: (accent ?? Colors.white).withValues(alpha: .28), blurRadius: 9)])), const SizedBox(height: 4), Text(label.toUpperCase(), style: const TextStyle(fontSize: 8, letterSpacing: 1.25, color: Colors.white38, fontWeight: FontWeight.w700))]);
+  Widget build(BuildContext context) {
+    final Color metricAccent = accent ?? Colors.white;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w900,
+            color: metricAccent,
+            shadows: [Shadow(color: metricAccent.withValues(alpha: .28), blurRadius: 9)],
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label.toUpperCase(),
+          style: const TextStyle(fontSize: 8, letterSpacing: 1.25, color: Colors.white38, fontWeight: FontWeight.w700),
+        ),
+      ],
+    );
+  }
 }
