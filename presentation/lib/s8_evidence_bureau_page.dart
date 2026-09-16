@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 's8_character_presentation.dart';
 import 's8_environment.dart';
+import 's8_environment_entities.dart';
 import 's8_intervention_arena.dart';
 import 's8_presentation_state.dart';
 
@@ -31,12 +32,13 @@ class _S8EvidenceBureauPageState extends State<S8EvidenceBureauPage> {
         NavigationRailDestination(icon: Icon(Icons.groups_outlined), selectedIcon: Icon(Icons.groups), label: Text('Presentation')),
       ]),
       const VerticalDivider(width: 1),
-      Expanded(
-        child: S8RoomEnvironment(
-          room: room,
-          child: ListView(padding: const EdgeInsets.all(20), children: [_Header()]..followedBy(_content())),
-        ),
-      ),
+      Expanded(child: S8RoomEnvironment(
+        room: room,
+        child: Stack(children: [
+          Positioned.fill(child: S8EnvironmentEntityCluster(room: room)),
+          ListView(padding: const EdgeInsets.all(20), children: [_Header()]..followedBy(_content())),
+        ]),
+      )),
     ]),
   );
 
@@ -92,5 +94,5 @@ class _S8EvidenceBureauPageState extends State<S8EvidenceBureauPage> {
 
 class _Header extends StatelessWidget {
   const _Header();
-  @override Widget build(BuildContext context) => Padding(padding: const EdgeInsets.only(bottom: 16), child: Container(padding: const EdgeInsets.all(18), decoration: BoxDecoration(borderRadius: BorderRadius.circular(18), gradient: const LinearGradient(colors: [Color(0xFF0B2940), Color(0xFF10152E)]), border: Border.all(color: Colors.white24)), child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('S8 INTELLIGENCE ENVIRONMENT', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)), SizedBox(height: 5), Text('Four rooms · shared artifacts · explicit uncertainty · human authority')])));
+  @override Widget build(BuildContext context) => Padding(padding: const EdgeInsets.only(bottom: 16), child: Container(padding: const EdgeInsets.all(18), decoration: BoxDecoration(borderRadius: BorderRadius.circular(18), gradient: const LinearGradient(colors: [Color(0xFF0B2940), Color(0xFF10152E)]), border: Border.all(color: Colors.white24)), child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('S8 INTELLIGENCE ENVIRONMENT', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)), SizedBox(height: 5), Text('Four rooms · shared artifacts · explicit uncertainty · human authority')]));
 }
