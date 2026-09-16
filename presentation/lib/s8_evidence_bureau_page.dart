@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 's8_character_presentation.dart';
+import 's8_environment.dart';
 import 's8_intervention_arena.dart';
 import 's8_presentation_state.dart';
 
@@ -29,7 +30,13 @@ class _S8EvidenceBureauPageState extends State<S8EvidenceBureauPage> {
         NavigationRailDestination(icon: Icon(Icons.verified_outlined), selectedIcon: Icon(Icons.verified), label: Text('Veridat')),
         NavigationRailDestination(icon: Icon(Icons.groups_outlined), selectedIcon: Icon(Icons.groups), label: Text('Presentation')),
       ]),
-      const VerticalDivider(width: 1), Expanded(child: ListView(padding: const EdgeInsets.all(20), children: [_Header()]..followedBy(_content()))),
+      const VerticalDivider(width: 1),
+      Expanded(
+        child: S8RoomEnvironment(
+          room: room,
+          child: ListView(padding: const EdgeInsets.all(20), children: [_Header()]..followedBy(_content())),
+        ),
+      ),
     ]),
   );
 
@@ -38,8 +45,6 @@ class _S8EvidenceBureauPageState extends State<S8EvidenceBureauPage> {
     if (room == S8Room.presentation) return [_presentation()];
     return [_specialist()];
   }
-
-  Widget _headerWidget() => Container();
 
   Widget _home() => Column(children: [
     Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
