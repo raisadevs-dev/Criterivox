@@ -1,0 +1,10 @@
+{
+  "observations": ["value increased after intervention"],
+  "known_factors": ["seasonality was not measured", "measurement procedure changed"],
+  "candidate_hypotheses": [
+    "The intervention contributed to the increase.",
+    "Seasonality contributed to the increase.",
+    "The measurement-method change contributed to the increase."
+  ],
+  "sources": ["fixture-02"]
+}

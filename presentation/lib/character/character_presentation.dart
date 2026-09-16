@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import '../presentation/criterivox_theme.dart';
 import '../presentation/presentation_state.dart';
 import 'character_identity.dart';
-import 'character_runtime.dart';
-
+import 'character_runtime_flutter.dart';
 class CharacterPresentation extends StatelessWidget {
   final PresentationState state;
 

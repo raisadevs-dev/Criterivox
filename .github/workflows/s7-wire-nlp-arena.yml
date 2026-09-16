@@ -1,0 +1,36 @@
+name: S7 wire NLP Debate Arena
+on:
+  push:
+    branches: [reasoning-research-bureau]
+    paths:
+      - 'presentation/lib/s7/s7_nlp_debate_arena.dart'
+      - '.github/workflows/s7-wire-nlp-arena.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  wire:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: reasoning-research-bureau
+      - name: Wire widget
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('presentation/lib/s7/s7_functional_layer.dart')
+          s = p.read_text()
+          imp = "import 's7_nlp_debate_arena.dart';"
+          if imp not in s:
+              s = s.replace("import 's7_local_nlp.dart';", "import 's7_local_nlp.dart';\nimport 's7_nlp_debate_arena.dart';")
+          s = s.replace("builder: (_) => const S7DebateArena(),", "builder: (_) => const S7NlpDebateArena(),")
+          p.write_text(s)
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add presentation/lib/s7/s7_functional_layer.dart
+          git diff --cached --quiet || git commit -m 'S7: use offline NLP Debate Arena'
+          git push origin reasoning-research-bureau
