@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections import defaultdict
 from typing import Any, Mapping
 
 from .models import Artifact, ArtifactKind, BureauEvent, VerificationResult, utc_now
@@ -72,19 +71,22 @@ class EvidenceResearchBureau:
     def verify_claim(self, claim: str, evidence_ids: tuple[str, ...], *, tenant_id: str | None = None, context_id: str | None = None) -> VerificationResult:
         evidence = [self.artifacts[eid] for eid in evidence_ids if eid in self.artifacts and self.artifacts[eid].tenant_id == tenant_id and self.artifacts[eid].context_id == context_id]
         missing = [eid for eid in evidence_ids if eid not in self.artifacts]
+        inaccessible = [eid for eid in evidence_ids if eid in self.artifacts and eid not in {a.artifact_id for a in evidence}]
+        if inaccessible:
+            missing.extend(f"{eid} (inaccessible)" for eid in inaccessible)
         contradictions = [a.artifact_id for a in evidence if a.kind is ArtifactKind.CONTRADICTION]
         if missing or not evidence:
             status = "insufficient_evidence"
-            limitations = (f"Unknown evidence artifact(s): {', '.join(missing)}",) if missing else ("No evidence artifacts were supplied.",)
+            limitations = (f"Unknown or inaccessible evidence artifact(s): {', '.join(missing)}",) if missing else ("No evidence artifacts were supplied.",)
         elif contradictions:
             status = "contradictory"
             limitations = ("Supplied evidence includes an explicit contradiction artifact.",)
         else:
             status = "grounded_pending_validation"
             limitations = ()
-        provenance = self.add_artifact(ArtifactKind.PROVENANCE, {"claim": claim, "evidence_ids": evidence_ids, "method": "artifact-reference-trace"}, source_ids=evidence_ids, tenant_id=tenant_id, context_id=context_id)
+        provenance = self.add_artifact(ArtifactKind.PROVENANCE, {"claim": claim, "evidence_ids": evidence_ids, "method": "artifact-reference-trace"}, source_ids=tuple(a.artifact_id for a in evidence), tenant_id=tenant_id, context_id=context_id)
         result = VerificationResult(self._id("S8V"), claim, status, evidence_ids, limitations, tuple(contradictions), provenance.artifact_id)
-        verification = self.add_artifact(ArtifactKind.VERIFICATION, {"verification_id": result.verification_id, "claim": claim, "status": status, "evidence_ids": evidence_ids, "limitations": limitations, "contradiction_ids": tuple(contradictions)}, source_ids=evidence_ids, parent_ids=(provenance.artifact_id,), tenant_id=tenant_id, context_id=context_id, status=status)
+        verification = self.add_artifact(ArtifactKind.VERIFICATION, {"verification_id": result.verification_id, "claim": claim, "status": status, "evidence_ids": evidence_ids, "limitations": limitations, "contradiction_ids": tuple(contradictions)}, source_ids=tuple(a.artifact_id for a in evidence), parent_ids=(provenance.artifact_id,), tenant_id=tenant_id, context_id=context_id, status=status)
         self._record("VERIFICATION_COMPLETED", (verification.artifact_id, provenance.artifact_id), tenant_id=tenant_id, context_id=context_id, status=status)
         return result
 
@@ -114,7 +116,7 @@ class EvidenceResearchBureau:
         self._record("EXPLANATION_AVAILABLE", (explanation.artifact_id,), tenant_id=artifact.tenant_id, context_id=artifact.context_id)
         return explanation
 
-    def challenge(self, actor_id: str, target_artifact_ids: tuple[str, ...], *, evidence_ids: tuple[str, ...] = (), context: str = "", proposed_alternative: str = "", tenant_id: str | None = None, context_id: str | None = ()):
+    def challenge(self, actor_id: str, target_artifact_ids: tuple[str, ...], *, evidence_ids: tuple[str, ...] = (), context: str = "", proposed_alternative: str = "", tenant_id: str | None = None, context_id: str | None = None):
         targets = [self.artifacts[i] for i in target_artifact_ids if i in self.artifacts]
         if not targets:
             raise ValueError("A challenge target must identify an existing artifact.")
