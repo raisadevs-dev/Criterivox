@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'character/character_runtime_flutter.dart';
+import 'presentation/presentation_state.dart';
 import 's8_presentation_state.dart';
 
+/// S8 reuses the canonical Criterivox character renderer. S8 supplies semantic
+/// state; the character remains a presentation identity, never a truth engine.
 class S8CharacterPresentation extends StatelessWidget {
   final S8CharacterState character;
   final bool compact;
@@ -10,28 +14,36 @@ class S8CharacterPresentation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final avatar = CircleAvatar(
-      radius: compact ? 24 : 34,
-      backgroundColor: character.accent.withValues(alpha: .14),
-      child: Text(
-        character.name.substring(0, 1),
-        style: TextStyle(color: character.accent, fontWeight: FontWeight.bold, fontSize: compact ? 18 : 26),
-      ),
+    final state = PresentationState(
+      agentId: character.name.toLowerCase(),
+      characterState: character.activity.name.toUpperCase(),
+      active: character.activity != S8ActivityState.idle,
+      reducedMotion: false,
+      prominence: 1,
     );
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.all(compact ? 12 : 16),
-        child: Row(children: [
-          avatar,
-          const SizedBox(width: 12),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return Semantics(
+      container: true,
+      label: '${character.name}, ${character.role}',
+      value: character.activityLabel,
+      child: Card(
+        child: Padding(
+          padding: EdgeInsets.all(compact ? 10 : 14),
+          child: Column(children: [
+            CharacterRuntimeView(
+              characterId: state.agentId,
+              state: state.characterState,
+              reducedMotion: state.reducedMotion,
+              width: compact ? 150 : 220,
+              height: compact ? 190 : 245,
+            ),
             Text(character.name, style: Theme.of(context).textTheme.titleLarge),
             Text(character.role),
-            const SizedBox(height: 5),
-            Text(character.visualMetaphor, style: Theme.of(context).textTheme.bodySmall),
-          ])),
-          Chip(label: Text(character.activityLabel)),
-        ]),
+            const SizedBox(height: 4),
+            Text(character.visualMetaphor, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(height: 7),
+            Chip(label: Text(character.activityLabel)),
+          ]),
+        ),
       ),
     );
   }
