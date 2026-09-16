@@ -3,6 +3,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import 's7_local_nlp.dart';
+
 const _s7Violet = Color(0xffb59cff);
 const _s7Amber = Color(0xffffb463);
 const _s7Glass = Color(0xff111526);
@@ -179,7 +181,7 @@ class _S7FunctionalDockState extends State<S7FunctionalDock> {
     showDialog<void>(
       context: context,
       barrierColor: Colors.black.withValues(alpha: .68),
-      builder: (_) => const S7DebateArena(),
+      builder: (_) => const S7NlpDebateArena(),
     );
   }
 }
