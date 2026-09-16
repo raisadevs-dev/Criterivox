@@ -1,0 +1,40 @@
+name: S7 fix functional analyzer
+on:
+  push:
+    branches: [reasoning-research-bureau]
+    paths:
+      - 'presentation/lib/s7/s7_functional_layer.dart'
+      - '.github/workflows/s7-fix-functional-analyzer.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: reasoning-research-bureau
+      - name: Fix functional layer
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+          p = Path('presentation/lib/s7/s7_functional_layer.dart')
+          s = p.read_text()
+          s = s.replace("import 's7_local_nlp.dart';", "import 's7_local_nlp.dart';\nimport 's7_nlp_debate_arena.dart';")
+          s = s.replace('class S7GlassPanel extends StatelessWidget {', 'class S7FunctionalGlassPanel extends StatelessWidget {')
+          s = s.replace('const S7GlassPanel({super.key, required this.title, required this.child, this.accent});', 'const S7FunctionalGlassPanel({super.key, required this.title, required this.child, this.accent});')
+          s = s.replace("S7GlassPanel(title: 'SOURCE SNAPSHOT'", "S7FunctionalGlassPanel(title: 'SOURCE SNAPSHOT'")
+          s = s.replace('Colors.white45', 'Colors.white.withValues(alpha: .45)')
+          s = s.replace('const TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: .45))', 'const TextStyle(fontSize: 10, color: Colors.white54)')
+          s = s.replace('builder: (_) => const S7DebateArena(),', 'builder: (_) => const S7NlpDebateArena(),')
+          p.write_text(s)
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add presentation/lib/s7/s7_functional_layer.dart
+          git diff --cached --quiet || git commit -m 'S7: resolve functional presentation analyzer collisions'
+          git push origin reasoning-research-bureau
