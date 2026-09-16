@@ -25,28 +25,36 @@ class S7LocalNlp {
         .replaceAll(RegExp(r'[^a-z0-9? ]'), ' ')
         .replaceAll(RegExp(r'\s+'), ' ')
         .trim();
-    final tokens = normalized.isEmpty
-        ? <String>[]
-        : normalized.split(' ');
+    final tokens = normalized.isEmpty ? <String>[] : normalized.split(' ');
 
     final scores = <S7NlpIntent, int>{
       for (final intent in S7NlpIntent.values)
-        intent: _phraseHits(normalized, tokens, S7NlpIntentRegistry.phrases[intent] ?? const []),
+        intent: _phraseHits(
+          normalized,
+          tokens,
+          S7NlpIntentRegistry.phrases[intent] ?? const [],
+        ),
     };
 
-    // Contextual overrides make short follow-ups deterministic.
     if (normalized == 'why' || normalized == 'why?') {
-      scores[S7NlpIntent.askReasoning] = (scores[S7NlpIntent.askReasoning] ?? 0) + 3;
+      scores[S7NlpIntent.askReasoning] =
+          (scores[S7NlpIntent.askReasoning] ?? 0) + 3;
     }
-    if (normalized == 'yes') scores[S7NlpIntent.confirm] = 3;
-    if (normalized == 'no') scores[S7NlpIntent.reject] = 3;
+    if (normalized == 'yes') {
+      scores[S7NlpIntent.confirm] = 3;
+    }
+    if (normalized == 'no') {
+      scores[S7NlpIntent.reject] = 3;
+    }
 
     final ranked = scores.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     final winner = ranked.first;
     final intent = winner.value == 0 ? S7NlpIntent.general : winner.key;
     final hits = winner.value;
-    final confidence = hits == 0 ? .35 : (0.52 + hits * .11).clamp(.52, .94).toDouble();
+    final confidence = hits == 0
+        ? .35
+        : (0.52 + hits * .11).clamp(.52, .94).toDouble();
 
     return S7LocalNlpResult(
       intent: intent.wireName,
@@ -56,11 +64,17 @@ class S7LocalNlp {
     );
   }
 
-  static int _phraseHits(String input, List<String> tokens, List<String> phrases) {
+  static int _phraseHits(
+    String input,
+    List<String> tokens,
+    List<String> phrases,
+  ) {
     var hits = 0;
     for (final phrase in phrases) {
       if (phrase.contains(' ')) {
-        if (input.contains(phrase)) hits++;
+        if (input.contains(phrase)) {
+          hits++;
+        }
       } else if (tokens.contains(phrase)) {
         hits++;
       }
@@ -69,15 +83,30 @@ class S7LocalNlp {
   }
 
   static String? _targetFor(S7NlpIntent intent, String input) {
-    if (input.contains('hypothesis') || input.contains('hypotheses')) return 'hypotheses';
-    if (input.contains('claim')) return 'claim';
-    if (input.contains('evidence')) return 'evidence';
-    if (input.contains('reasoning')) return 'reasoning';
-    if (input.contains('assumption')) return 'assumption';
-    if (input.contains('contradiction')) return 'contradiction';
-    if (input.contains('provenance') || input.contains('lineage')) return 'provenance';
+    if (input.contains('hypothesis') || input.contains('hypotheses')) {
+      return 'hypotheses';
+    }
+    if (input.contains('claim')) {
+      return 'claim';
+    }
+    if (input.contains('evidence')) {
+      return 'evidence';
+    }
+    if (input.contains('reasoning')) {
+      return 'reasoning';
+    }
+    if (input.contains('assumption')) {
+      return 'assumption';
+    }
+    if (input.contains('contradiction')) {
+      return 'contradiction';
+    }
+    if (input.contains('provenance') || input.contains('lineage')) {
+      return 'provenance';
+    }
     return switch (intent) {
-      S7NlpIntent.findAlternatives || S7NlpIntent.compareHypotheses => 'hypotheses',
+      S7NlpIntent.findAlternatives || S7NlpIntent.compareHypotheses =>
+        'hypotheses',
       _ => null,
     };
   }
