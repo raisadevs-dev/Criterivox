@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import 's8_presentation_state.dart';
+import 's8_authority.dart';
 import 's8_explanation_pipeline.dart';
 
 class S8XaiDashboard extends StatelessWidget {
-  final S8PresentationSnapshot snapshot;
+  final S8AuthoritativeState state;
 
-  const S8XaiDashboard({super.key, required this.snapshot});
+  const S8XaiDashboard({super.key, required this.state});
 
   @override
   Widget build(BuildContext context) {
-    final panels = S8XaiPanels.fromSnapshot(snapshot);
+    final panels = S8XaiPanels.fromSnapshot(state.snapshot);
     return LayoutBuilder(
       builder: (context, constraints) {
         final wide = constraints.maxWidth >= 900;
@@ -27,6 +27,18 @@ class S8XaiDashboard extends StatelessWidget {
       },
     );
   }
+}
+
+/// Explicitly named adapter for screens that already own an authoritative
+/// snapshot. It validates the snapshot before rendering any XAI panel.
+class S8XaiDashboardFromSnapshot extends StatelessWidget {
+  final S8PresentationSnapshot snapshot;
+  const S8XaiDashboardFromSnapshot({super.key, required this.snapshot});
+
+  @override
+  Widget build(BuildContext context) => S8XaiDashboard(
+        state: S8AuthoritativeState.fromSnapshot(snapshot),
+      );
 }
 
 class _Panel extends StatelessWidget {
