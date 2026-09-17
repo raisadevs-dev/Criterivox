@@ -16,7 +16,7 @@ from criterivox.capabilities import (
     PipelineStep,
     S8ArtifactRepository,
 )
-from criterivox.capabilities.adapters import make_audit_artifact
+from criterivox.capabilities.adapters import make_audit_artifact, verify_artifact_integrity
 from criterivox.capabilities.execution import BudgetExceeded, CircuitBreaker, CircuitTripped, PermissionBoundary, ResourceBudget
 from criterivox.capabilities.runtime import ArtifactIntegrity, CapabilityRouter, ExecutionJournal
 from criterivox.s8.persistence import S8SQLiteStore
@@ -57,16 +57,18 @@ def test_one_home_can_compose_multiple_capabilities_and_events_connect_them() ->
     assert seen == ["data.normalize", "reason.inspect"]
 
 
-def test_persistence_and_integrity_survive_reload(tmp_path) -> None:
-    repository = S8ArtifactRepository(S8SQLiteStore(tmp_path / "state.sqlite3"))
+def test_persistence_and_integrity_survive_reload_and_detect_mutation() -> None:
+    repository = S8ArtifactRepository(S8SQLiteStore(":memory:"))
     artifact = make_audit_artifact(artifact_id="A-1", payload={"x": 1}, context_id="CTX")
-    repository.save_artifact(artifact)
-    restored = repository.get_artifact("A-1")
+    assert verify_artifact_integrity(artifact)
+    mutated = replace(artifact, payload={"x": 2})
+    assert not verify_artifact_integrity(mutated)
+
+    persistent = S8ArtifactRepository(S8SQLiteStore())
+    persistent.save_artifact(artifact)
+    restored = persistent.get_artifact("A-1")
     assert restored is not None
-    assert ArtifactIntegrity(repository).verify("A-1")
-    mutated = replace(restored, payload={"x": 2})
-    repository.save_artifact(mutated)
-    assert not ArtifactIntegrity(repository).verify("A-1")
+    assert ArtifactIntegrity(persistent).verify("A-1")
 
 
 def test_human_authority_records_interruption_state() -> None:
