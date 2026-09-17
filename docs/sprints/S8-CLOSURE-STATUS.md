@@ -4,41 +4,42 @@
 
 S8 is implemented as an independently runnable Evidence Research Bureau. Its dedicated entrypoint is `presentation/lib/s8_main.dart`, launched by `s8-start-evidence-research-bureau.ps1`.
 
-The launcher does **not** start `CriterivoxShell`. The S8 Fixtures Lab is similarly independent and uses synthetic/local fixtures only. This separation is intentional and remains in force until a future sprint defines an explicit integration contract.
+The launcher does **not** start `CriterivoxShell`. The S8 Fixtures Lab is similarly independent and uses synthetic/local fixtures only. This separation remains intentional until a future sprint defines an explicit integration contract.
 
-## Implemented completion gates
+## Closed standalone completion gates
 
 - Four-room presentation boundary and standalone Flutter entrypoint.
 - Artifact-first evidence/provenance/verification/explanation model.
 - SQLite local authoritative persistence and IndexedDB presentation adapter.
 - Tenant/context isolation and explicit consequential-operation authorization.
 - Temporal retrieval and invalidation representation.
+- Explicit source → transformation → downstream dependency relationships and dependency-aware re-evaluation.
 - Contradiction and uncertainty as explicit unresolved/unknown states.
 - Human challenge → authorization → revision lineage.
-- Integrity receipts and tamper status.
+- Integrity receipts, tamper status and coverage metadata.
 - Memory consolidation preserving epistemic metadata.
 - Local layered NLP boundary and artifact-grounded Debate Arena interpretation.
-- S7 adapter boundary without a hidden runtime dependency.
+- Contract-only S7 ↔ S8 artifact exchange without S7 runtime imports.
 - Reproducibility/evaluation records.
-- Deterministic S8 Fixtures Lab and PowerShell launcher.
-- Dedicated S8 validation workflow for Python and Flutter.
+- Human-facing XAI evaluation protocol for understandability, traceability, uncertainty comprehension, evidence linkage, intervention clarity and limitation awareness, without a universal explainability score.
+- Deterministic Fixtures Lab with member/upstream identity, missing evidence, contradiction, uncertainty, temporal, tamper, human authorization and cross-context isolation scenarios.
+- Dedicated S8 PowerShell launcher and Fixtures Lab launcher.
+- Dedicated S8 Python/Flutter validation workflow.
+- Tap-to-open, draggable character profile cards.
+- Flutter-only character presentation details for Medrus, Epistre and Veridat, including layered wardrobe, fitted inner suit/bodysuit, neck cloth/stole, glasses, insignia/pendants, wrist tools and active-state evidence/knowledge slates. No external character image assets are required.
 
-## Validation status
+## Validation truth status
 
-The first repository CI run against commit `ab0a1d921a96814231ae4c484d51d8f521705bd9` did **not** pass. The Python job stopped during dependency installation because the workflow selected Python 3.11 while the repository declares `requires-python = ">=3.13,<3.14"`. The Flutter job reached analysis but failed before tests because the existing presentation tree uses APIs newer than the pinned Flutter 3.24.5 SDK, including `Color.withValues` and `Color.toARGB32`; S8 also had one nullable IndexedDB factory call in `s8_artifact_store.dart`.
+The repository contains the corrected S8 validation workflow and the implementation/tests required by the standalone definition of done. The current branch must still receive a fresh GitHub Actions run after the latest commits before the sprint is described as **CI-green**. No passing CI result is claimed until that run reports success.
 
-The validation workflow has now been corrected to Python 3.13 and Flutter 3.29.3, and the IndexedDB adapter now explicitly handles an unavailable factory. These changes are committed after the failed run. A new CI run is therefore required before declaring S8 validation green. No passing result is claimed here until GitHub Actions reports one.
+## Remaining work outside S8 standalone closure
 
-## Remaining truth-status gates
+1. Actual production S7 ↔ S8 handoff after both bureau contracts are explicitly finalized.
+2. Production live-data adapter.
+3. Empirical human-understanding study with collected participant data.
+4. Advanced graph-rendering/performance work where later research justifies it.
 
-- Complete and validate the full epistemic lifecycle, including richer transformation relationships and dependency-aware downstream re-evaluation.
-- Exercise adversarial memory/write protection and cross-tenant/context isolation through acceptance fixtures.
-- Complete the structured human correction loop with explicit authorization and inspectable original/revised lineage.
-- Expand the Fixtures Lab beyond smoke scenarios into member-language, temporal, contradiction, missing-context, tamper, authorization-denial and revised-state assertions.
-- Validate the concrete S7↔S8 artifact-exchange contract against the actual S7 boundary without creating a runtime dependency.
-- Implement the human-understanding/XAI research evaluation protocol, not merely the recording primitive.
-- Validate selective cryptographic integrity coverage beyond the baseline artifact hash where research requirements justify it.
-- Run the corrected CI and repair any remaining implementation failures.
+These are not missing baseline S8 implementation gates and are deliberately deferred rather than silently folded into the standalone bureau.
 
 ## Intentionally not integrated
 
