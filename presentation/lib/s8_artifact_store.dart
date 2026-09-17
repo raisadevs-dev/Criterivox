@@ -84,6 +84,24 @@ class S8IndexedDbArtifactStore {
     return Map<String, dynamic>.from(value);
   }
 
+  Future<List<Map<String, dynamic>>> all() async {
+    await open();
+    final tx = _database!.transaction(_storeName, 'readonly');
+    final values = await tx.objectStore(_storeName).getAll();
+    await tx.completed;
+    return values
+        .whereType<Map>()
+        .map((value) => Map<String, dynamic>.from(value))
+        .toList(growable: false);
+  }
+
+  Future<void> clear() async {
+    await open();
+    final tx = _database!.transaction(_storeName, 'readwrite');
+    await tx.objectStore(_storeName).clear();
+    await tx.completed;
+  }
+
   Future<void> putJson(Map<String, dynamic> artifact) =>
       put({...artifact, 'payload_json': jsonEncode(artifact)});
 
