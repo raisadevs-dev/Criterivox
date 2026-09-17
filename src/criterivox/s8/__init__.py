@@ -2,6 +2,7 @@
 
 from .arena import ArenaInterpretation, DebateArena, LocalLayeredNLP
 from .bureau import EvidenceResearchBureau
+from .evaluation import DIMENSIONS, HumanXAIEvaluation, HumanXAIResponse
 from .interventions import HumanIntervention, InterventionRegistry, RevisionRecord
 from .models import Artifact, ArtifactKind, BureauEvent, VerificationResult
 from .persistence import S8SQLiteStore
@@ -12,8 +13,8 @@ from .intake import CriterivoxMessage, S8Intake, CONTRACT
 
 __all__ = [
     "AccessRequest", "ArenaInterpretation", "Artifact", "ArtifactKind", "AuthorizationError", "BureauEvent",
-    "CONTRACT", "CriterivoxMessage", "DebateArena", "EvaluationRecorder", "EvidenceResearchBureau",
-    "ExperimentRecord", "HumanIntervention", "InterventionRegistry", "LocalLayeredNLP", "MemoryConsolidator",
-    "RevisionRecord", "S7Adapter", "S7ArtifactEnvelope", "S8Intake", "S8Policy", "S8SQLiteStore",
-    "TemporalRetriever", "VerificationResult", "impacted_downstream",
+    "CONTRACT", "CriterivoxMessage", "DebateArena", "DIMENSIONS", "EvaluationRecorder", "EvidenceResearchBureau",
+    "ExperimentRecord", "HumanIntervention", "HumanXAIEvaluation", "HumanXAIResponse", "InterventionRegistry",
+    "LocalLayeredNLP", "MemoryConsolidator", "RevisionRecord", "S7Adapter", "S7ArtifactEnvelope", "S8Intake",
+    "S8Policy", "S8SQLiteStore", "TemporalRetriever", "VerificationResult", "impacted_downstream",
 ]

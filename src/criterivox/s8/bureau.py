@@ -57,12 +57,32 @@ class EvidenceResearchBureau:
         self._record("ARTIFACT_CREATED", (artifact_id,), tenant_id=tenant_id, context_id=context_id, kind=kind.value)
         return artifact
 
+    def record_transformation(self, source_ids: tuple[str, ...], *, operation: str, mechanism: str, output_summary: Mapping[str, Any] | None = None, tenant_id: str | None = None, context_id: str | None = None) -> Artifact:
+        """Record an explicit source → transformation → output relationship.
+
+        The transformation is an inspectable artifact, not a claim that the
+        mechanism itself establishes truth. Downstream artifacts can reference
+        this node, allowing dependency-aware invalidation/re-evaluation.
+        """
+        if not source_ids:
+            raise ValueError("A transformation requires at least one source artifact.")
+        sources = tuple(self.artifacts[sid] for sid in source_ids if sid in self.artifacts)
+        if len(sources) != len(source_ids):
+            raise ValueError("Every transformation source must exist.")
+        if any(a.tenant_id != tenant_id or a.context_id != context_id for a in sources):
+            raise PermissionError("Transformation cannot cross tenant/context boundaries.")
+        return self.add_artifact(
+            ArtifactKind.TRANSFORMATION,
+            {"operation": operation, "mechanism": mechanism, "source_ids": source_ids, "output_summary": dict(output_summary or {}), "reproducibility": "inputs-and-mechanism-recorded"},
+            source_ids=source_ids, tenant_id=tenant_id, context_id=context_id, status="recorded",
+        )
+
     def verify_integrity(self, artifact_id: str, *, actor_id: str = "system", tenant_id: str | None = None, context_id: str | None = None) -> Artifact:
         artifact = self.artifacts[artifact_id]
         self._authorized(artifact, actor_id=actor_id, operation="inspect", tenant_id=tenant_id, context_id=context_id)
         expected = self._hash(artifact.payload)
         valid = expected == artifact.content_hash
-        return self.add_artifact(ArtifactKind.INTEGRITY, {"subject_artifact_id": artifact_id, "expected_hash": expected, "recorded_hash": artifact.content_hash, "valid": valid, "method": "sha256-payload-integrity"}, source_ids=(artifact_id,), parent_ids=(artifact_id,), tenant_id=artifact.tenant_id, context_id=artifact.context_id, status="verified" if valid else "tampered")
+        return self.add_artifact(ArtifactKind.INTEGRITY, {"subject_artifact_id": artifact_id, "expected_hash": expected, "recorded_hash": artifact.content_hash, "valid": valid, "method": "sha256-payload-integrity", "coverage": "artifact-payload"}, source_ids=(artifact_id,), parent_ids=(artifact_id,), tenant_id=artifact.tenant_id, context_id=artifact.context_id, status="verified" if valid else "tampered")
 
     def verify_claim(self, claim: str, evidence_ids: tuple[str, ...], *, tenant_id: str | None = None, context_id: str | None = None) -> VerificationResult:
         evidence = [self.artifacts[eid] for eid in evidence_ids if eid in self.artifacts and self.artifacts[eid].tenant_id == tenant_id and self.artifacts[eid].context_id == context_id and self.artifacts[eid].status != "invalidated"]

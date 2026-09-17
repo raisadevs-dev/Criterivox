@@ -19,6 +19,7 @@ class ArtifactKind(str, Enum):
     EVIDENCE = "evidence"
     VERIFICATION = "verification"
     PROVENANCE = "provenance"
+    TRANSFORMATION = "transformation"
     TEMPORAL = "temporal"
     CONTRADICTION = "contradiction"
     MEMORY = "memory"
