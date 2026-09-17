@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 """Browser-facing UI routes and Home 03 interaction APIs."""
 from fastapi import APIRouter,Request
 from fastapi.responses import HTMLResponse,JSONResponse
@@ -136,7 +136,7 @@ async def bloom_budget(payload):return {'home':str(payload.get('home','')),'budg
 async def bloom_checkpoint(payload):return bloom_controller.checkpoint(str(payload.get('task_id','unknown')),dict(payload.get('state',{})))
 @router.post('/api/bloom/trace')
 async def bloom_trace(payload):return bloom_controller.evaluate(str(payload.get('task_id','unknown')),str(payload.get('source','')),str(payload.get('target','')),float(payload.get('score',1)),reason=str(payload.get('reason','')))
-=======
+
 """Browser-facing UI routes plus Home 03 Syvax/Bloom computational endpoints."""
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -188,4 +188,3 @@ def bloom_trace(payload:dict):return bloom_controller.evaluate_trace(str(payload
 def placeholder_page(request:Request,page_name:str):return templates.TemplateResponse(request=request,name='home.html',context={'request':request,'title':f'Criterivox {page_name}'})
 def _register_placeholder(page_name:str)->None:router.add_api_route(f'/{page_name}',lambda request,_page_name=page_name:placeholder_page(request,_page_name),methods=['GET'],response_class=HTMLResponse,name=f'{page_name}_page')
 for _page in ('workspace','data','intelligence','explanations','experiments','knowledge'): _register_placeholder(_page)
->>>>>>> origin/main

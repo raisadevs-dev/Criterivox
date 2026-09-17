@@ -1,0 +1,12 @@
+{
+  "facts": [
+    "The observed value increased for three consecutive periods.",
+    "The intervention occurred before the increase."
+  ],
+  "constraints": [
+    "Temporal order alone does not establish causation."
+  ],
+  "sources": [
+    {"id": "fixture-01", "type": "synthetic", "location": "local"}
+  ]
+}

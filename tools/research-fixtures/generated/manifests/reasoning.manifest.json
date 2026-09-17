@@ -1,0 +1,11 @@
+{
+  "synthetic": true,
+  "production_ingestion": false,
+  "formats": [
+    "json",
+    "csv"
+  ],
+  "fixture_ids": [
+    "FX-REASONING-0001"
+  ]
+}

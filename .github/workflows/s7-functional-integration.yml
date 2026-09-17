@@ -1,0 +1,46 @@
+name: S7 functional integration
+
+on:
+  push:
+    branches: [reasoning-research-bureau]
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply S7 functional integration
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('presentation/lib/s7/s7_functional_layer.dart')
+          s=p.read_text()
+          if "import 'dart:math' as math;" not in s:
+              s=s.replace("import 'dart:convert';\n", "import 'dart:convert';\nimport 'dart:math' as math;\n", 1)
+          s=s.replace("      'state': mapped.$3,\n", "      'state': raw,\n      'animation_state': mapped.$3,\n", 1)
+          p.write_text(s)
+          p=Path('presentation/lib/s7/s7_environment_page.dart')
+          s=p.read_text()
+          if "import 's7_functional_layer.dart';" not in s:
+              s=s.replace("import 's7_visuals.dart';\n", "import 's7_visuals.dart';\nimport 's7_functional_layer.dart';\n", 1)
+          anchor="""            if (error != null) _errorBanner(),\n          ],\n"""
+          dock="""            if (error != null) _errorBanner(),\n            Positioned(\n              right: 18,\n              bottom: 18,\n              child: S7FunctionalDock(\n                room: room,\n                artifacts: artifacts,\n                onSelectArtifact: select,\n              ),\n            ),\n          ],\n"""
+          if anchor in s and 'S7FunctionalDock(' not in s:
+              s=s.replace(anchor,dock,1)
+          old="""    if (value is Map) {\n      return Map<String, dynamic>.from(value);\n    }\n"""
+          new="""    if (value is Map) {\n      final raw = Map<String, dynamic>.from(value);\n      return S7CharacterStateResolver.resolve(id, raw);\n    }\n"""
+          if old in s:
+              s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+      - name: Commit integration
+        run: |
+          git config user.name 'Criterivox S7 automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git add presentation/lib/s7/s7_environment_page.dart presentation/lib/s7/s7_functional_layer.dart
+          git diff --cached --quiet && exit 0
+          git commit -m 'S7: wire functional layer into environment page'
+          git push

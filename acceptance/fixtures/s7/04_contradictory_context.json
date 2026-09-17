@@ -1,0 +1,8 @@
+{
+  "facts": [
+    "Source A reports that the value increased.",
+    "Source B reports that the value did not increase."
+  ],
+  "sources": ["source-a", "source-b"],
+  "constraint": "Do not silently resolve contradictory observations."
+}

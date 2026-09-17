@@ -1,0 +1,61 @@
+name: S8 Standalone Validation
+
+on:
+  push:
+    branches: [s8-xai-evidence-bureau]
+  pull_request:
+    branches: [s8-xai-evidence-bureau]
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install test dependencies
+        run: python -m pip install -e '.[dev]'
+      - name: Compile S8
+        env:
+          PYTHONPATH: src
+        run: python -m compileall -q src/criterivox/s8
+      - name: S8 tests
+        env:
+          PYTHONPATH: src
+        run: python -m pytest tests/test_s8_bureau.py tests/test_s8_remaining.py tests/test_s8_research_support.py tests/test_s8_completion.py tests/test_s8_intake.py -q
+      - name: Fixtures lab
+        env:
+          PYTHONPATH: src
+        run: python scripts/s8_fixtures_lab.py
+
+  flutter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.3'
+          channel: stable
+      - name: Dependencies
+        working-directory: presentation
+        run: flutter pub get
+      - name: Analyze all S8 presentation layers
+        working-directory: presentation
+        run: >-
+          dart analyze
+          lib/s8_main.dart
+          lib/s8_evidence_bureau_page.dart
+          lib/s8_artifact_store.dart
+          lib/s8_character_presentation.dart
+          lib/s8_character_details.dart
+          lib/s8_environment.dart
+          lib/s8_environment_entities.dart
+          lib/s8_intervention_arena.dart
+          lib/s8_presentation_state.dart
+      - name: Test S8 presentation
+        working-directory: presentation
+        run: flutter test test/s8
