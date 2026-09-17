@@ -40,6 +40,6 @@ void main() {
 
   test('explanation rejects unknown artifacts', () async {
     final service = S8ExplanationService(store: S8ArtifactStore());
-    expect(() => service.explain('missing'), throwsStateError);
+    await expectLater(service.explain('missing'), throwsStateError);
   });
 }
