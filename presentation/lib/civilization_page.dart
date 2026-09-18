@@ -21,7 +21,7 @@ class _CivilizationPageState extends State<CivilizationPage> {
   String? selectedCharacter;
   String? selectedHome;
 
-  static const homes = <_Home>[
+  static const canonicalHomes = <_Home>[
     _Home('context', 'Context House', 'Context & Data District', ['dharen', 'anuka'], 'Context framing, adaptation and scope control'),
     _Home('data', 'Data Stewardship House', 'Context & Data District', ['sandre', 'kaelen'], 'Data foundation, stewardship and transformation'),
     _Home('gateway', 'Gateway House', 'Interaction District', ['syvax'], 'Human-machine dialogue and interaction boundary'),
@@ -74,7 +74,7 @@ class _CivilizationPageState extends State<CivilizationPage> {
       SizedBox(height: r.isCompact ? 700 : 620, child: CriterivoxScene(
         descriptor: scene,
         environment: [const _WorldBackdrop()],
-        character: [_WorldCharacters(homes: homes, selectedHome: selectedHome, selectedCharacter: selectedCharacter, state: widget.state, onHome: _selectHome, onCharacter: _selectCharacter)],
+        character: [_WorldCharacters(homes: canonicalHomes, selectedHome: selectedHome, selectedCharacter: selectedCharacter, state: widget.state, onHome: _selectHome, onCharacter: _selectCharacter)],
         lighting: [const _WorldLighting()],
         information: [const _Legend(), if (selectedHome != null) _HomePreview(home: homes.firstWhere((h) => h.id == selectedHome), state: widget.state, onEnter: () => _enterHome(selectedHome!), onClose: () => setState(() => selectedHome = null))],
       )),
@@ -97,7 +97,7 @@ class _CivilizationPageState extends State<CivilizationPage> {
 
   void _selectHome(String id) => setState(() { selectedHome = id; selectedCharacter = null; });
   void _selectCharacter(String id) {
-    final home = homes.where((h) => h.residents.contains(id)).firstOrNull;
+    final home = canonicalHomes.where((h) => h.residents.contains(id)).firstOrNull;
     setState(() { selectedCharacter = id; selectedHome = home?.id; });
   }
   void _enterHome(String id) {
@@ -137,7 +137,7 @@ class _WorldCharacters extends StatelessWidget {
   const _WorldCharacters({required this.homes,required this.selectedHome,required this.selectedCharacter,required this.state,required this.onHome,required this.onCharacter});
   @override Widget build(BuildContext context)=>LayoutBuilder(builder:(context,c){final center=Offset(c.maxWidth*.5,c.maxHeight*.48),rx=c.maxWidth*.30,ry=c.maxHeight*.29; return Stack(children:[
     Positioned(left:center.dx-66,top:center.dy-54,child:const _BloomNode()),
-    for(var i=0;i<homes.length;i++){final a=i*6.28318/homes.length-1.5708; final x=center.dx+rx*MathCos.cos(a),y=center.dy+ry*MathCos.sin(a); Positioned(left:x-78,top:y-86,child:_HomeNode(home:homes[i],selected:homes[i].id==selectedHome,selectedCharacter:selectedCharacter,state:state,onHome:onHome,onCharacter:onCharacter));},
+    for(var i=0;i<canonicalHomes.length;i++){final a=i*6.28318/homes.length-1.5708; final x=center.dx+rx*MathCos.cos(a),y=center.dy+ry*MathCos.sin(a); Positioned(left:x-78,top:y-86,child:_HomeNode(home:canonicalHomes[i],selected:homes[i].id==selectedHome,selectedCharacter:selectedCharacter,state:state,onHome:onHome,onCharacter:onCharacter));},
     Positioned(left:center.dx-74,top:c.maxHeight-62,child:Semantics(button:true,label:'Anukor, network resident, no permanent Home',child:ActionChip(avatar:const Icon(Icons.alt_route_rounded,size:15),label:const Text('Anukor · Network Territory'),onPressed:()=>onCharacter('anukor')))),
   ]);});
 }
