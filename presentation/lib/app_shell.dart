@@ -577,31 +577,55 @@ class _ShellState extends State<CriterivoxShell> {
             ),
           ],
         ),
-            if (chatOverlayOpen)
-              Positioned.fill(
-                child: Material(
-                  color: t.page.withValues(alpha: .98),
-                  child: CharacterChatPage(
-                    key: const ValueKey('global-character-chat'),
-                    state: state,
-                    busy: busy,
-                    selectedAgent: chatTarget,
-                    onSelectAgent: (agent) => setState(() => chatTarget = agent),
-                    onSend: (message, agent, references) => send(message, target: agent, references: references),
-                    onOpenTask: () {
-                      setState(() => chatOverlayOpen = false);
-                      open('workspace');
-                    },
+            // Keep the global chat page mounted while hidden. This preserves its
+            // conversation/input state when the user toggles the launcher, while
+            // IgnorePointer keeps the underlying application usable when closed.
+            Positioned.fill(
+              child: IgnorePointer(
+                ignoring: !chatOverlayOpen,
+                child: AnimatedOpacity(
+                  opacity: chatOverlayOpen ? 1 : 0,
+                  duration: const Duration(milliseconds: 220),
+                  child: Material(
+                    color: t.page.withValues(alpha: .98),
+                    child: CharacterChatPage(
+                      key: const ValueKey('global-character-chat'),
+                      state: state,
+                      busy: busy,
+                      selectedAgent: chatTarget,
+                      onSelectAgent: (agent) =>
+                          setState(() => chatTarget = agent),
+                      onSend: (message, agent, references) =>
+                          send(message, target: agent, references: references),
+                      onOpenTask: () {
+                        setState(() => chatOverlayOpen = false);
+                        open('workspace');
+                      },
+                    ),
                   ),
                 ),
               ),
+            ),
             Positioned(
               right: 18,
               bottom: 18,
-              child: FloatingActionButton(
-                tooltip: chatOverlayOpen ? 'Close character chat' : 'Open character chat',
-                onPressed: toggleGlobalChat,
-                child: Icon(chatOverlayOpen ? Icons.close_rounded : Icons.forum_rounded),
+              child: Semantics(
+                button: true,
+                toggled: chatOverlayOpen,
+                label: chatOverlayOpen
+                    ? 'Close character chat'
+                    : 'Open character chat',
+                child: FloatingActionButton(
+                  tooltip: chatOverlayOpen
+                      ? 'Close character chat'
+                      : 'Open character chat',
+                  onPressed: toggleGlobalChat,
+                  child: Icon(
+                    chatOverlayOpen
+                        ? Icons.close_rounded
+                        : Icons.forum_rounded,
+                  ),
+                ),
               ),
             ),
           ],
