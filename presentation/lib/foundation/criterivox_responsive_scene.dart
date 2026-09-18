@@ -14,7 +14,7 @@ class CriterivoxResponsive {
 
   bool get isCompact => viewport == CriterivoxViewport.mobile;
   bool get isTablet => viewport == CriterivoxViewport.tablet;
-  bool get isDesktop => viewport == CriterivoxViewport.desktop || viewport == Criteriviewport.wide;
+  bool get isDesktop => viewport == CriterivoxViewport.desktop || viewport == CriterivoxViewport.wide;
 
   int get informationColumns => isCompact ? 1 : isTablet ? 1 : width < 1500 ? 2 : 3;
   EdgeInsets get scenePadding => EdgeInsets.all(isCompact ? 12 : isTablet ? 16 : 24);
