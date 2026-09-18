@@ -5,7 +5,7 @@ import 'package:presentation/foundation/criterivox_responsive_scene.dart';
 
 void main() {
   test('Gate 1 defines the canonical seven fixed Homes', () {
-    expect(CivilizationPage.homes.length, 7);
+    expect(CivilizationPage.canonicalHomes.length, 7);
     expect(CivilizationPage.homes.any((h) => h.id == 'gateway'), isTrue);
     expect(CivilizationPage.homes.any((h) => h.id == 'evidence'), isTrue);
     expect(CivilizationPage.homes.any((h) => h.id == 'knowledge'), isTrue);
@@ -17,8 +17,8 @@ void main() {
 
   test('responsive civilization keeps information available on compact view', () {
     expect(const CriterivoxResponsive(480).isCompact, isTrue);
-    expect(const CriterivoxResponsive(1024).isTablet, isFalse);
-    expect(const CriterivoxResponsive(1024).informationColumns, greaterThanOrEqualTo(2));
+    expect(const CriterivoxResponsive(1024).isTablet, isTrue);
+    expect(const CriterivoxResponsive(1024).informationColumns, equals(2));
   });
 
   testWidgets('Home preview is explicitly a Gate 1 read-model boundary', (tester) async {
