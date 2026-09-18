@@ -953,3 +953,31 @@ The Civilization surface uses semantic labels, Material focusable controls and r
 - Reuse CriterivoxScene and responsive foundation rather than introducing another scene architecture.
 - Keep Bloom as the global spatial nexus/read-model layer.
 - Keep Anukor as a network resident, not a conventional Home.
+
+## Set 4 — Level 2 Operational Civilization
+
+**Implementation commit:** `2a0b129a52ac90db82a5d07c352369e6ab78eccb`
+
+Set 4 adds a data-driven Level 2 operational room catalog and navigation boundary in `presentation/lib/level2_operational_page.dart`. The catalog preserves the terminology of Level 2 Parts I–V and records an explicit truth classification per documented room rather than treating documentation as runtime evidence.
+
+### Implemented foundation
+
+- Level 2 room directory for Gateway, Data Stewardship, Context, Knowledge, Challenge & Review, Intelligence, Decision & Action, and Evidence & Experiment surfaces.
+- World → Home → Room → Responsibility → Artifact/inspection presentation grammar.
+- Responsive room-directory layout for compact and larger browser widths.
+- Explicit LIVE / FUNCTIONALLY IMPLEMENTED / SIMULATED / STATIC PRESENTATION / PLANNED / RESEARCH PROTOTYPE / UNAVAILABLE truth vocabulary.
+- Home preview now has an operational entry boundary and can open the Level 2 directory.
+- Existing S7 and S8 standalone implementations remain authoritative research boundaries; the new presentation surface does not duplicate their intelligence logic.
+- Context sandbox/replay capabilities are represented as live only where the existing runtime client already exposes those operations.
+
+### S7 / S8 boundary
+
+S7 remains the standalone Reasoning Research Bureau with exactly three user-facing workspaces: Collaboration Room, Critical Intelligence Chamber, and Hypothesis Exploration Chamber. S8 remains the standalone Evidence Research Bureau. Set 4 surfaces these boundaries without claiming that standalone research implementations are equivalent to integrated production civilization services.
+
+### Current limitation
+
+The Level 2 room catalog is deliberately broader than the currently live runtime integration. Most documented rooms remain PLANNED or RESEARCH PROTOTYPE. This is intentional: the UI does not fabricate backend contracts, telemetry, security guarantees, provenance authority, budgets, checkpoints, or cryptographic state.
+
+### Set 5 prerequisite
+
+Gate 2 should connect to the existing Human Residence / Collaboration Room implementation and reuse the same responsive scene, status, navigation, and truth-boundary primitives. Production authorization, multi-signatory execution, and real-world outcome persistence remain backend/security contracts and are not claimed by this Set 4 surface.
