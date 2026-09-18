@@ -376,11 +376,15 @@ class CivilizationPage extends StatelessWidget {
 class HumanResidencePage extends StatefulWidget {
   final VoidCallback onGuest;
   final VoidCallback onWorkspace;
+  final VoidCallback? onPrivateRoom;
+  final VoidCallback? onCollaborationRoom;
 
   const HumanResidencePage({
     super.key,
     required this.onGuest,
     required this.onWorkspace,
+    this.onPrivateRoom,
+    this.onCollaborationRoom,
   });
 
   @override
@@ -803,12 +807,21 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
             ),
           ),
           const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: widget.onWorkspace,
-            icon: const Icon(
-              Icons.play_arrow_rounded,
-            ),
-            label: const Text('Enter workspace'),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              FilledButton.icon(
+                onPressed: widget.onPrivateRoom ?? widget.onWorkspace,
+                icon: const Icon(Icons.lock_outline_rounded),
+                label: const Text('Enter Private Room'),
+              ),
+              OutlinedButton.icon(
+                onPressed: widget.onCollaborationRoom,
+                icon: const Icon(Icons.groups_rounded),
+                label: const Text('Enter Collaboration Room'),
+              ),
+            ],
           ),
         ],
       ),
