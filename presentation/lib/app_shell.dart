@@ -8,6 +8,10 @@ import 'bloom_page.dart';
 import 'civilization_page.dart';
 import 'civilization_home_preview_page.dart';
 import 'level2_operational_page.dart';
+import 'world_portal_page.dart';
+import 'human_residence_entry_page.dart';
+import 'private_room_page.dart';
+import 'collaboration_room_page.dart';
 import 'chat/character_chat_page.dart';
 import 'context/home02_context_console.dart';
 import 'interaction/bloom.dart';
@@ -61,6 +65,7 @@ class _ShellState extends State<CriterivoxShell> {
   String chatTarget = 'dharen';
   bool busy = false;
   bool railOpen = true;
+  bool chatOverlayOpen = false;
   String? sandboxId;
   String? civilizationHome;
 
@@ -360,7 +365,12 @@ class _ShellState extends State<CriterivoxShell> {
     open('level2');
   }
 
+  void toggleGlobalChat() {
+    setState(() => chatOverlayOpen = !chatOverlayOpen);
+  }
+
   void chatWith(String agent) {
+
     setState(() {
       chatTarget = agent;
       page = 'chat';
@@ -382,7 +392,9 @@ class _ShellState extends State<CriterivoxShell> {
     return Scaffold(
       backgroundColor: t.page,
       body: SafeArea(
-        child: Row(
+        child: Stack(
+          children: [
+            Row(
           children: [
             _Sidebar(
               page: page,
@@ -439,6 +451,21 @@ class _ShellState extends State<CriterivoxShell> {
                               homeId: civilizationHome ?? 'context',
                               onBack: () => open('home-preview'),
                             )
+                          : page == 'human-residence-entry'
+                          ? HumanResidenceEntryPage(
+                              onCreateHouse: () => open('human-residence'),
+                              onCreateClub: () => open('human-residence'),
+                              onGuest: () => open('guest'),
+                            )
+                          : page == 'human-residence'
+                          ? HumanResidencePage(
+                              onGuest: () => open('guest'),
+                              onWorkspace: () => open('private-room'),
+                            )
+                          : page == 'private-room'
+                          ? PrivateRoomPage(onWorkspace: () => open('workspace'))
+                          : page == 'collaboration-room'
+                          ? CollaborationRoomPage()
                           : page == 'civilization'
                           ? CivilizationPage(
                               key: const ValueKey('civilization'),
@@ -547,6 +574,35 @@ class _ShellState extends State<CriterivoxShell> {
                     ),
                   ),
                 ],
+              ),
+            ),
+          ],
+        ),
+            if (chatOverlayOpen)
+              Positioned.fill(
+                child: Material(
+                  color: t.page.withValues(alpha: .98),
+                  child: CharacterChatPage(
+                    key: const ValueKey('global-character-chat'),
+                    state: state,
+                    busy: busy,
+                    selectedAgent: chatTarget,
+                    onSelectAgent: (agent) => setState(() => chatTarget = agent),
+                    onSend: (message, agent, references) => send(message, target: agent, references: references),
+                    onOpenTask: () {
+                      setState(() => chatOverlayOpen = false);
+                      open('workspace');
+                    },
+                  ),
+                ),
+              ),
+            Positioned(
+              right: 18,
+              bottom: 18,
+              child: FloatingActionButton(
+                tooltip: chatOverlayOpen ? 'Close character chat' : 'Open character chat',
+                onPressed: toggleGlobalChat,
+                child: Icon(chatOverlayOpen ? Icons.close_rounded : Icons.forum_rounded),
               ),
             ),
           ],
@@ -701,10 +757,26 @@ class _Sidebar extends StatelessWidget {
                       t,
                     ),
                     _nav(
-                      'Character Chat',
-                      Icons.forum_rounded,
-                      page == 'chat',
-                      () => onOpen('chat'),
+                      'Human Residence',
+                      Icons.home_work_rounded,
+                      page == 'human-residence' || page == 'human-residence-entry',
+                      () => onOpen('human-residence-entry'),
+                      expanded,
+                      t,
+                    ),
+                    _nav(
+                      'Private Room',
+                      Icons.lock_outline_rounded,
+                      page == 'private-room',
+                      () => onOpen('private-room'),
+                      expanded,
+                      t,
+                    ),
+                    _nav(
+                      'Collaboration Room',
+                      Icons.groups_rounded,
+                      page == 'collaboration-room',
+                      () => onOpen('collaboration-room'),
                       expanded,
                       t,
                     ),
