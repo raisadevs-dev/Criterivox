@@ -753,6 +753,51 @@ All substantial frontend construction for Sets 2–6.
 
 ---
 
+## Set 2 Implementation Status
+
+**Status:** FOUNDATION IMPLEMENTED; full application integration intentionally deferred.
+
+### Reused
+
+- `CriterivoxTheme` and existing presentation theme extension.
+- Existing character identity/state and session animation infrastructure.
+- Existing responsive presentation utilities.
+- Existing application shell, Bloom, Syvax, Home surfaces and S7/S8 presentation boundaries.
+
+### Created
+
+- `presentation/lib/foundation/criterivox_visual_tokens.dart` — centralized spacing, geometry, opacity and information-hierarchy tokens.
+- `presentation/lib/foundation/criterivox_scene.dart` — reusable World/Home/Room descriptor and seven-layer scene composition.
+- `presentation/lib/foundation/criterivox_responsive_scene.dart` — browser-first viewport classification and spatial adaptation helpers.
+- `presentation/lib/foundation/criterivox_status.dart` — explicit live/non-live/status presentation vocabulary.
+- `presentation/lib/foundation/criterivox_artifact.dart` — domain-neutral artifact presentation model/card.
+- `presentation/lib/foundation/criterivox_scene_transition.dart` — reusable cinematic transition primitive.
+- `presentation/lib/foundation/criterivox_semantic_motion.dart` — explicit semantic versus ambient animation primitives with reduced-motion support.
+- `presentation/lib/foundation/criterivox_spatial_interaction.dart` — semantic/focusable spatial interaction primitive.
+
+### Modified / Refactored
+
+No existing feature screen was replaced. The existing visual architecture remains the source of truth for current production surfaces. The new foundation is additive so Sets 3–6 can migrate/reuse components incrementally.
+
+### Architectural deviations
+
+None intentional. The foundation implements the locked Cinematic Intelligence Interface + Architectural World + layered composition direction. Final character artwork remains source-dependent.
+
+### Validation / known limitations
+
+The repository API was used for branch/file inspection and commits. Fresh local Flutter/browser/Python execution was not available in this environment, so this Set 2 pass does not claim a fresh `flutter analyze`, `flutter test`, browser build, or `pytest` result. A pre-existing `routes.py` conflict remains a baseline blocker recorded by Set 1.
+
+The newly added foundation is intentionally not wired into every existing screen in Set 2; doing so would turn the foundation set into a premature application rewrite. Existing character animation remains reusable, while the new semantic-motion primitives provide a cleaner common boundary for future scenes.
+
+### Set 3 prerequisites
+
+- Compose the Level 1 civilization experience from `CriterivoxScene` and the responsive foundation.
+- Introduce Home/character scene descriptors without duplicating domain models.
+- Connect authoritative runtime state to semantic motion and status badges.
+- Reuse existing Bloom, character and Home implementations rather than replacing them.
+- Keep S7/S8 as independently callable subsystems until their explicit integration contracts are ready.
+- Populate final character artwork only from supplied source materials.
+
 ## T. Final Set 1 Assessment
 
 Criterivox is **not missing a frontend from scratch**.
