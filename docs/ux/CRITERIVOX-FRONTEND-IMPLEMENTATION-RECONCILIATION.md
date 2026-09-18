@@ -1009,3 +1009,144 @@ The existing Character Chat implementation has per-character in-memory conversat
 ### Set 6 prerequisite
 
 Set 6 can integrate the end-to-end result loop across Civilization → Human Residence → action boundary → real-world result → journal/learning while retaining the existing global chat capability. Production identity, authorization and execution adapters should remain explicit boundaries rather than being implied by frontend controls.
+
+
+## Set 6 — Full Frontend Integration / Validation / Hardening
+
+**Status:** HARDENED PRESENTATION INTEGRATION; LIVE RUNTIME VALIDATION REMAINS ENVIRONMENT-DEPENDENT.
+
+**Starting commit:** `a5d6adbcebb7ac3ec782c1a642318baeca0e0474`
+
+### Integration audit
+
+Set 6 reviewed the current `frontend-completion` branch as the continuation of Sets 1–5. The existing architecture remains layered:
+
+`presentation → interaction → application/runtime → domain/intelligence → infrastructure/data`.
+
+No alternate intelligence layer was introduced into Flutter.
+
+Existing Civilization, Bloom, Level-2, Human Residence, Collaboration Room, S7/S8 presentation boundaries, Character Chat, runtime client, character identity registry, state/animation system and persistence boundaries were preserved.
+
+### Global Character Chat hardening
+
+The global Character Chat remains a separate application-level capability:
+
+```
+Application Shell
+├── Current Page
+├── Global Character Chat Launcher
+└── CharacterChatPage
+```
+
+The shell still has exactly one global launcher. The launcher opens and closes the same global chat surface.
+
+A correctness defect was hardened in Set 6: the global Character Chat instance is now kept mounted while visually hidden. This preserves the chat page's in-memory conversation and composer state across close/reopen instead of destroying the page state on every toggle.
+
+When closed:
+- the chat is visually hidden;
+- pointer input is ignored;
+- the underlying application remains usable.
+
+When open:
+- the dedicated CharacterChatPage is interactive;
+- the same launcher becomes the close control;
+- the underlying page remains mounted.
+
+A widget regression test verifies the open → type → close → reopen flow and checks that the draft remains present.
+
+### Character Chat runtime truth
+
+The existing Python `character_chat.py` remains the local character-bounded runtime path. It currently defines six backend chat profiles (Dharen, Anuka, Kaelen, Sandre, Vivren, Tarkis); the Flutter chat surface also exposes Syvax through the existing application/runtime boundary. No online general-purpose LLM was introduced.
+
+The runtime publishes RECEIVE → WORK → COMMUNICATE → COMPLETE/IDLE events for supported character interactions. Flutter consumes these events through `CharacterRuntimeClient` and `PresentationState`.
+
+The chat response implementation is deterministic and role-bounded in the current repository. It must therefore not be represented as an unrestricted general-purpose Criterivox knowledge engine.
+
+### Chat persistence boundary
+
+The current Character Chat conversation buffers remain page-local in memory. No repository-wide persisted chat-session history API was fabricated. Therefore Set 6 does **not** claim durable Character Chat save/reopen/delete semantics that the current implementation does not provide.
+
+S7 reasoning-session persistence and Human Residence persistence remain separate existing persistence boundaries.
+
+### Gate 1 / Level 2 / Gate 2 integration truth
+
+- Gate 1 Civilization and Bloom remain presentation/read-model surfaces.
+- Level 2 operational directories remain explicit about live versus research/prototype/planned boundaries.
+- Human Residence and Collaboration Room continue to expose their existing local/runtime workflows without implying production authorization or real-world execution.
+- S7 and S8 remain bounded specialist subsystems rather than being duplicated in Flutter.
+- Human decision authority remains explicit in Gate 2.
+
+### Truth audit
+
+**LIVE / FUNCTIONALLY IMPLEMENTED**
+- Flutter application shell and navigation state.
+- Existing Bloom interaction surface.
+- Existing runtime WebSocket/application boundary.
+- Existing character state presentation.
+- Existing Human Residence local persistence.
+- Existing Collaboration Room runtime boundary.
+- Existing Character Chat runtime path for supported backend profiles.
+- Global chat launcher toggle and state-preserving presentation.
+- Existing S7/S8 specialist presentation/runtime boundaries where their own implementation is available.
+
+**SIMULATED / STATIC PRESENTATION**
+- Level-1 relational topology where no dedicated live topology endpoint exists.
+- Level-2 room directory entries that are presentation/read-model descriptions rather than live operational rooms.
+- Character visual rendering where canonical artwork assets are absent and the repository's existing procedural presentation fallback is used.
+
+**PLANNED / RESEARCH PROTOTYPE / UNAVAILABLE**
+- Production identity/authentication and server-enforced authorization.
+- Hardware-backed/multi-party production cryptographic authorization.
+- Real-world Bodhex execution.
+- Durable repository-wide Character Chat session history/save/delete.
+- Canonical chip-shattering engine.
+- Any S7/S8 integration not backed by an explicit current runtime contract.
+- Final canonical character artwork not supplied in repository assets.
+
+No capability was relabeled LIVE merely to make the end-to-end demonstration look complete.
+
+### Set 6 changes
+
+**Modified**
+- `presentation/lib/app_shell.dart`: preserve the global Character Chat instance while hidden; add explicit accessibility semantics to the launcher.
+
+**Created**
+- `presentation/test/global_character_chat_launcher_test.dart`: launcher toggle, chat visibility, draft-state preservation, and Civilization-context availability regression coverage.
+
+**Removed**
+- None.
+
+### Validation performed
+
+Repository/GitHub inspection confirmed:
+- branch remains `frontend-completion`;
+- no additional branch was created;
+- current head before Set 6 was `a5d6adbcebb7ac3ec782c1a642318baeca0e0474`;
+- the repository has no reported CI status for the Set 6 commits at inspection time.
+
+A fresh local `flutter analyze`, `flutter test`, browser build, and `pytest` execution could not be performed because this execution environment has no network access to clone the repository and no checked-out local Flutter/Python project runtime. The repository therefore does not claim those commands as freshly executed by Set 6.
+
+The new widget regression test was added to the repository but could not be executed locally in this environment.
+
+### Responsive / accessibility review
+
+The existing Set 2 responsive foundation and Set 3–5 adaptive surfaces remain in place. The global launcher uses semantic button/toggle labelling and a visible tooltip. Character Chat retains its existing compact picker, responsive conversation surface, keyboard-capable TextField and semantic Material controls.
+
+### Performance hardening
+
+The principal Set 6 chat hardening avoids repeated construction/destruction of the global Character Chat page on every toggle. The hidden page ignores pointer input while closed, avoiding accidental interaction with an invisible surface. No new animation runtime or large dependency was introduced.
+
+### Final limitations
+
+1. Full browser/device matrix validation requires a runnable Flutter environment.
+2. Current Character Chat conversation persistence is page-local, not durable.
+3. Character Chat backend profile coverage remains limited to the profiles actually implemented by `character_chat.py`.
+4. Canonical final character artwork remains asset/source dependent.
+5. Existing pre-Set-6 backend baseline issues, including the documented `routes.py` conflict history, were not rewritten as part of this final presentation hardening.
+6. Production authorization and real-world execution remain infrastructure/security boundaries.
+
+### Final Set 6 readiness
+
+The six-set frontend now has a single continuous presentation branch with preserved world, Level-2, Human Residence and global Character Chat architecture. Future work can connect authoritative production services to the existing presentation boundaries without introducing a second frontend architecture.
+
+The remaining work is primarily service/asset/infrastructure integration where the repository truth still identifies a boundary, not a missing cosmetic widget.
