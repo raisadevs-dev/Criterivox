@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'analysis_context_workspace_page.dart';
 import 'app_introduction_page.dart';
 import 'bloom_page.dart';
+import 'civilization_page.dart';
 import 'chat/character_chat_page.dart';
 import 'context/home02_context_console.dart';
 import 'interaction/bloom.dart';
@@ -346,6 +347,19 @@ class _ShellState extends State<CriterivoxShell> {
     );
   }
 
+  void _openHome(String home) {
+    // Set 3 owns the Home-entry boundary; operational room content remains later scope.
+    if (home == 'gateway') {
+      open('chat');
+    } else if (home == 'data') {
+      open('stewardship');
+    } else if (home == 'context') {
+      open('home02');
+    } else {
+      open('civilization');
+    }
+  }
+
   void chatWith(String agent) {
     setState(() {
       chatTarget = agent;
@@ -411,10 +425,18 @@ class _ShellState extends State<CriterivoxShell> {
                   Expanded(
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 260),
-                      child: page == 'intro'
+                      child: page == 'civilization'
+                          ? CivilizationPage(
+                              key: const ValueKey('civilization'),
+                              state: state,
+                              onOpenChat: () => open('chat'),
+                              onOpenHome: (home) => _openHome(home),
+                            )
+                          : page == 'intro'
                           ? AppIntroductionPage(
                               key: const ValueKey('intro'),
                               onOpenWorkspace: () => open('workspace'),
+                              onOpenCivilization: () => open('civilization'),
                               onOpenChat: () => open('chat'),
                             )
                           : page == 'chat'
