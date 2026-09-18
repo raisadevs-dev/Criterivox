@@ -8,7 +8,6 @@ import 'foundation/criterivox_status.dart';
 import 'foundation/criterivox_visual_tokens.dart';
 import 'presentation/criterivox_theme.dart';
 import 'presentation/presentation_state.dart';
-import 'foundation/criterivox_artifact.dart';
 
 class CivilizationPage extends StatefulWidget {
   final PresentationState? state;
