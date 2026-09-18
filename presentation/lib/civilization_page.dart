@@ -8,6 +8,7 @@ import 'foundation/criterivox_status.dart';
 import 'foundation/criterivox_visual_tokens.dart';
 import 'presentation/criterivox_theme.dart';
 import 'presentation/presentation_state.dart';
+import 'foundation/criterivox_artifact.dart';
 
 class CivilizationPage extends StatefulWidget {
   final PresentationState? state;
@@ -79,6 +80,10 @@ class _CivilizationPageState extends State<CivilizationPage> {
         information: [const _Legend(), if (selectedHome != null) _HomePreview(home: homes.firstWhere((h) => h.id == selectedHome), state: widget.state, onEnter: () => _enterHome(selectedHome!), onClose: () => setState(() => selectedHome = null))],
       )),
       const SizedBox(height: 14),
+      if (selectedCharacter != null) ...[
+        const SizedBox(height: 14),
+        _CharacterBriefing(id: selectedCharacter!, state: widget.state),
+      ],
       if (r.isCompact || r.isTablet) ...[
         _BloomPanel(onHome: _selectHome, state: widget.state), const SizedBox(height: 12),
         _RosterPanel(selected: selectedCharacter, onSelect: _selectCharacter), const SizedBox(height: 12),
@@ -154,6 +159,21 @@ class _HomePreview extends StatelessWidget {
 }
 class _BloomPanel extends StatelessWidget { final ValueChanged<String> onHome; final PresentationState? state; const _BloomPanel({required this.onHome,required this.state}); @override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);return _Panel(title:'THE BLOOM',subtitle:'Spatial nexus · presentation/read-model',child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Container(height:90,decoration:BoxDecoration(borderRadius:BorderRadius.circular(15),gradient:RadialGradient(colors:[t.primary.withValues(alpha:.24),t.surfaceStrong]),border:Border.all(color:t.primary.withValues(alpha:.35))),child:Center(child:Icon(Icons.spa_rounded,color:t.primary,size:48))),const SizedBox(height:8),Text('Bloom visualizes civilization state and provides Home navigation. It owns no orchestration or provenance authority.',style:TextStyle(color:t.mutedText,fontSize:8.8,height:1.35)),const SizedBox(height:7),Wrap(spacing:4,children:_CivilizationPageState.homes.map((h)=>ActionChip(label:Text(h.name.replaceAll(' House','')),onPressed:()=>onHome(h.id))).toList()),if(state!=null)const Padding(padding:EdgeInsets.only(top:7),child:CriterivoxStatusBadge(status:CriterivoxStatus.active,detail:'runtime telemetry'))]));}}
 class _RosterPanel extends StatelessWidget { final String? selected; final ValueChanged<String> onSelect; const _RosterPanel({required this.selected,required this.onSelect}); @override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);return _Panel(title:'CIVILIZATION REGISTRY',subtitle:'Identity · role · residency · current state',child:Wrap(spacing:5,runSpacing:5,children:CharacterIdentities.all.values.map((p)=>ActionChip(avatar:CircleAvatar(radius:9,child:Text(p.displayName.substring(0,1))),label:Text(p.displayName),backgroundColor:selected==p.id?t.primary.withValues(alpha:.15):null,onPressed:()=>onSelect(p.id))).toList()));}}
+class _CharacterBriefing extends StatelessWidget {
+  final String id;
+  final PresentationState? state;
+  const _CharacterBriefing({required this.id, required this.state});
+  @override Widget build(BuildContext context) {
+    final t=CriterivoxTheme.of(context); final p=CharacterIdentities.resolve(id);
+    final live=state?.agentId==id;
+    final status=live ? CriterivoxStatus.active : CriterivoxStatus.planned;
+    return Container(padding:const EdgeInsets.all(15),decoration:BoxDecoration(color:t.surfaceStrong,borderRadius:BorderRadius.circular(18),border:Border.all(color:t.primary.withValues(alpha:.35))),child:Row(crossAxisAlignment:CrossAxisAlignment.start,children:[
+      SessionCharacterAnimationView(characterId:id,state:live?(state!.characterState):'IDLE',width:80,height:100), const SizedBox(width:14),
+      Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('CHARACTER BRIEFING',style:TextStyle(color:t.primary,fontSize:8,fontWeight:FontWeight.w800,letterSpacing:1)),const SizedBox(height:4),Text(p.displayName,style:TextStyle(color:t.text,fontSize:18,fontWeight:FontWeight.w800)),Text(p.role,style:TextStyle(color:t.mutedText,fontSize:10)),const SizedBox(height:7),Text('Responsibility is represented here; computational authority remains in the underlying Criterivox architecture.',style:TextStyle(color:t.mutedText,fontSize:9.5,height:1.35)),const SizedBox(height:8),Wrap(spacing:6,children:[CriterivoxStatusBadge(status:status,detail:live?state!.characterState:'profile/read-model'),CriterivoxStatusBadge(status:live?CriterivoxStatus.ready:CriterivoxStatus.simulated,detail:'identity')])]))
+    ]));
+  }
+}
+
 class _Relations extends StatelessWidget { final String? selected; final ValueChanged<String> onSelect; const _Relations({required this.selected,required this.onSelect}); @override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);final rows=_CivilizationPageState.relationships.where((x)=>selected==null||x.from==selected||x.to==selected).toList();return _Panel(title:'RELATIONAL TOPOLOGY',subtitle:'Observable relationships, not a fixed execution pipeline',child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[if(rows.isEmpty)Text('Select a character to focus supported relationships.',style:TextStyle(color:t.mutedText,fontSize:9)),for(final x in rows.take(6))Padding(padding:const EdgeInsets.only(bottom:7),child:Text(CharacterIdentities.resolve(x.from).displayName+' → '+CharacterIdentities.resolve(x.to).displayName+' · '+x.meaning,style:TextStyle(color:t.text,fontSize:8.5))),Text('Only meaningful/documented relationships are represented here.',style:TextStyle(color:t.mutedText,fontSize:8))]));}}
 class _Panel extends StatelessWidget { final String title,subtitle; final Widget child; const _Panel({required this.title,required this.subtitle,required this.child}); @override Widget build(BuildContext context){final t=CriterivoxTheme.of(context);final v=CriterivoxVisualTokens.of(context);return Container(padding:EdgeInsets.all(v.space3),decoration:BoxDecoration(color:t.surface,borderRadius:BorderRadius.circular(v.radiusMedium),border:Border.all(color:t.border)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(title,style:TextStyle(color:t.text,fontSize:11,fontWeight:FontWeight.w800,letterSpacing:1)),const SizedBox(height:3),Text(subtitle,style:TextStyle(color:t.mutedText,fontSize:8)),const SizedBox(height:8),child]));}
 }
