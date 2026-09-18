@@ -3,9 +3,9 @@ import 'character/session_character_animation.dart';
 import 'presentation/criterivox_theme.dart';
 
 class AppIntroductionPage extends StatefulWidget {
-  final VoidCallback onOpenWorkspace, onOpenChat;
+  final VoidCallback onOpenWorkspace, onOpenChat, onOpenCivilization;
   const AppIntroductionPage(
-      {super.key, required this.onOpenWorkspace, required this.onOpenChat});
+      {super.key, required this.onOpenWorkspace, required this.onOpenChat, required this.onOpenCivilization});
   @override
   State<AppIntroductionPage> createState() => _AppIntroductionPageState();
 }
@@ -208,11 +208,15 @@ class _AppIntroductionPageState extends State<AppIntroductionPage>
   Widget _start(CriterivoxTheme t, bool n) =>
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         FilledButton(
+            onPressed: widget.onOpenCivilization,
+            child: const Text('Enter Civilization')),
+        const SizedBox(width: 10),
+        OutlinedButton(
             onPressed: widget.onOpenWorkspace,
             child: const Text('Enter workspace')),
         const SizedBox(width: 10),
         OutlinedButton(
             onPressed: widget.onOpenChat,
-            child: const Text('Meet the characters'))
+            child: const Text('Meet Syvax'))
       ]);
 }
