@@ -4,6 +4,7 @@ import 'character/character_identity.dart';
 import 'foundation/criterivox_responsive_scene.dart';
 import 'foundation/criterivox_scene.dart';
 import 'foundation/criterivox_status.dart';
+import 'level2_operational_page.dart';
 import 'foundation/criterivox_visual_tokens.dart';
 import 'presentation/criterivox_theme.dart';
 
@@ -69,7 +70,7 @@ class CivilizationHomePreviewPage extends StatelessWidget {
         ],
       ),
       SizedBox(height: v.space4),
-      _Rooms(home: home),
+      _Rooms(home: home, onOpen: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => Level2OperationalPage(homeId: homeId, onBack: () => Navigator.of(context).pop()))),
       SizedBox(height: v.space4),
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         if (onChat != null) FilledButton.icon(onPressed: onChat, icon: const Icon(Icons.forum_outlined), label: const Text('Talk to Syvax')),
@@ -110,7 +111,8 @@ class _HomeBadge extends StatelessWidget {
 }
 class _Rooms extends StatelessWidget {
   final _HomeInfo home;
-  const _Rooms({required this.home});
+  final VoidCallback onOpen;
+  const _Rooms({required this.home, required this.onOpen});
   @override Widget build(BuildContext context) {
     final t=CriterivoxTheme.of(context);
     return Container(padding: const EdgeInsets.all(14), decoration: BoxDecoration(color:t.surface,borderRadius:BorderRadius.circular(18),border:Border.all(color:t.border)), child: Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
@@ -119,6 +121,8 @@ class _Rooms extends StatelessWidget {
       Text('Named spatial responsibilities are visible now; operational behavior belongs to later Level 2 work.',style:TextStyle(color:t.mutedText,fontSize:9)),
       const SizedBox(height:10),
       Wrap(spacing:7,runSpacing:7,children:home.rooms.map((room)=>Chip(avatar:Icon(Icons.meeting_room_outlined,size:14,color:t.primary),label:Text(room))).toList()),
+      const SizedBox(height: 12),
+      FilledButton.icon(onPressed:onOpen,icon:const Icon(Icons.meeting_room_outlined,size:16),label:const Text('Enter Level 2 operational spaces')),
     ]));
   }
 }
