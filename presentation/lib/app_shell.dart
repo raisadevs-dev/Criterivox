@@ -7,6 +7,7 @@ import 'app_introduction_page.dart';
 import 'bloom_page.dart';
 import 'civilization_page.dart';
 import 'civilization_home_preview_page.dart';
+import 'level2_operational_page.dart';
 import 'chat/character_chat_page.dart';
 import 'context/home02_context_console.dart';
 import 'interaction/bloom.dart';
@@ -354,6 +355,11 @@ class _ShellState extends State<CriterivoxShell> {
     open('home-preview');
   }
 
+  void _openLevel2(String home) {
+    setState(() => civilizationHome = home);
+    open('level2');
+  }
+
   void chatWith(String agent) {
     setState(() {
       chatTarget = agent;
@@ -425,6 +431,12 @@ class _ShellState extends State<CriterivoxShell> {
                               homeId: civilizationHome ?? 'context',
                               onBack: () => open('civilization'),
                               onChat: () => open('chat'),
+                            )
+                          : page == 'level2'
+                          ? Level2OperationalPage(
+                              key: const ValueKey('level2'),
+                              homeId: civilizationHome ?? 'context',
+                              onBack: () => open('home-preview'),
                             )
                           : page == 'civilization'
                           ? CivilizationPage(
