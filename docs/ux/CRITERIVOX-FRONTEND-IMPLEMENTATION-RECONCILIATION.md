@@ -798,6 +798,24 @@ The newly added foundation is intentionally not wired into every existing screen
 - Keep S7/S8 as independently callable subsystems until their explicit integration contracts are ready.
 - Populate final character artwork only from supplied source materials.
 
+
+## Set 2 Foundation Inventory
+
+| Foundation | Purpose | State |
+|---|---|---|
+| Visual tokens | Centralized spacing, geometry, typography hierarchy and glass opacity | IMPLEMENTED |
+| Scene composition | World/Home/Room descriptor plus Environment → Character → Lighting → Information → Artifact → Interaction → Transition layers | IMPLEMENTED |
+| Responsive scene | Mobile/tablet/desktop/wide browser composition helpers | IMPLEMENTED |
+| Status presentation | Explicit live/non-live status vocabulary including SIMULATED and PLANNED | IMPLEMENTED |
+| Artifact presentation | Domain-neutral evidence/reasoning/explanation/provenance/etc. presentation model | IMPLEMENTED |
+| Semantic motion | Authoritative activity/attention input separated from ambient motion | IMPLEMENTED |
+| Transitions | Reusable cinematic scene/interaction transition primitive | IMPLEMENTED |
+| Spatial interaction | Semantic, focusable mouse/keyboard-compatible interaction primitive | IMPLEMENTED |
+| App registration | Shared visual tokens registered with the existing Material theme | IMPLEMENTED |
+| Regression tests | Foundation contracts and responsive/layer/status/artifact behavior | ADDED |
+
+**Set 2 boundary:** these primitives are additive. Existing feature screens were not mass-migrated, and no Level 1/Level 2 room was implemented as a substitute for the foundation work.
+
 ## T. Final Set 1 Assessment
 
 Criterivox is **not missing a frontend from scratch**.
