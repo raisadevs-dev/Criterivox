@@ -981,3 +981,31 @@ The Level 2 room catalog is deliberately broader than the currently live runtime
 ### Set 5 prerequisite
 
 Gate 2 should connect to the existing Human Residence / Collaboration Room implementation and reuse the same responsive scene, status, navigation, and truth-boundary primitives. Production authorization, multi-signatory execution, and real-world outcome persistence remain backend/security contracts and are not claimed by this Set 4 surface.
+
+## Set 5 — Gate 2 + Global Character Chat
+
+**Implementation commit:** `c97bfc0968f3ad2cb6aff8ff9f276c0ec724ce04`
+
+Set 5 integrates the existing Gate 2 Human Residence implementation into the application shell and adds the requested application-level global Character Chat launcher without creating a second chatbot.
+
+### Gate 2
+
+Existing `HumanResidenceEntryPage`, `HumanResidencePage`, `PrivateRoomPage`, `CollaborationRoomPage`, and `HumanResidenceStore` are reused. The shell now exposes explicit entry routes for Human Residence, Private Room and Collaboration Room. The existing Private Room persists goal/data/context, trade-off vectors, challenges, action-gate state and results journal through the established local-first residence boundary. The existing Collaboration Room remains the A–G runtime client, including RBAC/differential visibility, Syvax/Dharen context confirmation, adaptive consensus, Manis challenge, Owner + Resident signing, outcome attribution and governed learning proposal.
+
+### Global Character Chat
+
+`CharacterChatPage` remains the single canonical dedicated chat implementation. It is not a Human Residence room. A single shell-level floating toggle controls an application-wide chat overlay. Opening the overlay leaves the current page mounted underneath; closing it reveals the same page state. Existing runtime routing remains responsible for local Criterivox character chat, and the existing chip/prompt and reference mechanisms remain inside the chat page.
+
+Character selection currently exposed by the existing chat implementation includes Syvax, Dharen, Anuka, Sandre, Kaelen, Vivren and Tarkis. The runtime boundary remains authoritative for responses. No online general-purpose LLM was introduced.
+
+### Truth boundaries
+
+Human Residence remains local-first, with browser IndexedDB as the browser authority and Python as the local mirror. Production authentication, server-side authorization, hardware-backed cryptography and real-world Bodhex execution remain explicitly outside this local/runtime implementation. Character Chat response state remains dependent on the runtime response event rather than decorative animation.
+
+### Remaining limitations
+
+The existing Character Chat implementation has per-character in-memory conversation buffers within the page lifecycle; a repository-wide persisted chat-session history API was not invented. Existing file-reference attachment is preserved, but reference persistence beyond the current chat page remains dependent on the existing runtime/application contract. The requested chip-shattering behavior is not independently fabricated because no canonical shattering engine was found in the existing implementation; existing deterministic message chips remain authoritative.
+
+### Set 6 prerequisite
+
+Set 6 can integrate the end-to-end result loop across Civilization → Human Residence → action boundary → real-world result → journal/learning while retaining the existing global chat capability. Production identity, authorization and execution adapters should remain explicit boundaries rather than being implied by frontend controls.
