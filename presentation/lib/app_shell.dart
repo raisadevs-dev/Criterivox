@@ -370,10 +370,9 @@ class _ShellState extends State<CriterivoxShell> {
   }
 
   void chatWith(String agent) {
-
     setState(() {
       chatTarget = agent;
-      page = 'chat';
+      chatOverlayOpen = true;
     });
   }
 
