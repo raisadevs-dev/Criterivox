@@ -647,6 +647,14 @@ class _Sidebar extends StatelessWidget {
                       t,
                     ),
                     _nav(
+                      'Civilization · Gate 1',
+                      Icons.location_city_rounded,
+                      page == 'civilization',
+                      () => onOpen('civilization'),
+                      expanded,
+                      t,
+                    ),
+                    _nav(
                       'Bloom',
                       Icons.spa_rounded,
                       page == 'bloom',
