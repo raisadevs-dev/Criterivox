@@ -76,7 +76,7 @@ class _CivilizationPageState extends State<CivilizationPage> {
         environment: [const _WorldBackdrop()],
         character: [_WorldCharacters(homes: canonicalHomes, selectedHome: selectedHome, selectedCharacter: selectedCharacter, state: widget.state, onHome: _selectHome, onCharacter: _selectCharacter)],
         lighting: [const _WorldLighting()],
-        information: [const _Legend(), if (selectedHome != null) _HomePreview(home: homes.firstWhere((h) => h.id == selectedHome), state: widget.state, onEnter: () => _enterHome(selectedHome!), onClose: () => setState(() => selectedHome = null))],
+        information: [const _Legend(), if (selectedHome != null) _HomePreview(home: canonicalHomes.firstWhere((h) => h.id == selectedHome), state: widget.state, onEnter: () => _enterHome(selectedHome!), onClose: () => setState(() => selectedHome = null))],
       )),
       const SizedBox(height: 14),
       if (selectedCharacter != null) ...[
