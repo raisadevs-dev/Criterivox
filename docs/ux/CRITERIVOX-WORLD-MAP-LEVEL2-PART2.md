@@ -1,6 +1,6 @@
 # Criterivox World Map — Level 2, Part II
 
-## Home 03, The Bloom, Home 01 and Home 02 — Internal Functional-Spatial Specification
+## Gateway Quarter, The Bloom, Data Stewardship Quarter & Context Quarter — Internal Functional-Spatial Specification
 
 ### Document Status
 
@@ -21,10 +21,10 @@ Level 2 Part II translates the Criterivox role architecture into inspectable spa
 
 It defines:
 
-1. **Home 03 — Syvax’s Interaction & Gateway Home**
+1. **Gateway Quarter — Syvax’s Interaction & Gateway Home**
 2. **The Bloom — Central Spatial and Operational Nexus**
-3. **Home 01 — Sandre’s Data Foundation Home**
-4. **Home 02 — Dharen’s Context Home**
+3. **Data Stewardship Quarter — Sandre & Kaelen’s Data Foundation Home**
+4. **Context Quarter — Dharen & Anuka’s Context Home**
 
 The objective is not to turn backend services into decorative buildings. Each room, workstation, visual signal and transition must expose a real system responsibility or a clearly labelled simulation.
 
@@ -52,16 +52,16 @@ Part II therefore defines the operational layer beneath the Level 1 world map an
 
 | Home | Resident(s) | Primary Responsibility | Main Boundary |
 |---|---|---|---|
-| Home 01 | Sandre + Kaelen | Data foundation, stewardship, ingestion and transformation | Raw data → validated/structured data |
-| Home 02 | Dharen + Anuka | Context framing, adaptation and scope control | Data/task → usable context |
-| Home 03 | Syvax | Human interaction, reception, routing and output translation | Human ↔ Criterivox |
+| Data Stewardship Quarter | Sandre + Kaelen | Data foundation, stewardship, ingestion and transformation | Raw data → validated/structured data |
+| Context Quarter | Dharen + Anuka | Context framing, adaptation and scope control | Data/task → usable context |
+| Gateway Quarter | Syvax | Human interaction, reception, routing and output translation | Human ↔ Criterivox |
 | Bloom | Shared nexus, no conventional resident | Spatial navigation, cross-home visibility and operational coordination | Home ↔ Home |
 
 **Anukor is not assigned to a Home.** He remains a network-layer resident operating across the spatial system.
 
 ---
 
-# 4. Home 03 — Syvax’s Interaction & Gateway Home
+# 4. Gateway Quarter — Syvax’s Interaction & Gateway Home
 
 ## 4.1 Identity
 
@@ -69,7 +69,7 @@ Part II therefore defines the operational layer beneath the Level 1 world map an
 **Role:** Interaction, dialogue, orchestration and gateway  
 **Primary Focus:** Human-machine dialogue, interface orchestration, task reception, routing and output translation.
 
-Home 03 is the primary human-system boundary.
+The Gateway Quarter is the primary human-system boundary.
 
 Syvax functions conceptually as:
 
@@ -128,7 +128,7 @@ Can the user understand:
 
 # 6. Home 03 Spatial Structure
 
-Home 03 should be organized around a central reception/workspace with secondary inspection areas.
+The Gateway Quarter should be organized around a central reception/workspace with secondary inspection areas.
 
 ### Primary Spaces
 
@@ -794,7 +794,7 @@ Oversight level must be tied to actual workflow policy, not only a visual toggle
 
 ---
 
-# 30. Home 01 — Sandre’s Data Foundation Home
+# 30. Data Stewardship Quarter — Sandre & Kaelen’s Data Foundation Home
 
 ## 30.1 Identity
 
@@ -1044,7 +1044,7 @@ Move beyond simple structural validation.
 
 ---
 
-# 41. Home 02 — Dharen’s Context Home
+# 41. Context Quarter — Dharen & Anuka’s Context Home
 
 ## 41.1 Identity
 
@@ -1516,12 +1516,12 @@ Those capabilities require corresponding backend architecture, interfaces, secur
 
 Level 2 Part II is considered structurally complete when:
 
-- [ ] Home 03 has a defined spatial purpose and resident responsibility.
-- [ ] Home 03 has defined interaction, routing, output, telemetry, multimodal and safety surfaces.
+- [ ] The Gateway Quarter has a defined spatial purpose and resident responsibility.
+- [ ] The Gateway Quarter has defined interaction, routing, output, telemetry, multimodal and safety surfaces.
 - [ ] The Bloom has a clear distinction between navigation representation and backend network routing.
 - [ ] The Bloom can represent Home activity without relying on decorative animation alone.
-- [ ] Home 01 clearly separates stewardship from transformation responsibilities.
-- [ ] Home 02 clearly separates context framing from situational adaptation.
+- [ ] The Data Stewardship Quarter clearly separates stewardship from transformation responsibilities.
+- [ ] The Context Quarter clearly separates context framing from situational adaptation.
 - [ ] Home-to-home handoffs have a defined conceptual envelope.
 - [ ] Runtime, simulated, historical and planned states are visually distinguishable.
 - [ ] Accessibility alternatives exist for spatial interactions.
