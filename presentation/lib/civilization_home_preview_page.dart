@@ -12,8 +12,9 @@ class CivilizationHomePreviewPage extends StatelessWidget {
   final String homeId;
   final VoidCallback onBack;
   final VoidCallback? onChat;
+  final ValueChanged<String>? onOpenOperationalHome;
 
-  const CivilizationHomePreviewPage({super.key, required this.homeId, required this.onBack, this.onChat});
+  const CivilizationHomePreviewPage({super.key, required this.homeId, required this.onBack, this.onChat, this.onOpenOperationalHome});
 
   static const homes = <String, _HomeInfo>{
     'context': _HomeInfo('Context House', 'Context & Data District', ['dharen', 'anuka'], 'Context framing, adaptation and scope control',
@@ -70,7 +71,7 @@ class CivilizationHomePreviewPage extends StatelessWidget {
         ],
       ),
       SizedBox(height: v.space4),
-      _Rooms(home: home, onOpen: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => Level2OperationalPage(homeId: homeId, onBack: () => Navigator.of(context).pop()))),
+      _Rooms(home: home, onOpen: () => onOpenOperationalHome?.call(homeId) ?? Navigator.of(context).push(MaterialPageRoute(builder: (_) => Level2OperationalPage(homeId: homeId, onBack: () => Navigator.of(context).pop()))),
       SizedBox(height: v.space4),
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         if (onChat != null) FilledButton.icon(onPressed: onChat, icon: const Icon(Icons.forum_outlined), label: const Text('Talk to Syvax')),
