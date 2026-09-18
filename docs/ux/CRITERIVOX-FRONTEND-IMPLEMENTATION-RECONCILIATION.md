@@ -840,3 +840,116 @@ The most valuable existing pieces are:
 The next phase should therefore **compose and reconcile**, not rebuild.
 
 Set 1 deliberately does not claim full frontend readiness. It establishes the implementation map and the constraints that Sets 2–6 must respect.
+
+## Set 3 Implementation Status — Gate 1 / Level 1 Civilization
+
+**Status:** LEVEL 1 / GATE 1 IMPLEMENTED AS AN ADDITIVE SPATIAL READ-MODEL EXPERIENCE.
+
+### Reused
+
+- Existing CriterivoxShell and navigation state.
+- Existing AppIntroductionPage.
+- Existing BloomPage and Bloom interaction model.
+- Existing CharacterIdentities canonical roster.
+- Existing SessionCharacterAnimationView.
+- Existing PresentationState runtime contract.
+- Set 2 CriterivoxScene, responsive scene, visual tokens and status primitives.
+- Existing Syvax/chat boundary and existing Home 01/Home 02 surfaces.
+
+### Created
+
+- presentation/lib/civilization_page.dart
+  - Level 1 Civilization spatial world.
+  - Bloom center and seven canonical fixed Home anchors.
+  - Anukor network-resident representation.
+  - Character registry and diagnostic briefing.
+  - Relationship topology.
+  - Responsive map composition.
+  - Explicit runtime/planned status treatment.
+- presentation/lib/civilization_home_preview_page.dart
+  - coherent World → Home entry boundary.
+  - canonical Home responsibilities and documented Level-2 room previews.
+  - explicit deferral of operational room implementation.
+- presentation/test/civilization_page_test.dart
+  - canonical Home coverage.
+  - Anukor non-residency invariant.
+  - responsive behavior.
+  - explicit Home-entry deferral state.
+
+### Modified
+
+- presentation/lib/app_shell.dart
+  - Introduction → Gate 1 Civilization navigation.
+  - Civilization → Home preview navigation.
+  - return path from Home preview to Civilization.
+  - existing Home 01/Home 02/Gateway surfaces remain reusable rather than replaced.
+- presentation/lib/app_introduction_page.dart
+  - Gate 1 entry is now explicit alongside existing workspace/chat paths.
+
+### Civilization coverage
+
+Implemented as a coherent Level 1 spatial read-model:
+
+- Context House — Dharen + Anuka.
+- Data Stewardship House — Sandre + Kaelen.
+- Gateway House — Syvax.
+- Reasoning House — Vivren + Tarkis.
+- Decision House — Pramon + Bodhex + Manis.
+- Evidence House — Medrus + Epistre + Veridat.
+- Knowledge House — Viveda.
+- Bloom — central spatial nexus.
+- Anukor — network territory without a permanent Home.
+
+Level-1 outer-world scenery, civic commons, countryside/coast and full operational room interiors remain deferred where the current implementation does not yet provide authoritative functionality.
+
+### Bloom boundary
+
+Set 3 treats the existing Bloom as a presentation/read-model boundary. The new Civilization surface does not add orchestration, routing authority, provenance authority or execution policy.
+
+Bloom/Home navigation uses presentation callbacks. Existing runtime state is displayed only when PresentationState supplies it.
+
+### Character truth
+
+All 15 canonical identities remain sourced from CharacterIdentities. Character visuals reuse SessionCharacterAnimationView. Missing final artwork is not fabricated.
+
+Runtime state is displayed for the character represented by the current PresentationState. Non-active profiles remain identity/read-model content rather than being falsely marked as computationally active.
+
+### Relationships
+
+The Gate 1 topology currently uses a small, architecture-aligned static relationship set for spatial explanation. It is explicitly presented as relational topology, not as a live execution graph. Live execution flow is not inferred from edge density.
+
+### Home entry
+
+Home previews expose resident identity, district, responsibility, named Level-2 room structure and the Gate 1 inspection boundary.
+
+Operational room behavior is explicitly marked as deferred. Existing implemented Home 01/Home 02/Gateway surfaces remain separately reachable through the existing shell.
+
+### Truthfulness
+
+- Runtime-backed character activity uses PresentationState.
+- Home operational previews use PLANNED / operational rooms deferred where no corresponding live room implementation is available.
+- Relationships are static/read-model relationships, not fabricated runtime telemetry.
+- Bloom remains explicitly described as a presentation/read-model layer.
+
+### Accessibility / responsive foundation
+
+The Civilization surface uses semantic labels, Material focusable controls and responsive composition from Set 2. Compact/tablet layouts stack inspection panels rather than shrinking the world into unreadable desktop UI.
+
+### Known limitations
+
+1. The GitHub connector cannot execute the local Flutter toolchain in this environment, so a fresh flutter analyze, flutter test, browser build, and runtime journey cannot be honestly claimed as executed here.
+2. The pre-existing src/criterivox/ui/routes.py unresolved-conflict baseline remains outside Set 3 scope.
+3. Full Level-1 outer geography and civic-commons scenery are not yet rendered as operational spatial locations.
+4. Relationship telemetry is not yet sourced from a dedicated live topology endpoint; the current set is explicitly static/read-model.
+5. Full operational Level-2 Homes/rooms remain Set 4 scope.
+6. Gate 2 remains Set 5 scope.
+7. Final character artwork remains source-dependent.
+
+### Set 4 prerequisites
+
+- Replace static Level-1 Home room previews with documented Level-2 operational spatial surfaces incrementally.
+- Preserve canonical Level-1 Home names and resident assignments.
+- Connect live event/relationship telemetry only where authoritative APIs exist.
+- Reuse CriterivoxScene and responsive foundation rather than introducing another scene architecture.
+- Keep Bloom as the global spatial nexus/read-model layer.
+- Keep Anukor as a network resident, not a conventional Home.
