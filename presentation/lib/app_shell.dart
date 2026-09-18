@@ -6,6 +6,7 @@ import 'analysis_context_workspace_page.dart';
 import 'app_introduction_page.dart';
 import 'bloom_page.dart';
 import 'civilization_page.dart';
+import 'civilization_home_preview_page.dart';
 import 'chat/character_chat_page.dart';
 import 'context/home02_context_console.dart';
 import 'interaction/bloom.dart';
@@ -60,6 +61,7 @@ class _ShellState extends State<CriterivoxShell> {
   bool busy = false;
   bool railOpen = true;
   String? sandboxId;
+  String? civilizationHome;
 
   late final StreamSubscription<PresentationState> _stateSubscription;
   late final StreamSubscription<String> _errorSubscription;
@@ -348,16 +350,8 @@ class _ShellState extends State<CriterivoxShell> {
   }
 
   void _openHome(String home) {
-    // Set 3 owns the Home-entry boundary; operational room content remains later scope.
-    if (home == 'gateway') {
-      open('chat');
-    } else if (home == 'data') {
-      open('stewardship');
-    } else if (home == 'context') {
-      open('home02');
-    } else {
-      open('civilization');
-    }
+    setState(() => civilizationHome = home);
+    open('home-preview');
   }
 
   void chatWith(String agent) {
@@ -425,7 +419,14 @@ class _ShellState extends State<CriterivoxShell> {
                   Expanded(
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 260),
-                      child: page == 'civilization'
+                      child: page == 'home-preview'
+                          ? CivilizationHomePreviewPage(
+                              key: const ValueKey('home-preview'),
+                              homeId: civilizationHome ?? 'context',
+                              onBack: () => open('civilization'),
+                              onChat: () => open('chat'),
+                            )
+                          : page == 'civilization'
                           ? CivilizationPage(
                               key: const ValueKey('civilization'),
                               state: state,
