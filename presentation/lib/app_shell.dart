@@ -431,6 +431,7 @@ class _ShellState extends State<CriterivoxShell> {
                               homeId: civilizationHome ?? 'context',
                               onBack: () => open('civilization'),
                               onChat: () => open('chat'),
+                              onOpenOperationalHome: _openLevel2,
                             )
                           : page == 'level2'
                           ? Level2OperationalPage(
