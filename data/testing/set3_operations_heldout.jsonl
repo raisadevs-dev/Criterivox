@@ -1,0 +1,6 @@
+{"id":"H01","input":"Move this artifact","case":"no_authorization","expected":"AUTH_REQUIRED"}
+{"id":"H02","input":"Move this artifact","case":"no_capability","expected":"NOT_IMPLEMENTED"}
+{"id":"H03","input":"Actually, change the goal","case":"stale_plan","expected":"REEVALUATION_REQUIRED"}
+{"id":"H04","input":"Did it actually happen?","case":"unknown_without_execution","expected":"UNKNOWN"}
+{"id":"H05","input":"Stop","case":"cancellation_without_command","expected":"REQUEST_CLARIFICATION"}
+{"id":"H06","input":"Approve","case":"approval_without_command","expected":"REQUEST_CLARIFICATION"}
