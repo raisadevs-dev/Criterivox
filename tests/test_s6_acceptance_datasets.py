@@ -21,7 +21,12 @@ def material(row: dict[str, str]) -> DataFoundation:
         and value not in (None, "")
     }
     records = row.get("records") or row.get("items_seen")
-    canonical = tuple({"row": index} for index in range(int(records))) if records else ()
+    # Preserve an explicitly supplied zero.  The acceptance contract
+    # distinguishes observed zero from an absent/unknown record count.
+    supplied_context = dict(context)
+    if records not in (None, ""):
+        supplied_context["record_count"] = int(records)
+    canonical = tuple({"row": index} for index in range(int(records))) if records not in (None, "") and int(records) > 0 else ()
     return DataFoundation(
         foundation_id=f"DF-{row['case_id']}",
         created_at="2026-09-11T00:00:00+00:00",
@@ -35,7 +40,7 @@ def material(row: dict[str, str]) -> DataFoundation:
             ),
         ),
         canonical_data=canonical,
-        supplied_context=context,
+        supplied_context=supplied_context,
     )
 
 
