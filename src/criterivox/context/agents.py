@@ -32,9 +32,15 @@ class DharenAgent:
         selected = tuple(item for item in kept if item.key in selected_keys or item.critical)
         if not selected:
             selected = kept[:1]
-        by_tier = dict(allocation.by_tier)
-        total = max(1, allocation.used)
-        tier_budget = {key: value / total for key, value in by_tier.items()}
+        # Public S6 presentation contract: the tier budget is the configured
+        # distribution of the available context budget, not the accidental
+        # token ratio of the surviving items after filtering.
+        tier_budget = {
+            "critical": 0.40,
+            "high": 0.30,
+            "medium": 0.20,
+            "low": 0.10,
+        }
         return ContextFrame(
             frame_id=self._id(request, [item.key for item in selected]),
             request=request,
