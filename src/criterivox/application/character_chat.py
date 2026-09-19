@@ -26,6 +26,27 @@ PROFILES: dict[str, CharacterChatProfile] = {
     "tarkis": CharacterChatProfile("tarkis", "Reasoning Specialist / Analyst", "Questions, hypotheses, and alternative explanations", ("Why?", "What could be wrong?", "Challenge this", "Form a hypothesis", "What else could explain it?", "Test the assumption"), ("questions", "hypotheses", "alternative explanations", "reasoning challenges")),
 }
 
+
+# Set 1 registry fallback: every registered character is addressable even when
+# its computational capability is architecture-defined rather than implemented.
+try:
+    from criterivox.character_backbone.loader import load_character_registry
+    _BACKBONE_REGISTRY = load_character_registry()
+    for _definition in _BACKBONE_REGISTRY.characters:
+        PROFILES.setdefault(
+            _definition.id,
+            CharacterChatProfile(
+                _definition.id,
+                _definition.role,
+                _definition.purpose,
+                tuple(_definition.capabilities[:6]),
+                tuple(_definition.responsibilities[:6]),
+            ),
+        )
+except (FileNotFoundError, ImportError, ValueError):
+    # Preserve existing runtime behavior if the configuration is unavailable.
+    _BACKBONE_REGISTRY = None
+
 SCRATCHPADS = ScratchpadRegistry()
 OBSERVABILITY = ObservabilityTimeline()
 

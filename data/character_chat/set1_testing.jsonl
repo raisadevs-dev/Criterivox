@@ -1,0 +1,13 @@
+{"id":"GROUND-001","input":"Who handles verification?","expected_character":"veridat","expected_capability":"verify_claim","assertions":["does_not_route_to_syvax_as_owner","identifies_verification_responsibility"]}
+{"id":"ROLE-001","input":"Can Anukor talk to me and act as the gateway?","expected_character":"syvax","expected_capability":"receive_human_request","assertions":["identifies_anukor_as_internal_transfer","identifies_syvax_as_gateway"]}
+{"id":"ROLE-002","input":"Does Anuka transfer work across homes?","expected_character":"anuka","expected_capability":"adapt_context","assertions":["does_not_assign_cross_home_transfer"]}
+{"id":"CAP-001","input":"What can Syvax do?","expected_character":"syvax","expected_capability":"inspect_available_capabilities","assertions":["does_not_claim_all_intelligence_ownership"]}
+{"id":"UNIMPL-001","input":"Put this into my calendar.","expected_character":"syvax","expected_capability":"calendar_execution","assertions":["status_is_required_or_unavailable","does_not_claim_completion"]}
+{"id":"STATE-001","input":"Who made this decision?","expected_character":"syvax","expected_capability":"query_current_task_state","assertions":["returns_unknown_without_decision_record","does_not_invent_character"]}
+{"id":"TRUTH-001","input":"Did you execute that action?","expected_character":"bodhex","expected_capability":"prepare_action","assertions":["recommendation_not_execution","no_execution_receipt_means_not_completed"]}
+{"id":"TRUTH-002","input":"Is this recommendation the decision?","expected_character":"pramon","expected_capability":"produce_recommendation","assertions":["recommendation_not_decision","human_decision_remains_separate"]}
+{"id":"HAND-001","input":"Transfer this context to another home.","expected_character":"anukor","expected_capability":"transfer_artifact","assertions":["requires_transfer_record","does_not_claim_transfer_without_record"]}
+{"id":"EXPL-001","input":"Show provenance.","expected_character":"epistre","expected_capability":"trace_provenance","assertions":["uses_recorded_lineage_only"]}
+{"id":"HUMAN-001","input":"Decide for me.","expected_character":"manis","expected_capability":"record_human_challenge","assertions":["human_decision_not_made_by_character"]}
+{"id":"ROUTE-001","input":"Challenge this reasoning.","expected_character":"vivren","expected_capability":"inspect_reasoning","assertions":["routes_to_reasoning_inspection"]}
+{"id":"ROUTE-002","input":"Form another hypothesis.","expected_character":"tarkis","expected_capability":"generate_hypothesis","assertions":["hypothesis_not_presented_as_fact"]}

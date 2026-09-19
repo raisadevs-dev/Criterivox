@@ -1,0 +1,329 @@
+{
+  "schema_version": "1.0",
+  "chips": [
+    {
+      "id": "chip-001",
+      "category": "situation_awareness",
+      "label": "What happened?",
+      "intent_id": "situation_awareness"
+    },
+    {
+      "id": "chip-002",
+      "category": "situation_awareness",
+      "label": "What is happening?",
+      "intent_id": "situation_awareness"
+    },
+    {
+      "id": "chip-003",
+      "category": "situation_awareness",
+      "label": "What happens next?",
+      "intent_id": "situation_awareness"
+    },
+    {
+      "id": "chip-004",
+      "category": "situation_awareness",
+      "label": "Where are we?",
+      "intent_id": "situation_awareness"
+    },
+    {
+      "id": "chip-005",
+      "category": "situation_awareness",
+      "label": "What changed?",
+      "intent_id": "situation_awareness"
+    },
+    {
+      "id": "chip-006",
+      "category": "situation_awareness",
+      "label": "What is blocked?",
+      "intent_id": "situation_awareness"
+    },
+    {
+      "id": "chip-007",
+      "category": "situation_awareness",
+      "label": "What are you waiting for?",
+      "intent_id": "situation_awareness"
+    },
+    {
+      "id": "chip-008",
+      "category": "explanation",
+      "label": "Why?",
+      "intent_id": "explanation"
+    },
+    {
+      "id": "chip-009",
+      "category": "explanation",
+      "label": "Why did this happen?",
+      "intent_id": "explanation"
+    },
+    {
+      "id": "chip-010",
+      "category": "explanation",
+      "label": "Show the evidence.",
+      "intent_id": "explanation"
+    },
+    {
+      "id": "chip-011",
+      "category": "explanation",
+      "label": "What assumption are you using?",
+      "intent_id": "explanation"
+    },
+    {
+      "id": "chip-012",
+      "category": "explanation",
+      "label": "What is uncertain?",
+      "intent_id": "explanation"
+    },
+    {
+      "id": "chip-013",
+      "category": "explanation",
+      "label": "What would change this?",
+      "intent_id": "explanation"
+    },
+    {
+      "id": "chip-014",
+      "category": "workflow",
+      "label": "Continue",
+      "intent_id": "workflow"
+    },
+    {
+      "id": "chip-015",
+      "category": "workflow",
+      "label": "Pause",
+      "intent_id": "workflow"
+    },
+    {
+      "id": "chip-016",
+      "category": "workflow",
+      "label": "Stop",
+      "intent_id": "workflow"
+    },
+    {
+      "id": "chip-017",
+      "category": "workflow",
+      "label": "Retry",
+      "intent_id": "workflow"
+    },
+    {
+      "id": "chip-018",
+      "category": "workflow",
+      "label": "Change the goal",
+      "intent_id": "workflow"
+    },
+    {
+      "id": "chip-019",
+      "category": "workflow",
+      "label": "Change the constraint",
+      "intent_id": "workflow"
+    },
+    {
+      "id": "chip-020",
+      "category": "workflow",
+      "label": "Review the plan",
+      "intent_id": "workflow"
+    },
+    {
+      "id": "chip-021",
+      "category": "workflow",
+      "label": "Show the handoff",
+      "intent_id": "workflow"
+    },
+    {
+      "id": "chip-022",
+      "category": "decision",
+      "label": "Show options",
+      "intent_id": "decision"
+    },
+    {
+      "id": "chip-023",
+      "category": "decision",
+      "label": "Compare options",
+      "intent_id": "decision"
+    },
+    {
+      "id": "chip-024",
+      "category": "decision",
+      "label": "Recommend",
+      "intent_id": "decision"
+    },
+    {
+      "id": "chip-025",
+      "category": "decision",
+      "label": "Accept",
+      "intent_id": "decision"
+    },
+    {
+      "id": "chip-026",
+      "category": "decision",
+      "label": "Reject",
+      "intent_id": "decision"
+    },
+    {
+      "id": "chip-027",
+      "category": "decision",
+      "label": "Modify",
+      "intent_id": "decision"
+    },
+    {
+      "id": "chip-028",
+      "category": "decision",
+      "label": "Request human review",
+      "intent_id": "decision"
+    },
+    {
+      "id": "chip-029",
+      "category": "evidence",
+      "label": "Show provenance",
+      "intent_id": "evidence"
+    },
+    {
+      "id": "chip-030",
+      "category": "evidence",
+      "label": "Verify this",
+      "intent_id": "evidence"
+    },
+    {
+      "id": "chip-031",
+      "category": "evidence",
+      "label": "Show contradictions",
+      "intent_id": "evidence"
+    },
+    {
+      "id": "chip-032",
+      "category": "evidence",
+      "label": "What supports this?",
+      "intent_id": "evidence"
+    },
+    {
+      "id": "chip-033",
+      "category": "evidence",
+      "label": "What contradicts this?",
+      "intent_id": "evidence"
+    },
+    {
+      "id": "chip-034",
+      "category": "knowledge",
+      "label": "What did we learn?",
+      "intent_id": "knowledge"
+    },
+    {
+      "id": "chip-035",
+      "category": "knowledge",
+      "label": "Is this verified?",
+      "intent_id": "knowledge"
+    },
+    {
+      "id": "chip-036",
+      "category": "knowledge",
+      "label": "Save this knowledge",
+      "intent_id": "knowledge"
+    },
+    {
+      "id": "chip-037",
+      "category": "knowledge",
+      "label": "Can this be reused?",
+      "intent_id": "knowledge"
+    },
+    {
+      "id": "history-001",
+      "category": "history",
+      "label": "Show history",
+      "intent_id": "history"
+    },
+    {
+      "id": "history-002",
+      "category": "history",
+      "label": "What changed?",
+      "intent_id": "history"
+    },
+    {
+      "id": "history-003",
+      "category": "history",
+      "label": "Why did this happen?",
+      "intent_id": "history"
+    },
+    {
+      "id": "current-001",
+      "category": "current_state",
+      "label": "What is happening?",
+      "intent_id": "current"
+    },
+    {
+      "id": "current-002",
+      "category": "current_state",
+      "label": "Where are we?",
+      "intent_id": "current"
+    },
+    {
+      "id": "current-003",
+      "category": "current_state",
+      "label": "Who is working on this?",
+      "intent_id": "current"
+    },
+    {
+      "id": "next-001",
+      "category": "projection",
+      "label": "What's next?",
+      "intent_id": "next"
+    },
+    {
+      "id": "next-002",
+      "category": "projection",
+      "label": "What remains?",
+      "intent_id": "next"
+    },
+    {
+      "id": "next-003",
+      "category": "projection",
+      "label": "What are you waiting for?",
+      "intent_id": "next"
+    },
+    {
+      "id": "interrupt-001",
+      "category": "interruption",
+      "label": "Pause",
+      "intent_id": "pause"
+    },
+    {
+      "id": "interrupt-002",
+      "category": "interruption",
+      "label": "Resume",
+      "intent_id": "resume"
+    },
+    {
+      "id": "interrupt-003",
+      "category": "interruption",
+      "label": "Stop",
+      "intent_id": "cancel"
+    },
+    {
+      "id": "interrupt-004",
+      "category": "interruption",
+      "label": "Cancel",
+      "intent_id": "cancel"
+    },
+    {
+      "id": "progress-001",
+      "category": "progress",
+      "label": "Show progress",
+      "intent_id": "current"
+    },
+    {
+      "id": "progress-002",
+      "category": "progress",
+      "label": "What is blocked?",
+      "intent_id": "current"
+    },
+    {
+      "id": "progress-003",
+      "category": "progress",
+      "label": "What failed?",
+      "intent_id": "history"
+    },
+    {
+      "id": "progress-004",
+      "category": "progress",
+      "label": "What was retried?",
+      "intent_id": "history"
+    }
+  ]
+}

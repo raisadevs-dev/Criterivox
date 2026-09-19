@@ -11,6 +11,8 @@ from criterivox.application.service import UnsupportedCapabilityError
 from criterivox.domain.analysis import AnalysisReference,AnalysisTask,AnalysisTaskSource,AnalysisTaskState
 from criterivox.domain.characters import CharacterActivityManager,CharacterState,CHARACTER_REGISTRY
 from criterivox.presentation.contract import PresentationContract
+from criterivox.application.state_runtime import state_runtime
+from criterivox.application.state_chat import respond_state_query
 MAX_REFERENCE_BYTES=4*1024*1024;MAX_REFERENCE_COUNT=50;MAX_REFERENCE_BATCH_BYTES=8*1024*1024;ALLOWED_CHAT_CHARACTERS={'syvax','dharen'}
 class AnalysisRequest(BaseModel):
  model_config=ConfigDict(extra='forbid');data:dict[str,Any]=Field(default_factory=dict);context:dict[str,Any]=Field(default_factory=dict);task:str=Field(min_length=1,max_length=500)
@@ -124,6 +126,31 @@ async def handle_chat_message(payload):
  if not isinstance(message,str) or not message.strip() or len(message)>2000:raise ValueError('Chat message is invalid.')
  interpretation=interpret_message(message);refs,details=_parse_chat_references(payload.get('references',[]));await _sync_chat_material(refs,details,message,task_id)
  if target=='syvax':
+  if interpretation.intent in {'history','current','next','status'}:
+   if task_id is None:
+    await _publish_character('Syvax',CharacterState.WARNING,message='No task is bound to this conversation, so there is no authoritative state record to inspect.',event='STATE_QUERY_NO_TASK'); return
+   tid=str(task_id)
+   try:
+    message_out,structured=respond_state_query(tid,interpretation)
+   except Exception:
+    message_out,structured='No authoritative runtime record exists for that state.',{'status':'NO_AUTHORITATIVE_RECORD'}
+   await _publish_character('Syvax',CharacterState.COMMUNICATE,message=message_out,event='STATE_AWARE_RESPONSE',task=analysis_tasks.get_task(tid) if tid in analysis_tasks.store.tasks else None)
+   return
+  if interpretation.intent in {'pause','resume','cancel','change_request'}:
+   if task_id is None:
+    await _publish_character('Syvax',CharacterState.WARNING,message='No task is bound to this conversation, so no workflow interruption was performed.',event='INTERRUPTION_NO_TASK'); return
+   tid=str(task_id); task=analysis_tasks.get_task(tid)
+   if interpretation.intent=='pause':
+    from criterivox.application.home03_runtime import home03_runtime
+    if task.is_terminal:
+     await _publish_character('Syvax',CharacterState.WARNING,message='The task is already terminal; no pause was performed.',event='PAUSE_UNSUPPORTED',task=task); return
+    state_runtime.pause(tid); await _publish_character('Syvax',CharacterState.COMMUNICATE,message='The task has been paused through the runtime gate.',event='TASK_PAUSED',task=task); return
+   if interpretation.intent=='resume':
+    state_runtime.resume(tid); await _publish_character('Syvax',CharacterState.COMMUNICATE,message='The task has been resumed through the runtime gate.',event='TASK_RESUMED',task=task); return
+   if interpretation.intent=='cancel':
+    await _publish_character('Syvax',CharacterState.WARNING,message='Cancellation is not supported by the current safe character-chat boundary.',event='CANCEL_UNSUPPORTED',task=task); return
+   state_runtime.record_event(tid,'CHANGE_REQUESTED',actor='human',provenance={'request':message})
+   await _publish_character('Syvax',CharacterState.COMMUNICATE,message='The requested change was recorded. Downstream state was not silently modified.',event='CHANGE_REQUESTED',task=task); return
   if interpretation.intent=='handoff':
    if task_id is None:task=analysis_tasks.create_task(task=interpretation.normalized_text,data={},context={},source=AnalysisTaskSource.CHAT,references=refs,reference_details=details);task_id=task.task_id
    else:task=analysis_tasks.get_task(str(task_id))

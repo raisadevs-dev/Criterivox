@@ -5,6 +5,7 @@ from typing import Any,Callable
 from criterivox.domain.analysis import AnalysisReference,AnalysisResult,AnalysisTask,AnalysisTaskSource,AnalysisTaskState,Evidence,Finding,Observation
 from criterivox.domain.data_foundation import ConfirmationStatus,DataFoundation
 from .home03_runtime import home03_runtime
+from .state_runtime import state_runtime
 @dataclass
 class AnalysisTaskStore:
  tasks:dict[str,AnalysisTask]=field(default_factory=dict)
@@ -21,7 +22,7 @@ class UnknownAnalysisTaskError(ValueError):pass
 class AnalysisTaskService:
  store:AnalysisTaskStore=field(default_factory=AnalysisTaskStore);publish:Callable[[AnalysisTask],Any]|None=None;_locks:dict[str,asyncio.Lock]=field(default_factory=dict)
  def create_task(self,*,task,data,context,source,references=(),reference_details=(),data_foundation=None):
-  item=self.store.create(task=task,data=data,context=context,source=source,references=references,reference_details=reference_details,data_foundation=data_foundation);item.add_activity(f'Task created from {source.value}.')
+  item=self.store.create(task=task,data=data,context=context,source=source,references=references,reference_details=reference_details,data_foundation=data_foundation);item.add_activity(f'Task created from {source.value}.');state_runtime.ensure_journey(item.task_id,item.task)
   if data_foundation is not None:item.add_activity(f'Attached curated S5 foundation {data_foundation.foundation_id}.')
   if reference_details:item.add_activity(f'Attached {len(reference_details)} reference(s) to the task.')
   return item
@@ -49,7 +50,8 @@ class AnalysisTaskService:
    await home03_runtime.wait_if_paused(task_id);home03_runtime.consume(task_id,'Home 02',10)
    await self._move(task,AnalysisTaskState.ANALYZING,'Analyzing the supplied information and attached S5 foundation.');await asyncio.sleep(.40)
    result=self._deterministic_result(task);task.result=result;task.add_activity(f'Produced {len(result.observations)} observations and {len(result.findings)} findings.');await self._move(task,AnalysisTaskState.RESULT_READY,'Analysis result is ready.');await asyncio.sleep(.15);task.complete(result);task.add_activity('Analysis completed successfully.');await self._publish(task);return task
- async def _move(self,task,state,activity):task.transition(state);task.add_activity(activity);await self._publish(task)
+ async def _move(self,task,state,activity):
+  previous=task.state.value;task.transition(state);task.add_activity(activity);state_runtime.record_event(task.task_id,'STATE_CHANGED',actor='dharen',previous_state=previous,new_state=state.value,provenance={'activity':activity});state_runtime.checkpoint(task.task_id,current_step=state.value,active_step=state.value,completed_steps=tuple(x for x in task.activity if 'completed' in x.lower()),remaining_steps=(),active_character='dharen',active_capability='analysis',state=state.value,event_refs=tuple(e.event_id for e in state_runtime.events(task.task_id)[-5:]));await self._publish(task)
  async def _publish(self,task):
   if self.publish is not None:
    value=self.publish(task)
