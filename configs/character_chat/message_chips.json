@@ -324,6 +324,90 @@
       "category": "progress",
       "label": "What was retried?",
       "intent_id": "history"
+    },
+    {
+      "id": "operation-001",
+      "category": "operations",
+      "label": "What can you do?",
+      "intent_id": "capability_discovery"
+    },
+    {
+      "id": "operation-002",
+      "category": "operations",
+      "label": "What capability handles this?",
+      "intent_id": "capability_discovery"
+    },
+    {
+      "id": "operation-003",
+      "category": "operations",
+      "label": "What requires approval?",
+      "intent_id": "authorization_query"
+    },
+    {
+      "id": "operation-004",
+      "category": "operations",
+      "label": "Show the plan",
+      "intent_id": "show_plan"
+    },
+    {
+      "id": "operation-005",
+      "category": "operations",
+      "label": "Show the action contract",
+      "intent_id": "show_contract"
+    },
+    {
+      "id": "operation-006",
+      "category": "operations",
+      "label": "Why is this blocked?",
+      "intent_id": "blocked_query"
+    },
+    {
+      "id": "operation-007",
+      "category": "operations",
+      "label": "What permission is missing?",
+      "intent_id": "authorization_query"
+    },
+    {
+      "id": "operation-008",
+      "category": "operations",
+      "label": "Approve this action",
+      "intent_id": "approve"
+    },
+    {
+      "id": "operation-009",
+      "category": "operations",
+      "label": "Reject this action",
+      "intent_id": "reject"
+    },
+    {
+      "id": "operation-010",
+      "category": "operations",
+      "label": "Cancel this action",
+      "intent_id": "cancel"
+    },
+    {
+      "id": "operation-011",
+      "category": "operations",
+      "label": "What happened during execution?",
+      "intent_id": "execution_history"
+    },
+    {
+      "id": "operation-012",
+      "category": "operations",
+      "label": "Did it actually happen?",
+      "intent_id": "verify"
+    },
+    {
+      "id": "operation-013",
+      "category": "operations",
+      "label": "Verify the result",
+      "intent_id": "verify"
+    },
+    {
+      "id": "operation-014",
+      "category": "operations",
+      "label": "Show the provenance",
+      "intent_id": "provenance"
     }
   ]
 }
