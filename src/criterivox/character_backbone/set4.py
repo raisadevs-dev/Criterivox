@@ -43,21 +43,84 @@ class AdaptationRecord:
 class TransferRecord:
     transfer_id:str; journey_id:str; source_home:str; destination_home:str; source_artifact:str; source_context:str|None; target_context:str|None; compatibility:str; adaptation_required:bool; adaptation_reference:str|None; status:str; provenance:Mapping[str,Any]=field(default_factory=dict)
 class Set4Store:
-    def __init__(self,path=STORE_PATH):
-        Path(path).parent.mkdir(parents=True,exist_ok=True); self.connection=sqlite3.connect(str(path)); self.connection.row_factory=sqlite3.Row
-        self.connection.execute("CREATE TABLE IF NOT EXISTS set4_records(record_id TEXT PRIMARY KEY,record_type TEXT NOT NULL,journey_id TEXT NOT NULL,task_id TEXT,owner TEXT,status TEXT,payload_json TEXT NOT NULL,created_at TEXT NOT NULL,updated_at TEXT NOT NULL)"); self.connection.execute("CREATE INDEX IF NOT EXISTS idx_set4_journey ON set4_records(journey_id,created_at)"); self.connection.commit()
-    def save(self,record_type,payload,*,journey_id,task_id=None,owner=None,status=None,record_id=None):
-        rid=record_id or str(payload.get("id") or uid("S4")); stamp=now(); self.connection.execute("INSERT OR REPLACE INTO set4_records VALUES(?,?,?,?,?,?,?,?,?)",(rid,record_type,journey_id,task_id,owner,status,json.dumps(dict(payload),default=str,sort_keys=True),stamp,stamp)); self.connection.commit(); return rid
-    def get(self,record_id):
-        row=self.connection.execute("SELECT * FROM set4_records WHERE record_id=?",(record_id,)).fetchone()
-        return None if row is None else {**json.loads(row["payload_json"]),"_record_type":row["record_type"],"_journey_id":row["journey_id"],"_task_id":row["task_id"],"_status":row["status"],"_owner":row["owner"]}
-    def list(self,*,journey_id=None,record_type=None):
-        q="SELECT * FROM set4_records"; c=[];v=[]
-        if journey_id is not None:c.append("journey_id=?");v.append(journey_id)
-        if record_type is not None:c.append("record_type=?");v.append(record_type)
-        if c:q+=" WHERE "+" AND ".join(c)
-        rows=self.connection.execute(q+" ORDER BY created_at",v).fetchall()
-        return [{**json.loads(r["payload_json"]),"_record_type":r["record_type"],"_journey_id":r["journey_id"],"_task_id":r["task_id"],"_status":r["status"],"_owner":r["owner"]} for r in rows]
+    def __init__(self, path=STORE_PATH):
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        self.path = str(path)
+        self._init_schema()
+
+    def _connect(self):
+        connection = sqlite3.connect(self.path)
+        connection.row_factory = sqlite3.Row
+        return connection
+
+    def _init_schema(self):
+        with self._connect() as connection:
+            connection.execute(
+                "CREATE TABLE IF NOT EXISTS set4_records("
+                "record_id TEXT PRIMARY KEY,record_type TEXT NOT NULL,"
+                "journey_id TEXT NOT NULL,task_id TEXT,owner TEXT,status TEXT,"
+                "payload_json TEXT NOT NULL,created_at TEXT NOT NULL,updated_at TEXT NOT NULL)"
+            )
+            connection.execute(
+                "CREATE INDEX IF NOT EXISTS idx_set4_journey "
+                "ON set4_records(journey_id,created_at)"
+            )
+
+    def save(self, record_type, payload, *, journey_id, task_id=None, owner=None, status=None, record_id=None):
+        rid = record_id or str(payload.get("id") or uid("S4"))
+        stamp = now()
+        with self._connect() as connection:
+            connection.execute(
+                "INSERT OR REPLACE INTO set4_records VALUES(?,?,?,?,?,?,?,?,?)",
+                (
+                    rid, record_type, journey_id, task_id, owner, status,
+                    json.dumps(dict(payload), default=str, sort_keys=True),
+                    stamp, stamp,
+                ),
+            )
+        return rid
+
+    def get(self, record_id):
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT * FROM set4_records WHERE record_id=?", (record_id,)
+            ).fetchone()
+        return None if row is None else {
+            **json.loads(row["payload_json"]),
+            "_record_type": row["record_type"],
+            "_journey_id": row["journey_id"],
+            "_task_id": row["task_id"],
+            "_status": row["status"],
+            "_owner": row["owner"],
+        }
+
+    def list(self, *, journey_id=None, record_type=None):
+        query = "SELECT * FROM set4_records"
+        clauses = []
+        values = []
+        if journey_id is not None:
+            clauses.append("journey_id=?")
+            values.append(journey_id)
+        if record_type is not None:
+            clauses.append("record_type=?")
+            values.append(record_type)
+        if clauses:
+            query += " WHERE " + " AND ".join(clauses)
+        query += " ORDER BY created_at"
+        with self._connect() as connection:
+            rows = connection.execute(query, values).fetchall()
+        return [
+            {
+                **json.loads(row["payload_json"]),
+                "_record_type": row["record_type"],
+                "_journey_id": row["journey_id"],
+                "_task_id": row["task_id"],
+                "_status": row["status"],
+                "_owner": row["owner"],
+            }
+            for row in rows
+        ]
+
 class Set4Runtime:
     RECORD_TYPES=("journey","chat","context","data","evidence","reasoning","hypothesis","contradiction","challenge","decision","action_plan","authorization","execution","outcome","verification","knowledge","adaptation","transfer","event")
     def __init__(self,store=None):self.store=store or Set4Store()
