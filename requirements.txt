@@ -16,8 +16,6 @@ charset-normalizer==3.5.1
 click==8.5.0
 colorama==0.4.6
 comm==0.2.3
-# Editable Git install with no remote (criterivox==0.1.0)
--e f:\rsearch project\criterivox
 debugpy==1.8.21
 defusedxml==0.7.1
 detect-installer==0.1.0
