@@ -5,6 +5,13 @@ import 'package:flutter/material.dart';
 import 'analysis_context_workspace_page.dart';
 import 'app_introduction_page.dart';
 import 'bloom_page.dart';
+import 'civilization_page.dart';
+import 'civilization_home_preview_page.dart';
+import 'level2_operational_page.dart';
+import 'world_portal_page.dart';
+import 'human_residence_entry_page.dart';
+import 'private_room_page.dart';
+import 'collaboration_room_page.dart';
 import 'chat/character_chat_page.dart';
 import 'context/home02_context_console.dart';
 import 'interaction/bloom.dart';
@@ -58,7 +65,9 @@ class _ShellState extends State<CriterivoxShell> {
   String chatTarget = 'dharen';
   bool busy = false;
   bool railOpen = true;
+  bool chatOverlayOpen = false;
   String? sandboxId;
+  String? civilizationHome;
 
   late final StreamSubscription<PresentationState> _stateSubscription;
   late final StreamSubscription<String> _errorSubscription;
@@ -346,10 +355,24 @@ class _ShellState extends State<CriterivoxShell> {
     );
   }
 
+  void _openHome(String home) {
+    setState(() => civilizationHome = home);
+    open('home-preview');
+  }
+
+  void _openLevel2(String home) {
+    setState(() => civilizationHome = home);
+    open('level2');
+  }
+
+  void toggleGlobalChat() {
+    setState(() => chatOverlayOpen = !chatOverlayOpen);
+  }
+
   void chatWith(String agent) {
     setState(() {
       chatTarget = agent;
-      page = 'chat';
+      chatOverlayOpen = true;
     });
   }
 
@@ -368,7 +391,9 @@ class _ShellState extends State<CriterivoxShell> {
     return Scaffold(
       backgroundColor: t.page,
       body: SafeArea(
-        child: Row(
+        child: Stack(
+          children: [
+            Row(
           children: [
             _Sidebar(
               page: page,
@@ -411,10 +436,47 @@ class _ShellState extends State<CriterivoxShell> {
                   Expanded(
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 260),
-                      child: page == 'intro'
+                      child: page == 'home-preview'
+                          ? CivilizationHomePreviewPage(
+                              key: const ValueKey('home-preview'),
+                              homeId: civilizationHome ?? 'context',
+                              onBack: () => open('civilization'),
+                              onChat: () => open('chat'),
+                              onOpenOperationalHome: _openLevel2,
+                            )
+                          : page == 'level2'
+                          ? Level2OperationalPage(
+                              key: const ValueKey('level2'),
+                              homeId: civilizationHome ?? 'context',
+                              onBack: () => open('home-preview'),
+                            )
+                          : page == 'human-residence-entry'
+                          ? HumanResidenceEntryPage(
+                              onCreateHouse: () => open('human-residence'),
+                              onCreateClub: () => open('human-residence'),
+                              onGuest: () => open('guest'),
+                            )
+                          : page == 'human-residence'
+                          ? HumanResidencePage(
+                              onGuest: () => open('guest'),
+                              onWorkspace: () => open('private-room'),
+                            )
+                          : page == 'private-room'
+                          ? PrivateRoomPage(onWorkspace: () => open('workspace'))
+                          : page == 'collaboration-room'
+                          ? CollaborationRoomPage()
+                          : page == 'civilization'
+                          ? CivilizationPage(
+                              key: const ValueKey('civilization'),
+                              state: state,
+                              onOpenChat: () => open('chat'),
+                              onOpenHome: (home) => _openHome(home),
+                            )
+                          : page == 'intro'
                           ? AppIntroductionPage(
                               key: const ValueKey('intro'),
                               onOpenWorkspace: () => open('workspace'),
+                              onOpenCivilization: () => open('civilization'),
                               onOpenChat: () => open('chat'),
                             )
                           : page == 'chat'
@@ -511,6 +573,59 @@ class _ShellState extends State<CriterivoxShell> {
                     ),
                   ),
                 ],
+              ),
+            ),
+          ],
+        ),
+            // Keep the global chat page mounted while hidden. This preserves its
+            // conversation/input state when the user toggles the launcher, while
+            // IgnorePointer keeps the underlying application usable when closed.
+            Positioned.fill(
+              child: IgnorePointer(
+                ignoring: !chatOverlayOpen,
+                child: AnimatedOpacity(
+                  opacity: chatOverlayOpen ? 1 : 0,
+                  duration: const Duration(milliseconds: 220),
+                  child: Material(
+                    color: t.page.withValues(alpha: .98),
+                    child: CharacterChatPage(
+                      key: const ValueKey('global-character-chat'),
+                      state: state,
+                      busy: busy,
+                      selectedAgent: chatTarget,
+                      onSelectAgent: (agent) =>
+                          setState(() => chatTarget = agent),
+                      onSend: (message, agent, references) =>
+                          send(message, target: agent, references: references),
+                      onOpenTask: () {
+                        setState(() => chatOverlayOpen = false);
+                        open('workspace');
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 18,
+              bottom: 18,
+              child: Semantics(
+                button: true,
+                toggled: chatOverlayOpen,
+                label: chatOverlayOpen
+                    ? 'Close character chat'
+                    : 'Open character chat',
+                child: FloatingActionButton(
+                  tooltip: chatOverlayOpen
+                      ? 'Close character chat'
+                      : 'Open character chat',
+                  onPressed: toggleGlobalChat,
+                  child: Icon(
+                    chatOverlayOpen
+                        ? Icons.close_rounded
+                        : Icons.forum_rounded,
+                  ),
+                ),
               ),
             ),
           ],
@@ -625,6 +740,14 @@ class _Sidebar extends StatelessWidget {
                       t,
                     ),
                     _nav(
+                      'Civilization · Gate 1',
+                      Icons.location_city_rounded,
+                      page == 'civilization',
+                      () => onOpen('civilization'),
+                      expanded,
+                      t,
+                    ),
+                    _nav(
                       'Bloom',
                       Icons.spa_rounded,
                       page == 'bloom',
@@ -657,10 +780,26 @@ class _Sidebar extends StatelessWidget {
                       t,
                     ),
                     _nav(
-                      'Character Chat',
-                      Icons.forum_rounded,
-                      page == 'chat',
-                      () => onOpen('chat'),
+                      'Human Residence',
+                      Icons.home_work_rounded,
+                      page == 'human-residence' || page == 'human-residence-entry',
+                      () => onOpen('human-residence-entry'),
+                      expanded,
+                      t,
+                    ),
+                    _nav(
+                      'Private Room',
+                      Icons.lock_outline_rounded,
+                      page == 'private-room',
+                      () => onOpen('private-room'),
+                      expanded,
+                      t,
+                    ),
+                    _nav(
+                      'Collaboration Room',
+                      Icons.groups_rounded,
+                      page == 'collaboration-room',
+                      () => onOpen('collaboration-room'),
                       expanded,
                       t,
                     ),

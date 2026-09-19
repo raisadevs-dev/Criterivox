@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'app_shell.dart';
 import 'presentation/criterivox_theme.dart';
 import 'presentation/language_mode.dart';
+import 'foundation/criterivox_visual_tokens.dart';
 
 class CriterivoxApp extends StatefulWidget {
   const CriterivoxApp({super.key});
@@ -72,7 +73,7 @@ class _CriterivoxAppState extends State<CriterivoxApp> {
       textTheme: ThemeData(brightness: brightness)
           .textTheme
           .apply(bodyColor: tokens.text, displayColor: tokens.text),
-      extensions: <ThemeExtension<dynamic>>[tokens],
+      extensions: <ThemeExtension<dynamic>>[tokens, const CriterivoxVisualTokens()],
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: tokens.surfaceStrong,
