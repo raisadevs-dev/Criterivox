@@ -1,0 +1,42 @@
+name: Set 3 validation
+
+on:
+  push:
+    branches: [character-chat-backbone]
+    paths:
+      - 'src/criterivox/character_backbone/**'
+      - 'src/criterivox/app.py'
+      - 'presentation/lib/chat/**'
+      - 'presentation/lib/presentation/runtime_client.dart'
+      - 'presentation/lib/app_shell.dart'
+      - 'tests/test_set3_operations.py'
+      - 'data/**'
+      - '.github/workflows/set3-validation.yml'
+  workflow_dispatch:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: character-chat-backbone
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r requirements.txt
+      - run: PYTHONPATH=src pytest -q tests/test_set3_operations.py tests/test_character_backbone_set1.py tests/test_state_awareness_set2.py
+  flutter:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: presentation
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: character-chat-backbone
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.1'
+      - run: flutter pub get
+      - run: flutter analyze
