@@ -63,6 +63,8 @@ class _ShellState extends State<CriterivoxShell> {
   late final StreamSubscription<PresentationState> _stateSubscription;
   late final StreamSubscription<String> _errorSubscription;
   late final StreamSubscription<Map<String, dynamic>> _contextSubscription;
+  late final StreamSubscription<Map<String, dynamic>> _operationSubscription;
+  Map<String, dynamic>? operationState;
 
   @override
   void initState() {
@@ -103,6 +105,11 @@ class _ShellState extends State<CriterivoxShell> {
         );
     });
 
+    _operationSubscription = runtime.operationEvents.listen((event) {
+      if (!mounted) return;
+      setState(() => operationState = event);
+    });
+
     _contextSubscription = runtime.contextEvents.listen((event) {
       if (!mounted) {
         return;
@@ -125,6 +132,7 @@ class _ShellState extends State<CriterivoxShell> {
     _stateSubscription.cancel();
     _errorSubscription.cancel();
     _contextSubscription.cancel();
+    _operationSubscription.cancel();
 
     if (widget.runtimeClient == null) {
       runtime.dispose();
@@ -422,6 +430,7 @@ class _ShellState extends State<CriterivoxShell> {
                                   key: const ValueKey('chat'),
                                   state: state,
                                   busy: busy,
+                                  operationState: operationState,
                                   selectedAgent: chatTarget,
                                   onSelectAgent: (agent) => setState(
                                     () => chatTarget = agent,
