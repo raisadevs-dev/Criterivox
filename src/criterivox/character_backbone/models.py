@@ -31,6 +31,16 @@ class HandoffContract:
 @dataclass(frozen=True)
 class CharacterRegistry:
     characters:tuple[CharacterDefinition,...]
+
+    def __iter__(self):
+        return iter(self.characters)
+
+    def __len__(self):
+        return len(self.characters)
+
+    def __getitem__(self, index):
+        return self.characters[index]
+
     def by_id(self, character_id:str):
         key=character_id.strip().lower()
         for item in self.characters:
