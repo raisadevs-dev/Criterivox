@@ -1,0 +1,1 @@
+# Set 3 Testing\n\nThe Set 3 suite covers command separation, capability absence, explicit authorization, adapter execution, verification, provenance lineage, denial, persistence reopen, and no-approval safety. The held-out dataset covers authorization, unsupported capability, stale plans, unknown verification, and ambiguous approval/cancellation commands.\n
