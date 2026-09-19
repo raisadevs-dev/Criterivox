@@ -94,3 +94,19 @@ def test_no_approval_means_no_execution():
             "context":{"artifact_id":"a","destination":"/tmp/x","source":"/tmp/missing"}})
         assert result["command"]["status"] == Lifecycle.AUTHORIZATION_REQUIRED.value
         assert result["command"]["authorization_state"] == Auth.AUTH_PENDING.value
+
+def test_prepare_moving_is_classified_as_move():
+    intent, operation, _ = OperationEngine.classify("Prepare moving this artifact to Research.")
+    assert intent == "MOVE_ARTIFACT"
+    assert operation == Op.MOVE
+
+def test_change_request_is_not_misread_as_move():
+    intent, operation, _ = OperationEngine.classify("Actually, move it somewhere else.")
+    assert intent == "CHANGE_REQUESTED"
+    assert operation == Op.MODIFY
+
+def test_verification_without_resolved_action_is_unknown():
+    with TemporaryDirectory() as d:
+        engine = make_engine(d)
+        result = engine.handle({"message":"Did it actually happen?"})
+        assert result["classification"] == "UNKNOWN"
