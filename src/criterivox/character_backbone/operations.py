@@ -209,8 +209,8 @@ class OperationEngine:
         if "action contract" in low: return "SHOW_CONTRACT",Op.EXPLAIN,{}
         if "what permission" in low or "requires approval" in low: return "AUTHORIZATION_QUERY",Op.QUERY,{}
         if "why is this blocked" in low: return "BLOCKED_QUERY",Op.QUERY,{}
-        if low.startswith("move ") or "move this" in low: return "MOVE_ARTIFACT",Op.MOVE,{"raw_target":text}
         if low.startswith("change ") or "new requirement" in low or "somewhere else" in low: return "CHANGE_REQUESTED",Op.MODIFY,{"raw_change":text}
+        if low.startswith("move ") or "move this" in low or "prepare moving" in low or "prepare to move" in low: return "MOVE_ARTIFACT",Op.MOVE,{"raw_target":text}
         return "GENERAL_QUERY",Op.QUERY,{}
 
     def _replace(self,cmd,**changes):
@@ -286,6 +286,8 @@ class OperationEngine:
     def handle(self,payload):
         message=str(payload.get("message","")).strip(); cmd=self.create_command(message,conversation_id=str(payload.get("conversation_id","chat")),journey_id=payload.get("journey_id"),task_id=payload.get("task_id"),requested_by=str(payload.get("requested_by","human")),context=payload.get("context") if isinstance(payload.get("context"),Mapping) else {})
         if cmd.intent=="CAPABILITY_DISCOVERY": return {"message_type":"operation_state","classification":"RECORDED_FACT","capabilities":[asdict(c) for c in self.registry.all()]}
+        if cmd.intent=="VERIFY":
+            return self.snapshot(cmd.command_id)|{"classification":"UNKNOWN","message":"No existing action was resolved for this verification request; execution state is not established."}
         if cmd.intent=="AUTHORIZATION_QUERY": return self.snapshot(cmd.command_id)|{"classification":"RECORDED_FACT","message":"Consequential operations require explicit authorization."}
         if cmd.intent=="BLOCKED_QUERY": return self.snapshot(cmd.command_id)|{"classification":"RECORDED_FACT","message":"The operation is blocked until recorded preconditions are satisfied."}
         if cmd.intent=="CHANGE_REQUESTED": return asdict(self.change(cmd.command_id,message)) | {"message_type":"operation_state","classification":"REEVALUATION_REQUIRED"}
