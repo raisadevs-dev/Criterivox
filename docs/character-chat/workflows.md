@@ -11,3 +11,8 @@ A real adapter produces an execution result. Verification separately inspects th
 
 ## Change
 A human change request records CHANGE_REQUESTED and marks the operation REEVALUATION_REQUIRED; an old plan is never silently reused.
+
+
+## Set 4 integration
+
+Set 4 adds durable evidence, verification, contradiction, reasoning explanation, hypothesis, human challenge, decision, outcome, knowledge, adaptation, transfer, and journey inspection through the Python/SQLite runtime. Missing upstream integrations remain explicitly PARTIAL or ARCHITECTURE_DEFINED; presentation state is never authoritative.
