@@ -13,7 +13,7 @@ from criterivox.domain.characters import CharacterActivityManager,CharacterState
 from criterivox.presentation.contract import PresentationContract
 from criterivox.application.state_runtime import state_runtime
 from criterivox.application.state_chat import respond_state_query
-MAX_REFERENCE_BYTES=4*1024*1024;MAX_REFERENCE_COUNT=50;MAX_REFERENCE_BATCH_BYTES=8*1024*1024;ALLOWED_CHAT_CHARACTERS={'syvax','dharen'}
+MAX_REFERENCE_BYTES=4*1024*1024;MAX_REFERENCE_COUNT=50;MAX_REFERENCE_BATCH_BYTES=8*1024*1024;ALLOWED_CHAT_CHARACTERS={'syvax','dharen','sandre','kaelen','anuka','vivren','tarkis','pramon','bodhex','medrus','epistre','veridat','manis','viveda','anukor'}
 class AnalysisRequest(BaseModel):
  model_config=ConfigDict(extra='forbid');data:dict[str,Any]=Field(default_factory=dict);context:dict[str,Any]=Field(default_factory=dict);task:str=Field(min_length=1,max_length=500)
  @model_validator(mode='after')
@@ -125,6 +125,9 @@ async def handle_chat_message(payload):
  task_id=payload.get('task_id');message=payload.get('message')
  if not isinstance(message,str) or not message.strip() or len(message)>2000:raise ValueError('Chat message is invalid.')
  interpretation=interpret_message(message);refs,details=_parse_chat_references(payload.get('references',[]));await _sync_chat_material(refs,details,message,task_id)
+ if target not in {'syvax','dharen'}:
+  await _safe_character_chat(payload)
+  return
  if target=='syvax':
   if interpretation.intent in {'history','current','next','status'}:
    if task_id is None:
