@@ -200,7 +200,19 @@ class CollaborationEngine:
         total = sum(counts.values())
         leader = max(counts, key=counts.get) if total else None
         percentage = round((counts[leader] / total) * 100) if leader and total else 0
-        return {"counts": counts, "total": total, "leader": leader, "consensus_percent": percentage, "threshold": session.consensus_threshold, "aligned": bool(leader and percentage >= session.consensus_threshold), "manis_friction": bool(total and percentage < session.consensus_threshold), "risk_level": session.risk_level}
+        friction_from_alignment = bool(total and percentage < session.consensus_threshold)
+        friction_from_risk = session.risk_level in {"high", "critical"}
+        friction_from_governance = session.required_signatories > 1
+        return {
+            "counts": counts,
+            "total": total,
+            "leader": leader,
+            "consensus_percent": percentage,
+            "threshold": session.consensus_threshold,
+            "aligned": bool(leader and percentage >= session.consensus_threshold),
+            "manis_friction": friction_from_alignment or friction_from_risk or friction_from_governance,
+            "risk_level": session.risk_level,
+        }
 
     def challenge(self, sid: str, actor: str, text: str) -> dict[str, Any]:
         with self._lock:
