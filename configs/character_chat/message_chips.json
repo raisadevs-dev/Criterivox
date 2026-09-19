@@ -408,6 +408,54 @@
       "category": "operations",
       "label": "Show the provenance",
       "intent_id": "provenance"
+    },
+    {
+      "id": "set4-evidence-001",
+      "category": "evidence",
+      "label": "Show the evidence",
+      "intent_id": "evidence_inspection"
+    },
+    {
+      "id": "set4-evidence-002",
+      "category": "evidence",
+      "label": "Where did this come from?",
+      "intent_id": "provenance"
+    },
+    {
+      "id": "set4-reasoning-001",
+      "category": "explanation",
+      "label": "What assumptions matter?",
+      "intent_id": "reasoning_explanation"
+    },
+    {
+      "id": "set4-hypothesis-001",
+      "category": "explanation",
+      "label": "What alternatives were considered?",
+      "intent_id": "hypothesis_inspection"
+    },
+    {
+      "id": "set4-challenge-001",
+      "category": "decision",
+      "label": "Show human challenges",
+      "intent_id": "challenge_history"
+    },
+    {
+      "id": "set4-journey-001",
+      "category": "situation_awareness",
+      "label": "Show everything that led to this decision",
+      "intent_id": "journey_inspection"
+    },
+    {
+      "id": "set4-knowledge-001",
+      "category": "knowledge",
+      "label": "What did we learn?",
+      "intent_id": "knowledge_inspection"
+    },
+    {
+      "id": "set4-transfer-001",
+      "category": "knowledge",
+      "label": "Where was this transferred?",
+      "intent_id": "transfer_inspection"
     }
   ]
 }
