@@ -33,7 +33,7 @@ class CriterivoxArtifactCard extends StatelessWidget {
     final v = CriterivoxVisualTokens.of(context);
     return Semantics(
       button: onOpen != null,
-      label: artifact.kind.name + ' artifact: ' + artifact.title,
+      label: '${artifact.kind.name} artifact: ${artifact.title}',
       child: Card(
         margin: EdgeInsets.zero,
         child: InkWell(
@@ -56,7 +56,7 @@ class CriterivoxArtifactCard extends StatelessWidget {
                 SizedBox(height: v.space2),
                 Wrap(spacing: v.space3, runSpacing: v.space1,
                   children: artifact.metadata.entries.map((e) =>
-                    Text(e.key + ': ' + e.value, style: v.metadata.copyWith(color: t.mutedText))).toList()),
+                    Text('${e.key}: ${e.value}', style: v.metadata.copyWith(color: t.mutedText))).toList()),
               ],
             ]),
           ),

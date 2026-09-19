@@ -37,7 +37,7 @@ class CriterivoxScene extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
     container: true,
-    label: descriptor.title + ', ' + descriptor.level.name + ' scene',
+    label: '${descriptor.title}, ${descriptor.level.name} scene',
     child: Stack(fit: StackFit.expand, children: [
       _SceneLayer(children: environment),
       _SceneLayer(children: character),

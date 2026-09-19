@@ -335,7 +335,7 @@ class _FloatingVisualizationDialog extends StatelessWidget {
               children: <Widget>[
                 Icon(Icons.auto_graph_rounded, color: accent),
                 const SizedBox(width: 10),
-                Expanded(child: Text(viz.title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1.0, color: Colors.white))),
+                Expanded(child: Text(viz.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1.0, color: Colors.white))),
                 IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close, color: Colors.white54)),
               ],
             ),

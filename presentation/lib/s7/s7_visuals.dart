@@ -27,10 +27,10 @@ class S7BureauBackdrop extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final p = .5 + .5 * math.sin(progress * math.pi * 2);
     final bg = Paint()
-      ..shader = LinearGradient(
+      ..shader = const LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: const [
+        colors: [
           Color(0xff17152d),
           Color(0xff0b0d1b),
           Color(0xff050713),
@@ -274,11 +274,11 @@ class _CharacterPainter extends CustomPainter {
     final faceShift = normalized == 'surprised' ? -1.5 : normalized == 'focused' ? 1.0 : 0.0;
 
     final glow = Paint()..color = accent.withValues(alpha: active ? .17 : .09)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 25);
-    canvas.drawOval(Rect.fromCenter(center: Offset(95, 292), width: 115 + dance * 2, height: 25), glow);
+    canvas.drawOval(Rect.fromCenter(center: const Offset(95, 292), width: 115 + dance * 2, height: 25), glow);
     final halo = Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = accent.withValues(alpha: active ? .42 : .16 + .04 * (math.sin(cycle) + 1));
     canvas.drawOval(Rect.fromCenter(center: Offset(95, 145 + bob), width: 118 + 8 * math.sin(cycle), height: 224), halo);
     if (active) {
-      canvas.drawArc(Rect.fromCenter(center: Offset(95, 145), width: 132, height: 238), cycle, math.pi * .75, false, halo);
+      canvas.drawArc(Rect.fromCenter(center: const Offset(95, 145), width: 132, height: 238), cycle, math.pi * .75, false, halo);
     }
 
     canvas.translate(0, bob + dance);
@@ -342,7 +342,7 @@ class _CharacterPainter extends CustomPainter {
     canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(116, 216, 18, 9), const Radius.circular(3)), Paint()..color = accent.withValues(alpha: .86));
     if (active) {
       final tool = Paint()..style = PaintingStyle.stroke..strokeWidth = 1..color = accent.withValues(alpha: .52);
-      final center = const Offset(95, 184);
+      const center = Offset(95, 184);
       canvas.drawCircle(center, 24, tool);
       canvas.drawCircle(center, 12, tool);
       for (var i = 0; i < 6; i++) {
@@ -355,7 +355,7 @@ class _CharacterPainter extends CustomPainter {
     if (isVivren) {
       canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(48, 183, 13, 28), const Radius.circular(4)), Paint()..color = accent.withValues(alpha: .18));
     } else {
-      canvas.drawRect(Rect.fromLTWH(129, 177, 9, 25), Paint()..color = accent.withValues(alpha: .20));
+      canvas.drawRect(const Rect.fromLTWH(129, 177, 9, 25), Paint()..color = accent.withValues(alpha: .20));
       canvas.drawCircle(const Offset(134, 174), 3, Paint()..color = accent.withValues(alpha: .82));
     }
     canvas.restore();

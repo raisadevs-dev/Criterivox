@@ -36,7 +36,7 @@ class _S8EvidenceBureauPageState extends State<S8EvidenceBureauPage> {
         room: room,
         child: Stack(children: [
           Positioned.fill(child: S8EnvironmentEntityCluster(room: room)),
-          ListView(padding: const EdgeInsets.all(20), children: [_Header()]..followedBy(_content())),
+          ListView(padding: const EdgeInsets.all(20), children: [const _Header()]..followedBy(_content())),
         ]),
       )),
     ]),

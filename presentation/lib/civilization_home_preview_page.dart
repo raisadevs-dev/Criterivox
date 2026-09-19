@@ -65,9 +65,9 @@ class CivilizationHomePreviewPage extends StatelessWidget {
           Text('This is the Level 1 Home-entry/read-model boundary. Room operations are intentionally deferred to the deeper Level 2 implementation.', textAlign: TextAlign.center, style: TextStyle(color: t.mutedText, fontSize: 10.5, height: 1.4)),
         ]))],
         lighting: const [],
-        information: [
-          Positioned(left: 16, top: 16, child: _HomeBadge(text: 'RESPONSIBILITY ANCHOR')),
-          Positioned(right: 16, top: 16, child: _HomeBadge(text: 'GATE 1 · INSPECTION')),
+        information: const [
+          Positioned(left: 16, top: 16, child: const _HomeBadge(text: 'RESPONSIBILITY ANCHOR')),
+          Positioned(right: 16, top: 16, child: const _HomeBadge(text: 'GATE 1 · INSPECTION')),
         ],
       ),
       SizedBox(height: v.space4),
@@ -78,7 +78,7 @@ class CivilizationHomePreviewPage extends StatelessWidget {
         const SizedBox(width: 10),
         OutlinedButton.icon(onPressed: onBack, icon: const Icon(Icons.map_outlined), label: const Text('Return to Civilization')),
       ]),
-    ]));
+    )]));
   }
 }
 

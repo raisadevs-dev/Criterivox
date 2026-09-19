@@ -63,20 +63,30 @@ class _EntityPainter extends CustomPainter {
     switch(kind){
       case S8EnvironmentEntityKind.cloud:c.drawCircle(Offset(x-9,y+3),9,fill);c.drawCircle(Offset(x+2,y-3),12,fill);c.drawCircle(Offset(x+12,y+3),8,fill);c.drawRect(Rect.fromLTWH(x-18,y+3,36,10),fill);break;
       case S8EnvironmentEntityKind.cactus:c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x-7,y-18,14,35),const Radius.circular(8)),hi);c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x-18,y-3,11,8),const Radius.circular(5)),hi);c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x+7,y-8,11,8),const Radius.circular(5)),hi);break;
-      case S8EnvironmentEntityKind.tree:for(var i=0;i<5;i++)c.drawCircle(Offset(x+(i-2)*8,y-6-(i%2)*6),11,fill);c.drawRect(Rect.fromLTWH(x-3,y+3,6,22),f(const Color(0xFF6B4B35)));break;
-      case S8EnvironmentEntityKind.palm:c.drawRect(Rect.fromLTWH(x-2,y-2,4,25),f(const Color(0xFF5A855E)));for(var i=0;i<8;i++){c.save();c.translate(x,y-4);c.rotate(-1.25+i*.35);c.drawOval(Rect.fromLTWH(0,-3,22,6),hi);c.restore();}break;
-      case S8EnvironmentEntityKind.plant:case S8EnvironmentEntityKind.vine:case S8EnvironmentEntityKind.grass:c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x-13,y+10,26,12),const Radius.circular(4)),f(const Color(0xFF705039)));for(var i=0;i<11;i++){c.save();c.translate(x,y+10);c.rotate(-.9+(i%6)*.36);c.drawOval(Rect.fromLTWH(0,-2,18,5),hi);c.restore();}break;
-      case S8EnvironmentEntityKind.flower:for(var i=0;i<6;i++)c.drawCircle(Offset(x+math.cos(i*math.pi/3)*8,y-4+math.sin(i*math.pi/3)*8),6,hi);c.drawCircle(Offset(x,y-4),3,f(const Color(0xFFD8B66A)));c.drawLine(Offset(x,y+3),Offset(x,y+19),p(const Color(0xFF4B8A63),2));break;
+      case S8EnvironmentEntityKind.tree:for(var i=0;i<5;i++) {
+        c.drawCircle(Offset(x+(i-2)*8,y-6-(i%2)*6),11,fill);
+      }c.drawRect(Rect.fromLTWH(x-3,y+3,6,22),f(const Color(0xFF6B4B35)));break;
+      case S8EnvironmentEntityKind.palm:c.drawRect(Rect.fromLTWH(x-2,y-2,4,25),f(const Color(0xFF5A855E)));for(var i=0;i<8;i++){c.save();c.translate(x,y-4);c.rotate(-1.25+i*.35);c.drawOval(const Rect.fromLTWH(0,-3,22,6),hi);c.restore();}break;
+      case S8EnvironmentEntityKind.plant:case S8EnvironmentEntityKind.vine:case S8EnvironmentEntityKind.grass:c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x-13,y+10,26,12),const Radius.circular(4)),f(const Color(0xFF705039)));for(var i=0;i<11;i++){c.save();c.translate(x,y+10);c.rotate(-.9+(i%6)*.36);c.drawOval(const Rect.fromLTWH(0,-2,18,5),hi);c.restore();}break;
+      case S8EnvironmentEntityKind.flower:for(var i=0;i<6;i++) {
+        c.drawCircle(Offset(x+math.cos(i*math.pi/3)*8,y-4+math.sin(i*math.pi/3)*8),6,hi);
+      }c.drawCircle(Offset(x,y-4),3,f(const Color(0xFFD8B66A)));c.drawLine(Offset(x,y+3),Offset(x,y+19),p(const Color(0xFF4B8A63),2));break;
       case S8EnvironmentEntityKind.flask:c.drawPath(Path()..moveTo(x-5,y-17)..lineTo(x+5,y-17)..lineTo(x+5,y-7)..lineTo(x+13,y+10)..quadraticBezierTo(x,y+19,x-13,y+10)..lineTo(x-5,y-7)..close(),line);c.drawCircle(Offset(x,y+8),3,hi);break;
       case S8EnvironmentEntityKind.cup:c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x-10,y-7,19,19),const Radius.circular(4)),f(const Color(0xFFB8A486)));c.drawArc(Rect.fromLTWH(x+7,y-4,10,12),-math.pi/2,math.pi,false,line);c.drawOval(Rect.fromLTWH(x-9,y-10,17,5),f(const Color(0xFF473528)));break;
       case S8EnvironmentEntityKind.bottle:c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x-8,y-12,16,27),const Radius.circular(5)),fill);c.drawRect(Rect.fromLTWH(x-4,y-19,8,8),f(const Color(0xFF78909C)));c.drawLine(Offset(x-4,y-3),Offset(x+4,y-3),p(a));break;
       case S8EnvironmentEntityKind.glass:c.drawPath(Path()..moveTo(x-10,y-14)..lineTo(x+10,y-14)..lineTo(x+5,y+8)..quadraticBezierTo(x,y+13,x-5,y+8)..close(),line);c.drawLine(Offset(x,y+8),Offset(x,y+20),line);c.drawLine(Offset(x-7,y+20),Offset(x+7,y+20),line);break;
       case S8EnvironmentEntityKind.mountain:c.drawPath(Path()..moveTo(1,s.height-5)..lineTo(x-18,y+5)..lineTo(x-5,y+13)..lineTo(x+6,y-8)..lineTo(x+20,y+12)..lineTo(s.width-1,s.height-5)..close(),f(const Color(0xFF27485D)));break;
       case S8EnvironmentEntityKind.skyline:for(var i=0;i<6;i++){final h=12+(i%3)*7;c.drawRect(Rect.fromLTWH(3+i*8,s.height-5-h,7,h),fill);}break;
-      case S8EnvironmentEntityKind.bridge:c.drawLine(Offset(3,y+9),Offset(s.width-3,y+9),line);for(var i=0;i<5;i++)c.drawArc(Rect.fromLTWH(3+i*8,y,12,18),0,math.pi,line);break;
-      case S8EnvironmentEntityKind.nightSky:c.drawCircle(Offset(x,y),15,f(const Color(0xFF172D48)));for(var i=0;i<5;i++)c.drawCircle(Offset(8+i*7,8+(i%2)*9),1.3,hi);break;
+      case S8EnvironmentEntityKind.bridge:c.drawLine(Offset(3,y+9),Offset(s.width-3,y+9),line);for(var i=0;i<5;i++) {
+        c.drawArc(Rect.fromLTWH(3+i*8,y,12,18),0,math.pi,line);
+      }break;
+      case S8EnvironmentEntityKind.nightSky:c.drawCircle(Offset(x,y),15,f(const Color(0xFF172D48)));for(var i=0;i<5;i++) {
+        c.drawCircle(Offset(8+i*7,8+(i%2)*9),1.3,hi);
+      }break;
       case S8EnvironmentEntityKind.computer:case S8EnvironmentEntityKind.monitor:c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x-19,y-14,38,25),const Radius.circular(4)),fill);c.drawRect(Rect.fromLTWH(x-15,y-10,30,17),f(a.withValues(alpha:.08)));c.drawLine(Offset(x,y+11),Offset(x,y+18),line);c.drawLine(Offset(x-8,y+19),Offset(x+8,y+19),line);c.drawLine(Offset(x-12,y-2),Offset(x-4,y-8),p(a));c.drawLine(Offset(x-4,y-8),Offset(x+7,y-1),p(a));break;
-      case S8EnvironmentEntityKind.keyboard:c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x-20,y-8,40,18),const Radius.circular(4)),fill);for(var i=0;i<10;i++)c.drawCircle(Offset(x-14+(i%5)*7,y-2+(i~/5)*6),1.3,hi);break;
+      case S8EnvironmentEntityKind.keyboard:c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x-20,y-8,40,18),const Radius.circular(4)),fill);for(var i=0;i<10;i++) {
+        c.drawCircle(Offset(x-14+(i%5)*7,y-2+(i~/5)*6),1.3,hi);
+      }break;
       case S8EnvironmentEntityKind.printer:c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x-17,y-8,34,18),const Radius.circular(4)),fill);c.drawRect(Rect.fromLTWH(x-12,y-16,24,11),f(const Color(0xFFCAD0D3)));c.drawRect(Rect.fromLTWH(x-10,y+2,20,10),f(const Color(0xFFD7D0C4)));break;
       case S8EnvironmentEntityKind.controller:c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x-19,y-9,38,19),const Radius.circular(9)),fill);c.drawCircle(Offset(x-10,y),2,hi);c.drawCircle(Offset(x+10,y-2),2,hi);c.drawLine(Offset(x-3,y),Offset(x+4,y),line);break;
       case S8EnvironmentEntityKind.mouse:c.drawOval(Rect.fromLTWH(x-7,y-12,14,24),fill);c.drawLine(Offset(x,y-12),Offset(x,y-2),line);c.drawCircle(Offset(x,y-5),1.5,hi);break;
@@ -86,17 +96,27 @@ class _EntityPainter extends CustomPainter {
       case S8EnvironmentEntityKind.scale:c.drawLine(Offset(x,y-17),Offset(x,y+14),line);c.drawLine(Offset(x-16,y-10),Offset(x+16,y-10),line);c.drawLine(Offset(x-12,y-9),Offset(x-18,y+10),line);c.drawLine(Offset(x+12,y-9),Offset(x+18,y+10),line);c.drawArc(Rect.fromLTWH(x-23,y+5,11,8),0,math.pi,line);c.drawArc(Rect.fromLTWH(x+12,y+5,11,8),0,math.pi,line);break;
       case S8EnvironmentEntityKind.crystal:c.drawPath(Path()..moveTo(x,y-20)..lineTo(x+12,y-6)..lineTo(x+7,y+18)..lineTo(x-8,y+18)..lineTo(x-13,y-6)..close(),f(a.withValues(alpha:.18)));c.drawPath(Path()..moveTo(x,y-20)..lineTo(x+12,y-6)..lineTo(x+7,y+18)..lineTo(x-8,y+18)..lineTo(x-13,y-6)..close(),p(a));break;
       case S8EnvironmentEntityKind.teddy:c.drawCircle(Offset(x-7,y-12),5,fill);c.drawCircle(Offset(x+7,y-12),5,fill);c.drawCircle(Offset(x,y-5),11,fill);c.drawCircle(Offset(x,y+9),13,fill);c.drawCircle(Offset(x-4,y-6),1.5,hi);c.drawCircle(Offset(x+4,y-6),1.5,hi);break;
-      case S8EnvironmentEntityKind.chart:c.drawRect(Rect.fromLTWH(x-19,y-16,38,31),fill);for(var i=0;i<4;i++)c.drawLine(Offset(x-14+i*8,y+9),Offset(x-14+i*8,y-10-(i%2)*5),p(a));c.drawLine(Offset(x-14,y+9),Offset(x+14,y+9),line);break;
-      case S8EnvironmentEntityKind.receipt:case S8EnvironmentEntityKind.document:case S8EnvironmentEntityKind.parchment:case S8EnvironmentEntityKind.note:c.drawRect(Rect.fromLTWH(x-14,y-18,28,34),f(const Color(0xFFD7D0C4)));for(var i=0;i<4;i++)c.drawLine(Offset(x-9,y-10+i*6),Offset(x+9,y-10+i*6),p(a,.9));break;
-      case S8EnvironmentEntityKind.calendar:c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x-16,y-16,32,32),const Radius.circular(4)),line);c.drawLine(Offset(x-16,y-7),Offset(x+16,y-7),line);for(var i=0;i<6;i++)c.drawCircle(Offset(x-9+(i%3)*9,y+(i~/3)*8),1.4,hi);break;
+      case S8EnvironmentEntityKind.chart:c.drawRect(Rect.fromLTWH(x-19,y-16,38,31),fill);for(var i=0;i<4;i++) {
+        c.drawLine(Offset(x-14+i*8,y+9),Offset(x-14+i*8,y-10-(i%2)*5),p(a));
+      }c.drawLine(Offset(x-14,y+9),Offset(x+14,y+9),line);break;
+      case S8EnvironmentEntityKind.receipt:case S8EnvironmentEntityKind.document:case S8EnvironmentEntityKind.parchment:case S8EnvironmentEntityKind.note:c.drawRect(Rect.fromLTWH(x-14,y-18,28,34),f(const Color(0xFFD7D0C4)));for(var i=0;i<4;i++) {
+        c.drawLine(Offset(x-9,y-10+i*6),Offset(x+9,y-10+i*6),p(a,.9));
+      }break;
+      case S8EnvironmentEntityKind.calendar:c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x-16,y-16,32,32),const Radius.circular(4)),line);c.drawLine(Offset(x-16,y-7),Offset(x+16,y-7),line);for(var i=0;i<6;i++) {
+        c.drawCircle(Offset(x-9+(i%3)*9,y+(i~/3)*8),1.4,hi);
+      }break;
       case S8EnvironmentEntityKind.folder:c.drawPath(Path()..moveTo(x-18,y-10)..lineTo(x-4,y-10)..lineTo(x+1,y-5)..lineTo(x+18,y-5)..lineTo(x+14,y+14)..lineTo(x-18,y+14)..close(),f(const Color(0xFF8C7654)));break;
       case S8EnvironmentEntityKind.cabinet:c.drawRect(Rect.fromLTWH(x-15,y-18,30,36),fill);for(var i=0;i<3;i++){c.drawRect(Rect.fromLTWH(x-11,y-14+i*11,22,8),f(const Color(0xFF162632)));c.drawCircle(Offset(x,y-10+i*11),1.5,hi);}break;
-      case S8EnvironmentEntityKind.newspaper:c.drawRect(Rect.fromLTWH(x-19,y-15,38,30),f(const Color(0xFFD7D0C4)));for(var i=0;i<4;i++)c.drawLine(Offset(x-15,y-7+i*6),Offset(x+15,y-7+i*6),p(const Color(0xFF6B7280),.8));break;
+      case S8EnvironmentEntityKind.newspaper:c.drawRect(Rect.fromLTWH(x-19,y-15,38,30),f(const Color(0xFFD7D0C4)));for(var i=0;i<4;i++) {
+        c.drawLine(Offset(x-15,y-7+i*6),Offset(x+15,y-7+i*6),p(const Color(0xFF6B7280),.8));
+      }break;
       case S8EnvironmentEntityKind.ballot:c.drawRect(Rect.fromLTWH(x-14,y-12,28,24),fill);c.drawLine(Offset(x-7,y-3),Offset(x-1,y+3),p(a,2));c.drawLine(Offset(x-1,y+3),Offset(x+9,y-8),p(a,2));break;
       case S8EnvironmentEntityKind.book:c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x-18,y-14,36,28),const Radius.circular(3)),fill);c.drawLine(Offset(x,y-13),Offset(x,y+13),line);c.drawLine(Offset(x-13,y-7),Offset(x-3,y-7),p(a));break;
       case S8EnvironmentEntityKind.clip:c.drawArc(Rect.fromLTWH(x-9,y-16,18,27),math.pi,math.pi*1.55,line);c.drawLine(Offset(x,y-2),Offset(x+6,y+14),line);break;
       case S8EnvironmentEntityKind.link:c.drawOval(Rect.fromLTWH(x-18,y-7,22,13),line);c.drawOval(Rect.fromLTWH(x-4,y-7,22,13),line);break;
-      case S8EnvironmentEntityKind.calculator:c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x-15,y-19,30,38),const Radius.circular(5)),fill);c.drawRect(Rect.fromLTWH(x-10,y-14,20,8),p(a));for(var i=0;i<6;i++)c.drawCircle(Offset(x-8+(i%3)*8,y+(i~/3)*8),1.7,hi);break;
+      case S8EnvironmentEntityKind.calculator:c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x-15,y-19,30,38),const Radius.circular(5)),fill);c.drawRect(Rect.fromLTWH(x-10,y-14,20,8),p(a));for(var i=0;i<6;i++) {
+        c.drawCircle(Offset(x-8+(i%3)*8,y+(i~/3)*8),1.7,hi);
+      }break;
       case S8EnvironmentEntityKind.pin:c.drawCircle(Offset(x,y-7),8,hi);c.drawLine(Offset(x,y),Offset(x,y+18),p(a,2));break;
       case S8EnvironmentEntityKind.search:c.drawCircle(Offset(x-4,y-4),10,line);c.drawLine(Offset(x+4,y+4),Offset(x+14,y+14),p(a,2.2));break;
       case S8EnvironmentEntityKind.bookmark:c.drawPath(Path()..moveTo(x-9,y-18)..lineTo(x+9,y-18)..lineTo(x+9,y+17)..lineTo(x,y+10)..lineTo(x-9,y+17)..close(),f(a.withValues(alpha:.25)));c.drawPath(Path()..moveTo(x-9,y-18)..lineTo(x+9,y-18)..lineTo(x+9,y+17)..lineTo(x,y+10)..lineTo(x-9,y+17)..close(),p(a));break;

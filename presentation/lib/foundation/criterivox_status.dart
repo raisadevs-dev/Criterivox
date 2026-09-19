@@ -40,7 +40,7 @@ class CriterivoxStatusBadge extends StatelessWidget {
       _ => t.primary,
     };
     return Semantics(
-      label: status.label + (detail == null ? '' : ': ' + detail!),
+      label: status.label + (detail == null ? '' : ': ${detail!}'),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: v.space3, vertical: v.space1),
         decoration: BoxDecoration(

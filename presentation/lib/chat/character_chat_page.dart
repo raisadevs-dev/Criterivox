@@ -511,12 +511,12 @@ class _OperationCard extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('OPERATION STATE', style: TextStyle(color: t.primary, fontSize: 10, fontWeight: FontWeight.w700)),
         const SizedBox(height: 8),
-        Text('Intent: ' + (command['intent']?.toString() ?? 'n/a')),
-        Text('Capability: ' + (command['requested_capability']?.toString() ?? 'not resolved')),
-        Text('Responsible: ' + (command['responsible_character']?.toString() ?? 'not assigned')),
-        Text('Authorization: ' + (authorization?['authorization_state']?.toString() ?? command['authorization_state']?.toString() ?? 'n/a')),
-        Text('Action: ' + (action?['status']?.toString() ?? 'not prepared')),
-        Text('Classification: ' + (state['classification']?.toString() ?? command['status']?.toString() ?? 'RECORDED_FACT')),
+        Text('Intent: ${command['intent']?.toString() ?? 'n/a'}'),
+        Text('Capability: ${command['requested_capability']?.toString() ?? 'not resolved'}'),
+        Text('Responsible: ${command['responsible_character']?.toString() ?? 'not assigned'}'),
+        Text('Authorization: ${authorization?['authorization_state']?.toString() ?? command['authorization_state']?.toString() ?? 'n/a'}'),
+        Text('Action: ${action?['status']?.toString() ?? 'not prepared'}'),
+        Text('Classification: ${state['classification']?.toString() ?? command['status']?.toString() ?? 'RECORDED_FACT'}'),
       ]),
     );
   }

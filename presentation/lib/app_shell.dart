@@ -472,7 +472,7 @@ class _ShellState extends State<CriterivoxShell> {
                           : page == 'private-room'
                           ? PrivateRoomPage(onWorkspace: () => open('workspace'))
                           : page == 'collaboration-room'
-                          ? CollaborationRoomPage()
+                          ? const CollaborationRoomPage()
                           : page == 'civilization'
                           ? CivilizationPage(
                               key: const ValueKey('civilization'),

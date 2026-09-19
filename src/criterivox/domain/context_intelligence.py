@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -57,7 +58,12 @@ class ContextMemoryPolicy:
 
     @classmethod
     def disabled(cls) -> "ContextMemoryPolicy":
-        return cls(ttl=None, expires_at=None, status="UNKNOWN", recheck_reason=None)
+        return cls(
+            ttl=None,
+            expires_at=None,
+            status="UNKNOWN",
+            recheck_reason=None,
+        )
 
     @classmethod
     def from_created_at(
@@ -68,20 +74,50 @@ class ContextMemoryPolicy:
         recheck_reason: str | None = None,
         now: datetime | None = None,
     ) -> "ContextMemoryPolicy":
+        """
+        Create a context-memory policy from its creation time.
+
+        A recheck reason is useful metadata, but it is not required merely
+        to establish whether a TTL-based memory policy is active or expired.
+        """
+
         if ttl is None:
             return cls.disabled()
+
         if ttl.total_seconds() <= 0:
             raise ValueError("Context memory TTL must be positive.")
-        if not recheck_reason or not recheck_reason.strip():
-            raise ValueError("Context memory recheck reason is required.")
-        current = now or datetime.now(timezone.utc)
-        expires_at = created_at + ttl
+
+        normalized_created_at = _ensure_utc(created_at)
+        current = _ensure_utc(now or datetime.now(timezone.utc))
+
+        expires_at = normalized_created_at + ttl
+
+        reason = (
+            recheck_reason.strip()
+            if isinstance(recheck_reason, str) and recheck_reason.strip()
+            else None
+        )
+
         return cls(
             ttl=ttl,
             expires_at=expires_at,
             status="EXPIRED" if expires_at <= current else "ACTIVE",
-            recheck_reason=recheck_reason.strip(),
+            recheck_reason=reason,
         )
+
+
+def _ensure_utc(value: datetime) -> datetime:
+    """
+    Normalize a datetime to timezone-aware UTC.
+
+    Python raises when comparing aware and naive datetimes. Context-memory
+    timestamps are operational state, so normalize them at the domain
+    boundary rather than allowing that distinction to leak into callers.
+    """
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+
+    return value.astimezone(timezone.utc)
 
 
 @dataclass(frozen=True, slots=True)
@@ -124,7 +160,10 @@ class ObservabilityTimeline:
         timestamp: datetime | None = None,
     ) -> ObservabilityEvent:
         event = ObservabilityEvent(
-            timestamp=(timestamp or datetime.now(timezone.utc)).isoformat(),
+            timestamp=(
+                _ensure_utc(timestamp or datetime.now(timezone.utc))
+                .isoformat()
+            ),
             task_id=task_id,
             character_id=character_id,
             action=action,
@@ -136,14 +175,31 @@ class ObservabilityTimeline:
         return event
 
     def for_task(self, task_id: str) -> tuple[ObservabilityEvent, ...]:
-        return tuple(event for event in self._events if event.task_id == task_id)
+        return tuple(
+            event
+            for event in self._events
+            if event.task_id == task_id
+        )
 
     def snapshot(self) -> tuple[ObservabilityEvent, ...]:
         return tuple(self._events)
 
-    def clear_task(self, task_id: str) -> tuple[ObservabilityEvent, ...]:
-        removed = tuple(event for event in self._events if event.task_id == task_id)
-        self._events = [event for event in self._events if event.task_id != task_id]
+    def clear_task(
+        self,
+        task_id: str,
+    ) -> tuple[ObservabilityEvent, ...]:
+        removed = tuple(
+            event
+            for event in self._events
+            if event.task_id == task_id
+        )
+
+        self._events = [
+            event
+            for event in self._events
+            if event.task_id != task_id
+        ]
+
         return removed
 
 
@@ -156,22 +212,81 @@ def build_provenance_graph(
 ) -> ContextProvenanceGraph:
     nodes: list[ProvenanceNode] = []
     edges: list[ProvenanceEdge] = []
-    for source_id in source_ids:
-        nodes.append(ProvenanceNode(source_id, source_id, "SOURCE"))
+
+    normalized_source_ids = tuple(
+        source_id
+        for source_id in source_ids
+        if isinstance(source_id, str) and source_id.strip()
+    )
+
+    for source_id in normalized_source_ids:
+        nodes.append(
+            ProvenanceNode(
+                source_id,
+                source_id,
+                "SOURCE",
+            )
+        )
+
     if foundation_id:
-        nodes.append(ProvenanceNode(foundation_id, "Data Foundation", "FOUNDATION"))
+        nodes.append(
+            ProvenanceNode(
+                foundation_id,
+                "Data Foundation",
+                "FOUNDATION",
+            )
+        )
+
     if context_id:
-        nodes.append(ProvenanceNode(context_id, "Context", "CONTEXT"))
+        nodes.append(
+            ProvenanceNode(
+                context_id,
+                "Context",
+                "CONTEXT",
+            )
+        )
+
     if interpretation_id:
-        nodes.append(ProvenanceNode(interpretation_id, "Interpretation", "INTERPRETATION"))
+        nodes.append(
+            ProvenanceNode(
+                interpretation_id,
+                "Interpretation",
+                "INTERPRETATION",
+            )
+        )
+
     if foundation_id:
-        for source_id in source_ids:
-            edges.append(ProvenanceEdge(source_id, foundation_id, "EXTRACTED_INTO"))
+        for source_id in normalized_source_ids:
+            edges.append(
+                ProvenanceEdge(
+                    source_id,
+                    foundation_id,
+                    "EXTRACTED_INTO",
+                )
+            )
+
     if foundation_id and context_id:
-        edges.append(ProvenanceEdge(foundation_id, context_id, "STRUCTURED_AS"))
+        edges.append(
+            ProvenanceEdge(
+                foundation_id,
+                context_id,
+                "STRUCTURED_AS",
+            )
+        )
+
     if context_id and interpretation_id:
-        edges.append(ProvenanceEdge(context_id, interpretation_id, "INTERPRETED_AS"))
-    return ContextProvenanceGraph(tuple(nodes), tuple(edges))
+        edges.append(
+            ProvenanceEdge(
+                context_id,
+                interpretation_id,
+                "INTERPRETED_AS",
+            )
+        )
+
+    return ContextProvenanceGraph(
+        tuple(nodes),
+        tuple(edges),
+    )
 
 
 def diff_contexts(
@@ -183,12 +298,18 @@ def diff_contexts(
 ) -> ContextDiff:
     previous = set(previous_dimensions)
     current = set(current_dimensions)
+
     previous_fields = previous_fields or {}
     current_fields = current_fields or {}
-    changed_fields = tuple(sorted(
-        key for key in previous_fields.keys() & current_fields.keys()
-        if previous_fields[key] != current_fields[key]
-    ))
+
+    changed_fields = tuple(
+        sorted(
+            key
+            for key in previous_fields.keys() & current_fields.keys()
+            if previous_fields[key] != current_fields[key]
+        )
+    )
+
     return ContextDiff(
         added_dimensions=tuple(sorted(current - previous)),
         removed_dimensions=tuple(sorted(previous - current)),
@@ -204,36 +325,81 @@ def calculate_evidence_debt(
     uncertainty_count: int = 0,
 ) -> EvidenceDebt:
     items = list(evidence)
+
     if not items:
-        return EvidenceDebt(0, EvidenceDebtLevel.UNKNOWN, ("NO_EVIDENCE",))
+        return EvidenceDebt(
+            0,
+            EvidenceDebtLevel.UNKNOWN,
+            ("NO_EVIDENCE",),
+        )
+
     supported = 0
     tags: set[str] = set()
+
     for item in items:
-        status = str(item.get("status", "UNKNOWN")).upper()
-        if status in {"OBSERVED", "VERIFIED", "CONFIRMED", "SUPPORTED"}:
+        status = str(
+            item.get("status", "UNKNOWN")
+        ).upper()
+
+        if status in {
+            "OBSERVED",
+            "VERIFIED",
+            "CONFIRMED",
+            "SUPPORTED",
+        }:
             supported += 1
-        elif status in {"ASSUMED", "HYPOTHETICAL"}:
+
+        elif status in {
+            "ASSUMED",
+            "HYPOTHETICAL",
+        }:
             tags.add("ASSUMPTION_OR_HYPOTHESIS")
+
         elif status == "SIMULATED":
             tags.add("SIMULATED_EVIDENCE")
+
         else:
             tags.add("UNVERIFIED_EVIDENCE")
-    completeness = round((supported / len(items)) * 100)
+
+    completeness = round(
+        (supported / len(items)) * 100
+    )
+
     if missing_context_count > 0:
-        completeness = max(0, completeness - min(30, missing_context_count * 5))
+        completeness = max(
+            0,
+            completeness - min(
+                30,
+                missing_context_count * 5,
+            ),
+        )
         tags.add("MISSING_CONTEXT")
+
     if uncertainty_count > 0:
-        completeness = max(0, completeness - min(20, uncertainty_count * 4))
+        completeness = max(
+            0,
+            completeness - min(
+                20,
+                uncertainty_count * 4,
+            ),
+        )
         tags.add("UNCERTAINTY")
+
     if completeness >= 80:
         level = EvidenceDebtLevel.LOW
     elif completeness >= 50:
         level = EvidenceDebtLevel.MEDIUM
     else:
         level = EvidenceDebtLevel.HIGH
+
     if not tags:
         tags.add("SUPPORTED")
-    return EvidenceDebt(completeness, level, tuple(sorted(tags)))
+
+    return EvidenceDebt(
+        completeness,
+        level,
+        tuple(sorted(tags)),
+    )
 
 
 __all__ = [

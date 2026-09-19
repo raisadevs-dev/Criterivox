@@ -58,7 +58,9 @@ class _CriterivoxAmbientMotionState extends State<CriterivoxAmbientMotion> with 
   }
   @override void didUpdateWidget(covariant CriterivoxAmbientMotion oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.reducedMotion) _controller.stop(); else if (oldWidget.reducedMotion) _controller.repeat();
+    if (widget.reducedMotion) {
+      _controller.stop();
+    } else if (oldWidget.reducedMotion) _controller.repeat();
   }
   @override void dispose() { _controller.dispose(); super.dispose(); }
   @override Widget build(BuildContext context) => AnimatedBuilder(

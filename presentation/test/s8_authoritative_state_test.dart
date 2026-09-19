@@ -17,7 +17,7 @@ void main() {
 
   test('artifact invariants reject duplicate ids and self lineage', () {
     final base = S8PresentationSnapshot.demo();
-    final invalid = S8ArtifactSummary(
+    const invalid = S8ArtifactSummary(
       id: 'demo-evidence-01',
       kind: 'evidence',
       title: 'duplicate',

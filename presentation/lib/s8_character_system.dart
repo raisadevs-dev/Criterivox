@@ -118,7 +118,7 @@ class S8CharacterProfileOverlay extends StatelessWidget {
               const SizedBox(height: 10),
               Text('Current state: ${character.activityLabel}', style: const TextStyle(color: Colors.white)),
               const SizedBox(height: 5),
-              Text('Visual identity is presentation-only and follows authoritative state.', style: const TextStyle(color: Colors.white54, fontSize: 10)),
+              const Text('Visual identity is presentation-only and follows authoritative state.', style: TextStyle(color: Colors.white54, fontSize: 10)),
             ],
           ),
         ).animate().fadeIn(duration: 220.ms).scale(begin: const Offset(.96, .96)),
