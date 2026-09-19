@@ -24,6 +24,7 @@ from .infrastructure.runtime import dharen_runtime, handle_application_request, 
 from .logging_config import configure_logging
 from .presentation.contract import PresentationContract
 from .ui.routes import router
+from .character_backbone.operations_api import router as operations_router
 
 logger = logging.getLogger(__name__)
 app = FastAPI(title="Criterivox")
@@ -38,6 +39,7 @@ def health() -> JSONResponse:
     return JSONResponse({"service": "criterivox", "status": "ready", "runtime": "python", "s6_context_engine": "active"})
 
 app.include_router(router)
+app.include_router(operations_router)
 
 async def _safe_request(handler, payload: dict) -> None:
     try:
