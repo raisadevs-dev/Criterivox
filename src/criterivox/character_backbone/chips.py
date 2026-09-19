@@ -1,5 +1,18 @@
 def validate_message_chips(data):
-    allowed={"situation_awareness","explanation","workflow","decision","evidence","knowledge"}; seen=set()
+    allowed={
+        "situation_awareness",
+        "explanation",
+        "workflow",
+        "decision",
+        "evidence",
+        "knowledge",
+        "history",
+        "current_state",
+        "projection",
+        "interruption",
+        "progress",
+        "operations",
+    }; seen=set()
     for chip in data.get("chips",[]):
         if chip["id"] in seen:raise ValueError(f"Duplicate chip id: {chip['id']}")
         seen.add(chip["id"])
