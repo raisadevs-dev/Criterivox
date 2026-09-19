@@ -6,7 +6,7 @@ Criterivox is a **research-driven, context-aware intelligence and decision-suppo
 
 **S5 — Data Foundation + Sandre Data Stewardship is complete.** S5 established the provenance-aware data foundation, confirmation-gated stewardship workflow, Sandre working surface, and runtime integration required to carry validated material toward Dharen analysis. The Python ↔ WebSocket ↔ Flutter architecture remains intact.
 
-**S6 — Context Intelligence is NOT YET COMPLETE.** The implementation/handoff foundation exists, including Dharen/Anuka context responsibilities, durable context state, browser-first residency, sandbox/replay, dynamic budgeting and reproducible learned-model code. The remaining S6 phase is deliberate backlog cleaning through testing, verification, ML artifact/inference evidence, evidence collection, modular/SOLID refinement and UI verification.
+**S6 — Context Intelligence is COMPLETE.** S6 closed the operational context-intelligence foundation, including Dharen/Anuka context responsibilities, durable context state, browser-first residency, sandbox/replay, dynamic budgeting, telemetry/presentation integration, reproducible learned-model code, evidence verification and the S6 closure/verification record. S6 is therefore treated as a completed sprint; subsequent work builds on its verified foundation.
 
 ## S6 Direction
 
@@ -130,21 +130,11 @@ WARNING
 
 Python/domain/application layers emit semantic state. Flutter carries the contract and the local Web runtime blends the corresponding skeletal pose.
 
-## S6 Quality and Verification Phase
+## S6 Closure and Verification
 
-The current S6 exit work is intentionally verification-first:
+The S6 closure record and subsequent verification work established the completed sprint boundary. The repository contains the operational context runtime surface, complete DataFoundation handoff to Dharen, Dharen firewall and conditional Anuka triggers, sandbox controls, context telemetry to presentation, S6 testing/verification work, and the documented S6 closure record.
 
-1. clean and verify SOLID/module boundaries;
-2. expand smart unit, contract, integration and regression tests;
-3. verify browser/IndexedDB → WebSocket → Python recovery and revision safety;
-4. verify sandbox create/run/inspect/compare/promote/discard end-to-end;
-5. run reproducible ML training and retain generated artifacts;
-6. verify runtime inference using generated artifacts;
-7. collect and classify learned evidence, distinguishing weak/public labels from human-validated evidence;
-8. refine and verify Syvax, Bloom and Human Residence UI;
-9. update final documentation/ADR/backlog status only from actual evidence.
-
-Implementation, trained artifacts, runtime inference and CI evidence are separate claims. S6 must not be marked complete until its remaining gates pass.
+Implementation, trained artifacts, runtime inference and CI evidence remain separate claims. S6 completion means the **S6 sprint scope is closed**, not that every later research question in Criterivox has been solved.
 
 ## Research Foundation
 
