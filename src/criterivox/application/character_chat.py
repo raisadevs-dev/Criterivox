@@ -6,6 +6,7 @@ from criterivox.application.context_engine import ScratchpadRegistry
 from criterivox.application.failure_telemetry import FailureType, TELEMETRY
 from criterivox.domain.characters import CharacterState
 from criterivox.domain.context_intelligence import ObservabilityTimeline
+from criterivox.character_backbone.set4 import Set4Runtime
 
 
 @dataclass(frozen=True, slots=True)
@@ -49,6 +50,7 @@ except (FileNotFoundError, ImportError, ValueError):
 
 SCRATCHPADS = ScratchpadRegistry()
 OBSERVABILITY = ObservabilityTimeline()
+SET4 = Set4Runtime()
 
 
 def profile_for(character_id: str) -> CharacterChatProfile:
@@ -83,7 +85,7 @@ def response_for(character_id: str, message: str) -> str:
         if "hypothesis" in text:
             return "A useful hypothesis should be stated as a proposition that can be challenged. I would record what it explains, what evidence would support it, and what observation could weaken it."
         return "Why is that interpretation preferred? I would test an alternative explanation and check whether the available evidence actually distinguishes between them."
-    return "The character profile does not define a response domain for this interaction."
+    return SET4.character_answer(character_id, message)
 
 
 def _failure_from_message(message: str) -> FailureType | None:
@@ -110,6 +112,8 @@ async def handle_character_chat(payload: dict) -> None:
     message = str(payload.get("message", "")).strip()
     task_id = str(payload.get("task_id", "UNBOUND")).strip() or "UNBOUND"
     profile = profile_for(target)
+    journey_id = str(payload.get("journey_id") or f"JRN-{task_id}")
+    SET4.chat(journey_id, character=target, message=message, task_id=task_id)
     scratchpad = SCRATCHPADS.for_task(task_id)
 
     failure_type = _failure_from_message(message)
