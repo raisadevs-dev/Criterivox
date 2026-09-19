@@ -1,0 +1,663 @@
+{
+  "schema_version": "1.0",
+  "registry_id": "criterivox.capabilities.v1",
+  "implementation_status_values": [
+    "CURRENT",
+    "PARTIAL",
+    "ARCHITECTURE_DEFINED",
+    "REQUIRED",
+    "UNKNOWN"
+  ],
+  "capabilities": [
+    {
+      "capability_id": "receive_human_request",
+      "name": "receive human request",
+      "description": "Receive a human request at the interaction boundary",
+      "owner_character": "syvax",
+      "supporting_characters": [
+        "syvax"
+      ],
+      "domain": "interaction",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": false,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "CURRENT",
+      "failure_modes": []
+    },
+    {
+      "capability_id": "inspect_available_capabilities",
+      "name": "inspect available capabilities",
+      "description": "Read the authoritative capability registry",
+      "owner_character": "syvax",
+      "supporting_characters": [
+        "syvax"
+      ],
+      "domain": "interaction",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": false,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "CURRENT",
+      "failure_modes": []
+    },
+    {
+      "capability_id": "query_current_task_state",
+      "name": "query current task state",
+      "description": "Read recorded task state without creating a state change",
+      "owner_character": "syvax",
+      "supporting_characters": [
+        "syvax"
+      ],
+      "domain": "state",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": false,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "CURRENT",
+      "failure_modes": []
+    },
+    {
+      "capability_id": "structure_context",
+      "name": "structure context",
+      "description": "Structure supplied context using the existing context runtime",
+      "owner_character": "dharen",
+      "supporting_characters": [
+        "dharen",
+        "anuka"
+      ],
+      "domain": "context",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": false,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "CURRENT",
+      "failure_modes": []
+    },
+    {
+      "capability_id": "adapt_context",
+      "name": "adapt context",
+      "description": "Propose contextual adaptation after a recorded mismatch or change",
+      "owner_character": "anuka",
+      "supporting_characters": [
+        "anuka",
+        "dharen"
+      ],
+      "domain": "context-adaptation",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": false,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "CURRENT",
+      "failure_modes": []
+    },
+    {
+      "capability_id": "inspect_data_foundation",
+      "name": "inspect data foundation",
+      "description": "Inspect recorded S5 foundational material",
+      "owner_character": "sandre",
+      "supporting_characters": [
+        "sandre"
+      ],
+      "domain": "data",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": false,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "CURRENT",
+      "failure_modes": []
+    },
+    {
+      "capability_id": "build_module",
+      "name": "build module",
+      "description": "Build a controlled module from validated material",
+      "owner_character": "kaelen",
+      "supporting_characters": [
+        "kaelen",
+        "sandre"
+      ],
+      "domain": "build",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": false,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "CURRENT",
+      "failure_modes": []
+    },
+    {
+      "capability_id": "record_failure_telemetry",
+      "name": "record failure telemetry",
+      "description": "Record a detected build/runtime failure",
+      "owner_character": "kaelen",
+      "supporting_characters": [
+        "kaelen",
+        "vivren",
+        "anuka"
+      ],
+      "domain": "telemetry",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": false,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "CURRENT",
+      "failure_modes": []
+    },
+    {
+      "capability_id": "inspect_reasoning",
+      "name": "inspect reasoning",
+      "description": "Inspect recorded reasoning artifacts and limitations",
+      "owner_character": "vivren",
+      "supporting_characters": [
+        "vivren"
+      ],
+      "domain": "reasoning",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": false,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "ARCHITECTURE_DEFINED",
+      "failure_modes": []
+    },
+    {
+      "capability_id": "generate_hypothesis",
+      "name": "generate hypothesis",
+      "description": "Generate a hypothesis artifact from supported reasoning mechanisms",
+      "owner_character": "tarkis",
+      "supporting_characters": [
+        "tarkis",
+        "vivren"
+      ],
+      "domain": "reasoning",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": false,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "ARCHITECTURE_DEFINED",
+      "failure_modes": []
+    },
+    {
+      "capability_id": "compile_insight",
+      "name": "compile insight",
+      "description": "Compile recorded analytical outputs into an insight artifact",
+      "owner_character": "bodhex",
+      "supporting_characters": [
+        "bodhex",
+        "vivren",
+        "tarkis"
+      ],
+      "domain": "insight",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": false,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "ARCHITECTURE_DEFINED",
+      "failure_modes": []
+    },
+    {
+      "capability_id": "build_plan",
+      "name": "build plan",
+      "description": "Structure options and trade-offs into a plan",
+      "owner_character": "pramon",
+      "supporting_characters": [
+        "pramon",
+        "bodhex"
+      ],
+      "domain": "planning",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": false,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "ARCHITECTURE_DEFINED",
+      "failure_modes": []
+    },
+    {
+      "capability_id": "produce_recommendation",
+      "name": "produce recommendation",
+      "description": "Produce a recommendation distinct from a human decision",
+      "owner_character": "pramon",
+      "supporting_characters": [
+        "pramon",
+        "veridat"
+      ],
+      "domain": "planning",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": false,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "ARCHITECTURE_DEFINED",
+      "failure_modes": []
+    },
+    {
+      "capability_id": "acquire_evidence",
+      "name": "acquire evidence",
+      "description": "Acquire and structure evidence through the S8 evidence bureau",
+      "owner_character": "medrus",
+      "supporting_characters": [
+        "medrus"
+      ],
+      "domain": "evidence",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": false,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "CURRENT",
+      "failure_modes": []
+    },
+    {
+      "capability_id": "trace_provenance",
+      "name": "trace provenance",
+      "description": "Trace artifact lineage and transformation provenance",
+      "owner_character": "epistre",
+      "supporting_characters": [
+        "epistre",
+        "medrus"
+      ],
+      "domain": "provenance",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": false,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "CURRENT",
+      "failure_modes": []
+    },
+    {
+      "capability_id": "verify_claim",
+      "name": "verify claim",
+      "description": "Verify a claim against recorded evidence",
+      "owner_character": "veridat",
+      "supporting_characters": [
+        "veridat",
+        "medrus"
+      ],
+      "domain": "verification",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": false,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "CURRENT",
+      "failure_modes": []
+    },
+    {
+      "capability_id": "record_human_challenge",
+      "name": "record human challenge",
+      "description": "Record an artifact-grounded human challenge",
+      "owner_character": "manis",
+      "supporting_characters": [
+        "manis",
+        "syvax"
+      ],
+      "domain": "human-challenge",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": true,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "CURRENT",
+      "failure_modes": []
+    },
+    {
+      "capability_id": "synthesize_knowledge",
+      "name": "synthesize knowledge",
+      "description": "Synthesize reusable knowledge from verified artifacts",
+      "owner_character": "viveda",
+      "supporting_characters": [
+        "viveda",
+        "epistre",
+        "veridat"
+      ],
+      "domain": "knowledge",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": false,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "ARCHITECTURE_DEFINED",
+      "failure_modes": []
+    },
+    {
+      "capability_id": "transfer_artifact",
+      "name": "transfer artifact",
+      "description": "Transfer an artifact across a home/context boundary",
+      "owner_character": "anukor",
+      "supporting_characters": [
+        "anukor",
+        "dharen",
+        "anuka"
+      ],
+      "domain": "transfer",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": false,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "ARCHITECTURE_DEFINED",
+      "failure_modes": []
+    },
+    {
+      "capability_id": "prepare_action",
+      "name": "prepare action",
+      "description": "Prepare an action without executing it",
+      "owner_character": "bodhex",
+      "supporting_characters": [
+        "bodhex",
+        "pramon"
+      ],
+      "domain": "action-preparation",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": true,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "ARCHITECTURE_DEFINED",
+      "failure_modes": []
+    },
+    {
+      "capability_id": "calendar_execution",
+      "name": "calendar execution",
+      "description": "Execute a calendar write through a production adapter",
+      "owner_character": "bodhex",
+      "supporting_characters": [
+        "syvax"
+      ],
+      "domain": "execution",
+      "inputs": [
+        "task",
+        "context",
+        "relevant_artifacts"
+      ],
+      "required_state": [],
+      "outputs": [
+        "capability_result"
+      ],
+      "artifacts_created": [],
+      "events_created": [],
+      "permissions_required": [
+        "capability_read"
+      ],
+      "authorization_required": true,
+      "handoff_targets": [],
+      "preconditions": [],
+      "postconditions": [],
+      "implementation_status": "REQUIRED",
+      "failure_modes": [
+        "No production adapter exists in Set 1."
+      ]
+    }
+  ]
+}

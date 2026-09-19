@@ -1,0 +1,8 @@
+{"id":"SA2-T001","input":"What is happening?","expected_intent":"current","expected_character":"syvax","expected_capability":"query_current_task_state","assertions":["uses_latest_checkpoint","does_not_use_chat_memory","does_not_claim_unrecorded_progress"]}
+{"id":"SA2-T002","input":"What happened before this?","expected_intent":"history","expected_character":"syvax","expected_capability":"query_task_history","assertions":["uses_execution_events","preserves_event_timestamps","unknown_if_no_events"]}
+{"id":"SA2-T003","input":"What's next?","expected_intent":"next","expected_character":"syvax","expected_capability":"query_next_task_step","assertions":["uses_remaining_steps","distinguishes_blocked","does_not_invent_next_step"]}
+{"id":"SA2-T004","input":"Pause","expected_intent":"pause","expected_character":"syvax","expected_capability":"pause_task","assertions":["records_human_interruption","does_not_fake_pause","does_not_destroy_task"]}
+{"id":"SA2-T005","input":"Resume","expected_intent":"resume","expected_character":"syvax","expected_capability":"resume_task","assertions":["records_resume","uses_runtime_gate"]}
+{"id":"SA2-T006","input":"Stop","expected_intent":"cancel","expected_character":"syvax","expected_capability":"cancel_task","assertions":["unsupported_if_active_transition_not_allowed"]}
+{"id":"SA2-T007","input":"What are you waiting for?","expected_intent":"current","expected_character":"syvax","expected_capability":"query_current_task_state","assertions":["reports_waiting_for_only_if_recorded"]}
+{"id":"SA2-T008","input":"There are two active tasks. What's happening?","expected_intent":"current","expected_character":"syvax","expected_capability":"query_current_task_state","assertions":["request_clarification_if_ambiguous"]}

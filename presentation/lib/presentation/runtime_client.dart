@@ -28,6 +28,8 @@ class CharacterRuntimeClient {
   final _errors = StreamController<String>.broadcast();
   final _contextEvents =
       StreamController<Map<String, dynamic>>.broadcast();
+  final _operationEvents =
+      StreamController<Map<String, dynamic>>.broadcast();
 
   final ContextResidencyStore _contextResidency = ContextResidencyStore();
   final FoundationResidencyStore _foundationResidency =
@@ -36,6 +38,7 @@ class CharacterRuntimeClient {
   Stream<PresentationState> get states => _states.stream;
   Stream<String> get errors => _errors.stream;
   Stream<Map<String, dynamic>> get contextEvents => _contextEvents.stream;
+  Stream<Map<String, dynamic>> get operationEvents => _operationEvents.stream;
 
   Uri get endpoint {
     final scheme = Uri.base.scheme == 'https' ? 'wss' : 'ws';
@@ -187,6 +190,37 @@ class CharacterRuntimeClient {
         context: context,
         source: 'legacy-s2',
       );
+
+  void sendOperationCommand({
+    required String message,
+    String conversationId = 'chat',
+    String? journeyId,
+    String? taskId,
+    Map<String, dynamic> context = const {},
+  }) =>
+      _send({
+        'type': 'operation_command',
+        'message': message,
+        'conversation_id': conversationId,
+        if (journeyId != null) 'journey_id': journeyId,
+        if (taskId != null) 'task_id': taskId,
+        'requested_by': 'human',
+        'context': context,
+      });
+
+  void approveOperation(String commandId) =>
+      _send({
+        'type': 'operation_approve',
+        'command_id': commandId,
+        'actor': 'human',
+      });
+
+  void rejectOperation(String commandId) =>
+      _send({
+        'type': 'operation_reject',
+        'command_id': commandId,
+        'actor': 'human',
+      });
 
   void sendChat({
     String? taskId,
@@ -441,6 +475,12 @@ class CharacterRuntimeClient {
       }
 
       if (decoded is Map &&
+          decoded['message_type'] == 'operation_state') {
+        _operationEvents.add(Map<String, dynamic>.from(decoded));
+        return;
+      }
+
+      if (decoded is Map &&
           decoded['message_type'] == 'context_state') {
         final payload = Map<String, dynamic>.from(decoded);
         unawaited(_contextResidency.save(payload));
@@ -479,6 +519,7 @@ class CharacterRuntimeClient {
     await disconnect();
     await _states.close();
     await _contextEvents.close();
+    await _operationEvents.close();
     await _errors.close();
   }
 }

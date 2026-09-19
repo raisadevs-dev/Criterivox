@@ -1,0 +1,44 @@
+name: Set 4 focused validation
+
+on:
+  push:
+    branches: [character-chat-backbone]
+    paths:
+      - 'src/criterivox/character_backbone/set4.py'
+      - 'src/criterivox/application/character_chat.py'
+      - 'src/criterivox/infrastructure/runtime.py'
+      - 'tests/test_set4_evidence_learning.py'
+      - 'data/character_chat/set4_heldout.jsonl'
+      - 'presentation/test/set4_character_chat_test.dart'
+      - 'configs/character_chat/character_registry.json'
+      - 'requirements.txt'
+      - '.github/workflows/set4-validation.yml'
+  workflow_dispatch:
+
+jobs:
+  python-set4:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: character-chat-backbone
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r requirements.txt
+      - run: PYTHONPATH=src pytest -q tests/test_set4_evidence_learning.py
+
+  flutter-set4:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: presentation
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: character-chat-backbone
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.5'
+      - run: flutter pub get
+      - run: flutter test test/set4_character_chat_test.dart

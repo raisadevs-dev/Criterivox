@@ -24,6 +24,8 @@ from .infrastructure.runtime import dharen_runtime, handle_application_request, 
 from .logging_config import configure_logging
 from .presentation.contract import PresentationContract
 from .ui.routes import router
+from .character_backbone.operations_api import router as operations_router
+from .character_backbone.operations_api import ENGINE as operations_engine
 
 logger = logging.getLogger(__name__)
 app = FastAPI(title="Criterivox")
@@ -38,6 +40,7 @@ def health() -> JSONResponse:
     return JSONResponse({"service": "criterivox", "status": "ready", "runtime": "python", "s6_context_engine": "active"})
 
 app.include_router(router)
+app.include_router(operations_router)
 
 async def _safe_request(handler, payload: dict) -> None:
     try:
@@ -228,7 +231,26 @@ async def character_runtime(websocket: WebSocket) -> None:
                     await _safe_foundation_sync(payload)
                 except ValueError as exc:
                     await websocket.send_json({"type": "foundation_sync_ack", "foundation_id": payload.get("foundation_id"), "revision": payload.get("revision", 0), "status": "rejected", "reason": str(exc), "authoritative": False})
-            elif isinstance(payload, dict) and payload.get("type") == "chat_message": asyncio.create_task(_safe_request(handle_chat_message, payload))
+            elif isinstance(payload, dict) and payload.get("type") == "operation_command":
+                try:
+                    result = operations_engine.handle(payload)
+                    await websocket.send_json(result)
+                except Exception as exc:
+                    await websocket.send_json({"message_type":"operation_state","classification":"ERROR","error":str(exc)})
+            elif isinstance(payload, dict) and payload.get("type") == "operation_approve":
+                try:
+                    result = operations_engine.approve(str(payload.get("command_id","")), actor=str(payload.get("actor","human")))
+                    await websocket.send_json(result)
+                except Exception as exc:
+                    await websocket.send_json({"message_type":"operation_state","classification":"ERROR","error":str(exc)})
+            elif isinstance(payload, dict) and payload.get("type") == "operation_reject":
+                try:
+                    result = operations_engine.reject(str(payload.get("command_id","")), actor=str(payload.get("actor","human")))
+                    await websocket.send_json({"message_type":"operation_state","command":result.__dict__,"classification":"DENIED"})
+                except Exception as exc:
+                    await websocket.send_json({"message_type":"operation_state","classification":"ERROR","error":str(exc)})
+            elif isinstance(payload, dict) and payload.get("type") == "chat_message":
+                asyncio.create_task(_safe_request(handle_chat_message, payload))
             elif isinstance(payload, dict) and payload.get("type") in {"data_intake", "data_folder"}: asyncio.create_task(_safe_data_intake(payload))
             elif isinstance(payload, dict) and payload.get("type") == "data_action": asyncio.create_task(_safe_data_action(payload))
             elif isinstance(payload, dict) and payload.get("type") == "context_build": asyncio.create_task(_safe_context_build(payload))

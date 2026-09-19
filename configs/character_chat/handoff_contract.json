@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "handoff_contract": "criterivox.character.handoff.v1",
+  "types": [
+    "REQUEST_CAPABILITY",
+    "DELEGATE_TASK",
+    "REQUEST_STATUS",
+    "REQUEST_EVIDENCE",
+    "REQUEST_VERIFICATION",
+    "REQUEST_EXPLANATION",
+    "REQUEST_CONTEXT_ADAPTATION",
+    "REQUEST_KNOWLEDGE",
+    "REQUEST_ACTION_PREPARATION"
+  ],
+  "fields": [
+    "sender",
+    "receiver",
+    "intent",
+    "reason",
+    "task_id",
+    "journey_id",
+    "context_reference",
+    "input_artifacts",
+    "requested_capability",
+    "expected_output",
+    "priority",
+    "status",
+    "created_at"
+  ]
+}
