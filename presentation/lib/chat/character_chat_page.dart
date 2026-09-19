@@ -9,6 +9,7 @@ import '../presentation/presentation_state.dart';
 class CharacterChatPage extends StatefulWidget {
   final PresentationState? state;
   final bool busy;
+  final Map<String, dynamic>? operationState;
   final String selectedAgent;
   final ValueChanged<String> onSelectAgent;
   final void Function(
@@ -19,6 +20,7 @@ class CharacterChatPage extends StatefulWidget {
       {super.key,
       required this.state,
       required this.busy,
+      this.operationState,
       required this.selectedAgent,
       required this.onSelectAgent,
       required this.onSend,
@@ -349,6 +351,10 @@ class _Conversation extends StatelessWidget {
             ActionChip(
                 label: Text(p), onPressed: busy ? null : () => onChoice(p))
         ]),
+        if (widget.operationState != null) ...[
+          const SizedBox(height: 12),
+          _OperationCard(state: widget.operationState!),
+        ],
         const SizedBox(height: 14),
         for (final x in messages)
           _MessageBubble(message: x, displayName: m.name),
@@ -488,6 +494,32 @@ class _TaskCard extends StatelessWidget {
   Widget build(BuildContext c) => TextButton(
       onPressed: onOpen,
       child: Text('${state.taskId} • ${state.taskState ?? 'ACTIVE'}'));
+}
+
+class _OperationCard extends StatelessWidget {
+  final Map<String, dynamic> state;
+  const _OperationCard({required this.state});
+  @override
+  Widget build(BuildContext c) {
+    final t = CriterivoxTheme.of(c);
+    final command = state['command'] is Map ? Map<String, dynamic>.from(state['command']) : const <String, dynamic>{};
+    final authorization = state['authorization'] is Map ? Map<String, dynamic>.from(state['authorization']) : null;
+    final action = state['action'] is Map ? Map<String, dynamic>.from(state['action']) : null;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(color: t.surfaceStrong, borderRadius: BorderRadius.circular(14), border: Border.all(color: t.border)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('OPERATION STATE', style: TextStyle(color: t.primary, fontSize: 10, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 8),
+        Text('Intent: ' + (command['intent']?.toString() ?? 'n/a')),
+        Text('Capability: ' + (command['requested_capability']?.toString() ?? 'not resolved')),
+        Text('Responsible: ' + (command['responsible_character']?.toString() ?? 'not assigned')),
+        Text('Authorization: ' + (authorization?['authorization_state']?.toString() ?? command['authorization_state']?.toString() ?? 'n/a')),
+        Text('Action: ' + (action?['status']?.toString() ?? 'not prepared')),
+        Text('Classification: ' + (state['classification']?.toString() ?? command['status']?.toString() ?? 'RECORDED_FACT')),
+      ]),
+    );
+  }
 }
 
 class _ContextPanel extends StatelessWidget {
