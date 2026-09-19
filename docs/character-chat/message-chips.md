@@ -1,1 +1,3 @@
-# Set 3 Message Chips\n\nOperational chip intents are semantic rather than string-execution shortcuts: capability discovery, authorization query, plan inspection, action-contract inspection, blocker explanation, approval, rejection, cancellation, execution-history inspection, result verification, and provenance inspection. Informational chips must not execute side effects.\n
+# Set 3 Message Chips
+
+Operational chip intents are semantic rather than string-execution shortcuts: capability discovery, authorization query, plan inspection, action-contract inspection, blocker explanation, approval, rejection, cancellation, execution-history inspection, result verification, and provenance inspection. Informational chips must not execute side effects.
