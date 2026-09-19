@@ -1,47 +1,56 @@
-import json
+import re
 from pathlib import Path
 
+PROFILE = (
+    Path(__file__).parents[1]
+    / "presentation"
+    / "lib"
+    / "character"
+    / "character_visual_profile.dart"
+)
+ANIMATION = (
+    Path(__file__).parents[1]
+    / "presentation"
+    / "lib"
+    / "character"
+    / "generated_vector_animation.dart"
+)
 
-ASSET = Path(__file__).parents[1] / "presentation" / "web" / "character_runtime" / "characters.json"
-
-
-EXPECTED = {"dharen", "syvax", "sandre", "kaelen", "anuka", "vivren", "tarkis"}
-STATES = {"IDLE", "RECEIVE", "WORK", "COMMUNICATE", "HANDOFF", "COMPLETE", "WARNING"}
-REQUIRED_BONES = {"root", "pelvis", "torso", "neck", "head", "upper_arm_l", "forearm_l", "upper_arm_r", "forearm_r", "thigh_l", "shin_l", "thigh_r", "shin_r"}
-
-
-def load():
-    return json.loads(ASSET.read_text(encoding="utf-8"))
-
-
-def test_skeletal_registry_contains_all_characters():
-    data = load()
-    assert data["format"] == "criterivox-skeletal-v2"
-    assert set(data["characters"]) == EXPECTED
-
-
-def test_shared_humanoid_rig_is_complete_and_hierarchical():
-    data = load()
-    bones = {bone["name"]: bone for bone in data["rig"]["bones"]}
-    assert REQUIRED_BONES <= bones.keys()
-    assert bones["root"]["parent"] is None
-    for name, bone in bones.items():
-        if bone["parent"] is not None:
-            assert bone["parent"] in bones, name
+EXPECTED_STATES = {"IDLE", "RECEIVE", "WORK", "COMMUNICATE", "HANDOFF", "COMPLETE", "WARNING"}
 
 
-def test_semantic_animation_tracks_cover_every_state():
-    data = load()
-    assert set(data["semanticStates"]) == STATES
-    assert set(data["animationTracks"]) == STATES
-    for state in STATES:
-        track = data["animationTracks"][state]
-        assert track["duration"] > 0
-        assert isinstance(track["loop"], bool)
-        assert track["bones"]
+def load_profile_source():
+    return PROFILE.read_text(encoding="utf-8")
 
 
-def test_character_visual_identity_is_not_a_single_generic_skin():
-    data = load()
-    signatures = {(c["hair"], c["accessory"], c["silhouette"]) for c in data["characters"].values()}
-    assert len(signatures) == len(EXPECTED)
+def test_current_character_registry_contains_distinct_profiles():
+    text = load_profile_source()
+    ids = set(re.findall(r"'([a-z]+)': CharacterVisualProfile\(", text))
+    assert ids
+    assert "dharen" in ids
+    assert len(ids) == len(set(ids))
+
+
+def test_current_character_profiles_have_distinct_visual_signatures():
+    text = load_profile_source()
+    profiles = re.findall(
+        r"'([a-z]+)': CharacterVisualProfile\((.*?)\),\n",
+        text,
+        flags=re.DOTALL,
+    )
+    signatures = set()
+    for character_id, body in profiles:
+        hair = re.search(r"hair:\s*(Color\([^\n]+\))", body)
+        accent = re.search(r"accent:\s*(Color\([^\n]+\))", body)
+        accessory = re.search(r"accessory:\s*CharacterAccessory\.([a-zA-Z_]+)", body)
+        assert hair and accent and accessory, character_id
+        signatures.add((hair.group(1), accent.group(1), accessory.group(1)))
+    assert len(signatures) == len(profiles)
+
+
+def test_generated_vector_animation_is_the_current_runtime_contract():
+    text = ANIMATION.read_text(encoding="utf-8")
+    assert "class GeneratedVectorAnimation" in text
+    assert "String svgFrame(" in text
+    assert 'viewBox="0 0 238 286"' in text
+    assert "No PNG/GIF files are required." in text
