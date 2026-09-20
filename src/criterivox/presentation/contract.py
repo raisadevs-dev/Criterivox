@@ -3,6 +3,7 @@ from dataclasses import asdict,dataclass
 from typing import Any
 from criterivox.domain.characters import CharacterState
 from criterivox.presentation.states import VisualPresentation
+
 @dataclass(frozen=True,slots=True)
 class PresentationContract:
     contract_version: int
@@ -23,6 +24,20 @@ class PresentationContract:
     task_created_at: str | None = None
     task_updated_at: str | None = None
     task_references: tuple[str, ...] = ()
+    unified_schema_version: str = "1.0"
+    unified_journey_id: str | None = None
+    unified_intent: str | None = None
+    unified_entities: dict[str, Any] | None = None
+    unified_target: str | None = None
+    unified_requested_output: str | None = None
+    unified_confidence: float | None = None
+    unified_source: str | None = None
+    unified_capability: str | None = None
+    unified_responsible_character: str | None = None
+    unified_authorization: str | None = None
+    unified_state_source: str | None = None
+    unified_workflow_outcome: str | None = None
+    unified_status: str | None = None
     foundation_id: str | None = None
     foundation_material_set_id: str | None = None
     foundation_source_count: int | None = None
