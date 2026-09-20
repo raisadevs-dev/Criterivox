@@ -37,6 +37,14 @@ class UnifiedCharacterRuntime:
    mapping={"QUERY_PAST_STATE":"history","QUERY_CURRENT_STATE":"current","QUERY_NEXT_STATE":"next"}
    interp=ConversationInterpretation(intent=mapping[lang.intent],normalized_text=lang.normalized_text,entities=tuple(lang.entities.values()))
    text,data=respond_state_query(task_id,interp)
+   if data.get("status")=="NO_AUTHORITATIVE_RECORD": text=_localized(lang.response_language,"no_record")
+   elif lang.intent=="QUERY_CURRENT_STATE":
+    c=data.get("current") or {}; text=_localized(lang.response_language,"current",state=c.get("state","UNKNOWN"),step=c.get("active_step") or c.get("step") or "UNKNOWN")
+    if c.get("character"): text+=_localized(lang.response_language,"character",character=c["character"])
+    if c.get("capability"): text+=_localized(lang.response_language,"capability",capability=c["capability"])
+    if data.get("blocking"): text+=_localized(lang.response_language,"blocking",blocking=data["blocking"])
+   elif lang.intent=="QUERY_NEXT_STATE":
+    n=data.get("next") or {}; text=_localized(lang.response_language,"next",type=n.get("type","UNKNOWN"),description=n.get("description",""))
    return RuntimeResponse({"intent":lang.intent,"entities":lang.entities,"capability":"query_current_task_state","state_source":"runtime_checkpoint","authorization":"NOT_REQUIRED","workflow_outcome":"checkpoint_inspected","status":data.get("status"),"detected_language":lang.detected_language,"response_language":lang.response_language},text,lang,caps)
   if lang.intent in {"PAUSE","RESUME"} and task_id:
    result=state_runtime.pause(task_id) if lang.intent=="PAUSE" else state_runtime.resume(task_id)
