@@ -1,0 +1,6 @@
+{"scenario_id":"heldout-ambiguous","input":"Why and what happens next?","expected_status":"CLARIFICATION_REQUIRED"}
+{"scenario_id":"heldout-no-state","input":"What is happening?","expected_status":"NO_AUTHORITATIVE_RECORD"}
+{"scenario_id":"heldout-unavailable","input":"Execute calendar action","expected_status":"CAPABILITY_UNAVAILABLE"}
+{"scenario_id":"heldout-unauthorized","input":"Execute","expected_authorization":"REQUIRED"}
+{"scenario_id":"heldout-challenge","input":"Challenge this reasoning","expected_capability":"record_human_challenge"}
+{"scenario_id":"heldout-transfer","input":"Handoff this","expected_capability":"transfer_artifact"}

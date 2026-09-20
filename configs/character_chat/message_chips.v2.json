@@ -1,0 +1,12 @@
+{
+  "schema_version":"2.0",
+  "categories":{
+    "situation_awareness":["What happened?","What is happening?","What happens next?","What changed?","What is blocked?"],
+    "explanation":["Why?","Show the evidence.","What assumption is being used?","What contradicts this?","What is uncertain?"],
+    "workflow":["Continue","Pause","Stop","Retry","Change the requirement","Review the plan"],
+    "decision":["Show options","Compare options","Recommend","Accept","Reject","Modify"],
+    "operations":["Prepare action","Show action","Check authorization","Execute","Verify result"],
+    "knowledge":["What did we learn?","Show provenance","Is this verified?","Can this be reused?"]
+  },
+  "mapping":{"What happened?":"QUERY_PAST_STATE","What is happening?":"QUERY_CURRENT_STATE","What happens next?":"QUERY_NEXT_STATE","Pause":"PAUSE","Continue":"RESUME","Stop":"STOP","Retry":"RETRY","Show options":"SHOW_OPTIONS","Compare options":"SHOW_OPTIONS","Recommend":"RECOMMEND","Accept":"ACCEPT","Reject":"REJECT","Modify":"MODIFY","Prepare action":"PREPARE_ACTION","Execute":"EXECUTE","Verify result":"VERIFY","Show provenance":"SHOW_PROVENANCE","Is this verified?":"VERIFY","What did we learn?":"KNOWLEDGE","Can this be reused?":"KNOWLEDGE"}
+}

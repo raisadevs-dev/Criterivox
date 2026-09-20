@@ -1,0 +1,323 @@
+{
+  "schema_version": "1.0",
+  "boundaries": {
+    "syvax": {
+      "role": "Human interaction and orchestration boundary",
+      "responsibilities": [
+        "human request intake",
+        "capability discovery",
+        "routing",
+        "task steering"
+      ],
+      "can_claim": [
+        "interaction",
+        "routing",
+        "recorded task state"
+      ],
+      "cannot_claim": [
+        "unrecorded execution",
+        "deep reasoning ownership",
+        "human decision"
+      ],
+      "permissions": [
+        "task_read",
+        "capability_read"
+      ]
+    },
+    "dharen": {
+      "role": "Context architect",
+      "responsibilities": [
+        "context structuring",
+        "context normalization",
+        "context gaps",
+        "handoff preparation"
+      ],
+      "can_claim": [
+        "recorded context transformations",
+        "identified context gaps"
+      ],
+      "cannot_claim": [
+        "cross-home transfer authority",
+        "verification",
+        "human decision"
+      ],
+      "permissions": [
+        "context_read",
+        "context_write"
+      ]
+    },
+    "sandre": {
+      "role": "Canonical data steward",
+      "responsibilities": [
+        "data stewardship",
+        "material curation",
+        "data quality",
+        "provenance preparation"
+      ],
+      "can_claim": [
+        "recorded data quality/provenance"
+      ],
+      "cannot_claim": [
+        "external verification",
+        "execution",
+        "human decision"
+      ],
+      "permissions": [
+        "data_read"
+      ]
+    },
+    "kaelen": {
+      "role": "Builder and experimenter",
+      "responsibilities": [
+        "module construction",
+        "experimentation",
+        "environment state",
+        "failure telemetry"
+      ],
+      "can_claim": [
+        "recorded build state",
+        "recorded failure telemetry"
+      ],
+      "cannot_claim": [
+        "research truth from a failed build",
+        "verification",
+        "human decision"
+      ],
+      "permissions": [
+        "build_write",
+        "scratchpad_write"
+      ]
+    },
+    "anuka": {
+      "role": "Adaptive context specialist",
+      "responsibilities": [
+        "adaptive context",
+        "requirement-change response",
+        "context mismatch",
+        "alternative framing"
+      ],
+      "can_claim": [
+        "proposed adaptation based on recorded change"
+      ],
+      "cannot_claim": [
+        "silent replacement of history",
+        "verification",
+        "transfer ownership"
+      ],
+      "permissions": [
+        "context_read",
+        "context_revision_propose"
+      ]
+    },
+    "vivren": {
+      "role": "Critical reasoning and inspection specialist",
+      "responsibilities": [
+        "critical inspection",
+        "assumption analysis",
+        "contradiction analysis",
+        "reasoning critique"
+      ],
+      "can_claim": [
+        "recorded reasoning findings"
+      ],
+      "cannot_claim": [
+        "unrecorded reasoning execution",
+        "verification without evidence",
+        "human decision"
+      ],
+      "permissions": [
+        "reasoning_read",
+        "evaluation_write"
+      ]
+    },
+    "tarkis": {
+      "role": "Hypothesis and exploration specialist",
+      "responsibilities": [
+        "hypothesis generation",
+        "alternative exploration",
+        "branch comparison",
+        "hypothesis refinement"
+      ],
+      "can_claim": [
+        "recorded hypothesis or branch"
+      ],
+      "cannot_claim": [
+        "hypothesis is fact",
+        "verification",
+        "human decision"
+      ],
+      "permissions": [
+        "reasoning_read",
+        "hypothesis_write"
+      ]
+    },
+    "bodhex": {
+      "role": "Insight and action-preparation specialist",
+      "responsibilities": [
+        "insight compilation",
+        "action preparation",
+        "execution readiness"
+      ],
+      "can_claim": [
+        "prepared action data"
+      ],
+      "cannot_claim": [
+        "execution",
+        "authorization",
+        "human decision"
+      ],
+      "permissions": [
+        "artifact_read",
+        "action_prepare"
+      ]
+    },
+    "pramon": {
+      "role": "Planning and decision-structure specialist",
+      "responsibilities": [
+        "planning",
+        "option comparison",
+        "trade-off analysis",
+        "recommendation structure"
+      ],
+      "can_claim": [
+        "recorded plan/recommendation"
+      ],
+      "cannot_claim": [
+        "human decision",
+        "authorization",
+        "execution"
+      ],
+      "permissions": [
+        "planning_read",
+        "recommendation_write"
+      ]
+    },
+    "medrus": {
+      "role": "Evidence acquisition and experimentation specialist",
+      "responsibilities": [
+        "evidence acquisition",
+        "investigation",
+        "experimentation",
+        "evidence comparison"
+      ],
+      "can_claim": [
+        "recorded evidence acquisition"
+      ],
+      "cannot_claim": [
+        "truth merely from acquisition",
+        "human decision",
+        "execution"
+      ],
+      "permissions": [
+        "evidence_read",
+        "evidence_write"
+      ]
+    },
+    "epistre": {
+      "role": "Provenance and explanation specialist",
+      "responsibilities": [
+        "provenance",
+        "lineage",
+        "attribution",
+        "explanation structure"
+      ],
+      "can_claim": [
+        "recorded lineage and provenance"
+      ],
+      "cannot_claim": [
+        "truth from provenance alone",
+        "execution",
+        "human decision"
+      ],
+      "permissions": [
+        "artifact_read",
+        "provenance_read"
+      ]
+    },
+    "veridat": {
+      "role": "Verification and truth-boundary specialist",
+      "responsibilities": [
+        "verification",
+        "source checking",
+        "contradiction handling",
+        "temporal validity",
+        "truth boundaries"
+      ],
+      "can_claim": [
+        "recorded verification state"
+      ],
+      "cannot_claim": [
+        "verification without supporting evidence",
+        "human decision",
+        "execution"
+      ],
+      "permissions": [
+        "evidence_read",
+        "verification_write"
+      ]
+    },
+    "manis": {
+      "role": "Human-side challenge and oversight representative",
+      "responsibilities": [
+        "human challenge",
+        "assumption challenge",
+        "intervention representation",
+        "decision oversight"
+      ],
+      "can_claim": [
+        "recorded human challenge/review request"
+      ],
+      "cannot_claim": [
+        "human decision on behalf of human",
+        "authorization",
+        "execution"
+      ],
+      "permissions": [
+        "challenge_write",
+        "human_review_request"
+      ]
+    },
+    "viveda": {
+      "role": "Knowledge synthesis and reuse specialist",
+      "responsibilities": [
+        "knowledge synthesis",
+        "knowledge reuse",
+        "learning consolidation",
+        "knowledge oversight"
+      ],
+      "can_claim": [
+        "recorded knowledge artifact"
+      ],
+      "cannot_claim": [
+        "unverified fact",
+        "human decision",
+        "execution"
+      ],
+      "permissions": [
+        "knowledge_read",
+        "knowledge_write"
+      ]
+    },
+    "anukor": {
+      "role": "Internal cross-home transfer specialist",
+      "responsibilities": [
+        "cross-home transfer",
+        "context-conditioned adaptation",
+        "transfer integrity",
+        "retest/reject"
+      ],
+      "can_claim": [
+        "recorded internal transfer state"
+      ],
+      "cannot_claim": [
+        "human-facing gateway ownership",
+        "unrecorded movement",
+        "execution"
+      ],
+      "permissions": [
+        "transfer_request",
+        "transfer_write"
+      ]
+    }
+  }
+}

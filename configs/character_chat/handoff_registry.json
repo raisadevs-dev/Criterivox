@@ -1,0 +1,935 @@
+{
+  "schema_version": "1.0",
+  "handoffs": [
+    {
+      "sender": "syvax",
+      "receiver": "dharen",
+      "conditions": [
+        "capability owned elsewhere"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "syvax",
+      "receiver": "sandre",
+      "conditions": [
+        "capability owned elsewhere"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "syvax",
+      "receiver": "vivren",
+      "conditions": [
+        "capability owned elsewhere"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "syvax",
+      "receiver": "tarkis",
+      "conditions": [
+        "capability owned elsewhere"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "syvax",
+      "receiver": "pramon",
+      "conditions": [
+        "capability owned elsewhere"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "syvax",
+      "receiver": "medrus",
+      "conditions": [
+        "capability owned elsewhere"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "syvax",
+      "receiver": "epistre",
+      "conditions": [
+        "capability owned elsewhere"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "syvax",
+      "receiver": "veridat",
+      "conditions": [
+        "capability owned elsewhere"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "syvax",
+      "receiver": "manis",
+      "conditions": [
+        "capability owned elsewhere"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "syvax",
+      "receiver": "viveda",
+      "conditions": [
+        "capability owned elsewhere"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "syvax",
+      "receiver": "anukor",
+      "conditions": [
+        "capability owned elsewhere"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "dharen",
+      "receiver": "anuka",
+      "conditions": [
+        "adaptation or downstream context required"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "dharen",
+      "receiver": "syvax",
+      "conditions": [
+        "adaptation or downstream context required"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "dharen",
+      "receiver": "kaelen",
+      "conditions": [
+        "adaptation or downstream context required"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "dharen",
+      "receiver": "vivren",
+      "conditions": [
+        "adaptation or downstream context required"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "dharen",
+      "receiver": "manis",
+      "conditions": [
+        "adaptation or downstream context required"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "sandre",
+      "receiver": "kaelen",
+      "conditions": [
+        "validated material ready"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "sandre",
+      "receiver": "dharen",
+      "conditions": [
+        "validated material ready"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "sandre",
+      "receiver": "medrus",
+      "conditions": [
+        "validated material ready"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "kaelen",
+      "receiver": "dharen",
+      "conditions": [
+        "build result needs context or failure review"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "kaelen",
+      "receiver": "vivren",
+      "conditions": [
+        "build result needs context or failure review"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "kaelen",
+      "receiver": "anuka",
+      "conditions": [
+        "build result needs context or failure review"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "anuka",
+      "receiver": "dharen",
+      "conditions": [
+        "recorded mismatch/change requires adaptation"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "anuka",
+      "receiver": "kaelen",
+      "conditions": [
+        "recorded mismatch/change requires adaptation"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "anuka",
+      "receiver": "vivren",
+      "conditions": [
+        "recorded mismatch/change requires adaptation"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "anuka",
+      "receiver": "anukor",
+      "conditions": [
+        "recorded mismatch/change requires adaptation"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "vivren",
+      "receiver": "tarkis",
+      "conditions": [
+        "critique identifies hypothesis/context/evidence issue"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "vivren",
+      "receiver": "anuka",
+      "conditions": [
+        "critique identifies hypothesis/context/evidence issue"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "vivren",
+      "receiver": "manis",
+      "conditions": [
+        "critique identifies hypothesis/context/evidence issue"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "vivren",
+      "receiver": "epistre",
+      "conditions": [
+        "critique identifies hypothesis/context/evidence issue"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "vivren",
+      "receiver": "veridat",
+      "conditions": [
+        "critique identifies hypothesis/context/evidence issue"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "tarkis",
+      "receiver": "vivren",
+      "conditions": [
+        "hypothesis needs critique/evidence/context"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "tarkis",
+      "receiver": "medrus",
+      "conditions": [
+        "hypothesis needs critique/evidence/context"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "tarkis",
+      "receiver": "veridat",
+      "conditions": [
+        "hypothesis needs critique/evidence/context"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "tarkis",
+      "receiver": "dharen",
+      "conditions": [
+        "hypothesis needs critique/evidence/context"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "bodhex",
+      "receiver": "pramon",
+      "conditions": [
+        "planning needs insight or human-facing preparation"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "bodhex",
+      "receiver": "syvax",
+      "conditions": [
+        "planning needs insight or human-facing preparation"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "pramon",
+      "receiver": "bodhex",
+      "conditions": [
+        "plan needs action preparation or human review"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "pramon",
+      "receiver": "manis",
+      "conditions": [
+        "plan needs action preparation or human review"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "pramon",
+      "receiver": "syvax",
+      "conditions": [
+        "plan needs action preparation or human review"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "medrus",
+      "receiver": "veridat",
+      "conditions": [
+        "evidence needs verification/provenance/knowledge"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "medrus",
+      "receiver": "epistre",
+      "conditions": [
+        "evidence needs verification/provenance/knowledge"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "medrus",
+      "receiver": "vivren",
+      "conditions": [
+        "evidence needs verification/provenance/knowledge"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "medrus",
+      "receiver": "viveda",
+      "conditions": [
+        "evidence needs verification/provenance/knowledge"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "epistre",
+      "receiver": "veridat",
+      "conditions": [
+        "provenance/explanation requested"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "epistre",
+      "receiver": "viveda",
+      "conditions": [
+        "provenance/explanation requested"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "epistre",
+      "receiver": "syvax",
+      "conditions": [
+        "provenance/explanation requested"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "veridat",
+      "receiver": "epistre",
+      "conditions": [
+        "verification needs explanation/evidence/knowledge/planning"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "veridat",
+      "receiver": "medrus",
+      "conditions": [
+        "verification needs explanation/evidence/knowledge/planning"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "veridat",
+      "receiver": "viveda",
+      "conditions": [
+        "verification needs explanation/evidence/knowledge/planning"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "veridat",
+      "receiver": "pramon",
+      "conditions": [
+        "verification needs explanation/evidence/knowledge/planning"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "manis",
+      "receiver": "vivren",
+      "conditions": [
+        "human challenges reasoning or decision structure"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "manis",
+      "receiver": "tarkis",
+      "conditions": [
+        "human challenges reasoning or decision structure"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "manis",
+      "receiver": "pramon",
+      "conditions": [
+        "human challenges reasoning or decision structure"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "manis",
+      "receiver": "syvax",
+      "conditions": [
+        "human challenges reasoning or decision structure"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "viveda",
+      "receiver": "pramon",
+      "conditions": [
+        "verified understanding ready for reuse"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "viveda",
+      "receiver": "syvax",
+      "conditions": [
+        "verified understanding ready for reuse"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "viveda",
+      "receiver": "anukor",
+      "conditions": [
+        "verified understanding ready for reuse"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "anukor",
+      "receiver": "dharen",
+      "conditions": [
+        "material crosses a home/context boundary"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "anukor",
+      "receiver": "anuka",
+      "conditions": [
+        "material crosses a home/context boundary"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "anukor",
+      "receiver": "viveda",
+      "conditions": [
+        "material crosses a home/context boundary"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    },
+    {
+      "sender": "anukor",
+      "receiver": "syvax",
+      "conditions": [
+        "material crosses a home/context boundary"
+      ],
+      "required_fields": [
+        "journey_id",
+        "task_id",
+        "context_reference",
+        "input_artifacts",
+        "requested_capability",
+        "expected_output"
+      ]
+    }
+  ]
+}
