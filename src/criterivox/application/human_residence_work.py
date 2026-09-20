@@ -320,6 +320,29 @@ class ResidenceWorkEngine:
                 return text[:100_000], "EXTRACTED"
             except (UnicodeDecodeError, ValueError, csv.Error):
                 return None, "EXTRACTION_FAILED"
+        if ext == ".xlsx" or content_type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+            try:
+                with zipfile.ZipFile(io.BytesIO(data)) as archive:
+                    shared = []
+                    if "xl/sharedStrings.xml" in archive.namelist():
+                        root = ET.fromstring(archive.read("xl/sharedStrings.xml"))
+                        shared = ["".join(node.itertext()) for node in root]
+                    values = []
+                    sheets = [n for n in archive.namelist() if n.startswith("xl/worksheets/sheet") and n.endswith(".xml")]
+                    for sheet in sheets[:20]:
+                        root = ET.fromstring(archive.read(sheet))
+                        for cell in root.iter():
+                            if cell.tag.endswith("}c"):
+                                ref = cell.attrib.get("r", "")
+                                kind = cell.attrib.get("t")
+                                value = next((n.text or "" for n in cell if n.tag.endswith("}v")), "")
+                                if kind == "s" and value.isdigit() and int(value) < len(shared):
+                                    value = shared[int(value)]
+                                if value:
+                                    values.append(f"{ref}={value}")
+                    return "\n".join(values)[:100_000], "EXTRACTED"
+            except (zipfile.BadZipFile, KeyError, ET.ParseError):
+                return None, "EXTRACTION_FAILED"
         if ext == ".docx" or content_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
             try:
                 with zipfile.ZipFile(io.BytesIO(data)) as archive:
