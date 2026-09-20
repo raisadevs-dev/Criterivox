@@ -227,12 +227,19 @@ class ResidenceWorkEngine:
             record = self._records[str(work_id)]
             if record["status"] != "AWAITING_CONFIRMATION":
                 raise ValueError("work_not_awaiting_confirmation")
-            if not confirmed:
+            if not confirmed and not correction:
                 record["interpretation_status"] = "REJECTED"
                 record["status"] = "DRAFT"
-                self._event(record, "INTERPRETATION_REJECTED", actor, correction=correction or "")
+                self._event(record, "INTERPRETATION_REJECTED", actor, correction="")
                 self._save()
                 return self._copy(record)
+            if not confirmed and correction:
+                record["goal"] = correction.strip()
+                record["interpretation_status"] = "CORRECTION_SUBMITTED"
+                self._event(record, "INTERPRETATION_CORRECTION_SUBMITTED", actor, correction=correction.strip())
+                record["status"] = "INTERPRETING"
+                self._save()
+                return self.interpret_work(work_id)
             if correction:
                 record["goal"] = correction.strip()
                 record["interpretation_status"] = "CORRECTED"
@@ -429,6 +436,36 @@ class ResidenceWorkEngine:
             self._event(record, "WORK_READY", "system", artifact_id=artifact["artifact_id"])
             self._checkpoint(record, "READY_FOR_HUMAN", "strategy_review")
             self._save()
+
+    def pause(self, work_id: str, actor: str = "human") -> dict[str, Any]:
+        with self._lock:
+            record = self._records[str(work_id)]
+            if record["status"] not in {"CONFIRMED", "WORKING", "REWORKING"}:
+                raise ValueError("work_not_pauseable")
+            record["status"] = "PAUSED"
+            self._event(record, "WORK_PAUSED", actor)
+            self._checkpoint(record, "PAUSED", "work", waiting_for="human_resume")
+            self._save()
+            return self._copy(record)
+
+    def resume(self, work_id: str, actor: str = "human") -> dict[str, Any]:
+        with self._lock:
+            record = self._records[str(work_id)]
+            if record["status"] != "PAUSED":
+                raise ValueError("work_not_paused")
+            record["status"] = "WORKING"
+            self._event(record, "WORK_RESUMED", actor)
+            self._save()
+        self.start_work(work_id)
+        return self.get(work_id)
+
+    def timeline(self, work_id: str) -> list[dict[str, Any]]:
+        with self._lock:
+            return self._copy({"events": self._records[str(work_id)].get("events", [])})["events"]
+
+    def artifacts(self, work_id: str) -> list[dict[str, Any]]:
+        with self._lock:
+            return self._copy({"artifacts": self._records[str(work_id)].get("artifacts", [])})["artifacts"]
 
     def take(self, work_id: str, actor: str = "human") -> dict[str, Any]:
         with self._lock:
