@@ -66,6 +66,25 @@ async def confirm_work(work_id: str, payload: dict[str, Any]):
         return _error(exc)
 
 
+
+@router.post("/work/{work_id}/research/plan")
+async def research_plan(work_id: str):
+    try:
+        return {"accepted": True, "work": residence_work.research_plan(work_id)}
+    except (KeyError, ValueError) as exc:
+        return _error(exc)
+
+@router.post("/work/{work_id}/research/authorize")
+async def authorize_research(work_id: str, payload: dict[str, Any] | None = None):
+    try:
+        return {"accepted": True, "work": residence_work.authorize_research(
+            work_id,
+            actor=str((payload or {}).get("actor", "human")),
+            scope=str((payload or {}).get("scope", "public_web")),
+        )}
+    except (KeyError, ValueError) as exc:
+        return _error(exc)
+
 @router.post("/work/{work_id}/materials")
 async def add_material(work_id: str, payload: dict[str, Any]):
     try:
