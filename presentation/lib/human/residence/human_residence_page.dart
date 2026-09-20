@@ -6,29 +6,30 @@ import '../../foundation/spatial_panel.dart';
 import 'residence_work_client.dart';
 
 class HumanResidencePage extends StatefulWidget {
-  const HumanResidencePage({super.key});
+  final String roomId;
+  const HumanResidencePage({super.key,this.roomId='private'});
   @override State<HumanResidencePage> createState()=>_HumanResidencePageState();
 }
 class _HumanResidencePageState extends State<HumanResidencePage> {
   final _client=ResidenceWorkClient(); List<Map<String,dynamic>> _work=[]; Timer? _timer;
   @override void initState(){super.initState();_load();_timer=Timer.periodic(const Duration(seconds:2),(_)=>_load());}
   @override void dispose(){_timer?.cancel();super.dispose();}
-  Future<void> _load() async {try{final v=await _client.list();if(mounted)setState(()=>_work=v);}catch(_){}}
+  Future<void> _load() async {try{final v=await _client.list(roomId:widget.roomId);if(mounted)setState(()=>_work=v);}catch(_){}}
   @override Widget build(BuildContext c)=>Scene(eyebrow:'HUMAN TERRITORY',title:'Human Residence',subtitle:'Persistent human-owned work. Criterivox prepares; the human reviews, challenges and decides.',children:[
     SpatialPanel(title:'READY FOR YOU',child:_work.isEmpty?const Text('No work yet.'):Column(children:_work.where((w)=>w['status']=='READY_FOR_HUMAN').map((w)=>ListTile(title:Text('\${w['goal']}'),subtitle:Text('READY · \${(w['ready_items'] as List?)?.length??0} item(s)'),trailing:FilledButton(onPressed:()=>_review(w),child:const Text('TAKE'))).toList())),
     SpatialPanel(title:'ACTIVE WORK',child:Column(children:_work.where((w)=>w['status']!='READY_FOR_HUMAN'&&w['status']!='COMPLETED').map((w)=>ListTile(title:Text('\${w['goal']}'),subtitle:Text('\${w['status']} · \${w['task_id']}'),onTap:()=>_review(w))).toList())),
     FilledButton.icon(onPressed:()=>_newWork(),icon:const Icon(Icons.add),label:const Text('NEW WORK')),
   ]);
-  Future<void> _newWork() async {await Navigator.push(cContext(),MaterialPageRoute(builder:(_)=>_Intake(client:_client)));_load();}
+  Future<void> _newWork() async {await Navigator.push(cContext(),MaterialPageRoute(builder:(_)=>_Intake(client:_client,roomId:widget.roomId)));_load();}
   BuildContext cContext()=>context;
   Future<void> _review(Map<String,dynamic> w) async {var x=w;if(x['status']=='READY_FOR_HUMAN')x=await _client.take(w['work_id']);if(!mounted)return;await Navigator.push(context,MaterialPageRoute(builder:(_)=>_Review(client:_client,work:x)));_load();}
 }
 
-class _Intake extends StatefulWidget {final ResidenceWorkClient client;const _Intake({required this.client});@override State<_Intake> createState()=>_IntakeState();}
+class _Intake extends StatefulWidget {final ResidenceWorkClient client;final String roomId;const _Intake({required this.client,required this.roomId});@override State<_Intake> createState()=>_IntakeState();}
 class _IntakeState extends State<_Intake>{
  final goal=TextEditingController(),req=TextEditingController(),con=TextEditingController(),out=TextEditingController(text:'strategies and options');String lang='en';List<PlatformFile> files=[];Map<String,dynamic>? work;bool busy=false;
  @override void dispose(){goal.dispose();req.dispose();con.dispose();out.dispose();super.dispose();}
- Future<void> create() async {if(goal.text.trim().isEmpty)return;setState(()=>busy=true);try{var w=await widget.client.create(goal.text.trim(),lang,req.text.split('\n').where((x)=>x.trim().isNotEmpty).toList(),con.text.split('\n').where((x)=>x.trim().isNotEmpty).toList(),out.text.trim());for(final f in files)w=await widget.client.addMaterial(w['work_id'],f);w=await widget.client.interpret(w['work_id']);if(mounted)setState(()=>work=w);}catch(e){if(mounted)ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Text('$e')));}finally{if(mounted)setState(()=>busy=false);}}
+ Future<void> create() async {if(goal.text.trim().isEmpty)return;setState(()=>busy=true);try{var w=await widget.client.create(goal.text.trim(),lang,req.text.split('\n').where((x)=>x.trim().isNotEmpty).toList(),con.text.split('\n').where((x)=>x.trim().isNotEmpty).toList(),out.text.trim(),roomId:widget.roomId);for(final f in files)w=await widget.client.addMaterial(w['work_id'],f);w=await widget.client.interpret(w['work_id']);if(mounted)setState(()=>work=w);}catch(e){if(mounted)ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Text('$e')));}finally{if(mounted)setState(()=>busy=false);}}
  Future<void> pick() async {final r=await FilePicker.platform.pickFiles(allowMultiple:true,withData:true);if(r!=null)setState(()=>files=r.files);}
  @override Widget build(BuildContext c)=>Scene(eyebrow:'HUMAN RESIDENCE · NEW WORK',title:'Create Work',subtitle:'Your thought becomes a reviewable interpretation. Nothing proceeds until you confirm it.',children:[
   SpatialPanel(title:'THOUGHT / GOAL',child:TextField(controller:goal,maxLines:6,decoration:const InputDecoration(border:OutlineInputBorder(),hintText:'Write naturally, in English, हिन्दी or मराठी.')),
