@@ -3,7 +3,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import 'character/character_identity.dart';
 import 'character/character_runtime_flutter.dart';
-import 's8_character_profile_card.dart';
 import 's8_presentation_state.dart';
 
 /// S8 character identity is presentation-only. Visual state is projected from

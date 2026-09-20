@@ -524,7 +524,7 @@ class _ShellState extends State<CriterivoxShell> {
                     milliseconds: 220,
                   ),
                   child: Material(
-                    color: t.page.withOpacity(.98),
+                    color: t.page.withValues(alpha: .98),
                     child: CharacterChatPage(
                       key: const ValueKey(
                         'global-character-chat',
@@ -773,7 +773,7 @@ class _Sidebar extends StatelessWidget {
       duration: const Duration(milliseconds: 240),
       width: width,
       decoration: BoxDecoration(
-        color: t.surface.withOpacity(.96),
+        color: t.surface.withValues(alpha: .96),
         border: Border(
           right: BorderSide(
             color: t.border,
@@ -1035,7 +1035,7 @@ class _Sidebar extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
           selectedTileColor:
-              t.primary.withOpacity(.13),
+              t.primary.withValues(alpha: .13),
           leading: Icon(
             icon,
             size: 19,

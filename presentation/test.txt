@@ -1,86 +1,61 @@
 00:00 +0: loading F:/Rsearch Project/Criterivox-S4/presentation/test/activity_presentation_test.dart
-00:00 +0: F:/Rsearch Project/Criterivox-S4/presentation/test/agent_activation_test.dart: activation marks an agent as active
+00:00 +0: F:/Rsearch Project/Criterivox-S4/presentation/test/activity_presentation_test.dart: quiet state becomes inactive and idle
 00:00 +1: F:/Rsearch Project/Criterivox-S4/presentation/test/activity_presentation_test.dart: quiet state becomes inactive and idle
-00:00 +2: F:/Rsearch Project/Criterivox-S4/presentation/test/activity_presentation_test.dart: active state is recognized
-00:00 +3: F:/Rsearch Project/Criterivox-S4/presentation/test/activity_presentation_test.dart: active state is recognized
+00:00 +2: F:/Rsearch Project/Criterivox-S4/presentation/test/agent_activation_test.dart: deactivation marks an agent as inactive
+00:00 +3: F:/Rsearch Project/Criterivox-S4/presentation/test/agent_activation_test.dart: deactivation marks an agent as inactive
 00:00 +4: loading F:/Rsearch Project/Criterivox-S4/presentation/test/attention_presentation_test.dart
-00:01 +4: F:/Rsearch Project/Criterivox-S4/presentation/test/attention_presentation_test.dart: inactive agent has no visual prominence
-00:01 +5: F:/Rsearch Project/Criterivox-S4/presentation/test/attention_presentation_test.dart: active working agent has moderate prominence
-00:01 +6: F:/Rsearch Project/Criterivox-S4/presentation/test/attention_presentation_test.dart: warning has highest prominence
-00:02 +7: F:/Rsearch Project/Criterivox-S4/presentation/test/bloom_presentation_test.dart: opening Bloom activates presentation
-00:03 +8: F:/Rsearch Project/Criterivox-S4/presentation/test/bloom_presentation_test.dart: closing Bloom deactivates presentation
-00:04 +9: F:/Rsearch Project/Criterivox-S4/presentation/test/character_identity_test.dart: known character identity resolves correctly
-00:04 +10: F:/Rsearch Project/Criterivox-S4/presentation/test/character_identity_test.dart: all fifteen character identities are registered
-00:04 +11: F:/Rsearch Project/Criterivox-S4/presentation/test/character_identity_test.dart: unknown character gets a safe fallback identity
-00:05 +12: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
-00:21 +13: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: COMMUNICATE state renders correctly
-00:21 +14: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: HANDOFF state renders correctly
-00:21 +15: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: COMPLETE state renders correctly
-00:21 +16: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WARNING state renders correctly
-00:21 +17: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: all behavioral states remain renderable
-00:22 +18: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: character presentation renders identity and idle state
-══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
-The following TestFailure was thrown running a test:
-Expected: exactly one matching candidate
-  Actual: _TextWidgetFinder:<Found 0 widgets with text "Final character artwork coming soon": []>
-   Which: means none were found but one was expected
-
-When the exception was thrown, this was the stack:
-#4      main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/character_presentation_test.dart:26:7)
-<asynchronous suspension>
-#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
-<asynchronous suspension>
-#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
-<asynchronous suspension>
-<asynchronous suspension>
-(elided one frame from package:stack_trace)
-
-This was caught by the test expectation on the following line:
-  file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/character_presentation_test.dart line 26
-The test description was:
-  character presentation renders identity and idle state
-════════════════════════════════════════════════════════════════════════════════════════════════════
-00:25 +18 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: character presentation renders identity and idle state [E]
-  Test failed. See exception logs above.
-  The test description was: character presentation renders identity and idle state
-  
-00:25 +18 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: character presentation renders Vivren identity
-00:25 +19 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: inactive character still renders
-00:25 +20 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: reduced motion still renders character without animation dependency
-00:26 +21 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: pure Flutter runtime renders all semantic states
-00:28 +22 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: pure Flutter runtime renders all semantic states
-00:28 +23 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: pure Flutter runtime renders all semantic states
-00:28 +24 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: pure Flutter runtime renders all semantic states
-00:28 +25 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: reduced motion renders a deterministic frame
-00:33 +26 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:35 +27 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders receive state
-00:35 +28 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: inactive character remains rendered
-00:41 +29 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState maps active IDLE state correctly
-00:41 +30 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState maps active WORK state correctly
-00:41 +31 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState maps RECEIVE state correctly
-00:41 +32 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState maps COMMUNICATE state correctly
-00:41 +33 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState maps HANDOFF state correctly
-00:41 +34 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState maps COMPLETE state correctly
-00:41 +35 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState maps WARNING state correctly
-00:41 +36 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState inactive character has zero prominence
-00:41 +37 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState reduced motion is preserved
-00:41 +38 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState normal active state allows motion
-00:41 +39 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState NEEDS_USER requires attention
-00:41 +40 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_state_test.dart: CharacterVisualState unknown state remains safe and low prominence
-00:48 +41 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Gate 1 defines the canonical seven fixed Homes
-00:48 +42 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Anukor remains a network resident rather than a fixed Home
-00:48 +43 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: responsive civilization keeps information available on compact view
-00:48 +43 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: responsive civilization keeps information available on compact view [E]
+00:03 +4: F:/Rsearch Project/Criterivox-S4/presentation/test/attention_presentation_test.dart: inactive agent has no visual prominence
+00:03 +5: F:/Rsearch Project/Criterivox-S4/presentation/test/attention_presentation_test.dart: active working agent has moderate prominence
+00:03 +6: F:/Rsearch Project/Criterivox-S4/presentation/test/attention_presentation_test.dart: warning has highest prominence
+00:04 +7: F:/Rsearch Project/Criterivox-S4/presentation/test/attention_presentation_test.dart: warning has highest prominence
+00:04 +8: F:/Rsearch Project/Criterivox-S4/presentation/test/attention_presentation_test.dart: warning has highest prominence
+00:06 +9: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
+00:07 +10: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
+00:07 +11: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
+00:07 +12: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
+00:13 +13: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
+00:13 +14: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: COMMUNICATE state renders correctly
+00:13 +15: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: character presentation renders Vivren identity
+00:13 +16: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: HANDOFF state renders correctly
+00:13 +17: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: inactive character still renders
+00:13 +18: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: COMPLETE state renders correctly
+00:13 +19: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: reduced motion still renders character without animation dependency
+00:13 +20: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WARNING state renders correctly
+00:13 +21: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: all behavioral states remain renderable
+00:16 +22: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: pure Flutter runtime renders all semantic states
+00:16 +23: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: pure Flutter runtime renders all semantic states
+00:16 +24: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: pure Flutter runtime renders all semantic states
+00:16 +25: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: pure Flutter runtime renders all semantic states
+00:22 +26: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: reduced motion renders a deterministic frame
+00:23 +27: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:24 +28: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:24 +29: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:24 +30: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:24 +31: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:25 +32: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:25 +33: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:25 +34: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:25 +35: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:25 +36: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:25 +37: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:25 +38: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:25 +39: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:26 +40: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders receive state
+00:26 +41: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: inactive character remains rendered
+00:27 +42: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Gate 1 defines the canonical seven fixed Homes
+00:27 +43: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Anukor remains a network resident rather than a fixed Home
+00:27 +44: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: responsive civilization keeps information available on compact view
+00:27 +44 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: responsive civilization keeps information available on compact view [E]
   Expected: true
     Actual: <false>
   
   package:matcher                                     expect
   package:flutter_test/src/widget_tester.dart 473:18  expect
-  test\civilization_page_test.dart 21:5               main.<fn>
+  test\civilization_page_test.dart 45:5               main.<fn>
   
-00:48 +43 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Home preview is explicitly a Gate 1 read-model boundary
-00:50 +44 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Home preview is explicitly a Gate 1 read-model boundary
-00:50 +45 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Home preview is explicitly a Gate 1 read-model boundary
+00:27 +44 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Home preview is explicitly a Gate 1 read-model boundary
+00:28 +45 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Home preview is explicitly a Gate 1 read-model boundary
+00:28 +46 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Home preview is explicitly a Gate 1 read-model boundary
 ══╡ EXCEPTION CAUGHT BY WIDGETS LIBRARY ╞═══════════════════════════════════════════════════════════
 The following assertion was thrown building Chip(dirty):
 No Material widget found.
@@ -212,7 +187,7 @@ When the exception was thrown, this was the stack:
 #129    WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
 #132    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
 #133    WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
-#134    main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:26:18)
+#134    main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:55:20)
 #135    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
 <asynchronous suspension>
 #136    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
@@ -352,7 +327,7 @@ When the exception was thrown, this was the stack:
 #129    WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
 #132    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
 #133    WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
-#134    main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:26:18)
+#134    main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:55:20)
 #135    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
 <asynchronous suspension>
 #136    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
@@ -492,7 +467,7 @@ When the exception was thrown, this was the stack:
 #129    WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
 #132    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
 #133    WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
-#134    main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:26:18)
+#134    main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:55:20)
 #135    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
 <asynchronous suspension>
 #136    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
@@ -632,7 +607,7 @@ When the exception was thrown, this was the stack:
 #129    WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
 #132    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
 #133    WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
-#134    main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:26:18)
+#134    main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:55:20)
 #135    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
 <asynchronous suspension>
 #136    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
@@ -772,7 +747,7 @@ When the exception was thrown, this was the stack:
 #129    WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
 #132    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
 #133    WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
-#134    main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:26:18)
+#134    main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:55:20)
 #135    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
 <asynchronous suspension>
 #136    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
@@ -890,7 +865,7 @@ When the exception was thrown, this was the stack:
 #94     WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
 #97     TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
 #98     WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
-#99     main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:26:18)
+#99     main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:55:20)
 #100    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
 <asynchronous suspension>
 #101    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
@@ -898,7 +873,7 @@ When the exception was thrown, this was the stack:
 <asynchronous suspension>
 (elided 5 frames from dart:async and package:stack_trace)
 
-The following RenderObject was being processed when the exception was fired: RenderStack#3fb10 relayoutBoundary=up5 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE:
+The following RenderObject was being processed when the exception was fired: RenderStack#61bf0 relayoutBoundary=up5 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE:
   creator: Stack ← Semantics ← CriterivoxScene ← Column ← Padding ← ConstrainedBox ← Align ←
     LayoutBuilder ← CriterivoxResponsiveScene ← CivilizationHomePreviewPage ← Semantics ← Builder ← ⋯
   parentData: <none> (can use size)
@@ -908,37 +883,37 @@ The following RenderObject was being processed when the exception was fired: Ren
   textDirection: ltr
   fit: expand
 This RenderObject had the following descendants (showing up to depth 5):
-    child 1: RenderStack#9019b NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-      child 1: RenderDecoratedBox#e0e4d NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-        child: RenderPadding#cdb45 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child: RenderLimitedBox#0e37c NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child: RenderConstrainedBox#2c094 NEEDS-LAYOUT NEEDS-PAINT
-    child 2: RenderStack#ea377 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-      child 1: RenderPositionedBox#9294e NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-        child: RenderFlex#59a9a NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child 1: RenderWrap#3afbc NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child 1: RenderConstrainedBox#b618f NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child 2: RenderConstrainedBox#d6e4d NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child 2: RenderConstrainedBox#ea3b2 NEEDS-LAYOUT NEEDS-PAINT
-          child 3: RenderParagraph#440f7 NEEDS-LAYOUT NEEDS-PAINT
+    child 1: RenderStack#4a7a4 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+      child 1: RenderDecoratedBox#c772d NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+        child: RenderPadding#d0a0c NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child: RenderLimitedBox#f777b NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child: RenderConstrainedBox#73d82 NEEDS-LAYOUT NEEDS-PAINT
+    child 2: RenderStack#d0431 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+      child 1: RenderPositionedBox#eac16 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+        child: RenderFlex#0d20a NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child 1: RenderWrap#91f7c NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child 1: RenderConstrainedBox#d934f NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child 2: RenderConstrainedBox#04571 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child 2: RenderConstrainedBox#d5e38 NEEDS-LAYOUT NEEDS-PAINT
+          child 3: RenderParagraph#ad4c5 NEEDS-LAYOUT NEEDS-PAINT
             text: TextSpan
-          child 4: RenderConstrainedBox#23e36 NEEDS-LAYOUT NEEDS-PAINT
-          child 5: RenderParagraph#51dff NEEDS-LAYOUT NEEDS-PAINT
+          child 4: RenderConstrainedBox#b9173 NEEDS-LAYOUT NEEDS-PAINT
+          child 5: RenderParagraph#e9698 NEEDS-LAYOUT NEEDS-PAINT
             text: TextSpan
-    child 3: RenderStack#c21cd NEEDS-LAYOUT NEEDS-PAINT
-    child 4: RenderStack#4c521 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-      child 1: RenderDecoratedBox#b8644 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-        child: RenderPadding#4255c NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child: RenderParagraph#a91ce NEEDS-LAYOUT NEEDS-PAINT
+    child 3: RenderStack#85998 NEEDS-LAYOUT NEEDS-PAINT
+    child 4: RenderStack#00e69 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+      child 1: RenderDecoratedBox#1e175 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+        child: RenderPadding#e5632 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child: RenderParagraph#daf7b NEEDS-LAYOUT NEEDS-PAINT
             text: TextSpan
-      child 2: RenderDecoratedBox#5beaf NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-        child: RenderPadding#1335a NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child: RenderParagraph#34111 NEEDS-LAYOUT NEEDS-PAINT
+      child 2: RenderDecoratedBox#44473 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+        child: RenderPadding#bf924 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child: RenderParagraph#179f5 NEEDS-LAYOUT NEEDS-PAINT
             text: TextSpan
 ════════════════════════════════════════════════════════════════════════════════════════════════════
 ══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
 The following assertion was thrown during performLayout():
-RenderBox was not laid out: RenderStack#3fb10 relayoutBoundary=up5 NEEDS-PAINT
+RenderBox was not laid out: RenderStack#61bf0 relayoutBoundary=up5 NEEDS-PAINT
 NEEDS-COMPOSITING-BITS-UPDATE
 'package:flutter/src/rendering/box.dart':
 Failed assertion: line 2251 pos 12: 'hasSize'
@@ -1041,7 +1016,7 @@ When the exception was thrown, this was the stack:
 #89     WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
 #92     TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
 #93     WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
-#94     main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:26:18)
+#94     main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:55:20)
 #95     testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
 <asynchronous suspension>
 #96     TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
@@ -1049,43 +1024,43 @@ When the exception was thrown, this was the stack:
 <asynchronous suspension>
 (elided 7 frames from class _AssertionError, dart:async, and package:stack_trace)
 
-The following RenderObject was being processed when the exception was fired: RenderSemanticsAnnotations#3c9d5 relayoutBoundary=up4 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE:
+The following RenderObject was being processed when the exception was fired: RenderSemanticsAnnotations#0639e relayoutBoundary=up4 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE:
   creator: Semantics ← CriterivoxScene ← Column ← Padding ← ConstrainedBox ← Align ← LayoutBuilder ←
     CriterivoxResponsiveScene ← CivilizationHomePreviewPage ← Semantics ← Builder ←
-    RepaintBoundary-[GlobalKey#eb4c8] ← ⋯
+    RepaintBoundary-[GlobalKey#33abe] ← ⋯
   parentData: offset=Offset(0.0, 0.0); flex=null; fit=null (can use size)
   constraints: BoxConstraints(w=768.0, 0.0<=h<=Infinity)
   semantic boundary
   size: MISSING
 This RenderObject had the following descendants (showing up to depth 5):
-    child: RenderStack#3fb10 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-      child 1: RenderStack#9019b NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-        child 1: RenderDecoratedBox#e0e4d NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child: RenderPadding#cdb45 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child: RenderLimitedBox#0e37c NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-      child 2: RenderStack#ea377 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-        child 1: RenderPositionedBox#9294e NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child: RenderFlex#59a9a NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child 1: RenderWrap#3afbc NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child 2: RenderConstrainedBox#ea3b2 NEEDS-LAYOUT NEEDS-PAINT
-            child 3: RenderParagraph#440f7 NEEDS-LAYOUT NEEDS-PAINT
-            child 4: RenderConstrainedBox#23e36 NEEDS-LAYOUT NEEDS-PAINT
-            child 5: RenderParagraph#51dff NEEDS-LAYOUT NEEDS-PAINT
-      child 3: RenderStack#c21cd NEEDS-LAYOUT NEEDS-PAINT
-      child 4: RenderStack#4c521 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-        child 1: RenderDecoratedBox#b8644 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child: RenderPadding#4255c NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child: RenderParagraph#a91ce NEEDS-LAYOUT NEEDS-PAINT
-        child 2: RenderDecoratedBox#5beaf NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child: RenderPadding#1335a NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child: RenderParagraph#34111 NEEDS-LAYOUT NEEDS-PAINT
-      child 5: RenderStack#694cf NEEDS-LAYOUT NEEDS-PAINT
-      child 6: RenderStack#3af90 NEEDS-LAYOUT NEEDS-PAINT
-      child 7: RenderStack#ca382 NEEDS-LAYOUT NEEDS-PAINT
+    child: RenderStack#61bf0 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+      child 1: RenderStack#4a7a4 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+        child 1: RenderDecoratedBox#c772d NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child: RenderPadding#d0a0c NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child: RenderLimitedBox#f777b NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+      child 2: RenderStack#d0431 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+        child 1: RenderPositionedBox#eac16 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child: RenderFlex#0d20a NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child 1: RenderWrap#91f7c NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child 2: RenderConstrainedBox#d5e38 NEEDS-LAYOUT NEEDS-PAINT
+            child 3: RenderParagraph#ad4c5 NEEDS-LAYOUT NEEDS-PAINT
+            child 4: RenderConstrainedBox#b9173 NEEDS-LAYOUT NEEDS-PAINT
+            child 5: RenderParagraph#e9698 NEEDS-LAYOUT NEEDS-PAINT
+      child 3: RenderStack#85998 NEEDS-LAYOUT NEEDS-PAINT
+      child 4: RenderStack#00e69 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+        child 1: RenderDecoratedBox#1e175 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child: RenderPadding#e5632 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child: RenderParagraph#daf7b NEEDS-LAYOUT NEEDS-PAINT
+        child 2: RenderDecoratedBox#44473 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child: RenderPadding#bf924 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child: RenderParagraph#179f5 NEEDS-LAYOUT NEEDS-PAINT
+      child 5: RenderStack#8e676 NEEDS-LAYOUT NEEDS-PAINT
+      child 6: RenderStack#2172b NEEDS-LAYOUT NEEDS-PAINT
+      child 7: RenderStack#328f3 NEEDS-LAYOUT NEEDS-PAINT
 ════════════════════════════════════════════════════════════════════════════════════════════════════
 ══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
 The following assertion was thrown during performLayout():
-RenderBox was not laid out: RenderSemanticsAnnotations#3c9d5 relayoutBoundary=up4 NEEDS-PAINT
+RenderBox was not laid out: RenderSemanticsAnnotations#0639e relayoutBoundary=up4 NEEDS-PAINT
 NEEDS-COMPOSITING-BITS-UPDATE
 'package:flutter/src/rendering/box.dart':
 Failed assertion: line 2251 pos 12: 'hasSize'
@@ -1186,7 +1161,7 @@ When the exception was thrown, this was the stack:
 #87     WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
 #90     TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
 #91     WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
-#92     main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:26:18)
+#92     main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:55:20)
 #93     testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
 <asynchronous suspension>
 #94     TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
@@ -1194,9 +1169,9 @@ When the exception was thrown, this was the stack:
 <asynchronous suspension>
 (elided 7 frames from class _AssertionError, dart:async, and package:stack_trace)
 
-The following RenderObject was being processed when the exception was fired: RenderFlex#f5a6e relayoutBoundary=up3 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE:
+The following RenderObject was being processed when the exception was fired: RenderFlex#60e36 relayoutBoundary=up3 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE:
   creator: Column ← Padding ← ConstrainedBox ← Align ← LayoutBuilder ← CriterivoxResponsiveScene ←
-    CivilizationHomePreviewPage ← Semantics ← Builder ← RepaintBoundary-[GlobalKey#eb4c8] ←
+    CivilizationHomePreviewPage ← Semantics ← Builder ← RepaintBoundary-[GlobalKey#33abe] ←
     IgnorePointer ← ListenableBuilder ← ⋯
   parentData: offset=Offset(0.0, 0.0) (can use size)
   constraints: BoxConstraints(0.0<=w<=768.0, 0.0<=h<=568.0)
@@ -1208,39 +1183,39 @@ The following RenderObject was being processed when the exception was fired: Ren
   verticalDirection: down
   spacing: 0.0
 This RenderObject had the following descendants (showing up to depth 5):
-    child 1: RenderFlex#feb48 relayoutBoundary=up4 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-      child 1: RenderSemanticsAnnotations#498c2 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-        child: _RenderInputPadding#0e64d relayoutBoundary=up6 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child: RenderConstrainedBox#111c0 relayoutBoundary=up7 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child: RenderPhysicalShape#61f4b relayoutBoundary=up8 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-      child 2: RenderFlex#8d46b relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-        child 1: RenderParagraph#0ee27 relayoutBoundary=up6 NEEDS-PAINT
+    child 1: RenderFlex#b4520 relayoutBoundary=up4 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+      child 1: RenderSemanticsAnnotations#6b6e0 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+        child: _RenderInputPadding#14306 relayoutBoundary=up6 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child: RenderConstrainedBox#1836b relayoutBoundary=up7 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child: RenderPhysicalShape#3c7a9 relayoutBoundary=up8 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+      child 2: RenderFlex#7d325 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+        child 1: RenderParagraph#946f9 relayoutBoundary=up6 NEEDS-PAINT
           text: TextSpan
-        child 2: RenderParagraph#94db6 relayoutBoundary=up6 NEEDS-PAINT
+        child 2: RenderParagraph#ce23d relayoutBoundary=up6 NEEDS-PAINT
           text: TextSpan
-        child 3: RenderParagraph#6c29f relayoutBoundary=up6 NEEDS-PAINT
+        child 3: RenderParagraph#d0893 relayoutBoundary=up6 NEEDS-PAINT
           text: TextSpan
-      child 3: RenderSemanticsAnnotations#ab385 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-        child: RenderDecoratedBox#96048 relayoutBoundary=up6 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child: RenderPadding#d693d relayoutBoundary=up7 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child: RenderFlex#06938 relayoutBoundary=up8 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-    child 2: RenderConstrainedBox#9c66a relayoutBoundary=up4 NEEDS-PAINT
-    child 3: RenderSemanticsAnnotations#3c9d5 relayoutBoundary=up4 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-      child: RenderStack#3fb10 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-        child 1: RenderStack#9019b NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child 1: RenderDecoratedBox#e0e4d NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child: RenderPadding#cdb45 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-        child 2: RenderStack#ea377 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child 1: RenderPositionedBox#9294e NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child: RenderFlex#59a9a NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-        child 3: RenderStack#c21cd NEEDS-LAYOUT NEEDS-PAINT
-        child 4: RenderStack#4c521 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child 1: RenderDecoratedBox#b8644 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child: RenderPadding#4255c NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+      child 3: RenderSemanticsAnnotations#f0027 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+        child: RenderDecoratedBox#a1dd5 relayoutBoundary=up6 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child: RenderPadding#6a5f3 relayoutBoundary=up7 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child: RenderFlex#26519 relayoutBoundary=up8 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+    child 2: RenderConstrainedBox#076b0 relayoutBoundary=up4 NEEDS-PAINT
+    child 3: RenderSemanticsAnnotations#0639e relayoutBoundary=up4 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+      child: RenderStack#61bf0 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+        child 1: RenderStack#4a7a4 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child 1: RenderDecoratedBox#c772d NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child: RenderPadding#d0a0c NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+        child 2: RenderStack#d0431 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child 1: RenderPositionedBox#eac16 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child: RenderFlex#0d20a NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+        child 3: RenderStack#85998 NEEDS-LAYOUT NEEDS-PAINT
+        child 4: RenderStack#00e69 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child 1: RenderDecoratedBox#1e175 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child: RenderPadding#e5632 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
 ════════════════════════════════════════════════════════════════════════════════════════════════════
 ══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
 The following assertion was thrown during performLayout():
-RenderBox was not laid out: RenderFlex#f5a6e relayoutBoundary=up3 NEEDS-PAINT
+RenderBox was not laid out: RenderFlex#60e36 relayoutBoundary=up3 NEEDS-PAINT
 NEEDS-COMPOSITING-BITS-UPDATE
 'package:flutter/src/rendering/box.dart':
 Failed assertion: line 2251 pos 12: 'hasSize'
@@ -1337,7 +1312,7 @@ When the exception was thrown, this was the stack:
 #83     WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
 #86     TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
 #87     WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
-#88     main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:26:18)
+#88     main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:55:20)
 #89     testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
 <asynchronous suspension>
 #90     TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
@@ -1345,9 +1320,9 @@ When the exception was thrown, this was the stack:
 <asynchronous suspension>
 (elided 7 frames from class _AssertionError, dart:async, and package:stack_trace)
 
-The following RenderObject was being processed when the exception was fired: RenderPadding#0c267 relayoutBoundary=up2 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE:
+The following RenderObject was being processed when the exception was fired: RenderPadding#c79b0 relayoutBoundary=up2 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE:
   creator: Padding ← ConstrainedBox ← Align ← LayoutBuilder ← CriterivoxResponsiveScene ←
-    CivilizationHomePreviewPage ← Semantics ← Builder ← RepaintBoundary-[GlobalKey#eb4c8] ←
+    CivilizationHomePreviewPage ← Semantics ← Builder ← RepaintBoundary-[GlobalKey#33abe] ←
     IgnorePointer ← ListenableBuilder ← FractionalTranslation ← ⋯
   parentData: <none> (can use size)
   constraints: BoxConstraints(0.0<=w<=800.0, 0.0<=h<=600.0)
@@ -1355,39 +1330,39 @@ The following RenderObject was being processed when the exception was fired: Ren
   padding: EdgeInsets.all(16.0)
   textDirection: ltr
 This RenderObject had the following descendants (showing up to depth 5):
-    child: RenderFlex#f5a6e relayoutBoundary=up3 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-      child 1: RenderFlex#feb48 relayoutBoundary=up4 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-        child 1: RenderSemanticsAnnotations#498c2 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child: _RenderInputPadding#0e64d relayoutBoundary=up6 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child: RenderConstrainedBox#111c0 relayoutBoundary=up7 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-        child 2: RenderFlex#8d46b relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child 1: RenderParagraph#0ee27 relayoutBoundary=up6 NEEDS-PAINT
+    child: RenderFlex#60e36 relayoutBoundary=up3 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+      child 1: RenderFlex#b4520 relayoutBoundary=up4 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+        child 1: RenderSemanticsAnnotations#6b6e0 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child: _RenderInputPadding#14306 relayoutBoundary=up6 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child: RenderConstrainedBox#1836b relayoutBoundary=up7 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+        child 2: RenderFlex#7d325 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child 1: RenderParagraph#946f9 relayoutBoundary=up6 NEEDS-PAINT
             text: TextSpan
-          child 2: RenderParagraph#94db6 relayoutBoundary=up6 NEEDS-PAINT
+          child 2: RenderParagraph#ce23d relayoutBoundary=up6 NEEDS-PAINT
             text: TextSpan
-          child 3: RenderParagraph#6c29f relayoutBoundary=up6 NEEDS-PAINT
+          child 3: RenderParagraph#d0893 relayoutBoundary=up6 NEEDS-PAINT
             text: TextSpan
-        child 3: RenderSemanticsAnnotations#ab385 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child: RenderDecoratedBox#96048 relayoutBoundary=up6 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child: RenderPadding#d693d relayoutBoundary=up7 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-      child 2: RenderConstrainedBox#9c66a relayoutBoundary=up4 NEEDS-PAINT
-      child 3: RenderSemanticsAnnotations#3c9d5 relayoutBoundary=up4 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-        child: RenderStack#3fb10 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child 1: RenderStack#9019b NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child 1: RenderDecoratedBox#e0e4d NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child 2: RenderStack#ea377 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child 1: RenderPositionedBox#9294e NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child 3: RenderStack#c21cd NEEDS-LAYOUT NEEDS-PAINT
-          child 4: RenderStack#4c521 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child 1: RenderDecoratedBox#b8644 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child 2: RenderDecoratedBox#5beaf NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child 5: RenderStack#694cf NEEDS-LAYOUT NEEDS-PAINT
-          child 6: RenderStack#3af90 NEEDS-LAYOUT NEEDS-PAINT
+        child 3: RenderSemanticsAnnotations#f0027 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child: RenderDecoratedBox#a1dd5 relayoutBoundary=up6 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child: RenderPadding#6a5f3 relayoutBoundary=up7 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+      child 2: RenderConstrainedBox#076b0 relayoutBoundary=up4 NEEDS-PAINT
+      child 3: RenderSemanticsAnnotations#0639e relayoutBoundary=up4 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+        child: RenderStack#61bf0 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child 1: RenderStack#4a7a4 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child 1: RenderDecoratedBox#c772d NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child 2: RenderStack#d0431 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child 1: RenderPositionedBox#eac16 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child 3: RenderStack#85998 NEEDS-LAYOUT NEEDS-PAINT
+          child 4: RenderStack#00e69 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child 1: RenderDecoratedBox#1e175 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child 2: RenderDecoratedBox#44473 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child 5: RenderStack#8e676 NEEDS-LAYOUT NEEDS-PAINT
+          child 6: RenderStack#2172b NEEDS-LAYOUT NEEDS-PAINT
     ...(descendants list truncated after 25 lines)
 ════════════════════════════════════════════════════════════════════════════════════════════════════
 ══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
 The following assertion was thrown during performLayout():
-RenderBox was not laid out: RenderPadding#0c267 relayoutBoundary=up2 NEEDS-PAINT
+RenderBox was not laid out: RenderPadding#c79b0 relayoutBoundary=up2 NEEDS-PAINT
 NEEDS-COMPOSITING-BITS-UPDATE
 'package:flutter/src/rendering/box.dart':
 Failed assertion: line 2251 pos 12: 'hasSize'
@@ -1482,7 +1457,7 @@ When the exception was thrown, this was the stack:
 #81     WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
 #84     TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
 #85     WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
-#86     main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:26:18)
+#86     main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:55:20)
 #87     testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
 <asynchronous suspension>
 #88     TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
@@ -1490,44 +1465,44 @@ When the exception was thrown, this was the stack:
 <asynchronous suspension>
 (elided 7 frames from class _AssertionError, dart:async, and package:stack_trace)
 
-The following RenderObject was being processed when the exception was fired: RenderConstrainedBox#1067f relayoutBoundary=up1 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE:
+The following RenderObject was being processed when the exception was fired: RenderConstrainedBox#c241c relayoutBoundary=up1 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE:
   creator: ConstrainedBox ← Align ← LayoutBuilder ← CriterivoxResponsiveScene ←
-    CivilizationHomePreviewPage ← Semantics ← Builder ← RepaintBoundary-[GlobalKey#eb4c8] ←
+    CivilizationHomePreviewPage ← Semantics ← Builder ← RepaintBoundary-[GlobalKey#33abe] ←
     IgnorePointer ← ListenableBuilder ← FractionalTranslation ← SlideTransition ← ⋯
   parentData: offset=Offset(0.0, 0.0) (can use size)
   constraints: BoxConstraints(0.0<=w<=800.0, 0.0<=h<=600.0)
   size: MISSING
   additionalConstraints: BoxConstraints(0.0<=w<=1600.0, 0.0<=h<=Infinity)
 This RenderObject had the following descendants (showing up to depth 5):
-    child: RenderPadding#0c267 relayoutBoundary=up2 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-      child: RenderFlex#f5a6e relayoutBoundary=up3 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-        child 1: RenderFlex#feb48 relayoutBoundary=up4 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child 1: RenderSemanticsAnnotations#498c2 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child: _RenderInputPadding#0e64d relayoutBoundary=up6 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child 2: RenderFlex#8d46b relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child 1: RenderParagraph#0ee27 relayoutBoundary=up6 NEEDS-PAINT
-            child 2: RenderParagraph#94db6 relayoutBoundary=up6 NEEDS-PAINT
-            child 3: RenderParagraph#6c29f relayoutBoundary=up6 NEEDS-PAINT
-          child 3: RenderSemanticsAnnotations#ab385 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child: RenderDecoratedBox#96048 relayoutBoundary=up6 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-        child 2: RenderConstrainedBox#9c66a relayoutBoundary=up4 NEEDS-PAINT
-        child 3: RenderSemanticsAnnotations#3c9d5 relayoutBoundary=up4 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child: RenderStack#3fb10 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child 1: RenderStack#9019b NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child 2: RenderStack#ea377 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child 3: RenderStack#c21cd NEEDS-LAYOUT NEEDS-PAINT
-            child 4: RenderStack#4c521 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child 5: RenderStack#694cf NEEDS-LAYOUT NEEDS-PAINT
-            child 6: RenderStack#3af90 NEEDS-LAYOUT NEEDS-PAINT
-            child 7: RenderStack#ca382 NEEDS-LAYOUT NEEDS-PAINT
-        child 4: RenderConstrainedBox#84c25 NEEDS-LAYOUT NEEDS-PAINT
-        child 5: RenderDecoratedBox#90f1c NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child: RenderPadding#49c79 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child: RenderFlex#912ec NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-        child 6: RenderConstrainedBox#3eb31 NEEDS-LAYOUT NEEDS-PAINT
-        child 7: RenderFlex#ae75c NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child 1: RenderSemanticsAnnotations#b1f39 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child: _RenderInputPadding#f35da NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+    child: RenderPadding#c79b0 relayoutBoundary=up2 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+      child: RenderFlex#60e36 relayoutBoundary=up3 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+        child 1: RenderFlex#b4520 relayoutBoundary=up4 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child 1: RenderSemanticsAnnotations#6b6e0 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child: _RenderInputPadding#14306 relayoutBoundary=up6 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child 2: RenderFlex#7d325 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child 1: RenderParagraph#946f9 relayoutBoundary=up6 NEEDS-PAINT
+            child 2: RenderParagraph#ce23d relayoutBoundary=up6 NEEDS-PAINT
+            child 3: RenderParagraph#d0893 relayoutBoundary=up6 NEEDS-PAINT
+          child 3: RenderSemanticsAnnotations#f0027 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child: RenderDecoratedBox#a1dd5 relayoutBoundary=up6 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+        child 2: RenderConstrainedBox#076b0 relayoutBoundary=up4 NEEDS-PAINT
+        child 3: RenderSemanticsAnnotations#0639e relayoutBoundary=up4 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child: RenderStack#61bf0 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child 1: RenderStack#4a7a4 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child 2: RenderStack#d0431 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child 3: RenderStack#85998 NEEDS-LAYOUT NEEDS-PAINT
+            child 4: RenderStack#00e69 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child 5: RenderStack#8e676 NEEDS-LAYOUT NEEDS-PAINT
+            child 6: RenderStack#2172b NEEDS-LAYOUT NEEDS-PAINT
+            child 7: RenderStack#328f3 NEEDS-LAYOUT NEEDS-PAINT
+        child 4: RenderConstrainedBox#08929 NEEDS-LAYOUT NEEDS-PAINT
+        child 5: RenderDecoratedBox#3f47b NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child: RenderPadding#42dae NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child: RenderFlex#6331d NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+        child 6: RenderConstrainedBox#afa53 NEEDS-LAYOUT NEEDS-PAINT
+        child 7: RenderFlex#27547 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child 1: RenderSemanticsAnnotations#1585d NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child: _RenderInputPadding#71744 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
 ════════════════════════════════════════════════════════════════════════════════════════════════════
 ══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
 The following assertion was thrown during performLayout():
@@ -1622,7 +1597,7 @@ When the exception was thrown, this was the stack:
 #79     WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
 #82     TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
 #83     WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
-#84     main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:26:18)
+#84     main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:55:20)
 #85     testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
 <asynchronous suspension>
 #86     TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
@@ -1630,9 +1605,9 @@ When the exception was thrown, this was the stack:
 <asynchronous suspension>
 (elided 7 frames from class _AssertionError, dart:async, and package:stack_trace)
 
-The following RenderObject was being processed when the exception was fired: RenderPositionedBox#44b14 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE:
+The following RenderObject was being processed when the exception was fired: RenderPositionedBox#f189b NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE:
   creator: Align ← LayoutBuilder ← CriterivoxResponsiveScene ← CivilizationHomePreviewPage ← Semantics
-    ← Builder ← RepaintBoundary-[GlobalKey#eb4c8] ← IgnorePointer ← ListenableBuilder ←
+    ← Builder ← RepaintBoundary-[GlobalKey#33abe] ← IgnorePointer ← ListenableBuilder ←
     FractionalTranslation ← SlideTransition ← FadeTransition ← ⋯
   parentData: offset=Offset(0.0, 0.0) (can use size)
   constraints: BoxConstraints(w=800.0, h=600.0)
@@ -1642,22 +1617,22 @@ The following RenderObject was being processed when the exception was fired: Ren
   widthFactor: expand
   heightFactor: expand
 This RenderObject had the following descendants (showing up to depth 5):
-    child: RenderConstrainedBox#1067f relayoutBoundary=up1 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-      child: RenderPadding#0c267 relayoutBoundary=up2 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-        child: RenderFlex#f5a6e relayoutBoundary=up3 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child 1: RenderFlex#feb48 relayoutBoundary=up4 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child 1: RenderSemanticsAnnotations#498c2 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child 2: RenderFlex#8d46b relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child 3: RenderSemanticsAnnotations#ab385 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child 2: RenderConstrainedBox#9c66a relayoutBoundary=up4 NEEDS-PAINT
-          child 3: RenderSemanticsAnnotations#3c9d5 relayoutBoundary=up4 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child: RenderStack#3fb10 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child 4: RenderConstrainedBox#84c25 NEEDS-LAYOUT NEEDS-PAINT
-          child 5: RenderDecoratedBox#90f1c NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child: RenderPadding#49c79 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-          child 6: RenderConstrainedBox#3eb31 NEEDS-LAYOUT NEEDS-PAINT
-          child 7: RenderFlex#ae75c NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
-            child 1: RenderSemanticsAnnotations#b1f39 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+    child: RenderConstrainedBox#c241c relayoutBoundary=up1 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+      child: RenderPadding#c79b0 relayoutBoundary=up2 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+        child: RenderFlex#60e36 relayoutBoundary=up3 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child 1: RenderFlex#b4520 relayoutBoundary=up4 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child 1: RenderSemanticsAnnotations#6b6e0 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child 2: RenderFlex#7d325 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child 3: RenderSemanticsAnnotations#f0027 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child 2: RenderConstrainedBox#076b0 relayoutBoundary=up4 NEEDS-PAINT
+          child 3: RenderSemanticsAnnotations#0639e relayoutBoundary=up4 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child: RenderStack#61bf0 relayoutBoundary=up5 NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child 4: RenderConstrainedBox#08929 NEEDS-LAYOUT NEEDS-PAINT
+          child 5: RenderDecoratedBox#3f47b NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child: RenderPadding#42dae NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+          child 6: RenderConstrainedBox#afa53 NEEDS-LAYOUT NEEDS-PAINT
+          child 7: RenderFlex#27547 NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
+            child 1: RenderSemanticsAnnotations#1585d NEEDS-LAYOUT NEEDS-PAINT NEEDS-COMPOSITING-BITS-UPDATE
 ════════════════════════════════════════════════════════════════════════════════════════════════════
 ══╡ EXCEPTION CAUGHT BY SCHEDULER LIBRARY ╞═════════════════════════════════════════════════════════
 The following assertion was thrown during a scheduler callback:
@@ -1789,7 +1764,7 @@ When the exception was thrown, this was the stack:
 #120    WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
 #123    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
 #124    WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
-#125    main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:26:18)
+#125    main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:55:20)
 #126    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
 <asynchronous suspension>
 #127    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
@@ -1797,23 +1772,363 @@ When the exception was thrown, this was the stack:
 <asynchronous suspension>
 (elided 7 frames from class _AssertionError, dart:async, and package:stack_trace)
 ════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY SCHEDULER LIBRARY ╞═════════════════════════════════════════════════════════
+The following assertion was thrown during a scheduler callback:
+'package:flutter/src/rendering/object.dart': Failed assertion: line 6018 pos 14:
+'!childSemantics.renderObject._needsLayout': is not true.
+
+Either the assertion indicates an error in the framework itself, or we should provide substantially
+more information in this error message to help you determine and fix the underlying cause.
+In either case, please report this assertion by filing a bug on GitHub:
+  https://github.com/flutter/flutter/issues/new?template=02_bug.yml
+
+When the exception was thrown, this was the stack:
+#2      _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6018:14)
+#3      _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#4      _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#5      _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#6      _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#7      _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#8      _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#9      _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#10     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#11     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#12     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#13     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#14     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#15     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#16     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#17     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#18     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#19     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#20     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#21     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#22     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#23     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#24     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#25     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#26     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#27     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#28     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#29     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#30     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#31     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#32     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#33     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#34     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#35     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#36     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#37     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#38     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#39     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#40     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#41     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#42     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#43     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#44     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#45     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#46     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#47     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#48     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#49     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#50     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#51     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#52     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#53     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#54     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#55     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#56     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#57     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#58     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#59     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#60     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#61     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#62     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#63     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#64     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#65     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#66     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#67     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#68     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#69     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#70     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#71     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#72     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#73     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#74     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#75     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#76     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#77     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#78     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#79     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#80     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#81     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#82     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#83     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#84     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#85     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#86     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#87     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#88     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#89     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#90     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#91     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#92     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#93     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#94     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#95     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#96     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#97     _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#98     _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#99     _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#100    _RenderObjectSemantics._didUpdateParentData (package:flutter/src/rendering/object.dart:6095:5)
+#101    _RenderObjectSemantics._collectChildMergeUpAndSiblingGroup (package:flutter/src/rendering/object.dart:6019:22)
+#102    _RenderObjectSemantics.updateChildren (package:flutter/src/rendering/object.dart:5844:50)
+#103    PipelineOwner.flushSemantics (package:flutter/src/rendering/object.dart:1489:25)
+#104    PipelineOwner.flushSemantics (package:flutter/src/rendering/object.dart:1653:15)
+#105    AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:2445:35)
+#106    RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:558:5)
+#107    SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1430:15)
+#108    SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1345:9)
+#109    AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:2261:9)
+#112    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#113    AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:2250:27)
+#114    WidgetTester.pump.<anonymous closure> (package:flutter_test/src/widget_tester.dart:652:53)
+#117    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#118    WidgetTester.pump (package:flutter_test/src/widget_tester.dart:652:27)
+#119    main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/civilization_page_test.dart:64:20)
+<asynchronous suspension>
+#120    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#121    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 7 frames from class _AssertionError, dart:async, and package:stack_trace)
+════════════════════════════════════════════════════════════════════════════════════════════════════
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following message was thrown:
-Multiple exceptions (12) were detected during the running of the current test, and at least one was
+Multiple exceptions (13) were detected during the running of the current test, and at least one was
 unexpected.
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-00:52 +45 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Home preview is explicitly a Gate 1 read-model boundary [E]
+00:30 +46 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Home preview is explicitly a Gate 1 read-model boundary [E]
   Test failed. See exception logs above.
   The test description was: Home preview is explicitly a Gate 1 read-model boundary
   
-00:54 +45 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/handoff_presentation_test.dart: sender enters handoff presentation state
-00:55 +46 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/handoff_presentation_test.dart: receiver enters receive presentation state
-00:55 +47 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-00:58 +48 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-00:58 +49 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-00:58 +50 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-01:08 +51 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-01:08 +52 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:33 +46 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:33 +47 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:33 +48 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:35 +49 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:35 +50 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:35 +51 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:36 +52 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:36 +53 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:38 +54 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:38 +55 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:38 +56 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:42 +57 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:42 +58 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:42 +59 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:42 +60 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
+The following assertion was thrown during layout:
+A RenderFlex overflowed by 3.0 pixels on the bottom.
+
+The relevant error-causing widget was:
+  Column
+  Column:file:///F:/Rsearch%20Project/Criterivox-S4/presentation/lib/interaction/bloom.dart:91:12
+
+The overflowing RenderFlex has an orientation of Axis.vertical.
+The edge of the RenderFlex that is overflowing has been marked in the rendering with a yellow and
+black striped pattern. This is usually caused by the contents being too big for the RenderFlex.
+Consider applying a flex factor (e.g. using an Expanded widget) to force the children of the
+RenderFlex to fit within the available space instead of being sized to their natural size.
+This is considered an error condition because it indicates that there is content that cannot be
+seen. If the content is legitimately bigger than the available space, consider clipping it with a
+ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex,
+like a ListView.
+The specific RenderFlex in question is: RenderFlex#69343 OVERFLOWING:
+  creator: Column ← Padding ← DecoratedBox ← ConstrainedBox ← Container ← AnimatedBuilder ← Stack ←
+    SizedBox ← LayoutBuilder ← Bloom ← Center ← Expanded ← ⋯
+  parentData: offset=Offset(2.0, 2.0) (can use size)
+  constraints: BoxConstraints(w=156.0, h=156.0)
+  size: Size(156.0, 156.0)
+  direction: vertical
+  mainAxisAlignment: center
+  mainAxisSize: max
+  crossAxisAlignment: center
+  verticalDirection: down
+  spacing: 0.0
+◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void, selected: true)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following TestFailure was thrown running a test:
 Expected: no matching candidates
@@ -1825,7 +2140,7 @@ Expected: no matching candidates
    Which: means one was found but none were expected
 
 When the exception was thrown, this was the stack:
-#4      main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart:19:7)
+#4      main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart:33:7)
 <asynchronous suspension>
 #5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
 <asynchronous suspension>
@@ -1835,62 +2150,431 @@ When the exception was thrown, this was the stack:
 (elided one frame from package:stack_trace)
 
 This was caught by the test expectation on the following line:
-  file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart line 19
+  file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart line 33
 The test description was:
   global character chat uses one toggle and preserves chat page state
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-01:10 +52 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state [E]
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following message was thrown:
+Multiple exceptions (15) were detected during the running of the current test, and at least one was
+unexpected.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:42 +60 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state [E]
   Test failed. See exception logs above.
   The test description was: global character chat uses one toggle and preserves chat page state
   
-01:10 +52 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat launcher remains available from the civilization surface
-01:12 +53 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat launcher remains available from the civilization surface
-01:12 +54 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat launcher remains available from the civilization surface
-01:12 +55 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat launcher remains available from the civilization surface
+00:42 +60 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat launcher remains available from the civilization surface
+00:44 +61 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat launcher remains available from the civilization surface
+00:44 +62 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat launcher remains available from the civilization surface
+00:44 +63 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat launcher remains available from the civilization surface
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void, selected: true)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
+The following assertion was thrown during layout:
+A RenderFlex overflowed by 3.0 pixels on the bottom.
+
+The relevant error-causing widget was:
+  Column
+  Column:file:///F:/Rsearch%20Project/Criterivox-S4/presentation/lib/interaction/bloom.dart:91:12
+
+The overflowing RenderFlex has an orientation of Axis.vertical.
+The edge of the RenderFlex that is overflowing has been marked in the rendering with a yellow and
+black striped pattern. This is usually caused by the contents being too big for the RenderFlex.
+Consider applying a flex factor (e.g. using an Expanded widget) to force the children of the
+RenderFlex to fit within the available space instead of being sized to their natural size.
+This is considered an error condition because it indicates that there is content that cannot be
+seen. If the content is legitimately bigger than the available space, consider clipping it with a
+ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex,
+like a ListView.
+The specific RenderFlex in question is: RenderFlex#940ad OVERFLOWING:
+  creator: Column ← Padding ← DecoratedBox ← ConstrainedBox ← Container ← AnimatedBuilder ← Stack ←
+    SizedBox ← LayoutBuilder ← Bloom ← Center ← Expanded ← ⋯
+  parentData: offset=Offset(2.0, 2.0) (can use size)
+  constraints: BoxConstraints(w=156.0, h=156.0)
+  size: Size(156.0, 156.0)
+  direction: vertical
+  mainAxisAlignment: center
+  mainAxisSize: max
+  crossAxisAlignment: center
+  verticalDirection: down
+  spacing: 0.0
+◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void, selected: true)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════
+The following assertion was thrown:
+ListTile background color or ink splashes may be invisible.
+The ListTile is wrapped in a ColoredBox that has a background color. Because ListTile paints its
+background and ink splashes on the nearest Material ancestor, this ColoredBox will hide those
+effects.
+To fix this, wrap the ListTile in its own Material widget, or remove the background color from the
+intermediate ColoredBox.
+
+ListTile: ListTile(onTap: Closure: () => void)
+ColoredBox:
+  ColoredBox(color: Color(alpha: 1.0000, red: 0.0275, green: 0.0392, blue: 0.0941, colorSpace: ColorSpace.sRGB))
+════════════════════════════════════════════════════════════════════════════════════════════════════
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
-The following StateError was thrown running a test:
-Bad state: No element
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Criterivox Civilization": []>
+   Which: means none were found but one was expected
 
 When the exception was thrown, this was the stack:
-#0      Iterable.first (dart:core/iterable.dart:663:7)
-#1      _FirstFinderMixin.filter (package:flutter_test/src/finders.dart:1383:28)
-#3      _AncestorFinderMixin.allCandidates (package:flutter_test/src/finders.dart:1857:49)
-#4      FinderBase.evaluate (package:flutter_test/src/finders.dart:1030:76)
-#5      WidgetController.widgetList (package:flutter_test/src/controller.dart:848:19)
-#6      WidgetController._maybeViewOf (package:flutter_test/src/controller.dart:795:34)
-#7      WidgetController.tap (package:flutter_test/src/controller.dart:1078:31)
-#8      main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart:63:20)
+#4      main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart:155:7)
 <asynchronous suspension>
-#9      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
 <asynchronous suspension>
-#10     TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
 <asynchronous suspension>
 <asynchronous suspension>
-(elided 2 frames from dart:async-patch and package:stack_trace)
+(elided one frame from package:stack_trace)
 
+This was caught by the test expectation on the following line:
+  file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart line 155
 The test description was:
   global character chat launcher remains available from the civilization surface
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-01:12 +55 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat launcher remains available from the civilization surface [E]
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following message was thrown:
+Multiple exceptions (28) were detected during the running of the current test, and at least one was
+unexpected.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:49 +63 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/s3_interaction_test.dart: Bloom exposes capability gateway and activates Analyze
+00:49 +63 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat launcher remains available from the civilization surface [E]
   Test failed. See exception logs above.
   The test description was: global character chat launcher remains available from the civilization surface
   
-01:14 +55 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/responsive_presentation_test.dart: small screens use compact scale
-01:14 +56 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/responsive_presentation_test.dart: medium screens use standard scale
-01:14 +57 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/responsive_presentation_test.dart: large screens use expanded scale
-01:14 +58 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/responsive_presentation_test.dart: responsive adaptation preserves presentation state
-01:14 +59 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/runtime_presentation_state_test.dart: decodes a Python presentation contract
-01:14 +60 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/runtime_presentation_state_test.dart: rejects an unsupported contract version
-01:14 +61 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/runtime_presentation_state_test.dart: rejects an unsupported character state
-01:16 +62 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/s3_interaction_test.dart: Bloom exposes capability gateway and activates Analyze
-01:19 +63 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_environment_contract_test.dart: S7 exposes exactly three workspaces and no S7 Home
-01:19 +64 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_environment_contract_test.dart: S7 exposes exactly three workspaces and no S7 Home
-01:21 +65 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/s3_interaction_test.dart: Syvax accepts suggested input and submits it
-01:24 +66 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_functional_layer_test.dart: Vivren and Tarkis retain distinct state-machine semantics
-01:24 +67 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_functional_layer_test.dart: visualization factory maps room semantics without losing source identity
-01:30 +68 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_local_nlp_evolution_test.dart: classifies evidence request deterministically
-01:30 +69 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_local_nlp_evolution_test.dart: classifies alternatives as an exploration intent
-01:30 +69 -6: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_local_nlp_evolution_test.dart: classifies alternatives as an exploration intent [E]
+00:52 +64 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/s3_interaction_test.dart: Bloom keeps future capabilities visibly reserved
+00:52 +65 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_environment_contract_test.dart: S7 exposes exactly three workspaces and no S7 Home
+00:54 +66 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_environment_contract_test.dart: S7 exposes exactly three workspaces and no S7 Home
+00:57 +67 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_functional_layer_test.dart: Vivren and Tarkis retain distinct state-machine semantics
+00:57 +68 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_functional_layer_test.dart: visualization factory maps room semantics without losing source identity
+00:58 +69 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_local_nlp_evolution_test.dart: classifies evidence request deterministically
+00:58 +70 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_local_nlp_evolution_test.dart: classifies alternatives as an exploration intent
+00:58 +70 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_local_nlp_evolution_test.dart: classifies alternatives as an exploration intent [E]
   Expected: 'FIND_ALTERNATIVES'
     Actual: 'EXPLORE_HYPOTHESIS'
      Which: is different.
@@ -1903,10 +2587,10 @@ The test description was:
   package:flutter_test/src/widget_tester.dart 473:18  expect
   test\s7_local_nlp_evolution_test.dart 22:5          main.<fn>
   
-01:30 +69 -6: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_local_nlp_evolution_test.dart: classifies hypothesis comparison as a comparison intent
-01:30 +70 -6: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_local_nlp_evolution_test.dart: resolves a follow-up reference from conversation state
-01:30 +71 -6: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_local_nlp_evolution_test.dart: conversation engine preserves context across turns
-01:30 +71 -7: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_local_nlp_evolution_test.dart: conversation engine preserves context across turns [E]
+00:58 +70 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_local_nlp_evolution_test.dart: classifies hypothesis comparison as a comparison intent
+00:58 +71 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_local_nlp_evolution_test.dart: resolves a follow-up reference from conversation state
+00:58 +72 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_local_nlp_evolution_test.dart: conversation engine preserves context across turns
+00:58 +72 -6: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_local_nlp_evolution_test.dart: conversation engine preserves context across turns [E]
   Expected: 'FIND_ALTERNATIVES'
     Actual: 'EXPLORE_HYPOTHESIS'
      Which: is different.
@@ -1919,8 +2603,8 @@ The test description was:
   package:flutter_test/src/widget_tester.dart 473:18  expect
   test\s7_local_nlp_evolution_test.dart 51:5          main.<fn>
   
-01:32 +71 -7: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: character tap opens inspectable profile card
-01:37 +71 -7: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_evidence_bureau_test.dart: renders exactly four S8 rooms
+00:59 +72 -6: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: character tap opens inspectable profile card
+01:06 +72 -6: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_evidence_bureau_test.dart: renders exactly four S8 rooms
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following TestFailure was thrown running a test:
 Expected: exactly one matching candidate
@@ -1950,12 +2634,12 @@ This was caught by the test expectation on the following line:
 The test description was:
   renders exactly four S8 rooms
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-01:37 +71 -8: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: character tap opens inspectable profile card
-01:37 +71 -8: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_evidence_bureau_test.dart: renders exactly four S8 rooms [E]
+01:06 +72 -7: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: character tap opens inspectable profile card
+01:06 +72 -7: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_evidence_bureau_test.dart: renders exactly four S8 rooms [E]
   Test failed. See exception logs above.
   The test description was: renders exactly four S8 rooms
   
-01:39 +71 -8: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_evidence_bureau_test.dart: switches between rooms
+01:07 +72 -7: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_evidence_bureau_test.dart: switches between rooms
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following TestFailure was thrown running a test:
 Expected: exactly one matching candidate
@@ -1977,12 +2661,12 @@ This was caught by the test expectation on the following line:
 The test description was:
   switches between rooms
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-01:39 +71 -9: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: character tap opens inspectable profile card
-01:39 +71 -9: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_evidence_bureau_test.dart: switches between rooms [E]
+01:07 +72 -8: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: character tap opens inspectable profile card
+01:07 +72 -8: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_evidence_bureau_test.dart: switches between rooms [E]
   Test failed. See exception logs above.
   The test description was: switches between rooms
   
-01:40 +71 -9: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_evidence_bureau_test.dart: detail view exposes S8 boundaries
+01:09 +72 -8: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_evidence_bureau_test.dart: detail view exposes S8 boundaries
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following assertion was thrown running a test:
 The finder "Found 0 widgets with widget matching predicate: []" (used in a call to "tap()") could
@@ -2004,12 +2688,12 @@ When the exception was thrown, this was the stack:
 The test description was:
   detail view exposes S8 boundaries
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-01:40 +71 -10: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: character tap opens inspectable profile card
-01:40 +71 -10: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_evidence_bureau_test.dart: detail view exposes S8 boundaries [E]
+01:09 +72 -9: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: character tap opens inspectable profile card
+01:09 +72 -9: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_evidence_bureau_test.dart: detail view exposes S8 boundaries [E]
   Test failed. See exception logs above.
   The test description was: detail view exposes S8 boundaries
   
-01:47 +71 -10: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_presentation_test.dart: S8 opens on Home with three specialist identities
+01:16 +72 -9: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_presentation_test.dart: S8 opens on Home with three specialist identities
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following TestFailure was thrown running a test:
 Expected: exactly one matching candidate
@@ -2039,12 +2723,12 @@ This was caught by the test expectation on the following line:
 The test description was:
   S8 opens on Home with three specialist identities
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-01:47 +71 -11: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: character tap opens inspectable profile card
-01:47 +71 -11: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_presentation_test.dart: S8 opens on Home with three specialist identities [E]
+01:16 +72 -10: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: character tap opens inspectable profile card
+01:16 +72 -10: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_presentation_test.dart: S8 opens on Home with three specialist identities [E]
   Test failed. See exception logs above.
   The test description was: S8 opens on Home with three specialist identities
   
-01:49 +71 -11: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_presentation_test.dart: S8 supports room navigation and artifact inspection
+01:17 +72 -10: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_presentation_test.dart: S8 supports room navigation and artifact inspection
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following assertion was thrown running a test:
 The finder "Found 2 widgets with text "Veridat": [
@@ -2074,12 +2758,12 @@ When the exception was thrown, this was the stack:
 The test description was:
   S8 supports room navigation and artifact inspection
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-01:49 +71 -12: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: character tap opens inspectable profile card
-01:49 +71 -12: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_presentation_test.dart: S8 supports room navigation and artifact inspection [E]
+01:17 +72 -11: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: character tap opens inspectable profile card
+01:17 +72 -11: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_presentation_test.dart: S8 supports room navigation and artifact inspection [E]
   Test failed. See exception logs above.
   The test description was: S8 supports room navigation and artifact inspection
   
-01:59 +71 -12: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: character tap opens inspectable profile card
+01:23 +72 -11: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: character tap opens inspectable profile card
 ══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
 The following assertion was thrown during layout:
 A RenderFlex overflowed by 19 pixels on the right.
@@ -2097,9 +2781,9 @@ This is considered an error condition because it indicates that there is content
 seen. If the content is legitimately bigger than the available space, consider clipping it with a
 ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex,
 like a ListView.
-The specific RenderFlex in question is: RenderFlex#ae80e relayoutBoundary=up14 OVERFLOWING:
+The specific RenderFlex in question is: RenderFlex#43fd3 relayoutBoundary=up14 OVERFLOWING:
   creator: Row ← Column ← Padding ← Semantics ← DefaultTextStyle ← AnimatedDefaultTextStyle ←
-    _InkFeatures-[GlobalKey#fdfc7 ink renderer] ← NotificationListener<LayoutChangedNotification> ←
+    _InkFeatures-[GlobalKey#6ea9f ink renderer] ← NotificationListener<LayoutChangedNotification> ←
     CustomPaint ← _ShapeBorderPaint ← PhysicalShape ← _MaterialInterior ← ⋯
   parentData: offset=Offset(0.0, 0.0); flex=null; fit=null (can use size)
   constraints: BoxConstraints(0.0<=w<=519.0, 0.0<=h<=Infinity)
@@ -2139,13 +2823,13 @@ The following message was thrown:
 Multiple exceptions (2) were detected during the running of the current test, and at least one was
 unexpected.
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-01:59 +71 -13: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_presentation_test.dart: S8 exposes the human challenge arena
-01:59 +71 -13: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: character tap opens inspectable profile card [E]
+01:23 +72 -12: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_presentation_test.dart: S8 exposes the human challenge arena
+01:23 +72 -12: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: character tap opens inspectable profile card [E]
   Test failed. See exception logs above.
   The test description was: character tap opens inspectable profile card
   
-01:59 +72 -13: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_presentation_test.dart: S8 exposes the human challenge arena
-02:16 +72 -13: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: each specialist room keeps its current character presentation
+01:24 +73 -12: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_presentation_test.dart: S8 exposes the human challenge arena
+01:39 +73 -12: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: each specialist room keeps its current character presentation
 ══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
 The following assertion was thrown during layout:
 A RenderFlex overflowed by 19 pixels on the right.
@@ -2163,9 +2847,9 @@ This is considered an error condition because it indicates that there is content
 seen. If the content is legitimately bigger than the available space, consider clipping it with a
 ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex,
 like a ListView.
-The specific RenderFlex in question is: RenderFlex#6f83b relayoutBoundary=up14 OVERFLOWING:
+The specific RenderFlex in question is: RenderFlex#24448 relayoutBoundary=up14 OVERFLOWING:
   creator: Row ← Column ← Padding ← Semantics ← DefaultTextStyle ← AnimatedDefaultTextStyle ←
-    _InkFeatures-[GlobalKey#dd69c ink renderer] ← NotificationListener<LayoutChangedNotification> ←
+    _InkFeatures-[GlobalKey#7be33 ink renderer] ← NotificationListener<LayoutChangedNotification> ←
     CustomPaint ← _ShapeBorderPaint ← PhysicalShape ← _MaterialInterior ← ⋯
   parentData: offset=Offset(0.0, 0.0); flex=null; fit=null (can use size)
   constraints: BoxConstraints(0.0<=w<=519.0, 0.0<=h<=Infinity)
@@ -2205,20 +2889,20 @@ The following message was thrown:
 Multiple exceptions (2) were detected during the running of the current test, and at least one was
 unexpected.
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-02:16 +72 -14: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_presentation_test.dart: S8 exposes the human challenge arena
-02:16 +72 -14: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: each specialist room keeps its current character presentation [E]
+01:39 +73 -13: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_presentation_test.dart: S8 exposes the human challenge arena
+01:39 +73 -13: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: each specialist room keeps its current character presentation [E]
   Test failed. See exception logs above.
   The test description was: each specialist room keeps its current character presentation
   
-02:18 +72 -14: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_presentation_test.dart: S8 exposes the human challenge arena
+01:43 +73 -13: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_presentation_test.dart: S8 exposes the human challenge arena
 
 Warning: A call to tap() with finder "Found 1 widget with text "Open Challenge Arena": [
   Text("Open Challenge Arena", dependencies: [DefaultSelectionStyle, DefaultTextStyle, MediaQuery]),
 ]" derived an Offset (Offset(492.5, 1784.0)) that would not hit test on the specified widget.
 Maybe the widget is actually off-screen, or another widget is obscuring it, or the widget cannot receive pointer events.
 Indeed, Offset(492.5, 1784.0) is outside the bounds of the root of the render tree, Size(800.0, 600.0).
-The finder corresponds to this RenderBox: RenderParagraph#0c8b0 relayoutBoundary=up20
-The hit test result at that offset is: HitTestResult(HitTestEntry<HitTestTarget>#50898(_ReusableRenderView#35489), HitTestEntry<HitTestTarget>#93ba2(<AutomatedTestWidgetsFlutterBinding>))
+The finder corresponds to this RenderBox: RenderParagraph#7bcb2 relayoutBoundary=up20
+The hit test result at that offset is: HitTestResult(HitTestEntry<HitTestTarget>#bbc68(_ReusableRenderView#ffcd0), HitTestEntry<HitTestTarget>#e10ce(<AutomatedTestWidgetsFlutterBinding>))
 #0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2165:25)
 #1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1947:12)
 #2      WidgetController.tap (package:flutter_test/src/controller.dart:1080:7)
@@ -2254,18 +2938,18 @@ When the exception was thrown, this was the stack:
 The test description was:
   S8 exposes the human challenge arena
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-02:18 +72 -15: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
-02:18 +72 -15: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_presentation_test.dart: S8 exposes the human challenge arena [E]
+01:43 +73 -14: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
+01:43 +73 -14: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_presentation_test.dart: S8 exposes the human challenge arena [E]
   Test failed. See exception logs above.
   The test description was: S8 exposes the human challenge arena
   
-02:22 +73 -15: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
-02:22 +74 -15: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
-02:22 +75 -15: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
-02:22 +76 -15: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
-02:22 +77 -15: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
-02:31 +78 -15: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
-02:32 +78 -15: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_character_system_test.dart: profile overlay exposes identity and current state
+01:45 +74 -14: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
+01:45 +75 -14: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
+01:45 +76 -14: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
+01:45 +77 -14: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
+01:45 +78 -14: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
+01:50 +79 -14: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
+01:51 +79 -14: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_character_system_test.dart: profile overlay exposes identity and current state
 Pending timers:
 Timer (duration: 0:00:00.000000, periodic: false), created:
 #0      new FakeTimer._ (package:fake_async/fake_async.dart:342:62)
@@ -2381,12 +3065,12 @@ When the exception was thrown, this was the stack:
 The test description was:
   profile overlay exposes identity and current state
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-02:32 +78 -16: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
-02:32 +78 -16: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_character_system_test.dart: profile overlay exposes identity and current state [E]
+01:51 +79 -15: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
+01:51 +79 -15: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_character_system_test.dart: profile overlay exposes identity and current state [E]
   Test failed. See exception logs above.
   The test description was: profile overlay exposes identity and current state
   
-02:33 +78 -16: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_character_system_test.dart: profile can be dragged without changing authoritative character state
+01:51 +79 -15: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_character_system_test.dart: profile can be dragged without changing authoritative character state
 Pending timers:
 Timer (duration: 0:00:00.000000, periodic: false), created:
 #0      new FakeTimer._ (package:fake_async/fake_async.dart:342:62)
@@ -2502,24 +3186,63 @@ When the exception was thrown, this was the stack:
 The test description was:
   profile can be dragged without changing authoritative character state
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-02:33 +78 -17: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
-02:33 +78 -17: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_character_system_test.dart: profile can be dragged without changing authoritative character state [E]
+01:51 +79 -16: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
+01:51 +79 -16: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_character_system_test.dart: profile can be dragged without changing authoritative character state [E]
   Test failed. See exception logs above.
   The test description was: profile can be dragged without changing authoritative character state
   
-02:35 +79 -17: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
-02:35 +80 -17: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
-02:35 +81 -17: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
-02:35 +82 -17: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
-02:35 +83 -17: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
+01:53 +80 -16: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
+01:53 +81 -16: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
+01:53 +82 -16: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
+01:53 +83 -16: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
+01:53 +84 -16: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
+01:57 +84 -16: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: renders the four specialist rooms plus Home hub
+══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
+The following assertion was thrown during layout:
+A RenderFlex overflowed by 18 pixels on the bottom.
+
+The relevant error-causing widget was:
+  Column
+  Column:file:///F:/Rsearch%20Project/Criterivox-S4/presentation/lib/s8_four_room_bureau.dart:74:54
+
+The overflowing RenderFlex has an orientation of Axis.vertical.
+The edge of the RenderFlex that is overflowing has been marked in the rendering with a yellow and
+black striped pattern. This is usually caused by the contents being too big for the RenderFlex.
+Consider applying a flex factor (e.g. using an Expanded widget) to force the children of the
+RenderFlex to fit within the available space instead of being sized to their natural size.
+This is considered an error condition because it indicates that there is content that cannot be
+seen. If the content is legitimately bigger than the available space, consider clipping it with a
+ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex,
+like a ListView.
+The specific RenderFlex in question is: RenderFlex#a06e9 relayoutBoundary=up1 OVERFLOWING:
+  creator: Column ← Expanded ← Row ← Padding ← DecoratedBox ← ConstrainedBox ← Container ←
+    AnimatedContainer ← Listener ← RawGestureDetector ← GestureDetector ← Semantics ← ⋯
+  parentData: offset=Offset(48.0, 0.0); flex=1; fit=FlexFit.tight (can use size)
+  constraints: BoxConstraints(w=114.0, 0.0<=h<=56.0)
+  size: Size(114.0, 56.0)
+  direction: vertical
+  mainAxisAlignment: center
+  mainAxisSize: max
+  crossAxisAlignment: start
+  textDirection: ltr
+  verticalDirection: down
+  spacing: 0.0
+◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤
+════════════════════════════════════════════════════════════════════════════════════════════════════
+01:57 +84 -17: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
+01:57 +84 -17: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: renders the four specialist rooms plus Home hub [E]
+  Test failed. See exception logs above.
+  The test description was: renders the four specialist rooms plus Home hub
+  
+02:01 +84 -17: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home
 
 Warning: A call to tap() with finder "Found 1 widget with text "Open Challenge Arena": [
   Text("Open Challenge Arena", dependencies: [DefaultSelectionStyle, DefaultTextStyle, MediaQuery]),
 ]" derived an Offset (Offset(492.5, 1784.0)) that would not hit test on the specified widget.
 Maybe the widget is actually off-screen, or another widget is obscuring it, or the widget cannot receive pointer events.
 Indeed, Offset(492.5, 1784.0) is outside the bounds of the root of the render tree, Size(800.0, 600.0).
-The finder corresponds to this RenderBox: RenderParagraph#396b5 relayoutBoundary=up20
-The hit test result at that offset is: HitTestResult(HitTestEntry<HitTestTarget>#763b6(_ReusableRenderView#91637), HitTestEntry<HitTestTarget>#5fb2c(<AutomatedTestWidgetsFlutterBinding>))
+The finder corresponds to this RenderBox: RenderParagraph#a611c relayoutBoundary=up20
+The hit test result at that offset is: HitTestResult(HitTestEntry<HitTestTarget>#af2ea(_ReusableRenderView#ab634), HitTestEntry<HitTestTarget>#16ca8(<AutomatedTestWidgetsFlutterBinding>))
 #0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2165:25)
 #1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1947:12)
 #2      WidgetController.tap (package:flutter_test/src/controller.dart:1080:7)
@@ -2555,69 +3278,60 @@ When the exception was thrown, this was the stack:
 The test description was:
   presentation room can be opened from the S8 home
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-02:36 +83 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home [E]
+02:01 +84 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:01 +84 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8/s8_character_environment_test.dart: presentation room can be opened from the S8 home [E]
   Test failed. See exception logs above.
   The test description was: presentation room can be opened from the S8 home
   
-02:37 +83 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: renders the four specialist rooms plus Home hub
-02:38 +84 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: renders the four specialist rooms plus Home hub
-02:38 +85 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: renders the four specialist rooms plus Home hub
-══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
-The following assertion was thrown during layout:
-A RenderFlex overflowed by 18 pixels on the bottom.
+02:03 +85 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:03 +86 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:05 +87 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:05 +88 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:05 +89 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:05 +90 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:05 +91 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:07 +92 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:07 +93 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:07 +94 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:07 +95 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:09 +96 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:09 +97 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:09 +98 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:10 +99 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:10 +100 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:12 +101 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:13 +102 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:14 +103 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:14 +104 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:15 +105 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:24 +105 -18: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: Criterivox opens on Bloom and exposes navigation
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Character Chat": []>
+   Which: means none were found but one was expected
 
-The relevant error-causing widget was:
-  Column
-  Column:file:///F:/Rsearch%20Project/Criterivox-S4/presentation/lib/s8_four_room_bureau.dart:74:54
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/widget_test.dart:22:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
 
-The overflowing RenderFlex has an orientation of Axis.vertical.
-The edge of the RenderFlex that is overflowing has been marked in the rendering with a yellow and
-black striped pattern. This is usually caused by the contents being too big for the RenderFlex.
-Consider applying a flex factor (e.g. using an Expanded widget) to force the children of the
-RenderFlex to fit within the available space instead of being sized to their natural size.
-This is considered an error condition because it indicates that there is content that cannot be
-seen. If the content is legitimately bigger than the available space, consider clipping it with a
-ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex,
-like a ListView.
-The specific RenderFlex in question is: RenderFlex#abe51 relayoutBoundary=up1 OVERFLOWING:
-  creator: Column ← Expanded ← Row ← Padding ← DecoratedBox ← ConstrainedBox ← Container ←
-    AnimatedContainer ← Listener ← RawGestureDetector ← GestureDetector ← Semantics ← ⋯
-  parentData: offset=Offset(48.0, 0.0); flex=1; fit=FlexFit.tight (can use size)
-  constraints: BoxConstraints(w=114.0, 0.0<=h<=56.0)
-  size: Size(114.0, 56.0)
-  direction: vertical
-  mainAxisAlignment: center
-  mainAxisSize: max
-  crossAxisAlignment: start
-  textDirection: ltr
-  verticalDirection: down
-  spacing: 0.0
-◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤
+This was caught by the test expectation on the following line:
+  file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/widget_test.dart line 22
+The test description was:
+  Criterivox opens on Bloom and exposes navigation
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-02:40 +85 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: renders the four specialist rooms plus Home hub [E]
+02:24 +105 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:24 +105 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: Criterivox opens on Bloom and exposes navigation [E]
   Test failed. See exception logs above.
-  The test description was: renders the four specialist rooms plus Home hub
+  The test description was: Criterivox opens on Bloom and exposes navigation
   
-02:40 +85 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
-02:41 +86 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
-02:41 +87 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
-02:41 +88 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
-02:41 +89 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
-02:41 +90 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
-02:44 +91 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
-02:44 +92 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
-02:44 +93 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
-02:44 +94 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
-02:48 +95 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
-02:48 +96 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
-02:48 +97 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
-02:52 +98 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
-02:52 +99 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
-02:56 +100 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
-02:58 +101 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
-02:58 +102 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
-02:58 +103 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
-03:01 +104 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
+02:24 +105 -19: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment
 ══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
 The following assertion was thrown during layout:
 A RenderFlex overflowed by 18 pixels on the bottom.
@@ -2635,7 +3349,7 @@ This is considered an error condition because it indicates that there is content
 seen. If the content is legitimately bigger than the available space, consider clipping it with a
 ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex,
 like a ListView.
-The specific RenderFlex in question is: RenderFlex#353f3 relayoutBoundary=up1 OVERFLOWING:
+The specific RenderFlex in question is: RenderFlex#5d59b relayoutBoundary=up1 OVERFLOWING:
   creator: Column ← Expanded ← Row ← Padding ← DecoratedBox ← ConstrainedBox ← Container ←
     AnimatedContainer ← Listener ← RawGestureDetector ← GestureDetector ← Semantics ← ⋯
   parentData: offset=Offset(48.0, 0.0); flex=1; fit=FlexFit.tight (can use size)
@@ -2676,38 +3390,12 @@ The following message was thrown:
 Multiple exceptions (2) were detected during the running of the current test, and at least one was
 unexpected.
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-03:08 +104 -20: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: Criterivox opens on Bloom and exposes navigation
-03:08 +104 -20: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment [E]
+02:24 +105 -20: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: navigation moves to the real workspace and chat surfaces
+02:24 +105 -20: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_four_room_bureau_test.dart: room selection changes the active environment [E]
   Test failed. See exception logs above.
   The test description was: room selection changes the active environment
   
-03:12 +104 -20: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: Criterivox opens on Bloom and exposes navigation
-══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
-The following TestFailure was thrown running a test:
-Expected: exactly one matching candidate
-  Actual: _TextWidgetFinder:<Found 0 widgets with text "Character Chat": []>
-   Which: means none were found but one was expected
-
-When the exception was thrown, this was the stack:
-#4      main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/widget_test.dart:22:7)
-<asynchronous suspension>
-#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
-<asynchronous suspension>
-#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
-<asynchronous suspension>
-<asynchronous suspension>
-(elided one frame from package:stack_trace)
-
-This was caught by the test expectation on the following line:
-  file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/widget_test.dart line 22
-The test description was:
-  Criterivox opens on Bloom and exposes navigation
-════════════════════════════════════════════════════════════════════════════════════════════════════
-03:12 +104 -21: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: Criterivox opens on Bloom and exposes navigation [E]
-  Test failed. See exception logs above.
-  The test description was: Criterivox opens on Bloom and exposes navigation
-  
-03:12 +104 -21: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: navigation moves to the real workspace and chat surfaces
+02:26 +105 -20: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: navigation moves to the real workspace and chat surfaces
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following TestFailure was thrown running a test:
 Expected: exactly one matching candidate
@@ -2736,12 +3424,12 @@ This was caught by the test expectation on the following line:
 The test description was:
   navigation moves to the real workspace and chat surfaces
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-03:14 +104 -22: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: navigation moves to the real workspace and chat surfaces [E]
+02:26 +105 -21: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: navigation moves to the real workspace and chat surfaces [E]
   Test failed. See exception logs above.
   The test description was: navigation moves to the real workspace and chat surfaces
   
-03:14 +104 -22: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: Bloom Analyze expands only its currently implemented paths
-03:15 +105 -22: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: App Introduction explains characters and implemented capabilities
+02:26 +105 -21: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: Bloom Analyze expands only its currently implemented paths
+02:27 +106 -21: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: App Introduction explains characters and implemented capabilities
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following TestFailure was thrown running a test:
 Expected: exactly one matching candidate
@@ -2763,15 +3451,15 @@ This was caught by the test expectation on the following line:
 The test description was:
   App Introduction explains characters and implemented capabilities
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-03:17 +105 -23: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: App Introduction explains characters and implemented capabilities [E]
+02:29 +106 -22: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: App Introduction explains characters and implemented capabilities [E]
   Test failed. See exception logs above.
   The test description was: App Introduction explains characters and implemented capabilities
   
-03:18 +105 -23: Some tests failed.
+02:29 +106 -22: Some tests failed.
 
 Failing tests:
-  F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: character presentation renders identity and idle state
   F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Home preview is explicitly a Gate 1 read-model boundary
   F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: responsive civilization keeps information available on compact view
   F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat launcher remains available from the civilization surface
-  ... and 19 more
+  F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+  ... and 18 more

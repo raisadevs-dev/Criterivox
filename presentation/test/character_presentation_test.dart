@@ -1,7 +1,9 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:presentation/character/character_presentation.dart';
+import 'package:presentation/character/character_runtime_flutter.dart';
 import 'package:presentation/presentation/presentation_state.dart';
 
 void main() {
@@ -16,14 +18,30 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(body: CharacterPresentation(state: state)),
+          home: Scaffold(
+            body: CharacterPresentation(
+              state: state,
+            ),
+          ),
         ),
       );
 
       expect(find.text('Dharen'), findsOneWidget);
-      expect(find.text('Context Architecture'), findsOneWidget);
+      expect(
+        find.text('Context Architecture'),
+        findsOneWidget,
+      );
       expect(find.text('IDLE'), findsOneWidget);
-      expect(find.text('Final character artwork coming soon'), findsOneWidget);
+
+      expect(
+        find.byType(CharacterRuntimeView),
+        findsOneWidget,
+      );
+
+      expect(
+        find.text('Final character artwork coming soon'),
+        findsNothing,
+      );
     },
   );
 
@@ -38,13 +56,25 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(body: CharacterPresentation(state: state)),
+          home: Scaffold(
+            body: CharacterPresentation(
+              state: state,
+            ),
+          ),
         ),
       );
 
       expect(find.text('Vivren'), findsOneWidget);
-      expect(find.text('Discernment'), findsOneWidget);
+      expect(
+        find.text('Discernment'),
+        findsOneWidget,
+      );
       expect(find.text('IDLE'), findsOneWidget);
+
+      expect(
+        find.byType(CharacterRuntimeView),
+        findsOneWidget,
+      );
     },
   );
 
@@ -59,13 +89,25 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(body: CharacterPresentation(state: state)),
+          home: Scaffold(
+            body: CharacterPresentation(
+              state: state,
+            ),
+          ),
         ),
       );
 
       expect(find.text('Dharen'), findsOneWidget);
-      expect(find.text('Context Architecture'), findsOneWidget);
+      expect(
+        find.text('Context Architecture'),
+        findsOneWidget,
+      );
       expect(find.text('IDLE'), findsOneWidget);
+
+      expect(
+        find.byType(CharacterRuntimeView),
+        findsOneWidget,
+      );
     },
   );
 
@@ -81,13 +123,25 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(body: CharacterPresentation(state: state)),
+          home: Scaffold(
+            body: CharacterPresentation(
+              state: state,
+            ),
+          ),
         ),
       );
 
       expect(find.text('Dharen'), findsOneWidget);
-      expect(find.text('Context Architecture'), findsOneWidget);
+      expect(
+        find.text('Context Architecture'),
+        findsOneWidget,
+      );
       expect(find.text('WORK'), findsOneWidget);
+
+      expect(
+        find.byType(CharacterRuntimeView),
+        findsOneWidget,
+      );
     },
   );
 }

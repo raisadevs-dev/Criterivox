@@ -1315,10 +1315,10 @@ class _Level2OperationalPageState extends State<Level2OperationalPage> {
     }
 
     if (selected != null &&
-        selected!.truth == Level2Truth.researchPrototype &&
+        selected.truth == Level2Truth.researchPrototype &&
         widget.homeId == 'reasoning') {
       return _EmbeddedResearch(
-        title: selected!.name,
+        title: selected.name,
         subtitle:
             'S7 boundary · authoritative reasoning artifacts remain outside the presentation layer',
         child: const S7EnvironmentPage(),
@@ -1327,10 +1327,10 @@ class _Level2OperationalPageState extends State<Level2OperationalPage> {
     }
 
     if (selected != null &&
-        selected!.truth == Level2Truth.researchPrototype &&
+        selected.truth == Level2Truth.researchPrototype &&
         widget.homeId == 'evidence') {
       return _EmbeddedResearch(
-        title: selected!.name,
+        title: selected.name,
         subtitle:
             'S8 boundary · synthetic standalone evidence bureau; no live claim is implied',
         child: const S8EvidenceBureauPage(),

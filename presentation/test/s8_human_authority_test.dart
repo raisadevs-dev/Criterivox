@@ -56,17 +56,17 @@ void main() {
         temporal: '2026-09-17',
       );
 
-      final snapshot = S8PresentationSnapshot(
+      const snapshot = S8PresentationSnapshot(
         synthetic: false,
         sessionLabel: 'test',
         lifecycleLabel: 'verification',
-        artifacts: const [
+        artifacts: [
           artifact,
         ],
-        recentEvents: const [],
-        unknowns: const [],
-        humanActions: const [],
-        medrus: const S8CharacterState(
+        recentEvents: [],
+        unknowns: [],
+        humanActions: [],
+        medrus: S8CharacterState(
           name: 'Medrus',
           role: 'Evidence & Memory',
           visualMetaphor: 'evidence',
@@ -74,7 +74,7 @@ void main() {
           activityLabel: 'IDLE',
           accent: Color(0xFF00FFFF),
         ),
-        epistre: const S8CharacterState(
+        epistre: S8CharacterState(
           name: 'Epistre',
           role: 'Provenance & Explanation',
           visualMetaphor: 'provenance',
@@ -82,7 +82,7 @@ void main() {
           activityLabel: 'IDLE',
           accent: Color(0xFFAA66FF),
         ),
-        veridat: const S8CharacterState(
+        veridat: S8CharacterState(
           name: 'Veridat',
           role: 'Verification & Truth Boundary',
           visualMetaphor: 'verification',
