@@ -8,14 +8,14 @@ import 'bloom_page.dart';
 import 'civilization_page.dart';
 import 'civilization_home_preview_page.dart';
 import 'level2_operational_page.dart';
-import 'world_portal_page.dart';
+import 'world_portal_page.dart' hide CivilizationPage;
 import 'human_residence_entry_page.dart';
 import 'private_room_page.dart';
 import 'collaboration_room_page.dart';
 import 'chat/character_chat_page.dart';
 import 'context/home02_context_console.dart';
 import 'interaction/bloom.dart';
-import 'presentation/criterivox_theme.dart';
+import 'presentation/criterivox_theme.dart' as criterivox_theme;
 import 'presentation/presentation_state.dart';
 import 'presentation/runtime_client.dart';
 import 'stewardship_live_workspace_page.dart';
@@ -41,20 +41,20 @@ class CriterivoxShell extends StatefulWidget {
 }
 
 class _ShellState extends State<CriterivoxShell> {
-  late final CharacterRuntimeClient runtime =
-      widget.runtimeClient ?? CharacterRuntimeClient();
+  late CharacterRuntimeClient runtime;
 
-  final ScrollController _sidebarScrollController = ScrollController();
+  final ScrollController _sidebarScrollController =
+      ScrollController();
 
-  final task = TextEditingController(
+  final TextEditingController task = TextEditingController(
     text: 'Analyze the supplied information in its current context.',
   );
 
-  final data = TextEditingController(
+  final TextEditingController data = TextEditingController(
     text: 'Local sample dataset',
   );
 
-  final ctx = TextEditingController(
+  final TextEditingController ctx = TextEditingController(
     text: 'Synthetic local research context',
   );
 
@@ -63,21 +63,27 @@ class _ShellState extends State<CriterivoxShell> {
 
   String page = 'bloom';
   String chatTarget = 'dharen';
+
   bool busy = false;
   bool railOpen = true;
   bool chatOverlayOpen = false;
+
   String? sandboxId;
   String? civilizationHome;
 
-  late final StreamSubscription<PresentationState> _stateSubscription;
-  late final StreamSubscription<String> _errorSubscription;
-  late final StreamSubscription<Map<String, dynamic>> _contextSubscription;
-  late final StreamSubscription<Map<String, dynamic>> _operationSubscription;
+  late StreamSubscription<PresentationState> _stateSubscription;
+  late StreamSubscription<String> _errorSubscription;
+  late StreamSubscription<Map<String, dynamic>> _contextSubscription;
+  late StreamSubscription<Map<String, dynamic>> _operationSubscription;
+
   Map<String, dynamic>? operationState;
 
   @override
   void initState() {
     super.initState();
+
+    runtime =
+        widget.runtimeClient ?? CharacterRuntimeClient();
 
     _stateSubscription = runtime.states.listen((value) {
       if (!mounted) {
@@ -105,28 +111,41 @@ class _ShellState extends State<CriterivoxShell> {
         return;
       }
 
-      setState(() => busy = false);
+      setState(() {
+        busy = false;
+      });
 
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          SnackBar(content: Text(error)),
+          SnackBar(
+            content: Text(error),
+          ),
         );
     });
 
-    _operationSubscription = runtime.operationEvents.listen((event) {
-      if (!mounted) return;
-      setState(() => operationState = event);
-    });
-
-    _contextSubscription = runtime.contextEvents.listen((event) {
+    _operationSubscription =
+        runtime.operationEvents.listen((event) {
       if (!mounted) {
         return;
       }
 
-      if (event['sandbox_id'] != null) {
+      setState(() {
+        operationState = event;
+      });
+    });
+
+    _contextSubscription =
+        runtime.contextEvents.listen((event) {
+      if (!mounted) {
+        return;
+      }
+
+      final incomingSandboxId = event['sandbox_id'];
+
+      if (incomingSandboxId != null) {
         setState(() {
-          sandboxId = '${event['sandbox_id']}';
+          sandboxId = '$incomingSandboxId';
         });
       }
     });
@@ -144,7 +163,7 @@ class _ShellState extends State<CriterivoxShell> {
     _operationSubscription.cancel();
 
     if (widget.runtimeClient == null) {
-      runtime.dispose();
+      unawaited(runtime.dispose());
     }
 
     _sidebarScrollController.dispose();
@@ -156,7 +175,9 @@ class _ShellState extends State<CriterivoxShell> {
   }
 
   void open(String value) {
-    setState(() => page = value);
+    setState(() {
+      page = value;
+    });
   }
 
   void showReserved(String capability) {
@@ -171,28 +192,36 @@ class _ShellState extends State<CriterivoxShell> {
       );
   }
 
-  void handleBloomCapability(BloomCapability capability) {
+  void handleBloomCapability(
+    BloomCapability capability,
+  ) {
     if (capability == BloomCapability.stewardship) {
       open('stewardship');
       return;
     }
 
     if (capability != BloomCapability.analyze) {
-      showReserved(Bloom.labels[capability]!);
+      showReserved(
+        Bloom.labels[capability] ?? capability.name,
+      );
     }
   }
 
   void handoffFromBloom() {
     final id = state?.foundationId;
-    final confirmed = state?.foundationConfirmation == 'user-confirmed' ||
-        state?.foundationConfirmation == 'user-corrected';
+
+    final confirmed =
+        state?.foundationConfirmation == 'user-confirmed' ||
+            state?.foundationConfirmation == 'user-corrected';
 
     if (id == null || !confirmed) {
       open('stewardship');
       return;
     }
 
-    setState(() => busy = true);
+    setState(() {
+      busy = true;
+    });
 
     runtime.dataAction(
       foundationId: id,
@@ -232,7 +261,9 @@ class _ShellState extends State<CriterivoxShell> {
       return;
     }
 
-    setState(() => busy = true);
+    setState(() {
+      busy = true;
+    });
 
     runtime.activateContextManually(
       foundationId: id,
@@ -299,7 +330,10 @@ class _ShellState extends State<CriterivoxShell> {
 
     if (id != null) {
       runtime.discardSandbox(id);
-      setState(() => sandboxId = null);
+
+      setState(() {
+        sandboxId = null;
+      });
     }
   }
 
@@ -345,7 +379,9 @@ class _ShellState extends State<CriterivoxShell> {
       return;
     }
 
-    setState(() => busy = true);
+    setState(() {
+      busy = true;
+    });
 
     runtime.requestApplication(
       intent: 'analyze',
@@ -364,17 +400,25 @@ class _ShellState extends State<CriterivoxShell> {
   }
 
   void _openHome(String home) {
-    setState(() => civilizationHome = home);
+    setState(() {
+      civilizationHome = home;
+    });
+
     open('home-preview');
   }
 
   void _openLevel2(String home) {
-    setState(() => civilizationHome = home);
+    setState(() {
+      civilizationHome = home;
+    });
+
     open('level2');
   }
 
   void toggleGlobalChat() {
-    setState(() => chatOverlayOpen = !chatOverlayOpen);
+    setState(() {
+      chatOverlayOpen = !chatOverlayOpen;
+    });
   }
 
   void chatWith(String agent) {
@@ -386,7 +430,7 @@ class _ShellState extends State<CriterivoxShell> {
 
   @override
   Widget build(BuildContext context) {
-    final t = CriterivoxTheme.of(context);
+    final t = criterivox_theme.CriterivoxTheme.of(context);
 
     final dharenStates = _history
         .where((item) => item.agentId == 'dharen')
@@ -394,7 +438,9 @@ class _ShellState extends State<CriterivoxShell> {
 
     final workspaceState = state?.agentId == 'dharen'
         ? state
-        : (dharenStates.isEmpty ? null : dharenStates.first);
+        : (dharenStates.isEmpty
+            ? null
+            : dharenStates.first);
 
     return Scaffold(
       backgroundColor: t.page,
@@ -402,212 +448,108 @@ class _ShellState extends State<CriterivoxShell> {
         child: Stack(
           children: [
             Row(
-          children: [
-            _Sidebar(
-              page: page,
-              expanded: railOpen,
-              scrollController: _sidebarScrollController,
-              onOpen: open,
-              onReserved: showReserved,
-              onToggle: () => setState(
-                () => railOpen = !railOpen,
-              ),
-            ),
-            Expanded(
-              child: Column(
-                children: [
-                  _TopBar(
-                    isDarkMode: widget.isDarkMode,
-                    onToggleTheme: widget.onToggleTheme,
-                    connectionLive: state != null,
-                    onSearch: (value) {
-                      final q = value.trim().toLowerCase();
+              children: [
+                _Sidebar(
+                  page: page,
+                  expanded: railOpen,
+                  scrollController:
+                      _sidebarScrollController,
+                  onOpen: open,
+                  onReserved: showReserved,
+                  onToggle: () {
+                    setState(() {
+                      railOpen = !railOpen;
+                    });
+                  },
+                ),
+                Expanded(
+                  child: Column(
+                    children: [
+                      _TopBar(
+                        isDarkMode: widget.isDarkMode,
+                        onToggleTheme:
+                            widget.onToggleTheme,
+                        connectionLive: state != null,
+                        onSearch: (value) {
+                          final q =
+                              value.trim().toLowerCase();
 
-                      final found = _history
-                          .where(
-                            (item) =>
-                                (item.taskId ?? '')
-                                    .toLowerCase()
-                                    .contains(q) ||
-                                (item.task ?? '')
-                                    .toLowerCase()
-                                    .contains(q),
-                          )
-                          .toList();
+                          if (q.isEmpty) {
+                            return;
+                          }
 
-                      if (q.isNotEmpty && found.isNotEmpty) {
-                        setState(() => state = found.first);
-                        open('workspace');
-                      }
-                    },
+                          final found = _history
+                              .where(
+                                (item) =>
+                                    (item.taskId ?? '')
+                                        .toLowerCase()
+                                        .contains(q) ||
+                                    (item.task ?? '')
+                                        .toLowerCase()
+                                        .contains(q),
+                              )
+                              .toList();
+
+                          if (found.isNotEmpty) {
+                            setState(() {
+                              state = found.first;
+                            });
+
+                            open('workspace');
+                          }
+                        },
+                      ),
+                      Expanded(
+                        child: AnimatedSwitcher(
+                          duration: const Duration(
+                            milliseconds: 260,
+                          ),
+                          child: _buildPage(
+                            workspaceState,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  Expanded(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 260),
-                      child: page == 'home-preview'
-                          ? CivilizationHomePreviewPage(
-                              key: const ValueKey('home-preview'),
-                              homeId: civilizationHome ?? 'context',
-                              onBack: () => open('civilization'),
-                              onChat: () => open('chat'),
-                              onOpenOperationalHome: _openLevel2,
-                            )
-                          : page == 'level2'
-                          ? Level2OperationalPage(
-                              key: const ValueKey('level2'),
-                              homeId: civilizationHome ?? 'context',
-                              onBack: () => open('home-preview'),
-                            )
-                          : page == 'human-residence-entry'
-                          ? HumanResidenceEntryPage(
-                              onCreateHouse: () => open('human-residence'),
-                              onCreateClub: () => open('human-residence'),
-                              onGuest: () => open('guest'),
-                            )
-                          : page == 'human-residence'
-                          ? HumanResidencePage(
-                              onGuest: () => open('guest'),
-                              onWorkspace: () => open('private-room'),
-                            )
-                          : page == 'private-room'
-                          ? PrivateRoomPage(onWorkspace: () => open('workspace'))
-                          : page == 'collaboration-room'
-                          ? const CollaborationRoomPage()
-                          : page == 'civilization'
-                          ? CivilizationPage(
-                              key: const ValueKey('civilization'),
-                              state: state,
-                              onOpenChat: () => open('chat'),
-                              onOpenHome: (home) => _openHome(home),
-                            )
-                          : page == 'intro'
-                          ? AppIntroductionPage(
-                              key: const ValueKey('intro'),
-                              onOpenWorkspace: () => open('workspace'),
-                              onOpenCivilization: () => open('civilization'),
-                              onOpenChat: () => open('chat'),
-                            )
-                          : page == 'chat'
-                              ? CharacterChatPage(
-                                  key: const ValueKey('chat'),
-                                  state: state,
-                                  busy: busy,
-                                  operationState: operationState,
-                                  selectedAgent: chatTarget,
-                                  onSelectAgent: (agent) => setState(
-                                    () => chatTarget = agent,
-                                  ),
-                                  onSend: (
-                                    message,
-                                    agent,
-                                    references,
-                                  ) =>
-                                      send(
-                                    message,
-                                    target: agent,
-                                    references: references,
-                                  ),
-                                  onOpenTask: () => open('workspace'),
-                                )
-                              : page == 'home02'
-                                  ? Home02ContextConsole(
-                                      key: const ValueKey('home02'),
-                                      state: workspaceState,
-                                      onBuildContext: buildContext,
-                                      onManualAdapt: adaptContext,
-                                      onOpenChat: () => open('chat'),
-                                      onCreateSandbox: createSandbox,
-                                      onRunSandbox: runSandbox,
-                                      onInspectSandbox: inspectSandbox,
-                                      onPromoteSandbox: promoteSandbox,
-                                      onDiscardSandbox: discardSandbox,
-                                      sandboxReady: sandboxId != null,
-                                    )
-                                  : page == 'workspace'
-                                      ? AnalysisContextWorkspacePage(
-                                          key: const ValueKey('workspace'),
-                                          state: workspaceState,
-                                          busy: busy,
-                                          task: task,
-                                          data: data,
-                                          contextText: ctx,
-                                          onStart: start,
-                                          onBuildContext: buildContext,
-                                          onOpenChat: () => open('chat'),
-                                          onChatCharacter: chatWith,
-                                        )
-                                      : page == 'stewardship'
-                                          ? StewardshipLiveWorkspacePage(
-                                              key: const ValueKey(
-                                                'stewardship',
-                                              ),
-                                              state: state,
-                                              runtime: runtime,
-                                              onChatCharacter: chatWith,
-                                            )
-                                          : BloomPage(
-                                              key: const ValueKey('bloom'),
-                                              state: state,
-                                              onCapability:
-                                                  handleBloomCapability,
-                                              onSub: (value) {
-                                                switch (value) {
-                                                  case BloomSuboption.workspace:
-                                                    open('workspace');
-                                                    break;
-                                                  case BloomSuboption.chat:
-                                                    open('chat');
-                                                    break;
-                                                  case BloomSuboption
-                                                        .stewardshipHome:
-                                                    open('stewardship');
-                                                    break;
-                                                  case BloomSuboption
-                                                        .stewardshipChat:
-                                                    chatWith('sandre');
-                                                    break;
-                                                }
-                                              },
-                                              onSyvax: (message) => send(
-                                                message,
-                                                target: 'syvax',
-                                              ),
-                                              onStewardship: () =>
-                                                  open('stewardship'),
-                                              onHandoff: handoffFromBloom,
-                                              onOpenAnalysis: () =>
-                                                  open('workspace'),
-                                              busy: busy,
-                                            ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-            // Keep the global chat page mounted while hidden. This preserves its
-            // conversation/input state when the user toggles the launcher, while
-            // IgnorePointer keeps the underlying application usable when closed.
+
             Positioned.fill(
               child: IgnorePointer(
                 ignoring: !chatOverlayOpen,
                 child: AnimatedOpacity(
                   opacity: chatOverlayOpen ? 1 : 0,
-                  duration: const Duration(milliseconds: 220),
+                  duration: const Duration(
+                    milliseconds: 220,
+                  ),
                   child: Material(
-                    color: t.page.withValues(alpha: .98),
+                    color: t.page.withOpacity(.98),
                     child: CharacterChatPage(
-                      key: const ValueKey('global-character-chat'),
+                      key: const ValueKey(
+                        'global-character-chat',
+                      ),
                       state: state,
                       busy: busy,
                       selectedAgent: chatTarget,
-                      onSelectAgent: (agent) =>
-                          setState(() => chatTarget = agent),
-                      onSend: (message, agent, references) =>
-                          send(message, target: agent, references: references),
+                      onSelectAgent: (agent) {
+                        setState(() {
+                          chatTarget = agent;
+                        });
+                      },
+                      onSend:
+                          (message, agent, references) {
+                        send(
+                          message,
+                          target: agent,
+                          references: references,
+                        );
+                      },
                       onOpenTask: () {
-                        setState(() => chatOverlayOpen = false);
+                        setState(() {
+                          chatOverlayOpen = false;
+                        });
+
                         open('workspace');
                       },
                     ),
@@ -615,6 +557,7 @@ class _ShellState extends State<CriterivoxShell> {
                 ),
               ),
             ),
+
             Positioned(
               right: 18,
               bottom: 18,
@@ -642,6 +585,166 @@ class _ShellState extends State<CriterivoxShell> {
       ),
     );
   }
+
+  Widget _buildPage(
+    PresentationState? workspaceState,
+  ) {
+    switch (page) {
+      case 'home-preview':
+        return CivilizationHomePreviewPage(
+          key: const ValueKey('home-preview'),
+          homeId: civilizationHome ?? 'context',
+          onBack: () => open('civilization'),
+          onChat: () => open('chat'),
+          onOpenOperationalHome: _openLevel2,
+        );
+
+      case 'level2':
+        return Level2OperationalPage(
+          key: const ValueKey('level2'),
+          homeId: civilizationHome ?? 'context',
+          onBack: () => open('home-preview'),
+        );
+
+      case 'human-residence-entry':
+        return HumanResidenceEntryPage(
+          onCreateHouse: () =>
+              open('human-residence'),
+          onCreateClub: () =>
+              open('human-residence'),
+          onGuest: () => open('guest'),
+        );
+
+      case 'human-residence':
+        return HumanResidencePage(
+          onGuest: () => open('guest'),
+          onWorkspace: () => open('private-room'),
+        );
+
+      case 'private-room':
+        return PrivateRoomPage(
+          onWorkspace: () => open('workspace'),
+        );
+
+      case 'collaboration-room':
+        return const CollaborationRoomPage();
+
+      case 'civilization':
+        return CivilizationPage(
+          key: const ValueKey('civilization'),
+          state: state,
+          onOpenChat: () => open('chat'),
+          onOpenHome: _openHome,
+        );
+
+      case 'intro':
+        return AppIntroductionPage(
+          key: const ValueKey('intro'),
+          onOpenWorkspace: () => open('workspace'),
+          onOpenCivilization: () =>
+              open('civilization'),
+          onOpenChat: () => open('chat'),
+        );
+
+      case 'chat':
+        return CharacterChatPage(
+          key: const ValueKey('chat'),
+          state: state,
+          busy: busy,
+          operationState: operationState,
+          selectedAgent: chatTarget,
+          onSelectAgent: (agent) {
+            setState(() {
+              chatTarget = agent;
+            });
+          },
+          onSend: (message, agent, references) {
+            send(
+              message,
+              target: agent,
+              references: references,
+            );
+          },
+          onOpenTask: () => open('workspace'),
+        );
+
+      case 'home02':
+        return Home02ContextConsole(
+          key: const ValueKey('home02'),
+          state: workspaceState,
+          onBuildContext: buildContext,
+          onManualAdapt: adaptContext,
+          onOpenChat: () => open('chat'),
+          onCreateSandbox: createSandbox,
+          onRunSandbox: runSandbox,
+          onInspectSandbox: inspectSandbox,
+          onPromoteSandbox: promoteSandbox,
+          onDiscardSandbox: discardSandbox,
+          sandboxReady: sandboxId != null,
+        );
+
+      case 'workspace':
+        return AnalysisContextWorkspacePage(
+          key: const ValueKey('workspace'),
+          state: workspaceState,
+          busy: busy,
+          task: task,
+          data: data,
+          contextText: ctx,
+          onStart: start,
+          onBuildContext: buildContext,
+          onOpenChat: () => open('chat'),
+          onChatCharacter: chatWith,
+        );
+
+      case 'stewardship':
+        return StewardshipLiveWorkspacePage(
+          key: const ValueKey('stewardship'),
+          state: state,
+          runtime: runtime,
+          onChatCharacter: chatWith,
+        );
+
+      case 'bloom':
+      default:
+        return BloomPage(
+          key: const ValueKey('bloom'),
+          state: state,
+          onCapability: handleBloomCapability,
+          onSub: (value) {
+            switch (value) {
+              case BloomSuboption.workspace:
+                open('workspace');
+                break;
+
+              case BloomSuboption.chat:
+                open('chat');
+                break;
+
+              case BloomSuboption.stewardshipHome:
+                open('stewardship');
+                break;
+
+              case BloomSuboption.stewardshipChat:
+                chatWith('sandre');
+                break;
+            }
+          },
+          onSyvax: (message) {
+            send(
+              message,
+              target: 'syvax',
+            );
+          },
+          onStewardship: () =>
+              open('stewardship'),
+          onHandoff: handoffFromBloom,
+          onOpenAnalysis: () =>
+              open('workspace'),
+          busy: busy,
+        );
+    }
+  }
 }
 
 class _Sidebar extends StatelessWidget {
@@ -663,16 +766,18 @@ class _Sidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = CriterivoxTheme.of(context);
+    final t = criterivox_theme.CriterivoxTheme.of(context);
     final width = expanded ? 244.0 : 76.0;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 240),
       width: width,
       decoration: BoxDecoration(
-        color: t.surface.withValues(alpha: .96),
+        color: t.surface.withOpacity(.96),
         border: Border(
-          right: BorderSide(color: t.border),
+          right: BorderSide(
+            color: t.border,
+          ),
         ),
       ),
       child: Column(
@@ -727,7 +832,9 @@ class _Sidebar extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    _StatusCard(expanded: expanded),
+                    _StatusCard(
+                      expanded: expanded,
+                    ),
                     const SizedBox(height: 18),
                     _section(
                       'START HERE',
@@ -791,8 +898,11 @@ class _Sidebar extends StatelessWidget {
                     _nav(
                       'Human Residence',
                       Icons.home_work_rounded,
-                      page == 'human-residence' || page == 'human-residence-entry',
-                      () => onOpen('human-residence-entry'),
+                      page == 'human-residence' ||
+                          page == 'human-residence-entry',
+                      () => onOpen(
+                        'human-residence-entry',
+                      ),
                       expanded,
                       t,
                     ),
@@ -808,7 +918,9 @@ class _Sidebar extends StatelessWidget {
                       'Collaboration Room',
                       Icons.groups_rounded,
                       page == 'collaboration-room',
-                      () => onOpen('collaboration-room'),
+                      () => onOpen(
+                        'collaboration-room',
+                      ),
                       expanded,
                       t,
                     ),
@@ -871,30 +983,32 @@ class _Sidebar extends StatelessWidget {
   Widget _section(
     String text,
     bool visible,
-    CriterivoxTheme t,
+    criterivox_theme.CriterivoxTheme t,
   ) {
-    return visible
-        ? Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                10,
-                4,
-                10,
-                6,
-              ),
-              child: Text(
-                text,
-                style: TextStyle(
-                  color: t.mutedText,
-                  fontSize: 9,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.1,
-                ),
-              ),
-            ),
-          )
-        : const SizedBox(height: 8);
+    if (!visible) {
+      return const SizedBox(height: 8);
+    }
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          10,
+          4,
+          10,
+          6,
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: t.mutedText,
+            fontSize: 9,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.1,
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _nav(
@@ -903,7 +1017,7 @@ class _Sidebar extends StatelessWidget {
     bool active,
     VoidCallback onTap,
     bool visible,
-    CriterivoxTheme t,
+    criterivox_theme.CriterivoxTheme t,
   ) {
     return Material(
       color: Colors.transparent,
@@ -920,20 +1034,25 @@ class _Sidebar extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          selectedTileColor: t.primary.withValues(alpha: .13),
+          selectedTileColor:
+              t.primary.withOpacity(.13),
           leading: Icon(
             icon,
             size: 19,
-            color: active ? t.primary : t.mutedText,
+            color:
+                active ? t.primary : t.mutedText,
           ),
           title: visible
               ? Text(
                   label,
                   style: TextStyle(
-                    color: active ? t.text : t.mutedText,
+                    color: active
+                        ? t.text
+                        : t.mutedText,
                     fontSize: 12,
-                    fontWeight:
-                        active ? FontWeight.w700 : FontWeight.w500,
+                    fontWeight: active
+                        ? FontWeight.w700
+                        : FontWeight.w500,
                   ),
                 )
               : null,
@@ -952,14 +1071,18 @@ class _StatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = CriterivoxTheme.of(context);
+    final t = criterivox_theme.CriterivoxTheme.of(context);
 
     return Container(
-      padding: EdgeInsets.all(expanded ? 14 : 10),
+      padding: EdgeInsets.all(
+        expanded ? 14 : 10,
+      ),
       decoration: BoxDecoration(
         color: t.surfaceStrong,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: t.border),
+        border: Border.all(
+          color: t.border,
+        ),
       ),
       child: Row(
         children: [
@@ -972,7 +1095,8 @@ class _StatusCard extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
                 children: [
                   Text(
                     'RUNTIME',
@@ -1001,7 +1125,7 @@ class _StatusCard extends StatelessWidget {
             height: 7,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: t.success,
+              color: t.primary,
             ),
           ),
         ],
@@ -1025,10 +1149,15 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = CriterivoxTheme.of(context);
+    final t = criterivox_theme.CriterivoxTheme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(18, 14, 18, 10),
+      padding: const EdgeInsets.fromLTRB(
+        18,
+        14,
+        18,
+        10,
+      ),
       child: Row(
         children: [
           Expanded(
@@ -1042,7 +1171,8 @@ class _TopBar extends StatelessWidget {
                     color: t.mutedText,
                     size: 19,
                   ),
-                  hintText: 'Search analyses by name or ID...',
+                  hintText:
+                      'Search analyses by name or ID...',
                 ),
               ),
             ),
@@ -1055,8 +1185,11 @@ class _TopBar extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               color: t.surface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: t.border),
+              borderRadius:
+                  BorderRadius.circular(12),
+              border: Border.all(
+                color: t.border,
+              ),
             ),
             child: Row(
               children: [
@@ -1064,16 +1197,19 @@ class _TopBar extends StatelessWidget {
                   Icons.circle,
                   size: 7,
                   color: connectionLive
-                      ? t.success
+                      ? t.primary
                       : t.warning,
                 ),
                 const SizedBox(width: 7),
                 Text(
-                  connectionLive ? 'LIVE' : 'CONNECTING',
+                  connectionLive
+                      ? 'LIVE'
+                      : 'CONNECTING',
                   style: TextStyle(
                     color: t.mutedText,
                     fontSize: 9,
-                    fontWeight: FontWeight.w700,
+                    fontWeight:
+                        FontWeight.w700,
                   ),
                 ),
               ],
@@ -1133,8 +1269,10 @@ class _BloomMark extends StatelessWidget {
                 width: size * .22,
                 height: size * .48,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: const LinearGradient(
+                  borderRadius:
+                      BorderRadius.circular(20),
+                  gradient:
+                      const LinearGradient(
                     colors: [
                       Color(0xFF9A7BFF),
                       Color(0xFF6654E8),

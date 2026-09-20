@@ -24,7 +24,11 @@ void main() {
       expect(find.byTooltip('Close character chat'), findsOneWidget);
       expect(find.text('Chat with Dharen'), findsOneWidget);
 
-      final input = find.byHintText('Message Dharen…');
+      final input = find.byWidgetPredicate(
+        (widget) =>
+        widget is TextField &&
+        widget.decoration?.hintText == 'Message Dharen…',
+      );
       expect(input, findsOneWidget);
       await tester.enterText(input, 'Preserve this draft.');
       expect(find.text('Preserve this draft.'), findsOneWidget);

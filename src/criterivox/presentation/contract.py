@@ -1,9 +1,13 @@
 from __future__ import annotations
-from dataclasses import asdict,dataclass
+
+from dataclasses import asdict, dataclass
 from typing import Any
+
 from criterivox.domain.characters import CharacterState
 from criterivox.presentation.states import VisualPresentation
-@dataclass(frozen=True,slots=True)
+
+
+@dataclass(frozen=True, slots=True)
 class PresentationContract:
     contract_version: int
     character_id: str
@@ -83,15 +87,76 @@ class PresentationContract:
     error: str | None = None
 
     @classmethod
-    def from_visual_presentation(cls, presentation: VisualPresentation, *, active: bool = True, prominence: float = .75, reduced_motion: bool = False, message: str | None = None, event: str | None = None, **task_fields: Any) -> 'PresentationContract':
-        character_id = presentation.character_id.strip().lower()
-        return cls(1, character_id, presentation.state.value, presentation.animation.value, active, max(0, min(1, prominence)), reduced_motion, message, event, **task_fields)
+    def from_visual_presentation(
+        cls,
+        presentation: VisualPresentation,
+        *,
+        active: bool = True,
+        prominence: float = 0.75,
+        reduced_motion: bool = False,
+        message: str | None = None,
+        event: str | None = None,
+        **task_fields: Any,
+    ) -> "PresentationContract":
+        character_id = presentation.character_id.strip()
+
+        if not character_id:
+            raise ValueError("character_id must not be empty")
+
+        return cls(
+            1,
+            character_id,
+            presentation.state.value,
+            presentation.animation.value,
+            active,
+            max(0, min(1, prominence)),
+            reduced_motion,
+            message,
+            event,
+            **task_fields,
+        )
 
     @classmethod
-    def from_state(cls, character_id: str, state: CharacterState, *, active: bool = True, prominence: float = .75, reduced_motion: bool = False, message: str | None = None, event: str | None = None, **task_fields: Any) -> 'PresentationContract':
+    def from_state(
+        cls,
+        character_id: str,
+        state: CharacterState,
+        *,
+        active: bool = True,
+        prominence: float = 0.75,
+        reduced_motion: bool = False,
+        message: str | None = None,
+        event: str | None = None,
+        **task_fields: Any,
+    ) -> "PresentationContract":
         from criterivox.presentation.states import present_state
-        canonical_id = character_id.strip().lower()
-        return cls.from_visual_presentation(present_state(canonical_id, state), active=active, prominence=prominence, reduced_motion=reduced_motion, message=message, event=event, **task_fields)
+
+        supplied_id = character_id.strip()
+
+        if not supplied_id:
+            raise ValueError("character_id must not be empty")
+
+        # Character routing remains canonical.
+        canonical_id = supplied_id.lower()
+        presentation = present_state(canonical_id, state)
+
+        # Preserve the caller-facing character identity in the
+        # renderer-independent contract.
+        presentation = VisualPresentation(
+            character_id=supplied_id,
+            state=presentation.state,
+            animation=presentation.animation,
+        )
+
+        return cls.from_visual_presentation(
+            presentation,
+            active=active,
+            prominence=prominence,
+            reduced_motion=reduced_motion,
+            message=message,
+            event=event,
+            **task_fields,
+        )
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

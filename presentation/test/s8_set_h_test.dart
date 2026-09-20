@@ -11,7 +11,7 @@ S8ArtifactSummary artifact(String id) => S8ArtifactSummary(
       title: 'Test evidence',
       status: 'available',
       parents: const <String>[],
-      uncertainty: 'unknown',
+      uncertainty: const <String>['unknown'],
       contradictions: const <String>[],
       integrity: 'unverified',
       temporal: '2026-09-17T00:00:00Z',

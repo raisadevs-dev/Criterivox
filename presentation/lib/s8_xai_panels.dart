@@ -32,13 +32,11 @@ class S8XaiDashboard extends StatelessWidget {
 /// Explicitly named adapter for screens that already own an authoritative
 /// snapshot. It validates the snapshot before rendering any XAI panel.
 class S8XaiDashboardFromSnapshot extends StatelessWidget {
-  final S8PresentationSnapshot snapshot;
+  final S8AuthoritativeState snapshot;
   const S8XaiDashboardFromSnapshot({super.key, required this.snapshot});
 
   @override
-  Widget build(BuildContext context) => S8XaiDashboard(
-        state: S8AuthoritativeState.fromSnapshot(snapshot),
-      );
+  Widget build(BuildContext context) => S8XaiDashboard(state: snapshot);
 }
 
 class _Panel extends StatelessWidget {

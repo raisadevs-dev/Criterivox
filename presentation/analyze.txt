@@ -1,7 +1,46 @@
 Analyzing presentation...                                       
 
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement - lib\app_shell.dart:527:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement - lib\app_shell.dart:776:26 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement - lib\app_shell.dart:1038:25 - deprecated_member_use
    info - Statements in an if should be enclosed in a block. Try wrapping the statement in a block - lib\character\session_character_animation.dart:91:28 - curly_braces_in_flow_control_structures
+   info - Invalid use of a private type in a public API. Try making the private type public, or making the API that uses the private type also be private - lib\civilization_page.dart:26:21 - library_private_types_in_public_api
+   info - Invalid use of a private type in a public API. Try making the private type public, or making the API that uses the private type also be private - lib\civilization_page.dart:79:21 - library_private_types_in_public_api
+   info - Invalid use of a private type in a public API. Try making the private type public, or making the API that uses the private type also be private - lib\civilization_page.dart:81:21 - library_private_types_in_public_api
    info - Statements in an if should be enclosed in a block. Try wrapping the statement in a block - lib\collaboration_room_page.dart:70:9 - curly_braces_in_flow_control_structures
    info - Statements in an if should be enclosed in a block. Try wrapping the statement in a block - lib\collaboration_room_page.dart:74:9 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block. Try wrapping the statement in a block - lib\foundation\criterivox_semantic_motion.dart:63:41 - curly_braces_in_flow_control_structures
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\level2_operational_page.dart:1318:17 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\level2_operational_page.dart:1321:24 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\level2_operational_page.dart:1330:17 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\level2_operational_page.dart:1333:24 - unnecessary_non_null_assertion
+warning - Unused import: 'dart:math'. Try removing the import directive - lib\s7\s7_functional_layer.dart:2:8 - unused_import
+warning - Unused import: 's8_character_profile_card.dart'. Try removing the import directive - lib\s8_character_system.dart:6:8 - unused_import
+warning - The value of the local variable 'conclusion' isn't used. Try removing the variable or using it - lib\s8_explanation_pipeline.dart:58:11 - unused_local_variable
+warning - The value of the local variable 'steps' isn't used. Try removing the variable or using it - lib\s8_explanation_pipeline.dart:64:11 - unused_local_variable
    info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion. Try replacing the use of the deprecated member with the replacement - test\character_visual_animation_system_test.dart:11:30 - deprecated_member_use
+  error - Target of URI doesn't exist: 'package:presentation/s8_environment_entities.dart'. Try creating the file referenced by the URI, or try using a URI for a file that does exist - test\s8\s8_character_environment_test.dart:4:8 - uri_does_not_exist
+  error - Undefined name 'S8EnvironmentEntityCluster'. Try correcting the name to one that is defined, or defining the name - test\s8\s8_character_environment_test.dart:19:24 - undefined_identifier
+  error - Undefined name 'S8EnvironmentEntity'. Try correcting the name to one that is defined, or defining the name - test\s8\s8_character_environment_test.dart:20:24 - undefined_identifier
+  error - Undefined name 'S8EnvironmentEntityCluster'. Try correcting the name to one that is defined, or defining the name - test\s8\s8_character_environment_test.dart:28:26 - undefined_identifier
+  error - Undefined name 'S8EnvironmentEntity'. Try correcting the name to one that is defined, or defining the name - test\s8\s8_character_environment_test.dart:29:26 - undefined_identifier
+   info - Unnecessary 'const' keyword. Try removing the keyword - test\s8_authoritative_state_test.dart:25:16 - unnecessary_const
+  error - The name 'S8ArtifactValidator' isn't a class. Try correcting the name to match an existing class - test\s8_authoritative_state_test.dart:65:18 - creation_with_non_type
+  error - The name 'S8ArtifactValidator' isn't a class. Try correcting the name to match an existing class - test\s8_authoritative_state_test.dart:67:13 - creation_with_non_type
+  error - Invalid constant value - test\s8_human_authority_test.dart:36:172 - invalid_constant
+  error - The function 'Color' isn't defined. Try importing the library that defines 'Color', correcting the name to the name of an existing function, or defining a function named 'Color' - test\s8_human_authority_test.dart:36:172 - undefined_function
+  error - Invalid constant value - test\s8_human_authority_test.dart:37:183 - invalid_constant
+  error - The function 'Color' isn't defined. Try importing the library that defines 'Color', correcting the name to the name of an existing function, or defining a function named 'Color' - test\s8_human_authority_test.dart:37:183 - undefined_function
+  error - Invalid constant value - test\s8_human_authority_test.dart:38:190 - invalid_constant
+  error - The function 'Color' isn't defined. Try importing the library that defines 'Color', correcting the name to the name of an existing function, or defining a function named 'Color' - test\s8_human_authority_test.dart:38:190 - undefined_function
+  error - Target of URI doesn't exist: 'package:presentation/s8_human_action_panel.dart'. Try creating the file referenced by the URI, or try using a URI for a file that does exist - test\s8_set_i_test.dart:3:8 - uri_does_not_exist
+  error - The named parameter 'epistre' is required, but there's no corresponding argument. Try adding the required argument - test\s8_set_i_test.dart:42:7 - missing_required_argument
+  error - The named parameter 'humanActions' is required, but there's no corresponding argument. Try adding the required argument - test\s8_set_i_test.dart:42:7 - missing_required_argument
+  error - The named parameter 'lifecycleLabel' is required, but there's no corresponding argument. Try adding the required argument - test\s8_set_i_test.dart:42:7 - missing_required_argument
+  error - The named parameter 'medrus' is required, but there's no corresponding argument. Try adding the required argument - test\s8_set_i_test.dart:42:7 - missing_required_argument
+  error - The named parameter 'recentEvents' is required, but there's no corresponding argument. Try adding the required argument - test\s8_set_i_test.dart:42:7 - missing_required_argument
+  error - The named parameter 'synthetic' is required, but there's no corresponding argument. Try adding the required argument - test\s8_set_i_test.dart:42:7 - missing_required_argument
+  error - The named parameter 'unknowns' is required, but there's no corresponding argument. Try adding the required argument - test\s8_set_i_test.dart:42:7 - missing_required_argument
+  error - The named parameter 'veridat' is required, but there's no corresponding argument. Try adding the required argument - test\s8_set_i_test.dart:42:7 - missing_required_argument
+  error - Undefined name 'S8HumanActionPanelModel'. Try correcting the name to one that is defined, or defining the name - test\s8_set_i_test.dart:47:21 - undefined_identifier
 

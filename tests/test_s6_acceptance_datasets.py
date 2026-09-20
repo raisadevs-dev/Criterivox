@@ -4,6 +4,7 @@ from pathlib import Path
 from criterivox.application.context_engine import ContextEngine
 from criterivox.domain.data_foundation import DataFoundation, SourceRecord, SourceType
 
+
 DATA = Path(__file__).parents[1] / "data" / "s6" / "acceptance"
 
 
@@ -12,16 +13,60 @@ def rows(name: str):
         return list(csv.DictReader(handle))
 
 
+def _record_count(row: dict[str, str]) -> int | None:
+    """
+    Return the explicitly supplied record count.
+
+    A numeric zero is a valid observed value.
+    Empty strings and whitespace-only CSV cells represent missingness.
+    Prefer 'records' when present, otherwise fall back to 'items_seen'.
+    """
+    records = row.get("records")
+    if records is not None and str(records).strip() != "":
+        return int(str(records).strip())
+
+    items_seen = row.get("items_seen")
+    if items_seen is not None and str(items_seen).strip() != "":
+        return int(str(items_seen).strip())
+
+    return None
+
+
 def material(row: dict[str, str]) -> DataFoundation:
     source_id = row["source_id"]
+
     context = {
         key: value
         for key, value in row.items()
-        if key in {"platform", "surface", "period", "window", "region", "locale", "audience", "segment", "language_mode"}
-        and value not in (None, "")
+        if key
+        in {
+            "platform",
+            "surface",
+            "period",
+            "window",
+            "region",
+            "locale",
+            "audience",
+            "segment",
+            "language_mode",
+        }
+        and value is not None
+        and str(value).strip() != ""
     }
-    records = row.get("records") or row.get("items_seen")
-    canonical = tuple({"row": index} for index in range(int(records))) if records else ()
+
+    records = _record_count(row)
+
+    canonical = (
+        tuple({"row": index} for index in range(records))
+        if records is not None and records > 0
+        else ()
+    )
+
+    supplied_context = dict(context)
+
+    if records is not None:
+        supplied_context["record_count"] = records
+
     return DataFoundation(
         foundation_id=f"DF-{row['case_id']}",
         created_at="2026-09-11T00:00:00+00:00",
@@ -35,12 +80,13 @@ def material(row: dict[str, str]) -> DataFoundation:
             ),
         ),
         canonical_data=canonical,
-        supplied_context=context,
+        supplied_context=supplied_context,
     )
 
 
 def test_user_acceptance_datasets_build_context_without_silent_zero():
     engine = ContextEngine()
+
     for filename in (
         "01_cross_platform_context.csv",
         "02_context_shift_and_memory.csv",
@@ -49,12 +95,22 @@ def test_user_acceptance_datasets_build_context_without_silent_zero():
     ):
         for row in rows(filename):
             result = engine.create_from_material_set(material(row))
-            count = next(item for item in result.context.items if item.key == "material.record_count")
-            if not (row.get("records") or row.get("items_seen")):
+
+            count = next(
+                item
+                for item in result.context.items
+                if item.key == "material.record_count"
+            )
+
+            records = _record_count(row)
+
+            if records is None:
                 assert count.value is None
                 assert count.status.value == "UNKNOWN"
             else:
+                assert count.value == records
                 assert count.value >= 0
+
             assert result.provenance_graph.nodes
             assert result.evidence_debt.completeness_percent >= 0
             assert result.evidence_debt.completeness_percent <= 100
@@ -62,6 +118,7 @@ def test_user_acceptance_datasets_build_context_without_silent_zero():
 
 def test_unseen_datasets_preserve_missingness_and_provenance():
     engine = ContextEngine()
+
     for filename in (
         "unseen_01_schema_variation.csv",
         "unseen_02_sparse_context.csv",
@@ -69,9 +126,26 @@ def test_unseen_datasets_preserve_missingness_and_provenance():
     ):
         for row in rows(filename):
             result = engine.create_from_material_set(material(row))
-            assert any(node.kind == "SOURCE" for node in result.provenance_graph.nodes)
-            count = next(item for item in result.context.items if item.key == "material.record_count")
-            if not (row.get("items_seen") or ""):
+
+            assert any(
+                node.kind == "SOURCE"
+                for node in result.provenance_graph.nodes
+            )
+
+            count = next(
+                item
+                for item in result.context.items
+                if item.key == "material.record_count"
+            )
+
+            items_seen = row.get("items_seen")
+
+            if items_seen is None or str(items_seen).strip() == "":
                 assert count.value is None
                 assert count.status.value == "UNKNOWN"
+            else:
+                expected = int(str(items_seen).strip())
+                assert count.value == expected
+                assert count.value >= 0
+
             assert "causal" in " ".join(result.interpretation.limitations)

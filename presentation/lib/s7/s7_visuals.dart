@@ -240,7 +240,15 @@ class S7BureauCharacter extends StatelessWidget {
               const SizedBox(height: 7),
               Text(quote, style: TextStyle(fontSize: 14, height: 1.5, fontStyle: FontStyle.italic, color: Colors.white.withValues(alpha: .80))),
               const SizedBox(height: 16),
-              Wrap(spacing: 7, runSpacing: 7, children: traits.map((t) => Chip(label: Text(t, style: const TextStyle(fontSize: 8, color: Colors.white70)), backgroundColor: accent.withValues(alpha: .08), side: BorderSide(color: accent.withValues(alpha: .16))).toList()),
+              Wrap(
+                spacing: 7,
+                runSpacing: 7,
+                children: traits.map((t) => Chip(
+                  label: Text(t, style: const TextStyle(fontSize: 8, color: Colors.white70)),
+                  backgroundColor: accent.withValues(alpha: .08),
+                  side: BorderSide(color: accent.withValues(alpha: .16)),
+                )).toList(),
+              ),
               const SizedBox(height: 12),
               Text(isVivren ? 'Visual responsibility: critique, assumptions, evidence quality, epistemic limits.' : 'Visual responsibility: hypotheses, branches, alternatives, counterfactual exploration.', style: TextStyle(fontSize: 9, height: 1.5, color: Colors.white.withValues(alpha: .45))),
             ]),

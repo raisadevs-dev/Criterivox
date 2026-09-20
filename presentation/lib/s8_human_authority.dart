@@ -1,5 +1,5 @@
+
 import 's8_authority.dart';
-import 's8_capability_ports.dart';
 import 's8_presentation_state.dart';
 
 class S8HumanActionResult {
@@ -16,28 +16,59 @@ class S8HumanActionResult {
   });
 }
 
-/// Presentation-side controller for human authority. It records the human
-/// decision boundary and delegates any consequential computation upstream.
-class S8HumanAuthorityController implements S8HumanAuthorityPort {
-  final List<S8HumanActionResult> _history = [];
+class S8HumanAuthorityController {
+  final List<S8HumanActionResult> _history =
+      <S8HumanActionResult>[];
 
-  List<S8HumanActionResult> get history => List.unmodifiable(_history);
+  List<S8HumanActionResult> get history {
+    return List<S8HumanActionResult>.unmodifiable(
+      _history,
+    );
+  }
 
-  @override
-  Future<S8HumanActionResult> inspect(String artifactId) async =>
-      _record(S8HumanDecision.inspect, artifactId, 'Artifact opened for human inspection.', false);
+  Future<S8HumanActionResult> inspect(
+    String artifactId,
+  ) async {
+    return _record(
+      S8HumanDecision.inspect,
+      artifactId,
+      'Artifact opened for human inspection.',
+      false,
+    );
+  }
 
-  @override
-  Future<S8HumanActionResult> provideContext(String artifactId) async =>
-      _record(S8HumanDecision.provideContext, artifactId, 'Human context supplied; domain reevaluation is required before truth changes.', true);
+  Future<S8HumanActionResult> provideContext(
+    String artifactId,
+  ) async {
+    return _record(
+      S8HumanDecision.provideContext,
+      artifactId,
+      'Human context supplied; domain reevaluation is required before truth changes.',
+      true,
+    );
+  }
 
-  @override
-  Future<S8HumanActionResult> challenge(String artifactId) async =>
-      _record(S8HumanDecision.challenge, artifactId, 'Human challenge recorded; the existing conclusion remains unchanged pending reevaluation.', true);
+  Future<S8HumanActionResult> challenge(
+    String artifactId,
+  ) async {
+    return _record(
+      S8HumanDecision.challenge,
+      artifactId,
+      'Human challenge recorded; the existing conclusion remains unchanged pending reevaluation.',
+      true,
+    );
+  }
 
-  @override
-  Future<S8HumanActionResult> accept(String artifactId) async =>
-      _record(S8HumanDecision.accept, artifactId, 'Human acceptance recorded as a decision, not as computational verification.', false);
+  Future<S8HumanActionResult> accept(
+    String artifactId,
+  ) async {
+    return _record(
+      S8HumanDecision.accept,
+      artifactId,
+      'Human acceptance recorded as a decision, not as computational verification.',
+      false,
+    );
+  }
 
   S8HumanActionResult _record(
     S8HumanDecision decision,
@@ -45,15 +76,28 @@ class S8HumanAuthorityController implements S8HumanAuthorityPort {
     String message,
     bool requiresDomainReevaluation,
   ) {
-    if (artifactId.trim().isEmpty) throw ArgumentError('artifactId must not be empty');
-    if (!S8Authority.isHumanAction(decision)) throw StateError('Unsupported human action');
+    if (artifactId.trim().isEmpty) {
+      throw ArgumentError(
+        'artifactId must not be empty',
+      );
+    }
+
+    if (!S8Authority.isHumanAction(decision)) {
+      throw StateError(
+        'Unsupported human action',
+      );
+    }
+
     final result = S8HumanActionResult(
       decision: decision,
       artifactId: artifactId,
       message: message,
-      requiresDomainReevaluation: requiresDomainReevaluation,
+      requiresDomainReevaluation:
+          requiresDomainReevaluation,
     );
+
     _history.add(result);
+
     return result;
   }
 }
@@ -75,11 +119,17 @@ class S8HumanActionPanelModel {
   ) {
     final artifact = state.artifacts.firstWhere(
       (a) => a.id == artifactId,
-      orElse: () => throw StateError('Unknown artifact: $artifactId'),
+      orElse: () => throw StateError(
+        'Unknown artifact: $artifactId',
+      ),
     );
+
     return S8HumanActionPanelModel(
       artifact: artifact,
-      allowedActions: S8Authority.humanCan.toList(growable: false),
+      allowedActions:
+          S8Authority.humanCan.toList(
+        growable: false,
+      ),
       synthetic: state.isSynthetic,
     );
   }
