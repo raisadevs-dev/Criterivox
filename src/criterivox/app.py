@@ -24,6 +24,7 @@ from .infrastructure.runtime import dharen_runtime, handle_application_request, 
 from .logging_config import configure_logging
 from .presentation.contract import PresentationContract
 from .ui.routes import router
+from .ui.human_residence_routes import router as human_residence_router
 from .character_backbone.operations_api import router as operations_router
 from .character_backbone.operations_api import ENGINE as operations_engine
 
@@ -40,6 +41,7 @@ def health() -> JSONResponse:
     return JSONResponse({"service": "criterivox", "status": "ready", "runtime": "python", "s6_context_engine": "active"})
 
 app.include_router(router)
+app.include_router(human_residence_router)
 app.include_router(operations_router)
 
 async def _safe_request(handler, payload: dict) -> None:
