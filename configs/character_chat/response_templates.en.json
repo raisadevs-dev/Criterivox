@@ -1,0 +1,9 @@
+{
+  "no_record": "No authoritative runtime record exists for that state.",
+  "history": "Recorded history:",
+  "current": "The latest checkpoint records state {state} at step {step}.",
+  "character": " Responsible character: {character}.",
+  "capability": " Active capability: {capability}.",
+  "blocking": " Blocking condition: {blocking}.",
+  "next": "Next-state classification: {type}. {description}."
+}
