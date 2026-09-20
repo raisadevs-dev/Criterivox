@@ -1,0 +1,12 @@
+import 'dart:async'; import 'dart:convert'; import 'package:flutter/foundation.dart'; import 'package:web_socket_channel/web_socket_channel.dart'; import 'presentation_state.dart';
+class RuntimeClient extends ChangeNotifier {
+ final String url; WebSocketChannel? _channel; StreamSubscription? _sub; final _states=StreamController<PresentationState>.broadcast(); PresentationState _state=const PresentationState(); String? _taskId,_journeyId;
+ RuntimeClient({String? url}):url=url??'ws://127.0.0.1:8017/runtime/characters';
+ PresentationState get state=>_state; Stream<PresentationState> get states=>_states.stream; bool get connected=>_state.connected; String? get taskId=>_taskId; String? get journeyId=>_journeyId;
+ Future<void> connect() async { if(connected)return; try { _channel=WebSocketChannel.connect(Uri.parse(url)); await _channel!.ready; _state=PresentationState.fromJson({'event':'RUNTIME_CONNECTED','character_id':'syvax'},connected:true); notifyListeners(); _sub=_channel!.stream.listen(_receive,onError:_error,onDone:_done); } catch(e){_error(e);} }
+ Future<void> send({required String message,required String characterId,String? taskId,String? journeyId}) async { if(!connected)await connect(); _taskId=taskId??_taskId??'CHAT-'+DateTime.now().microsecondsSinceEpoch.toString(); _journeyId=journeyId??_journeyId??'JRN-'+DateTime.now().microsecondsSinceEpoch.toString(); _channel?.sink.add(jsonEncode({'type':'chat_message','target_character':characterId,'task_id':_taskId,'journey_id':_journeyId,'message':message,'data':{},'context':{},'references':[]})); }
+ void _receive(dynamic raw){try{final j=Map<String,dynamic>.from(jsonDecode(raw as String));final s=PresentationState.fromJson(j,connected:true);_state=s;if(s.taskId!=null)_taskId=s.taskId;if(s.unified?.journeyId!=null)_journeyId=s.unified!.journeyId;_states.add(s);notifyListeners();}catch(e){_error(e);}}
+ void _error(Object e){_state=PresentationState(message:'Runtime connection error: '+e.toString(),event:'RUNTIME_ERROR',taskId:_taskId,connected:false);_states.add(_state);notifyListeners();}
+ void _done(){_state=PresentationState(unified:_state.unified,message:_state.message,event:'RUNTIME_DISCONNECTED',taskId:_taskId,connected:false);_states.add(_state);notifyListeners();}
+ @override void dispose(){_sub?.cancel();_channel?.sink.close();_states.close();super.dispose();}
+}
