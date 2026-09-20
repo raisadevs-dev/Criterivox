@@ -23,4 +23,4 @@ def load_capability_registry():
     return CapabilityRegistry(tuple(CapabilityDefinition(**{**x,"implementation_status":ImplementationStatus(x["implementation_status"])}) for x in data["capabilities"]))
 
 def load_message_chips():
-    return _load("message_chips.json")
+    return _load("message_chips.v2.json")
