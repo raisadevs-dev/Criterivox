@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Any
+from typing import Any\nfrom pathlib import Path\nimport json
 from .language import interpret, LanguageResult
 from .capability_discovery import discover, CapabilityMatch
 from criterivox.application.state_runtime import state_runtime
@@ -13,6 +13,12 @@ class RuntimeResponse:
  machine:dict[str,Any]; human_text:str; language:LanguageResult; capabilities:tuple[CapabilityMatch,...]
 
 def _localized(lang:str,key:str,**kw)->str:
+ path=Path(__file__).resolve().parents[3]/"configs"/"character_chat"/f"response_templates.{lang}.json"
+ try:
+  templates=json.loads(path.read_text(encoding="utf-8"))
+  return templates[key].format(**kw)
+ except Exception:
+  pass
  templates={
  "en":{"pause":"The task was paused through the runtime gate.","resume":"The task was resumed through the runtime gate.","unavailable":"That capability is not currently available through an implemented registry route.","owner":"{owner} is the registered owner of {cap}. The operation boundary is inspectable; no execution was performed."},
  "hi":{"pause":"कार्य को रनटाइम गेट के माध्यम से रोका गया।","resume":"कार्य को रनटाइम गेट के माध्यम से फिर शुरू किया गया।","unavailable":"यह क्षमता वर्तमान में लागू रजिस्ट्री मार्ग के माध्यम से उपलब्ध नहीं है।","owner":"{owner} इस क्षमता का पंजीकृत उत्तरदायी पात्र है। ऑपरेशन सीमा निरीक्षण योग्य है; कोई निष्पादन नहीं किया गया।"},
