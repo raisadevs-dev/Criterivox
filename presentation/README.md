@@ -1,17 +1,35 @@
-# presentation
+# Criterivox Presentation Layer — Clean World Rebuild
 
-A new Flutter project.
+This branch rebuilds the Flutter presentation layer from the canonical Criterivox world model.
 
-## Getting Started
+## Visible navigation
 
-This project is a starting point for a Flutter application.
+1. Introduction
+2. Criterivox Workers / Bloom
+3. Human Civilians / Profile
 
-A few resources to get you started if this is your first Flutter project:
+## Gate 1
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+- Civic Centre
+- Bloom Nexus
+- Context & Data District
+- Interaction District
+- Intelligence District
+- Decision & Insight District
+- Evidence & Verification District
+- Knowledge District
+- Network Territory / Anukor
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Canonical placement: Context House (Dharen, Anuka); Data Stewardship House (Sandre, Kaelen); Gateway House (Syvax); Reasoning House (Vivren, Tarkis); Decision House (Pramon, Bodhex, Manis); Evidence House (Medrus, Epistre, Veridat); Knowledge House (Viveda); Network Territory (Anukor).
+
+## Gate 2
+
+Human Residence, Private Room, Collaboration Room, Decision Desk, Results Journal, Guest Camp, and Syvax Gateway.
+
+## Progressive disclosure
+
+Explorer 5–8, Learner 9–12, Investigator 13–17, Researcher 18–24, Professional 25–30+. These are UX disclosure targets, not access restrictions.
+
+## Truth boundary
+
+The presentation does not manufacture runtime telemetry, provenance, reasoning traces, evidence verification, authorization, or outcomes. Where an authoritative read model is not connected, the interface states that explicitly.
