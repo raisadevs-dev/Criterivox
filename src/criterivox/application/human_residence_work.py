@@ -16,6 +16,7 @@ from xml.etree import ElementTree as ET
 
 from criterivox.application.state_runtime import state_runtime
 from criterivox.character_backbone.language import interpret
+from criterivox.application.information_acquisition import PublicWebResearchProvider, analyze_information_need
 
 
 def now() -> str:
@@ -108,6 +109,21 @@ class ResidenceWorkEngine:
             "artifacts": [],
             "decisions": [],
             "authorization": {"status": "NOT_REQUESTED"},
+            "information_need": {
+                "state": "NOT_ANALYZED",
+                "reason": "Information sufficiency has not been assessed yet.",
+                "missing": [],
+                "recommended_research": False,
+                "research_question": goal,
+            },
+            "research": {
+                "authorization": "NOT_REQUESTED",
+                "state": "NOT_STARTED",
+                "scope": "public_web",
+                "query": goal,
+                "sources": [],
+                "attempts": [],
+            },
             "events": [],
             "language": language if language in {"en", "hi", "mr"} else "en",
             "created_at": now(),
@@ -212,6 +228,10 @@ class ResidenceWorkEngine:
                 "missing_information": [],
                 "status": "AWAITING_CONFIRMATION",
             }
+            info = analyze_information_need(goal=record["goal"], materials=record["materials"])
+            interpretation["missing_information"].extend(info["missing"])
+            record["information_need"] = info
+            record["research"]["query"] = info["research_question"]
             if language.ambiguous:
                 interpretation["missing_information"].append("Clarify the requested operation.")
             record["interpretation"] = interpretation
@@ -256,6 +276,77 @@ class ResidenceWorkEngine:
             self._checkpoint(record, "CONFIRMED", "material_review")
             self._save()
         self.start_work(work_id)
+        return self.get(work_id)
+
+    def research_plan(self, work_id: str) -> dict[str, Any]:
+        with self._lock:
+            record = self._records[str(work_id)]
+            info = analyze_information_need(goal=record["goal"], materials=record["materials"])
+            record["information_need"] = info
+            record["research"]["query"] = info["research_question"]
+            self._event(record, "INFORMATION_NEED_ANALYZED", "dharen", state=info["state"])
+            self._save()
+            return self._copy(record)
+
+    def authorize_research(self, work_id: str, *, actor: str = "human", scope: str = "public_web") -> dict[str, Any]:
+        scope = str(scope).strip().lower()
+        if scope != "public_web":
+            raise ValueError("only_public_web_research_is_supported")
+        with self._lock:
+            record = self._records[str(work_id)]
+            if record["status"] not in {"CONFIRMED", "WORKING", "READY_FOR_HUMAN", "UNDER_REVIEW", "DECISION_READY", "BLOCKED"}:
+                raise ValueError("research_not_available_for_current_work_state")
+            record["research"]["authorization"] = "AUTHORIZED"
+            record["research"]["scope"] = scope
+            record["authorization"]["research"] = {
+                "status": "AUTHORIZED", "scope": scope, "actor": actor, "timestamp": now(),
+            }
+            self._event(record, "RESEARCH_AUTHORIZED", actor, scope=scope)
+            self._save()
+        return self.run_research(work_id)
+
+    def run_research(self, work_id: str) -> dict[str, Any]:
+        with self._lock:
+            record = self._records[str(work_id)]
+            if record["research"].get("authorization") != "AUTHORIZED":
+                raise ValueError("research_requires_human_authorization")
+            query = str(record["research"].get("query") or record["goal"]).strip()
+            record["research"]["state"] = "RESEARCHING"
+            record["information_need"]["state"] = "RESEARCHING"
+            record["research"]["attempts"].append({
+                "attempt_id": f"RESRCH-{uuid.uuid4().hex[:10].upper()}",
+                "query": query, "scope": "public_web", "started_at": now(),
+            })
+            self._event(record, "RESEARCH_STARTED", "medrus", query=query, scope="public_web")
+            self._save()
+
+        results = PublicWebResearchProvider().acquire(query)
+
+        with self._lock:
+            record = self._records[str(work_id)]
+            sources = []
+            for index, result in enumerate(results, start=1):
+                source = result.as_dict()
+                source.update({
+                    "source_id": f"SRC-{uuid.uuid4().hex[:10].upper()}",
+                    "rank": index,
+                    "provenance_status": "ACQUIRED_PUBLIC_WEB",
+                })
+                sources.append(source)
+            state = "READY_FOR_STRATEGY" if sources else "INSUFFICIENT_EVIDENCE"
+            record["research"]["sources"] = sources
+            record["research"]["state"] = state
+            record["information_need"]["state"] = state
+            record["information_need"]["reason"] = (
+                f"Acquired {len(sources)} public-web source(s). Verification is still required."
+                if sources else "Public-web acquisition returned no usable sources."
+            )
+            if record["research"]["attempts"]:
+                record["research"]["attempts"][-1].update({"completed_at": now(), "result_count": len(sources)})
+            self._event(record, "RESEARCH_COMPLETED", "medrus", source_count=len(sources), state=state)
+            self._save()
+        if results:
+            self.start_work(work_id)
         return self.get(work_id)
 
     def add_material(
@@ -408,20 +499,22 @@ class ResidenceWorkEngine:
                 }
                 for m in materials
             ]
+            research_sources = record.get("research", {}).get("sources", [])
+            evidence_state = record.get("information_need", {}).get("state", "UNKNOWN")
             options = [
                 {
                     "option_id": "OPT-1",
                     "title": "Evidence-first review",
                     "description": "Prioritize extracted source material and resolve missing evidence before committing to a strategy.",
-                    "basis": [m["material_id"] for m in extracted],
-                    "status": "PREPARED",
+                    "basis": [m["material_id"] for m in extracted] or [s["source_id"] for s in research_sources],
+                    "status": "PREPARED" if evidence_state in {"AVAILABLE", "READY_FOR_STRATEGY"} else "EXPLORATORY_UNVALIDATED",
                 },
                 {
                     "option_id": "OPT-2",
                     "title": "Constraint-first planning",
                     "description": "Start from the recorded requirements and constraints, then compare feasible paths.",
                     "basis": [record["interpretation"]["interpretation_id"]],
-                    "status": "PREPARED",
+                    "status": "PREPARED" if evidence_state in {"AVAILABLE", "READY_FOR_STRATEGY"} else "EXPLORATORY_UNVALIDATED",
                 },
                 {
                     "option_id": "OPT-3",
@@ -438,6 +531,8 @@ class ResidenceWorkEngine:
                 "truth_class": "DETERMINISTIC_SYNTHESIS",
                 "materials": material_summary,
                 "options": options,
+                "information_state": evidence_state,
+                "research_sources": [s["source_id"] for s in research_sources],
                 "limitations": [
                     "No unsupported visual/OCR interpretation was claimed for images.",
                     "Options are deterministic workflow scaffolding, not an autonomous decision.",
