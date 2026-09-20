@@ -38,6 +38,9 @@ class PresentationContract:
     unified_state_source: str | None = None
     unified_workflow_outcome: str | None = None
     unified_status: str | None = None
+    unified_detected_language: str = "en"
+    unified_response_language: str = "en"
+    unified_language_confidence: float | None = None
     foundation_id: str | None = None
     foundation_material_set_id: str | None = None
     foundation_source_count: int | None = None
