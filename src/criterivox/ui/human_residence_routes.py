@@ -83,6 +83,34 @@ async def add_material(work_id: str, payload: dict[str, Any]):
         return _error(exc)
 
 
+@router.post("/work/{work_id}/pause")
+async def pause_work(work_id: str, payload: dict[str, Any] | None = None):
+    try:
+        return {"accepted": True, "work": residence_work.pause(work_id, str((payload or {}).get("actor", "human")))}
+    except (KeyError, ValueError) as exc:
+        return _error(exc)
+
+@router.post("/work/{work_id}/resume")
+async def resume_work(work_id: str, payload: dict[str, Any] | None = None):
+    try:
+        return {"accepted": True, "work": residence_work.resume(work_id, str((payload or {}).get("actor", "human")))}
+    except (KeyError, ValueError) as exc:
+        return _error(exc)
+
+@router.get("/work/{work_id}/timeline")
+async def work_timeline(work_id: str):
+    try:
+        return {"accepted": True, "events": residence_work.timeline(work_id)}
+    except KeyError:
+        return _error(ValueError("work_not_found"), 404)
+
+@router.get("/work/{work_id}/artifacts")
+async def work_artifacts(work_id: str):
+    try:
+        return {"accepted": True, "artifacts": residence_work.artifacts(work_id)}
+    except KeyError:
+        return _error(ValueError("work_not_found"), 404)
+
 @router.post("/work/{work_id}/take")
 async def take_work(work_id: str, payload: dict[str, Any] | None = None):
     try:
