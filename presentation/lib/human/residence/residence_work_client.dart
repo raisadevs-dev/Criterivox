@@ -19,6 +19,8 @@ class ResidenceWorkClient {
     _check(r); return Map<String,dynamic>.from(jsonDecode(r.body)['work']);
   }
   Future<Map<String,dynamic>> interpret(String id) async => _call(id,'interpret',{});
+  Future<Map<String,dynamic>> researchPlan(String id) async => _call(id,'research/plan',{});
+  Future<Map<String,dynamic>> authorizeResearch(String id) async => _call(id,'research/authorize',{'actor':'human','scope':'public_web'});
   Future<Map<String,dynamic>> confirm(String id,bool confirmed,{String? correction}) async => _call(id,'confirm',{'actor':'human','confirmed':confirmed,'correction':correction});
   Future<Map<String,dynamic>> addMaterial(String id,PlatformFile file) async {
     if(file.bytes==null) throw Exception('Selected file is not readable.');
