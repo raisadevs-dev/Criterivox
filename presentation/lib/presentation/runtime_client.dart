@@ -1,7 +1,8 @@
 import 'dart:async'; import 'dart:convert'; import 'package:flutter/foundation.dart'; import 'package:web_socket_channel/web_socket_channel.dart'; import 'presentation_state.dart';
 class RuntimeClient extends ChangeNotifier {
  final String url; WebSocketChannel? _channel; StreamSubscription? _sub; final _states=StreamController<PresentationState>.broadcast(); PresentationState _state=const PresentationState(); String? _taskId,_journeyId;
- RuntimeClient({String? url}):url=url??'ws://127.0.0.1:8017/runtime/characters';
+ RuntimeClient({String? url}):url=url??_defaultUrl();
+ static String _defaultUrl(){if(kIsWeb){final host=Uri.base.host.isEmpty?'127.0.0.1':Uri.base.host;return '${Uri.base.scheme=='https'?'wss':'ws'}://$host:8017/runtime/characters';}if(defaultTargetPlatform==TargetPlatform.android)return 'ws://10.0.2.2:8017/runtime/characters';return 'ws://127.0.0.1:8017/runtime/characters';}
  PresentationState get state=>_state; Stream<PresentationState> get states=>_states.stream; bool get connected=>_state.connected; String? get taskId=>_taskId; String? get journeyId=>_journeyId;
  Future<void> connect() async { if(connected)return; try { _channel=WebSocketChannel.connect(Uri.parse(url)); await _channel!.ready; _state=PresentationState.fromJson({'event':'RUNTIME_CONNECTED','character_id':'syvax'},connected:true); notifyListeners(); _sub=_channel!.stream.listen(_receive,onError:_error,onDone:_done); } catch(e){_error(e);} }
  Future<void> send({required String message,required String characterId,String? taskId,String? journeyId}) async { if(!connected)await connect(); _taskId=taskId??_taskId??'CHAT-'+DateTime.now().microsecondsSinceEpoch.toString(); _journeyId=journeyId??_journeyId??'JRN-'+DateTime.now().microsecondsSinceEpoch.toString(); _channel?.sink.add(jsonEncode({'type':'chat_message','target_character':characterId,'task_id':_taskId,'journey_id':_journeyId,'message':message,'data':{},'context':{},'references':[]})); }
