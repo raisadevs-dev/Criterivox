@@ -250,7 +250,7 @@ async def character_runtime(websocket: WebSocket) -> None:
                 except Exception as exc:
                     await websocket.send_json({"message_type":"operation_state","classification":"ERROR","error":str(exc)})
             elif isinstance(payload, dict) and payload.get("type") == "chat_message":
-                asyncio.create_task(_safe_request(handle_chat_message, payload))
+                await _safe_request(handle_chat_message, payload)
             elif isinstance(payload, dict) and payload.get("type") in {"data_intake", "data_folder"}: asyncio.create_task(_safe_data_intake(payload))
             elif isinstance(payload, dict) and payload.get("type") == "data_action": asyncio.create_task(_safe_data_action(payload))
             elif isinstance(payload, dict) and payload.get("type") == "context_build": asyncio.create_task(_safe_context_build(payload))
