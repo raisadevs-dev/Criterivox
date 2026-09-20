@@ -1,0 +1,1 @@
+import 'package:flutter/material.dart';import 'character_registry.dart';class CharacterFocusPanel extends StatelessWidget{final CharacterDefinition character;const CharacterFocusPanel({super.key,required this.character});@override Widget build(BuildContext c)=>ListTile(title:Text(character.name),subtitle:Text(character.role));}

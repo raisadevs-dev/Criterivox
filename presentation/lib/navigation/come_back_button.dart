@@ -1,0 +1,1 @@
+import 'package:flutter/material.dart';class ComeBackButton extends StatelessWidget{const ComeBackButton({super.key});@override Widget build(BuildContext c)=>OutlinedButton.icon(onPressed:()=>Navigator.of(c).maybePop(),icon:const Icon(Icons.arrow_back),label:const Text('Come Back'));}

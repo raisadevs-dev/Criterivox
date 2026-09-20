@@ -1,0 +1,1 @@
+import 'package:flutter/material.dart';import '../home_shell.dart';class GatewayHome extends StatelessWidget{const GatewayHome({super.key});@override Widget build(BuildContext c)=>const HomeShell(title:'Gateway Home',residents:'Syvax',rooms:['Syvax Reception','Routing Radar Wall','Dialogue Archive','Universal Intake Desk','UI Workbench','Steering Console']);}

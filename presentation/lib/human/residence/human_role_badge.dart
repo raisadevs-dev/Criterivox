@@ -1,0 +1,1 @@
+import 'package:flutter/material.dart';class HumanRoleBadge extends StatelessWidget{final String role;const HumanRoleBadge({super.key,required this.role});@override Widget build(BuildContext c)=>Chip(label:Text(role));}

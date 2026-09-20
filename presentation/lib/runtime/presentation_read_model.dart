@@ -1,0 +1,1 @@
+import 'capability_status.dart';class PresentationReadModel{final CapabilityStatus capability;final String?status;const PresentationReadModel({this.capability=CapabilityStatus.notConnected,this.status});}

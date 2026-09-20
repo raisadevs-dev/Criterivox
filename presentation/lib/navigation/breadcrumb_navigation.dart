@@ -1,0 +1,1 @@
+import 'package:flutter/material.dart';class BreadcrumbNavigation extends StatelessWidget{final List<String>items;const BreadcrumbNavigation({super.key,required this.items});@override Widget build(BuildContext c)=>Wrap(spacing:6,children:items.map((x)=>Text(x,style:const TextStyle(fontSize:10,color:Color(0xFF91A0B2)))).toList());}

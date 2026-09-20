@@ -1,0 +1,1 @@
+import 'package:flutter/material.dart';class GoFurtherButton extends StatelessWidget{final VoidCallback onPressed;const GoFurtherButton({super.key,required this.onPressed});@override Widget build(BuildContext c)=>FilledButton.icon(onPressed:onPressed,icon:const Icon(Icons.arrow_forward),label:const Text('Go Further'));}

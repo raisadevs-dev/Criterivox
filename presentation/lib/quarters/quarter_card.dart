@@ -1,0 +1,1 @@
+import 'package:flutter/material.dart';class QuarterCard extends StatelessWidget{final String title,description;final VoidCallback onTap;const QuarterCard({super.key,required this.title,required this.description,required this.onTap});@override Widget build(BuildContext c)=>Card(child:ListTile(title:Text(title),subtitle:Text(description),onTap:onTap));}

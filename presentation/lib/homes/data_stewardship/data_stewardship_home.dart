@@ -1,0 +1,1 @@
+import 'package:flutter/material.dart';import '../home_shell.dart';class DataStewardshipHome extends StatelessWidget{const DataStewardshipHome({super.key});@override Widget build(BuildContext c)=>const HomeShell(title:'Data Foundation Home',residents:'Sandre + Kaelen',rooms:['Stewardship Hall','Pipeline Workshop','Lineage Archive','Semantic Catalog','Quality Gate']);}
