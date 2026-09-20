@@ -32,7 +32,8 @@ _INTENTS = (
     ("ACCEPT", ("accept", "approve", "authorize")),
     ("REJECT", ("reject", "deny")),
     ("MODIFY", ("modify",)),
-    ("PREPARE_ACTION", ("prepare action", "show action", "check authorization")),\n    ("EXECUTE", ("execute", "run the action")),
+    ("PREPARE_ACTION", ("prepare action", "show action", "check authorization")),
+    ("EXECUTE", ("execute", "run the action")),
     ("VERIFY", ("verify", "did it actually happen", "check the result")),
     ("SHOW_PROVENANCE", ("show provenance", "where did this come from")),
     ("KNOWLEDGE", ("what did we learn", "can this be reused", "is this verified")),
@@ -45,11 +46,13 @@ _CHARACTERS = {
     "anuka":"anuka","vivren":"vivren","tarkis":"tarkis","pramon":"pramon","bodhex":"bodhex",
     "medrus":"medrus","epistre":"epistre","veridat":"veridat","manis":"manis","viveda":"viveda","anukor":"anukor",
 }
+
 def normalize(text:str)->str:
     return re.sub(r"\s+"," ", text.strip().casefold())
 
 def interpret(text:str)->LanguageResult:
-    raw=text or ""; normalized=normalize(raw)
+    raw=text or ""
+    normalized=normalize(raw)
     matches=[(intent,phrase) for intent,phrases in _INTENTS for phrase in phrases if phrase in normalized]
     unique=[]
     for intent,_ in matches:
@@ -60,7 +63,9 @@ def interpret(text:str)->LanguageResult:
     target=None
     for alias,cid in _CHARACTERS.items():
         if re.search(rf"\b{re.escape(alias)}\b",normalized):
-            target=cid; entities["character"]=cid; break
+            target=cid
+            entities["character"]=cid
+            break
     task=re.search(r"\b(?:task|journey)\s*[:#]?\s*([A-Za-z0-9_-]+)",raw,re.I)
     if task: entities["task_id"]=task.group(1)
     requested_output={"QUERY_PAST_STATE":"history","QUERY_CURRENT_STATE":"status","QUERY_NEXT_STATE":"next","VERIFY":"verification","SHOW_PROVENANCE":"provenance"}.get(intent)
