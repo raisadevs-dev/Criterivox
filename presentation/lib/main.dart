@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 void main() => runApp(const CriterivoxApp());
@@ -90,7 +91,7 @@ class _ShellState extends State<Shell> {
       ),
       Expanded(child:switch(area){
         Area.introduction=>Intro(onWorkers:()=>setState(()=>area=Area.workers),onHumans:()=>setState(()=>area=Area.humans)),
-        Area.workers=>WorkersPage(depth:depth,house:house,worker:worker,onHouse:(v)=>setState(()=>{house=v;worker=null}),onWorker:(v)=>setState(()=>{worker=v;house=workers.firstWhere((x)=>x.name==v).house})),
+        Area.workers=>WorkersPage(depth:depth,house:house,worker:worker,onHouse:(v)=>setState(() { house=v; worker=null; }),onWorker:(v)=>setState(() { worker=v; house=workers.firstWhere((x)=>x.name==v).house; })),
         Area.humans=>const HumansPage(),
       }),
     ]),
@@ -156,7 +157,7 @@ class BloomPainter extends CustomPainter {
   @override void paint(Canvas c,Size s){
     final p=Paint()..color=const Color(0xFF213544)..style=PaintingStyle.stroke;
     final center=Offset(s.width/2,s.height/2);
-    for(var i=0;i<8;i++){final a=i*3.14159/4;c.drawLine(center,Offset(center.dx+170*a.cos(),center.dy+145*a.sin()),p);}
+    for(var i=0;i<8;i++){final a=i*3.14159/4;c.drawLine(center,Offset(center.dx+170*math.cos(a),center.dy+145*math.sin(a)),p);}
     final g=Paint()..color=const Color(0x33213544);
     for(var x=0.0;x<s.width;x+=55)c.drawLine(Offset(x,0),Offset(x,s.height),g);
     for(var y=0.0;y<s.height;y+=45)c.drawLine(Offset(0,y),Offset(s.width,y),g);
