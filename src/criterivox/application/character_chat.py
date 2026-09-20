@@ -7,6 +7,7 @@ from criterivox.application.failure_telemetry import FailureType, TELEMETRY
 from criterivox.domain.characters import CharacterState
 from criterivox.domain.context_intelligence import ObservabilityTimeline
 from criterivox.character_backbone.set4 import Set4Runtime
+from criterivox.character_backbone.unified_runtime import UnifiedCharacterRuntime
 
 
 @dataclass(frozen=True, slots=True)
@@ -51,6 +52,7 @@ except (FileNotFoundError, ImportError, ValueError):
 SCRATCHPADS = ScratchpadRegistry()
 OBSERVABILITY = ObservabilityTimeline()
 SET4 = Set4Runtime()
+UNIFIED_RUNTIME = UnifiedCharacterRuntime(SET4)
 
 
 def profile_for(character_id: str) -> CharacterChatProfile:
@@ -114,6 +116,7 @@ async def handle_character_chat(payload: dict) -> None:
     profile = profile_for(target)
     journey_id = str(payload.get("journey_id") or f"JRN-{task_id}")
     SET4.chat(journey_id, character=target, message=message, task_id=task_id)
+    unified = UNIFIED_RUNTIME.handle(message, task_id=task_id, character_id=target, journey_id=journey_id)
     scratchpad = SCRATCHPADS.for_task(task_id)
 
     failure_type = _failure_from_message(message)
@@ -137,7 +140,7 @@ async def handle_character_chat(payload: dict) -> None:
     scratchpad.put("active_character", target)
     await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.WORK, active=True, prominence=.9, message=f"Working within the {profile.character_id} response domain.", event="CHARACTER_CHAT_WORKING", task_id=task_id, activity=activity(), observability_events=traces(), failure_id=failure_event.event_id if failure_event else None, failure_type=failure_event.failure_type.value if failure_event else None))
     scratchpad.put("response_domain", profile.character_id)
-    response = response_for(target, message)
+    response = unified.human_text if unified.machine.get("status") not in {"CAPABILITY_UNAVAILABLE", "CLARIFICATION_REQUIRED"} else response_for(target, message)
     scratchpad.put("last_response", response)
     OBSERVABILITY.record(task_id=task_id, character_id=target, action="COMMUNICATE", reason="Return role-bounded response.", output=response, failure_id=failure_event.event_id if failure_event else None)
     await runtime_connections.publish(PresentationContract.from_state(target, CharacterState.COMMUNICATE, active=True, prominence=.9, message=response, event="CHARACTER_CHAT_RESPONSE", task_id=task_id, activity=activity(), observability_events=traces(), failure_id=failure_event.event_id if failure_event else None, failure_type=failure_event.failure_type.value if failure_event else None))
