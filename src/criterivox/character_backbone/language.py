@@ -32,7 +32,7 @@ def _resource_intents(lang:str)->dict[str,tuple[str,...]]:
 def _detect(text:str)->tuple[str,float]:
  n=normalize(text)
  if re.search(r"[\u0900-\u097F]",n):
-  mr=sum(x in n for x in ("आत्ता","चालले","पुढे","गरज","अट","कृती","आपण","शिकलो"))
+  mr=sum(x in n for x in ("आत्ता","चालले","काय","पुढे","गरज","अट","कृती","आपण","शिकलो","का"))
   hi=sum(x in n for x in ("क्या","हुआ","अभी","आगे","आवश्यकता","कार्रवाई","हमने","दिखाओ","सत्यापित"))
   return ("mr",0.90) if mr>hi else ("hi",0.90 if hi>mr else 0.55)
  return "en",0.99
