@@ -61,3 +61,39 @@ def test_residence_xlsx_is_not_silently_accepted_as_text(tmp_path: Path):
         data=b"not a valid xlsx",
     )
     assert material["extraction_status"] == "EXTRACTION_FAILED"
+
+
+def test_residence_requires_authorization_before_public_research(tmp_path: Path):
+    engine = ResidenceWorkEngine(path=tmp_path / "work.json", material_root=tmp_path / "materials")
+    work = engine.create_work(owner_id="human", room_id="private", goal="Find public information about a research topic")
+    engine.interpret_work(work["work_id"])
+    with __import__("pytest").raises(ValueError, match="research_requires_human_authorization"):
+        engine.run_research(work["work_id"])
+
+
+def test_residence_public_research_is_recorded_and_bounded(tmp_path: Path, monkeypatch):
+    from criterivox.application.information_acquisition import ResearchResult
+    from criterivox.application import human_residence_work as module
+
+    engine = ResidenceWorkEngine(path=tmp_path / "work.json", material_root=tmp_path / "materials")
+    work = engine.create_work(owner_id="human", room_id="private", goal="Find public information about a research topic")
+    engine.interpret_work(work["work_id"])
+    engine.confirm(work["work_id"])
+
+    class FakeProvider:
+        def acquire(self, query):
+            return [ResearchResult(
+                query=query,
+                source_url="https://example.com/research",
+                title="Public source",
+                snippet="Evidence excerpt.",
+                fetched=True,
+                content_excerpt="Evidence excerpt.",
+            )]
+
+    monkeypatch.setattr(module, "PublicWebResearchProvider", FakeProvider)
+    result = engine.authorize_research(work["work_id"], scope="public_web")
+    assert result["research"]["authorization"] == "AUTHORIZED"
+    assert result["research"]["state"] == "READY_FOR_STRATEGY"
+    assert result["information_need"]["state"] == "READY_FOR_STRATEGY"
+    assert result["research"]["sources"][0]["provenance_status"] == "ACQUIRED_PUBLIC_WEB"
