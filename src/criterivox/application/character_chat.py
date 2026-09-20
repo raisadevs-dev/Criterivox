@@ -115,7 +115,7 @@ async def handle_character_chat(payload: dict) -> None:
     task_id = str(payload.get("task_id", "UNBOUND")).strip() or "UNBOUND"
     profile = profile_for(target)
     journey_id = str(payload.get("journey_id") or f"JRN-{task_id}")
-    SET4.chat(journey_id, character=target, message=message, task_id=task_id)
+    from criterivox.application.state_runtime import state_runtime\n    journey = state_runtime.ensure_journey(task_id, goal=message)\n    journey_id = journey.journey_id\n    SET4.chat(journey_id, character=target, message=message, task_id=task_id)
     unified = UNIFIED_RUNTIME.handle(message, task_id=task_id, character_id=target, journey_id=journey_id)
     scratchpad = SCRATCHPADS.for_task(task_id)
 
