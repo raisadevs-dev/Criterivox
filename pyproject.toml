@@ -12,6 +12,7 @@ dependencies = [
     "pydantic>=2,<3",
     "pydantic-settings>=2,<3",
     "scikit-learn>=1.9,<1.10",
+    "PyYAML>=6,<7",
 ]
 
 [project.optional-dependencies]
