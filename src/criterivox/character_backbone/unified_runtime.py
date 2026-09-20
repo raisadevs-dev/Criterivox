@@ -1,6 +1,8 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Any\nfrom pathlib import Path\nimport json
+from typing import Any
+from pathlib import Path
+import json
 from .language import interpret, LanguageResult
 from .capability_discovery import discover, CapabilityMatch
 from criterivox.application.state_runtime import state_runtime
