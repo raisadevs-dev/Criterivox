@@ -24,6 +24,8 @@ class ResidenceWorkClient {
     return _call(id,'materials',{'filename':file.name,'content_type':'application/octet-stream','content_base64':base64Encode(file.bytes!)});
   }
   Future<Map<String,dynamic>> take(String id)=>_call(id,'take',{'actor':'human'});
+  Future<Map<String,dynamic>> pause(String id)=>_call(id,'pause',{'actor':'human'});
+  Future<Map<String,dynamic>> resume(String id)=>_call(id,'resume',{'actor':'human'});
   Future<Map<String,dynamic>> challenge(String id,String type,String text)=>_call(id,'challenge',{'actor':'human','challenge_type':type,'text':text});
   Future<Map<String,dynamic>> decide(String id,String optionId,String modification)=>_call(id,'decide',{'actor':'human','option_id':optionId,'modification':modification});
   Future<Map<String,dynamic>> authorize(String id)=>_call(id,'authorize',{'actor':'human'});
