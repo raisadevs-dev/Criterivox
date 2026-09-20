@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
 
 class ResidenceWorkClient {
   final String baseUrl;
@@ -9,12 +10,12 @@ class ResidenceWorkClient {
     final host = Uri.base.host.isEmpty ? '127.0.0.1' : Uri.base.host;
     return '\${Uri.base.scheme == 'https' ? 'https' : 'http'}://$host:8017';
   }
-  Future<List<Map<String,dynamic>>> list() async {
-    final r=await http.get(Uri.parse('$baseUrl/api/residence/work?owner_id=human'));
+  Future<List<Map<String,dynamic>>> list({String roomId = 'private'}) async {
+    final r=await http.get(Uri.parse('$baseUrl/api/residence/work?owner_id=human&room_id=$roomId'));
     _check(r); return List<Map<String,dynamic>>.from(jsonDecode(r.body)['work'] as List);
   }
-  Future<Map<String,dynamic>> create(String goal,String language,List<String> requirements,List<String> constraints,String output) async {
-    final r=await http.post(Uri.parse('$baseUrl/api/residence/work'),headers:{'content-type':'application/json'},body:jsonEncode({'owner_id':'human','room_id':'private','goal':goal,'language':language,'requirements':requirements,'constraints':constraints,'expected_output':output}));
+  Future<Map<String,dynamic>> create(String goal,String language,List<String> requirements,List<String> constraints,String output,{String roomId='private'}) async {
+    final r=await http.post(Uri.parse('$baseUrl/api/residence/work'),headers:{'content-type':'application/json'},body:jsonEncode({'owner_id':'human','room_id':roomId,'goal':goal,'language':language,'requirements':requirements,'constraints':constraints,'expected_output':output}));
     _check(r); return Map<String,dynamic>.from(jsonDecode(r.body)['work']);
   }
   Future<Map<String,dynamic>> interpret(String id) async => _call(id,'interpret',{});
