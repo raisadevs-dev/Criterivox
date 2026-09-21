@@ -1,0 +1,65 @@
+schema_version: "1.0"
+registry_id: "criterivox.character.visual.registry.v1"
+status: "IMPLEMENTED_CONTRACT"
+source_references:
+  - "uploaded Criterivox civilization reference image set"
+  - "configs/character_chat/character_registry.yaml"
+
+visual_system:
+  model: "2.5D_runtime_procedural_vector"
+  hero_portrait_policy: "one_authored_portrait_per_character"
+  runtime_body_policy: "procedural_vector_layers"
+  animation_policy: "state_driven"
+  portrait_usage: "character_identity_surfaces_only"
+  body_usage: "bloom_homes_chat_residence"
+  truth_rule: "visual motion may represent recorded runtime state only; it must not invent work, reasoning, evidence, transfer, or execution."
+
+states:
+  operational:
+    - IDLE
+    - RECEIVE
+    - WORK
+    - COMMUNICATE
+    - HANDOFF
+    - COMPLETE
+    - WARNING
+  attention:
+    - QUIET
+    - ATTENTIVE
+    - FOCUSED
+    - BUSY
+    - WAITING
+    - NEEDS_USER
+    - COMPLETING
+    - RECOVERING
+
+assets:
+  hero_portrait_pattern: "assets/characters/portraits/{character_id}.webp"
+  reference_images_are_not_runtime_assets: true
+  runtime_character_parts:
+    - silhouette
+    - head
+    - face
+    - hair
+    - clothing
+    - limbs
+    - accessory
+    - state_overlay
+    - grounding_shadow
+
+characters:
+  syvax:   {visual_family: "gateway", accent: "cyan",    accessory: "interface_orb"}
+  sandre:  {visual_family: "steward", accent: "gold",    accessory: "data_archive"}
+  kaelen:  {visual_family: "builder", accent: "amber",   accessory: "builder_tool"}
+  dharen:  {visual_family: "context", accent: "gold",    accessory: "context_compass"}
+  anuka:   {visual_family: "adaptive", accent: "magenta", accessory: "adaptive_ribbon"}
+  vivren:  {visual_family: "critical", accent: "violet", accessory: "inspection_lens"}
+  tarkis:  {visual_family: "hypothesis", accent: "orange", accessory: "orb"}
+  pramon:  {visual_family: "planning", accent: "gold", accessory: "planning_tablet"}
+  bodhex:  {visual_family: "action", accent: "blue", accessory: "action_module"}
+  medrus:  {visual_family: "evidence", accent: "cyan", accessory: "evidence_tablet"}
+  epistre: {visual_family: "explanation", accent: "gold", accessory: "knowledge_book"}
+  veridat: {visual_family: "verification", accent: "white", accessory: "verification_lens"}
+  manis:   {visual_family: "challenge", accent: "green", accessory: "challenge_token"}
+  viveda:  {visual_family: "knowledge", accent: "blue", accessory: "knowledge_cube"}
+  anukor:  {visual_family: "transfer", accent: "violet", accessory: "transfer_orb"}
