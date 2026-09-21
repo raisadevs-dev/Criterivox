@@ -11,6 +11,7 @@ from fastapi.responses import JSONResponse, Response
 from ..research.models import ResearchConsent
 from ..research.telemetry import research_evidence
 from ..research.export import build_csv_bundle, build_json_export
+from ..application.human_residence_work import residence_work
 
 router = APIRouter(prefix="/api/research", tags=["research"])
 
@@ -58,6 +59,14 @@ async def record_consent(payload: dict[str, Any]):
     research_evidence.register_consent(consent)
     return {"accepted": True, "consent": consent.to_dict(), "collection_enabled": research_evidence.enabled}
 
+
+
+@router.post("/attach-work/{work_id}")
+async def attach_work(work_id: str, payload: dict[str, Any]):
+    try:
+        return {"accepted": True, "work": residence_work.attach_research_session(work_id, session_id=str(payload.get("session_id", "")), participant_id=str(payload.get("participant_id", "")))}
+    except (KeyError, ValueError) as exc:
+        return _error(exc)
 
 @router.get("/summary")
 async def summary(x_research_admin_token: str | None = None):
