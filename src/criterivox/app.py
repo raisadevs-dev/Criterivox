@@ -14,7 +14,6 @@ from .domain.analysis import AnalysisTaskSource
 from .domain.characters import CharacterState
 from .domain.context_intelligence import ObservabilityTimeline
 from .application.analysis_tasks import analysis_tasks
-from .application.character_chat import PROFILES, handle_character_chat, sign_off_task_scratchpad
 from .application.context_engine import ContextEngine
 from .application.data_foundation_store import data_foundations
 from .application.sandre_stewardship import SandreStewardship
