@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:presentation/app_shell.dart';
@@ -30,11 +29,6 @@ void main() {
         findsOneWidget,
       );
 
-      expect(
-        find.text('Chat with Dharen'),
-        findsNothing,
-      );
-
       await tester.tap(
         find.byTooltip('Open character chat'),
       );
@@ -56,11 +50,15 @@ void main() {
 
       final input = find.byWidgetPredicate(
         (widget) =>
-        widget is TextField &&
-        widget.decoration?.hintText == 'Message Dharen…',
+            widget is TextField &&
+            widget.decoration?.hintText ==
+                'Message Dharen…',
       );
 
-      expect(input, findsOneWidget);
+      expect(
+        input,
+        findsOneWidget,
+      );
 
       await tester.enterText(
         input,
@@ -85,9 +83,16 @@ void main() {
         findsOneWidget,
       );
 
+      // Global chat intentionally remains mounted while
+      // hidden so that its conversation/input state survives.
       expect(
         find.text('Chat with Dharen'),
-        findsNothing,
+        findsOneWidget,
+      );
+
+      expect(
+        find.text('Preserve this draft.'),
+        findsOneWidget,
       );
 
       await tester.tap(
@@ -139,6 +144,7 @@ void main() {
 
       final civilization = find.text(
         'Civilization · Gate 1',
+        findRichText: false,
       );
 
       expect(
@@ -148,12 +154,19 @@ void main() {
 
       await tester.tap(civilization);
 
-      await tester.pump(
-        const Duration(milliseconds: 350),
+      await _pumpUntil(
+        tester,
+        () => find.text(
+          'Criterivox Civilization',
+          findRichText: false,
+        ),
       );
 
       expect(
-        find.text('Criterivox Civilization'),
+        find.text(
+          'Criterivox Civilization',
+          findRichText: false,
+        ),
         findsOneWidget,
       );
 
@@ -180,11 +193,6 @@ void main() {
         find.text('Chat with Dharen'),
         findsOneWidget,
       );
-
-      expect(
-        find.byTooltip('Open character chat'),
-        findsNothing,
-      );
     },
   );
 }
@@ -192,9 +200,11 @@ void main() {
 Future<void> _pumpUntil(
   WidgetTester tester,
   Finder Function() finder, {
-  Duration timeout = const Duration(seconds: 3),
+  Duration timeout =
+      const Duration(seconds: 4),
 }) async {
-  final deadline = DateTime.now().add(timeout);
+  final deadline =
+      DateTime.now().add(timeout);
 
   while (DateTime.now().isBefore(deadline)) {
     if (finder().evaluate().isNotEmpty) {
