@@ -77,7 +77,7 @@ class _CharacterPainter extends CustomPainter {
         attentionState == CharacterAttentionState.busy;
     final active = operationalState != CharacterOperationalState.idle;
 
-    final shadow = Paint()..color = Colors.black.withOpacity(.22);
+    final shadow = Paint()..color = Colors.black.withValues(alpha: .22);
     canvas.drawOval(
       Rect.fromCenter(
         center: Offset(cx, size.height - 12 * s),
@@ -104,7 +104,7 @@ class _CharacterPainter extends CustomPainter {
     canvas.drawRRect(torso, body);
 
     final shoulderGlow = Paint()
-      ..color = definition.accent.withOpacity(active ? .22 : .10)
+      ..color = definition.accent.withValues(alpha: active ? .22 : .10)
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 8 * s);
     canvas.drawCircle(Offset(cx, 145 * s + breath), 30 * s, shoulderGlow);
 
@@ -191,7 +191,7 @@ class _CharacterPainter extends CustomPainter {
       final ring = Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2 * s
-        ..color = definition.accent.withOpacity(.55);
+        ..color = definition.accent.withValues(alpha: .55);
       final pulse = 48 * s + (math.sin(phase * math.pi * 2) + 1) * 4 * s;
       canvas.drawCircle(Offset(cx, 78 * s + breath), pulse, ring);
     }
@@ -199,7 +199,7 @@ class _CharacterPainter extends CustomPainter {
 
   void _paintAccessory(Canvas canvas, double cx, double breath, double s) {
     final glow = Paint()
-      ..color = definition.accent.withOpacity(.28)
+      ..color = definition.accent.withValues(alpha: .28)
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 7 * s);
 
     if (definition.accessory.contains('orb')) {

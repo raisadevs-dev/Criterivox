@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../lib/presentation/unified_runtime_response.dart';
+import 'package:presentation/presentation/unified_runtime_response.dart';
 
 void main() {
   test('parses authoritative unified runtime envelope', () {

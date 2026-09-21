@@ -8,7 +8,7 @@ class ResidenceWorkClient {
   ResidenceWorkClient({String? baseUrl}) : baseUrl = baseUrl ?? _defaultBaseUrl();
   static String _defaultBaseUrl() {
     final host = Uri.base.host.isEmpty ? '127.0.0.1' : Uri.base.host;
-    return '\${Uri.base.scheme == 'https' ? 'https' : 'http'}://$host:8017';
+    return '${Uri.base.scheme == 'https' ? 'https' : 'http'}://$host:8017';
   }
   Future<List<Map<String,dynamic>>> list({String roomId = 'private'}) async {
     final r=await http.get(Uri.parse('$baseUrl/api/residence/work?owner_id=human&room_id=$roomId'));

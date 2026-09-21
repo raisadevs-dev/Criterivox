@@ -1,7 +1,150 @@
 Analyzing presentation...                                       
 
-   info - Statements in an if should be enclosed in a block. Try wrapping the statement in a block - lib\character\session_character_animation.dart:91:28 - curly_braces_in_flow_control_structures
-   info - Statements in an if should be enclosed in a block. Try wrapping the statement in a block - lib\collaboration_room_page.dart:70:9 - curly_braces_in_flow_control_structures
-   info - Statements in an if should be enclosed in a block. Try wrapping the statement in a block - lib\collaboration_room_page.dart:74:9 - curly_braces_in_flow_control_structures
-   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion. Try replacing the use of the deprecated member with the replacement - test\character_visual_animation_system_test.dart:11:30 - deprecated_member_use
+   info - Use interpolation to compose strings and values. Try using string interpolation to build the composite string - lib\chat\character_chat_page.dart:14:471 - prefer_interpolation_to_compose_strings
+   info - Use interpolation to compose strings and values. Try using string interpolation to build the composite string - lib\chat\character_chat_page.dart:14:531 - prefer_interpolation_to_compose_strings
+   info - Use interpolation to compose strings and values. Try using string interpolation to build the composite string - lib\chat\character_chat_page.dart:14:609 - prefer_interpolation_to_compose_strings
+   info - Use interpolation to compose strings and values. Try using string interpolation to build the composite string - lib\chat\character_chat_page.dart:14:685 - prefer_interpolation_to_compose_strings
+   info - Use interpolation to compose strings and values. Try using string interpolation to build the composite string - lib\chat\character_chat_page.dart:14:751 - prefer_interpolation_to_compose_strings
+  error - The argument type 'Iterable<InvalidType>' can't be assigned to the parameter type 'List<Widget>'.  - lib\homes\home_shell.dart:1:696 - argument_type_not_assignable
+  error - The method 'toList' isn't defined for the type 'ActionChip'. Try correcting the name to the name of an existing method, or defining a method named 'toList' - lib\homes\home_shell.dart:1:936 - undefined_method
+  error - Too many positional arguments: 0 expected, but 4 found. Try removing the extra positional arguments, or specifying the name for named arguments - lib\homes\home_shell.dart:1:947 - extra_positional_arguments_could_be_named
+  error - Expected a method, getter, setter or operator declaration. This appears to be incomplete code. Try removing it or completing it - lib\human\guest_pass\guest_pass_page.dart:1:999 - expected_executable
+  error - Expected a method, getter, setter or operator declaration. This appears to be incomplete code. Try removing it or completing it - lib\human\private_room\private_room.dart:1:1061 - expected_executable
+  error - The argument type 'Iterable<InvalidType>' can't be assigned to the parameter type 'List<Widget>'.  - lib\human\residence\human_residence_page.dart:19:103 - argument_type_not_assignable
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:19:188 - expected_token
+  error - Too many positional arguments: 1 expected, but 3 found. Try removing the extra positional arguments, or specifying the name for named arguments - lib\human\residence\human_residence_page.dart:19:188 - extra_positional_arguments_could_be_named
+  error - Undefined name 'goal'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:19:188 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:19:192 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:19:228 - expected_token
+  error - Too many positional arguments: 1 expected, but 3 found. Try removing the extra positional arguments, or specifying the name for named arguments - lib\human\residence\human_residence_page.dart:19:228 - extra_positional_arguments_could_be_named
+  error - Undefined name 'ready_items'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:19:228 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:19:239 - expected_token
+  error - The method 'toList' isn't defined for the type 'ListTile'. Try correcting the name to the name of an existing method, or defining a method named 'toList' - lib\human\residence\human_residence_page.dart:19:348 - undefined_method
+  error - Too many positional arguments: 0 expected, but 2 found. Try removing the extra positional arguments, or specifying the name for named arguments - lib\human\residence\human_residence_page.dart:20:5 - extra_positional_arguments_could_be_named
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:20:171 - expected_token
+  error - Too many positional arguments: 1 expected, but 3 found. Try removing the extra positional arguments, or specifying the name for named arguments - lib\human\residence\human_residence_page.dart:20:171 - extra_positional_arguments_could_be_named
+  error - Undefined name 'goal'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:20:171 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:20:175 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:20:202 - expected_token
+  error - Too many positional arguments: 1 expected, but 5 found. Try removing the extra positional arguments, or specifying the name for named arguments - lib\human\residence\human_residence_page.dart:20:202 - extra_positional_arguments_could_be_named
+  error - Undefined name 'status'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:20:202 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:20:208 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:20:220 - expected_token
+  error - Undefined name 'task_id'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:20:220 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:20:227 - expected_token
+  error - Expected to find ')' - lib\human\residence\human_residence_page.dart:22:3 - expected_token
+  error - Expected an identifier - lib\human\residence\human_residence_page.dart:44:3 - missing_identifier
+  error - Expected to find ')' - lib\human\residence\human_residence_page.dart:44:3 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:44:3 - expected_token
+  error - Expected a method, getter, setter or operator declaration. This appears to be incomplete code. Try removing it or completing it - lib\human\residence\human_residence_page.dart:46:1 - expected_executable
+warning - The value of the local variable 'i' isn't used. Try removing the variable or using it - lib\human\residence\human_residence_page.dart:54:47 - unused_local_variable
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:54:243 - expected_token
+  error - Too many positional arguments: 1 expected, but 3 found. Try removing the extra positional arguments, or specifying the name for named arguments - lib\human\residence\human_residence_page.dart:54:243 - extra_positional_arguments_could_be_named
+  error - Undefined name 'goal'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:54:243 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:54:247 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:54:274 - expected_token
+  error - Too many positional arguments: 1 expected, but 3 found. Try removing the extra positional arguments, or specifying the name for named arguments - lib\human\residence\human_residence_page.dart:54:274 - extra_positional_arguments_could_be_named
+  error - Undefined name 'expected_output'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:54:274 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:54:289 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:54:318 - expected_token
+  error - Too many positional arguments: 1 expected, but 5 found. Try removing the extra positional arguments, or specifying the name for named arguments - lib\human\residence\human_residence_page.dart:54:318 - extra_positional_arguments_could_be_named
+  error - Undefined name 'language'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:54:318 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:54:326 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:54:347 - expected_token
+  error - Undefined name 'intent'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:54:347 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:54:353 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:54:387 - expected_token
+  error - Too many positional arguments: 1 expected, but 5 found. Try removing the extra positional arguments, or specifying the name for named arguments - lib\human\residence\human_residence_page.dart:54:387 - extra_positional_arguments_could_be_named
+  error - Undefined name 'requirements'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:54:387 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:54:399 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:54:418 - expected_token
+  error - Illegal character '183' - lib\human\residence\human_residence_page.dart:54:418 - illegal_character
+  error - Undefined name '·'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:54:418 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:54:420 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:54:453 - expected_token
+  error - Too many positional arguments: 1 expected, but 5 found. Try removing the extra positional arguments, or specifying the name for named arguments - lib\human\residence\human_residence_page.dart:54:453 - extra_positional_arguments_could_be_named
+  error - Undefined name 'constraints'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:54:453 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:54:464 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:54:483 - expected_token
+  error - Illegal character '183' - lib\human\residence\human_residence_page.dart:54:483 - illegal_character
+  error - Undefined name '·'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:54:483 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:54:485 - expected_token
+  error - Expected to find ')' - lib\human\residence\human_residence_page.dart:54:883 - expected_token
+  error - The await expression can only be used in an async function. Try marking the function body with either 'async' or 'async*' - lib\human\residence\human_residence_page.dart:57:102 - await_in_wrong_context
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:59:49 - expected_token
+  error - Too many positional arguments: 1 expected, but 8 found. Try removing the extra positional arguments, or specifying the name for named arguments - lib\human\residence\human_residence_page.dart:59:49 - extra_positional_arguments_could_be_named
+  error - Undefined name 'status'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:59:49 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:59:55 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:59:75 - expected_token
+  error - Undefined name 'journey_id'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:59:75 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:59:85 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:59:90 - expected_token
+  error - Undefined name 'not'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:59:90 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:59:94 - expected_token
+  error - Undefined name 'created'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:59:94 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:59:101 - expected_token
+warning - The value of the local variable 'a' isn't used. Try removing the variable or using it - lib\human\residence\human_residence_page.dart:60:13 - unused_local_variable
+  error - The argument type 'Iterable<InvalidType>' can't be assigned to the parameter type 'List<Widget>'.  - lib\human\residence\human_residence_page.dart:60:130 - argument_type_not_assignable
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:60:171 - expected_token
+  error - Too many positional arguments: 1 expected, but 3 found. Try removing the extra positional arguments, or specifying the name for named arguments - lib\human\residence\human_residence_page.dart:60:171 - extra_positional_arguments_could_be_named
+  error - Undefined name 'title'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:60:171 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:60:176 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:60:203 - expected_token
+  error - Too many positional arguments: 1 expected, but 3 found. Try removing the extra positional arguments, or specifying the name for named arguments - lib\human\residence\human_residence_page.dart:60:203 - extra_positional_arguments_could_be_named
+  error - Undefined name 'description'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:60:203 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:60:214 - expected_token
+  error - The method 'toList' isn't defined for the type 'ListTile'. Try correcting the name to the name of an existing method, or defining a method named 'toList' - lib\human\residence\human_residence_page.dart:60:372 - undefined_method
+  error - Too many positional arguments: 0 expected, but 1 found. Try removing the extra positional arguments, or specifying the name for named arguments - lib\human\residence\human_residence_page.dart:61:3 - extra_positional_arguments_could_be_named
+  error - Expected an identifier - lib\human\residence\human_residence_page.dart:63:3 - missing_identifier
+  error - Expected to find ')' - lib\human\residence\human_residence_page.dart:63:3 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:63:3 - expected_token
+   info - Unnecessary 'const' keyword. Try removing the keyword - lib\human\residence\human_residence_page.dart:76:91 - unnecessary_const
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:84:62 - expected_token
+  error - Too many positional arguments: 1 expected, but 3 found. Try removing the extra positional arguments, or specifying the name for named arguments - lib\human\residence\human_residence_page.dart:84:62 - extra_positional_arguments_could_be_named
+  error - Undefined name 'reason'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:84:62 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:84:68 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:85:83 - expected_token
+  error - Too many positional arguments: 1 expected, but 5 found. Try removing the extra positional arguments, or specifying the name for named arguments - lib\human\residence\human_residence_page.dart:85:83 - extra_positional_arguments_could_be_named
+  error - Undefined name 'missing'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:85:83 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:85:90 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:85:109 - expected_token
+  error - Illegal character '183' - lib\human\residence\human_residence_page.dart:85:109 - illegal_character
+  error - Undefined name '·'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:85:109 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:85:111 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:86:43 - expected_token
+  error - Too many positional arguments: 1 expected, but 5 found. Try removing the extra positional arguments, or specifying the name for named arguments - lib\human\residence\human_residence_page.dart:86:43 - extra_positional_arguments_could_be_named
+  error - Undefined name 'scope'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:86:43 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:86:48 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:86:53 - expected_token
+  error - Undefined name 'public_web'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:86:53 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:86:63 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:90:85 - expected_token
+  error - Too many positional arguments: 1 expected, but 6 found. Try removing the extra positional arguments, or specifying the name for named arguments - lib\human\residence\human_residence_page.dart:90:85 - extra_positional_arguments_could_be_named
+  error - Undefined name 'title'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:90:85 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:90:90 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:90:95 - expected_token
+  error - Undefined name 'Untitled'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:90:95 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:90:104 - expected_token
+  error - Undefined name 'source'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:90:104 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:90:110 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:90:136 - expected_token
+  error - Too many positional arguments: 1 expected, but 5 found. Try removing the extra positional arguments, or specifying the name for named arguments - lib\human\residence\human_residence_page.dart:90:136 - extra_positional_arguments_could_be_named
+  error - Undefined name 'source_url'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:90:136 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:90:146 - expected_token
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:90:161 - expected_token
+  error - Undefined name 'snippet'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\human_residence_page.dart:90:161 - undefined_identifier
+  error - Expected to find ',' - lib\human\residence\human_residence_page.dart:90:168 - expected_token
+  error - Expected to find ';' - lib\human\residence\residence_work_client.dart:11:12 - expected_token
+warning - Dead code. Try removing the code, or fixing the code before it so that it can be reached - lib\human\residence\residence_work_client.dart:11:36 - dead_code
+  error - Expected to find ';' - lib\human\residence\residence_work_client.dart:11:36 - expected_token
+  error - Undefined name 'https'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\residence_work_client.dart:11:36 - undefined_identifier
+  error - Expected to find ';' - lib\human\residence\residence_work_client.dart:11:41 - expected_token
+  error - Expected to find ';' - lib\human\residence\residence_work_client.dart:11:46 - expected_token
+  error - Undefined name 'https'. Try correcting the name to one that is defined, or defining the name - lib\human\residence\residence_work_client.dart:11:46 - undefined_identifier
+  error - Expected to find ';' - lib\human\residence\residence_work_client.dart:11:51 - expected_token
+  error - Expected to find ';' - lib\human\residence\residence_work_client.dart:11:56 - expected_token
+  error - The name 'http' refers to an import prefix, so it must be followed by '.'. Try correcting the name to refer to something other than a prefix, or renaming the prefix - lib\human\residence\residence_work_client.dart:11:56 - prefix_identifier_not_followed_by_dot
+  error - Expected a method, getter, setter or operator declaration. This appears to be incomplete code. Try removing it or completing it - lib\network\network_territory.dart:1:761 - expected_executable
+  error - Expected a method, getter, setter or operator declaration. This appears to be incomplete code. Try removing it or completing it - lib\world\civilization_page.dart:1:1133 - expected_executable
+  error - Expected a method, getter, setter or operator declaration. This appears to be incomplete code. Try removing it or completing it - lib\world\human_profile_page.dart:1:1008 - expected_executable
 
