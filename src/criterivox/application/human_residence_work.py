@@ -17,6 +17,7 @@ from xml.etree import ElementTree as ET
 from criterivox.application.state_runtime import state_runtime
 from criterivox.character_backbone.language import interpret
 from criterivox.application.information_acquisition import PublicWebResearchProvider, analyze_information_need
+from criterivox.research.telemetry import research_evidence
 
 
 def now() -> str:
@@ -94,6 +95,8 @@ class ResidenceWorkEngine:
             "room_id": str(room_id).strip() or "private",
             "journey_id": None,
             "task_id": task_id,
+            "research_session_id": None,
+            "research_participant_id": None,
             "goal": goal,
             "interpretation": None,
             "interpretation_status": "NOT_STARTED",
@@ -135,6 +138,15 @@ class ResidenceWorkEngine:
             self._save()
         return self._copy(record)
 
+    def attach_research_session(self, work_id: str, *, session_id: str, participant_id: str) -> dict[str, Any]:
+        with self._lock:
+            record = self._records[str(work_id)]
+            record["research_session_id"] = str(session_id)
+            record["research_participant_id"] = str(participant_id)
+            self._event(record, "RESEARCH_SESSION_ATTACHED", "researcher", session_id=session_id)
+            self._save()
+            return self._copy(record)
+
     def get(self, work_id: str) -> dict[str, Any]:
         with self._lock:
             record = self._records.get(str(work_id))
@@ -161,6 +173,10 @@ class ResidenceWorkEngine:
             **data,
         })
         record["updated_at"] = now()
+        session_id = record.get("research_session_id")
+        participant_id = record.get("research_participant_id")
+        if session_id and participant_id:
+            research_evidence.record(session_id=session_id, participant_id=participant_id, event_type=event_type, workflow_stage=record.get("status"), payload={"work_id": record.get("work_id"), "actor": actor, **data})
 
     def _checkpoint(self, record: dict[str, Any], state: str, current: str, *, waiting_for: str | None = None) -> None:
         task_id = record["task_id"]
