@@ -37,14 +37,21 @@ void main() {
   testWidgets(
     'Bloom opens every capability without character chat or future-sprint reservation',
     (WidgetTester tester) async {
-      BloomCapability? opened;
+      BloomActivation? opened;
 
       await tester.pumpWidget(
         MaterialApp(
           home: Bloom(
             onSelected: (_) {},
             onOpenCapability: (value) => opened = value,
-            activateCapability: (_) async => true,
+            activateCapability: (capability) async => BloomActivation(
+              capability: capability,
+              route: capability == BloomCapability.stewardship
+                  ? 'stewardship'
+                  : 'workspace',
+              action: 'test',
+              destinations: const ['Home 01'],
+            ),
           ),
         ),
       );
@@ -56,7 +63,7 @@ void main() {
         expect(find.text('Open'), findsOneWidget);
         await tester.tap(find.text('Open'));
         await tester.pump();
-        expect(opened, capability);
+        expect(opened?.capability, capability);
       }
 
       expect(
