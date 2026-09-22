@@ -468,6 +468,8 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
           const SizedBox(height: 14),
           _actGate(theme),
           const SizedBox(height: 14),
+          _researchTrace(theme),
+          const SizedBox(height: 14),
           _journal(theme),
         ],
       ),
@@ -574,6 +576,14 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
               subtitle: Text(item['size'].toString() + ' bytes • Human Residence intake', style: const TextStyle(fontSize: 9)),
             )),
           ],
+          const SizedBox(height: 10),
+          SwitchListTile.adaptive(
+            value: allowExternalResearch,
+            onChanged: running ? null : (value) => setState(() => allowExternalResearch = value),
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Allow Google external research'),
+            subtitle: const Text('If enabled, Criterivox searches Google and attaches returned sources to this decision trace.'),
+          ),
           const SizedBox(height: 10),
           Wrap(
             spacing: 8,
@@ -912,6 +922,48 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
       'Reliability: ' + reliability.round().toString(), '', 'Challenges', ...challenges.map((x) => '- ' + x),
     ];
     await FilePicker.platform.saveFile(fileName: 'criterivox-strategy.md', bytes: utf8.encode(lines.join('\n')));
+  }
+
+  Widget _researchTrace(CriterivoxTheme theme) {
+    if (research == null && trace.isEmpty) return const SizedBox.shrink();
+    final results = research?['results'];
+    return _panel(
+      theme,
+      '6 • DECISION TRACE + EXTERNAL EVIDENCE',
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (research != null)
+            Text(
+              'Google research: ' + (research?['query'] ?? '').toString() + ' • ' +
+                  (results is List ? results.length : 0).toString() + ' results',
+              style: TextStyle(color: theme.text, fontWeight: FontWeight.w700, fontSize: 10),
+            ),
+          if (results is List)
+            ...results.take(8).map((item) => item is Map
+                ? ListTile(
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    title: Text((item['title'] ?? '').toString(), style: const TextStyle(fontSize: 10)),
+                    subtitle: Text(
+                      (item['snippet'] ?? '').toString() + '\n' + (item['url'] ?? '').toString(),
+                      style: TextStyle(color: theme.mutedText, fontSize: 9),
+                    ),
+                  )
+                : const SizedBox.shrink()),
+          if (trace.isNotEmpty)
+            ...trace.map((event) => Padding(
+              padding: const EdgeInsets.only(top: 5),
+              child: Text(
+                (event['actor'] ?? '').toString() + ' • ' +
+                    (event['responsibility'] ?? '').toString() + ' • ' +
+                    (event['detail'] ?? '').toString(),
+                style: TextStyle(color: theme.mutedText, fontSize: 9, height: 1.4),
+              ),
+            )),
+        ],
+      ),
+    );
   }
 
   Widget _journal(CriterivoxTheme theme) {
