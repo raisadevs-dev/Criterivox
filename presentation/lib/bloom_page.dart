@@ -7,7 +7,7 @@ import 'presentation/criterivox_theme.dart';
 class BloomPage extends StatefulWidget {
   final PresentationState? state;
   final ValueChanged<BloomCapability>? onCapability;
-  final ValueChanged<BloomCapability>? onOpenCapability;
+  final ValueChanged<BloomActivation>? onOpenCapability;
   final VoidCallback onStewardship;
   final VoidCallback onHandoff;
   final VoidCallback onOpenAnalysis;
