@@ -1,7 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:presentation/character/character_identity.dart';
+$oldImport
+import 'package:presentation/character/character_visual_profile.dart';
 
 /// Flutter-side visual runtime for a Criterivox character.
 ///
@@ -1046,11 +1047,11 @@ class _CharacterPainter extends CustomPainter {
   }
 }
 
-/// Visual style definition for each Criterivox character.
+/// Renderer adapter for the canonical CharacterVisualProfile registry.
 ///
-/// This is deliberately separate from [CharacterIdentities]:
-/// identity answers "who is this?", while style answers "how is this
-/// character rendered in Flutter?"
+/// The renderer keeps one drawing engine, while every character gets its own
+/// profile. This prevents a missing profile from silently becoming a duplicate
+/// generic avatar.
 class _CharacterStyle {
   final Color skin;
   final Color face;
@@ -1059,7 +1060,6 @@ class _CharacterStyle {
   final Color hair;
   final Color accent;
   final Color dark;
-
   final String hairStyle;
   final String accessory;
   final String clothing;
@@ -1078,118 +1078,92 @@ class _CharacterStyle {
   });
 
   static _CharacterStyle forId(String id) {
-    switch (id.trim().toLowerCase()) {
-      case 'dharen':
-        return const _CharacterStyle(
-          skin: Color(0xffc98964),
-          face: Color(0xffffd7bc),
-          body: Color(0xff8b5e3c),
-          trousers: Color(0xff403d46),
-          hair: Color(0xff34251f),
-          accent: Color(0xffd98b43),
-          dark: Color(0xff201b1a),
-          hairStyle: 'messy',
-          accessory: 'notebook',
-          clothing: 'jacket',
-        );
+    final profile = CharacterVisualProfile.forId(id);
+    if (profile == null) {
+      throw ArgumentError('No canonical visual profile for character: $id');
+    }
+    return _CharacterStyle(
+      skin: profile.skin,
+      face: profile.face,
+      body: profile.body,
+      trousers: profile.trousers,
+      hair: profile.hair,
+      accent: profile.accent,
+      dark: profile.dark,
+      hairStyle: _hairStyle(profile.hairStyle),
+      accessory: _accessory(profile.accessory),
+      clothing: _clothing(profile.clothing),
+    );
+  }
 
-      case 'syvax':
-        return const _CharacterStyle(
-          skin: Color(0xffb87c63),
-          face: Color(0xffffd4bd),
-          body: Color(0xff344d63),
-          trousers: Color(0xff252d36),
-          hair: Color(0xff17232e),
-          accent: Color(0xff62d8f5),
-          dark: Color(0xff14202a),
-          hairStyle: 'visor',
-          accessory: 'headphones',
-          clothing: 'hoodie',
-        );
+  static String _hairStyle(CharacterHairStyle value) {
+    switch (value) {
+      case CharacterHairStyle.messy:
+        return 'messy';
+      case CharacterHairStyle.visor:
+        return 'visor';
+      case CharacterHairStyle.longHair:
+        return 'long';
+      case CharacterHairStyle.bun:
+        return 'bun';
+      case CharacterHairStyle.cropped:
+        return 'cropped';
+      case CharacterHairStyle.swept:
+        return 'swept';
+      case CharacterHairStyle.braided:
+        return 'braided';
+      case CharacterHairStyle.wavy:
+        return 'wavy';
+      case CharacterHairStyle.tied:
+        return 'tied';
+    }
+  }
 
-      case 'sandre':
-        return const _CharacterStyle(
-          skin: Color(0xffa96f58),
-          face: Color(0xffffcbb5),
-          body: Color(0xff496d6d),
-          trousers: Color(0xff343f43),
-          hair: Color(0xff2d2522),
-          accent: Color(0xff63b9a8),
-          dark: Color(0xff1d2527),
-          hairStyle: 'long',
-          accessory: 'badge',
-          clothing: 'collar',
-        );
+  static String _accessory(CharacterAccessory value) {
+    switch (value) {
+      case CharacterAccessory.headphones:
+        return 'headphones';
+      case CharacterAccessory.orb:
+        return 'orb';
+      case CharacterAccessory.badge:
+        return 'badge';
+      case CharacterAccessory.notebook:
+        return 'notebook';
+      case CharacterAccessory.glasses:
+        return 'glasses';
+      case CharacterAccessory.star:
+        return 'star';
+      case CharacterAccessory.slate:
+        return 'slate';
+      case CharacterAccessory.tool:
+        return 'tool';
+      case CharacterAccessory.question:
+        return 'question';
+      case CharacterAccessory.book:
+        return 'book';
+      case CharacterAccessory.link:
+        return 'link';
+      case CharacterAccessory.compass:
+        return 'compass';
+      case CharacterAccessory.scanner:
+        return 'scanner';
+      case CharacterAccessory.none:
+        return 'none';
+    }
+  }
 
-      case 'kaelen':
-        return const _CharacterStyle(
-          skin: Color(0xffbd805e),
-          face: Color(0xffffd1b8),
-          body: Color(0xff50575f),
-          trousers: Color(0xff20252a),
-          hair: Color(0xff1d1b1b),
-          accent: Color(0xfff19a3e),
-          dark: Color(0xff17191c),
-          hairStyle: 'messy',
-          accessory: 'headphones',
-          clothing: 'jacket',
-        );
-
-      case 'anuka':
-        return const _CharacterStyle(
-          skin: Color(0xffd69a79),
-          face: Color(0xffffdfcf),
-          body: Color(0xfff0b9c8),
-          trousers: Color(0xff343044),
-          hair: Color(0xff2a2025),
-          accent: Color(0xffbd7fe4),
-          dark: Color(0xff221b27),
-          hairStyle: 'bun',
-          accessory: 'orb',
-          clothing: 'hoodie',
-        );
-
-      case 'vivren':
-        return const _CharacterStyle(
-          skin: Color(0xffc7957e),
-          face: Color(0xffffd8c7),
-          body: Color(0xffd5d0dc),
-          trousers: Color(0xff36333e),
-          hair: Color(0xffc8bdd9),
-          accent: Color(0xffa68ad7),
-          dark: Color(0xff26222d),
-          hairStyle: 'long',
-          accessory: 'glasses',
-          clothing: 'scarf',
-        );
-
-      case 'tarkis':
-        return const _CharacterStyle(
-          skin: Color(0xffa96f56),
-          face: Color(0xffffcdb6),
-          body: Color(0xff34383f),
-          trousers: Color(0xff171a1e),
-          hair: Color(0xff171719),
-          accent: Color(0xffee8b31),
-          dark: Color(0xff111214),
-          hairStyle: 'messy',
-          accessory: 'star',
-          clothing: 'hoodie',
-        );
-
-      default:
-        return const _CharacterStyle(
-          skin: Color(0xffb98068),
-          face: Color(0xffffd5c0),
-          body: Color(0xff59636d),
-          trousers: Color(0xff30343a),
-          hair: Color(0xff24272b),
-          accent: Color(0xff7aa9d8),
-          dark: Color(0xff17191c),
-          hairStyle: 'messy',
-          accessory: 'notebook',
-          clothing: 'jacket',
-        );
+  static String _clothing(CharacterClothing value) {
+    switch (value) {
+      case CharacterClothing.jacket:
+        return 'jacket';
+      case CharacterClothing.hoodie:
+        return 'hoodie';
+      case CharacterClothing.collar:
+        return 'collar';
+      case CharacterClothing.utility:
+        return 'utility';
+      case CharacterClothing.layered:
+        return 'layered';
     }
   }
 }
