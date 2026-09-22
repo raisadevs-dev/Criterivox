@@ -35,6 +35,7 @@ class Bloom extends StatefulWidget {
   final ValueChanged<BloomCapability>? onOpenCapability;
   final BloomCapability? selected;
   final String? taskId;
+  final Future<bool> Function(BloomCapability capability)? activateCapability;
 
   const Bloom({
     super.key,
@@ -42,6 +43,7 @@ class Bloom extends StatefulWidget {
     this.onOpenCapability,
     this.selected,
     this.taskId,
+    this.activateCapability,
   });
 
   static const labels = <BloomCapability, String>{
@@ -194,32 +196,12 @@ class _BloomState extends State<Bloom>
     });
 
     try {
-      final response = await http
-          .post(
-            Uri.base.resolve('/api/bloom/activate'),
-            headers: const {
-              'content-type': 'application/json',
-            },
-            body: jsonEncode({
-              'capability': capability.name == 'stewardship'
-                  ? 'stewardship'
-                  : capability.name,
-              'source': 'flutter-bloom',
-              if (widget.taskId != null) 'task_id': widget.taskId,
-            }),
-          )
-          .timeout(const Duration(seconds: 3));
+      final accepted = widget.activateCapability != null
+          ? await widget.activateCapability!(capability)
+          : await _activateThroughPython(capability);
 
-      final decoded = response.body.isEmpty
-          ? <String, dynamic>{}
-          : jsonDecode(response.body) as Map<String, dynamic>;
-
-      if (response.statusCode < 200 ||
-          response.statusCode >= 300 ||
-          decoded['accepted'] == false) {
-        throw Exception(
-          decoded['error']?.toString() ?? 'Bloom activation was rejected.',
-        );
+      if (!accepted) {
+        throw Exception('Bloom activation was rejected by the Python backend.');
       }
 
       callback(capability);
@@ -236,6 +218,38 @@ class _BloomState extends State<Bloom>
         });
       }
     }
+  }
+
+  Future<bool> _activateThroughPython(
+    BloomCapability capability,
+  ) async {
+    final response = await http
+        .post(
+          Uri.base.resolve('/api/bloom/activate'),
+          headers: const {
+            'content-type': 'application/json',
+          },
+          body: jsonEncode({
+            'capability': capability.name,
+            'source': 'flutter-bloom',
+            if (widget.taskId != null) 'task_id': widget.taskId,
+          }),
+        )
+        .timeout(const Duration(seconds: 3));
+
+    final decoded = response.body.isEmpty
+        ? <String, dynamic>{}
+        : jsonDecode(response.body) as Map<String, dynamic>;
+
+    if (response.statusCode < 200 ||
+        response.statusCode >= 300 ||
+        decoded['accepted'] == false) {
+      throw Exception(
+        decoded['error']?.toString() ?? 'Bloom activation was rejected.',
+      );
+    }
+
+    return true;
   }
 
   @override
