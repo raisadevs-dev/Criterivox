@@ -51,6 +51,75 @@ async def human_decision_save(payload: dict):
     decision = human_residence_local.save_decision(owner_id=owner_id, residence_id=str(payload.get('residence_id','')), title=str(payload.get('title','Criterivox Strategy')), goal=str(payload.get('goal','')), strategy=dict(payload.get('strategy',{})), trace=list(payload.get('trace',[])))
     return {'accepted': True, 'decision': decision, 'storage': 'local-sqlite'}
 
+@router.post('/api/human-residence/decision/{decision_id}/challenge')
+async def human_decision_challenge(decision_id: str, payload: dict):
+    owner_id = human_residence_local.owner_for_session(str(payload.get('session_token', '')))
+    if owner_id is None:
+        return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    try:
+        event = human_residence_local.record_decision_event(
+            decision_id=decision_id,
+            owner_id=owner_id,
+            event_type='challenge',
+            payload={'text': str(payload.get('text', '')).strip(), 'actor': 'human'},
+        )
+        return {'accepted': True, 'event': event, 'response': {
+            'actor': 'manis',
+            'responsibility': 'challenge',
+            'detail': 'Challenge recorded. Re-evaluation is required before acceptance.',
+        }}
+    except ValueError as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=404)
+
+@router.post('/api/human-residence/decision/{decision_id}/accept')
+async def human_decision_accept(decision_id: str, payload: dict):
+    owner_id = human_residence_local.owner_for_session(str(payload.get('session_token', '')))
+    if owner_id is None:
+        return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    try:
+        event = human_residence_local.record_decision_event(
+            decision_id=decision_id,
+            owner_id=owner_id,
+            event_type='accepted',
+            payload={'calendar_at': payload.get('calendar_at'), 'action': payload.get('action', 'execute'), 'actor': 'human'},
+        )
+        return {'accepted': True, 'event': event, 'execution': {
+            'status': 'AUTHORIZED',
+            'handler': 'bodhex',
+            'calendar_at': payload.get('calendar_at'),
+        }}
+    except ValueError as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=404)
+
+@router.post('/api/human-residence/decision/{decision_id}/outcome')
+async def human_decision_outcome(decision_id: str, payload: dict):
+    owner_id = human_residence_local.owner_for_session(str(payload.get('session_token', '')))
+    if owner_id is None:
+        return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    try:
+        event = human_residence_local.record_decision_event(
+            decision_id=decision_id,
+            owner_id=owner_id,
+            event_type='outcome',
+            payload={'result': str(payload.get('result', '')).strip(), 'actor': 'human'},
+        )
+        return {'accepted': True, 'event': event, 'learning': {
+            'status': 'RECORDED_FOR_REVIEW',
+            'reuse_policy': 'outcomes become evidence for future similar decisions after review; they are not blindly reused.',
+        }}
+    except ValueError as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=404)
+
+@router.get('/api/human-residence/decision/{decision_id}/events')
+async def human_decision_events(decision_id: str, session_token: str):
+    owner_id = human_residence_local.owner_for_session(session_token)
+    if owner_id is None:
+        return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    try:
+        return {'accepted': True, 'events': human_residence_local.decision_events(decision_id=decision_id, owner_id=owner_id)}
+    except ValueError as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=404)
+
 @router.get('/api/human-decisions')
 async def human_decisions_list(session_token: str, query: str = ''):
     owner_id = human_residence_local.owner_for_session(session_token)
