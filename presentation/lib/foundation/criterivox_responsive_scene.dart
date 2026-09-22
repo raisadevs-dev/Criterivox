@@ -81,12 +81,26 @@ class CriterivoxResponsive {
 
   double panelMaxWidth(double fallback) {
     if (isCompact) {
-      return width - 24;
+      final available = width - 24;
+
+      if (available <= 0) {
+        return 0;
+      }
+
+      return available;
     }
 
-    return fallback
-        .clamp(260, width - 48)
-        .toDouble();
+    final available = width - 48;
+
+    if (available <= 0) {
+      return 0;
+    }
+
+    if (available < 260) {
+      return available;
+    }
+
+    return fallback.clamp(260.0, available).toDouble();
   }
 }
 

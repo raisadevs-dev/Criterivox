@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:presentation/app_shell.dart';
@@ -24,18 +25,22 @@ void main() {
 
       await tester.pump();
 
+      final openChat = find.byTooltip(
+        'Open character chat',
+      );
+
       expect(
-        find.byTooltip('Open character chat'),
+        openChat,
         findsOneWidget,
       );
 
-      await tester.tap(
-        find.byTooltip('Open character chat'),
-      );
+      await tester.tap(openChat);
 
       await _pumpUntil(
         tester,
-        () => find.text('Chat with Dharen'),
+        () => find.byTooltip(
+          'Close character chat',
+        ),
       );
 
       expect(
@@ -43,25 +48,27 @@ void main() {
         findsOneWidget,
       );
 
+      final globalChat = find.byKey(
+        const ValueKey('global-character-chat'),
+      );
+
       expect(
-        find.text('Chat with Dharen'),
+        globalChat,
         findsOneWidget,
       );
 
-      final input = find.byWidgetPredicate(
-        (widget) =>
-            widget is TextField &&
-            widget.decoration?.hintText ==
-                'Message Dharen…',
+      final chatInput = find.descendant(
+        of: globalChat,
+        matching: find.byType(TextField),
       );
 
       expect(
-        input,
+        chatInput,
         findsOneWidget,
       );
 
       await tester.enterText(
-        input,
+        chatInput,
         'Preserve this draft.',
       );
 
@@ -83,13 +90,8 @@ void main() {
         findsOneWidget,
       );
 
-      // Global chat intentionally remains mounted while
-      // hidden so that its conversation/input state survives.
-      expect(
-        find.text('Chat with Dharen'),
-        findsOneWidget,
-      );
-
+      // The CharacterChatPage remains mounted while the
+      // overlay is hidden, so the draft must remain intact.
       expect(
         find.text('Preserve this draft.'),
         findsOneWidget,
@@ -101,7 +103,9 @@ void main() {
 
       await _pumpUntil(
         tester,
-        () => find.text('Chat with Dharen'),
+        () => find.byTooltip(
+          'Close character chat',
+        ),
       );
 
       expect(
@@ -109,8 +113,22 @@ void main() {
         findsOneWidget,
       );
 
+      final reopenedGlobalChat = find.byKey(
+        const ValueKey('global-character-chat'),
+      );
+
       expect(
-        find.text('Chat with Dharen'),
+        reopenedGlobalChat,
+        findsOneWidget,
+      );
+
+      final reopenedInput = find.descendant(
+        of: reopenedGlobalChat,
+        matching: find.byType(TextField),
+      );
+
+      expect(
+        reopenedInput,
         findsOneWidget,
       );
 
@@ -142,34 +160,42 @@ void main() {
 
       await tester.pump();
 
-      final civilization = find.text(
+      final civilizationGateway = find.text(
         'Civilization · Gate 1',
         findRichText: false,
       );
 
       expect(
-        civilization,
+        civilizationGateway,
         findsOneWidget,
       );
 
-      await tester.tap(civilization);
+      await tester.tap(civilizationGateway);
+
+      final civilizationPage = find.byKey(
+        const ValueKey('civilization'),
+      );
 
       await _pumpUntil(
         tester,
-        () => find.text(
-          'Criterivox Civilization',
-          findRichText: false,
-        ),
+        () => civilizationPage,
+      );
+
+      expect(
+        civilizationPage,
+        findsOneWidget,
       );
 
       expect(
         find.text(
-          'Criterivox Civilization',
+          'GATE 1 · CRITERIVOX CIVILIZATION',
           findRichText: false,
         ),
         findsOneWidget,
       );
 
+      // Global Chat is an application-level capability.
+      // Entering Civilization must not remove it.
       expect(
         find.byTooltip('Open character chat'),
         findsOneWidget,
@@ -181,7 +207,9 @@ void main() {
 
       await _pumpUntil(
         tester,
-        () => find.text('Chat with Dharen'),
+        () => find.byTooltip(
+          'Close character chat',
+        ),
       );
 
       expect(
@@ -189,8 +217,22 @@ void main() {
         findsOneWidget,
       );
 
+      final globalChat = find.byKey(
+        const ValueKey('global-character-chat'),
+      );
+
       expect(
-        find.text('Chat with Dharen'),
+        globalChat,
+        findsOneWidget,
+      );
+
+      final chatInput = find.descendant(
+        of: globalChat,
+        matching: find.byType(TextField),
+      );
+
+      expect(
+        chatInput,
         findsOneWidget,
       );
     },
@@ -200,11 +242,9 @@ void main() {
 Future<void> _pumpUntil(
   WidgetTester tester,
   Finder Function() finder, {
-  Duration timeout =
-      const Duration(seconds: 4),
+  Duration timeout = const Duration(seconds: 4),
 }) async {
-  final deadline =
-      DateTime.now().add(timeout);
+  final deadline = DateTime.now().add(timeout);
 
   while (DateTime.now().isBefore(deadline)) {
     if (finder().evaluate().isNotEmpty) {

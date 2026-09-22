@@ -113,180 +113,182 @@ class _CivilizationPageState extends State<CivilizationPage> {
       subtitle: 'Gate 1 · Understand the system',
     );
 
-    return CriterivoxResponsiveScene(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'GATE 1 · CRITERIVOX CIVILIZATION',
-                      style: TextStyle(
-                        color: t.primary,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1.4,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      'Meet the people who make the decision',
-                      style: TextStyle(
-                        color: t.text,
-                        fontSize: r.isCompact ? 23 : 30,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      'Explore responsibilities, Homes and meaningful system relationships.',
-                      style: TextStyle(
-                        color: t.mutedText,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              CriterivoxStatusBadge(
-                status: widget.state == null
-                    ? CriterivoxStatus.ready
-                    : CriterivoxStatus.active,
-                detail: widget.state == null ? 'world view' : 'runtime',
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: t.surface.withValues(alpha: .72),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: t.border),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.location_city_rounded,
-                  color: t.primary,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'Start at the Bloom, explore a Home, inspect its residents and follow supported relationships. Deeper operational rooms remain future scope.',
-                    style: TextStyle(
-                      color: t.mutedText,
-                      fontSize: 10.5,
-                      height: 1.4,
-                    ),
-                  ),
-                ),
-                if (widget.onOpenChat != null)
-                  TextButton.icon(
-                    onPressed: widget.onOpenChat,
-                    icon: const Icon(
-                      Icons.forum_outlined,
-                      size: 16,
-                    ),
-                    label: const Text('Syvax'),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
-          SizedBox(
-            height: r.isCompact ? 700 : 620,
-            child: CriterivoxScene(
-              descriptor: scene,
-              environment: const [
-                _WorldBackdrop(),
-              ],
-              character: [
-                _WorldCharacters(
-                  homes: CivilizationPage.canonicalHomes,
-                  selectedHome: selectedHome,
-                  selectedCharacter: selectedCharacter,
-                  state: widget.state,
-                  onHome: _selectHome,
-                  onCharacter: _selectCharacter,
-                ),
-              ],
-              lighting: const [
-                _WorldLighting(),
-              ],
-              information: [
-                const _Legend(),
-                if (selectedHome != null)
-                  _HomePreview(
-                    home: CivilizationPage.canonicalHomes.firstWhere(
-                      (home) => home.id == selectedHome,
-                    ),
-                    state: widget.state,
-                    onEnter: () => _enterHome(selectedHome!),
-                    onClose: () {
-                      setState(() {
-                        selectedHome = null;
-                      });
-                    },
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
-          if (selectedCharacter != null) ...[
-            const SizedBox(height: 14),
-            _CharacterBriefing(
-              id: selectedCharacter!,
-              state: widget.state,
-            ),
-          ],
-          if (r.isCompact || r.isTablet) ...[
-            _BloomPanel(
-              onHome: _selectHome,
-              state: widget.state,
-            ),
-            const SizedBox(height: 12),
-            _RosterPanel(
-              selected: selectedCharacter,
-              onSelect: _selectCharacter,
-            ),
-            const SizedBox(height: 12),
-            _Relations(
-              selected: selectedCharacter,
-              onSelect: _selectCharacter,
-            ),
-          ] else
+    return SingleChildScrollView(
+      child: CriterivoxResponsiveScene(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: _BloomPanel(
-                    onHome: _selectHome,
-                    state: widget.state,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'GATE 1 · CRITERIVOX CIVILIZATION',
+                        style: TextStyle(
+                          color: t.primary,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        'Meet the people who make the decision',
+                        style: TextStyle(
+                          color: t.text,
+                          fontSize: r.isCompact ? 23 : 30,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        'Explore responsibilities, Homes and meaningful system relationships.',
+                        style: TextStyle(
+                          color: t.mutedText,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _RosterPanel(
-                    selected: selectedCharacter,
-                    onSelect: _selectCharacter,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _Relations(
-                    selected: selectedCharacter,
-                    onSelect: _selectCharacter,
-                  ),
+                CriterivoxStatusBadge(
+                  status: widget.state == null
+                      ? CriterivoxStatus.ready
+                      : CriterivoxStatus.active,
+                  detail: widget.state == null ? 'world view' : 'runtime',
                 ),
               ],
             ),
-        ],
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: t.surface.withValues(alpha: .72),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: t.border),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.location_city_rounded,
+                    color: t.primary,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Start at the Bloom, explore a Home, inspect its residents and follow supported relationships. Deeper operational rooms remain future scope.',
+                      style: TextStyle(
+                        color: t.mutedText,
+                        fontSize: 10.5,
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+                  if (widget.onOpenChat != null)
+                    TextButton.icon(
+                      onPressed: widget.onOpenChat,
+                      icon: const Icon(
+                        Icons.forum_outlined,
+                        size: 16,
+                      ),
+                      label: const Text('Syvax'),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+            SizedBox(
+              height: r.isCompact ? 700 : 620,
+              child: CriterivoxScene(
+                descriptor: scene,
+                environment: const [
+                  _WorldBackdrop(),
+                ],
+                character: [
+                  _WorldCharacters(
+                    homes: CivilizationPage.canonicalHomes,
+                    selectedHome: selectedHome,
+                    selectedCharacter: selectedCharacter,
+                    state: widget.state,
+                    onHome: _selectHome,
+                    onCharacter: _selectCharacter,
+                  ),
+                ],
+                lighting: const [
+                  _WorldLighting(),
+                ],
+                information: [
+                  const _Legend(),
+                  if (selectedHome != null)
+                    _HomePreview(
+                      home: CivilizationPage.canonicalHomes.firstWhere(
+                        (home) => home.id == selectedHome,
+                      ),
+                      state: widget.state,
+                      onEnter: () => _enterHome(selectedHome!),
+                      onClose: () {
+                        setState(() {
+                          selectedHome = null;
+                        });
+                      },
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+            if (selectedCharacter != null) ...[
+              const SizedBox(height: 14),
+              _CharacterBriefing(
+                id: selectedCharacter!,
+                state: widget.state,
+              ),
+            ],
+            if (r.isCompact || r.isTablet) ...[
+              _BloomPanel(
+                onHome: _selectHome,
+                state: widget.state,
+              ),
+              const SizedBox(height: 12),
+              _RosterPanel(
+                selected: selectedCharacter,
+                onSelect: _selectCharacter,
+              ),
+              const SizedBox(height: 12),
+              _Relations(
+                selected: selectedCharacter,
+                onSelect: _selectCharacter,
+              ),
+            ] else
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _BloomPanel(
+                      onHome: _selectHome,
+                      state: widget.state,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _RosterPanel(
+                      selected: selectedCharacter,
+                      onSelect: _selectCharacter,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _Relations(
+                      selected: selectedCharacter,
+                      onSelect: _selectCharacter,
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ),
       ),
     );
   }

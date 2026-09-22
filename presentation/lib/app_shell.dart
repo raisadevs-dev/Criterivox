@@ -1020,7 +1020,7 @@ class _Sidebar extends StatelessWidget {
     criterivox_theme.CriterivoxTheme t,
   ) {
     return Material(
-      color: Colors.transparent,
+      color: t.surface,
       child: Tooltip(
         message: visible ? '' : label,
         child: ListTile(

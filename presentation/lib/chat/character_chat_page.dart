@@ -489,35 +489,40 @@ class _CharacterPicker extends StatelessWidget {
               itemBuilder: (context, index) {
                 final member = registry[index];
 
-                return ListTile(
-                  onTap: () =>
-                      onSelect(member.id),
-                  selected:
-                      selected == member.id,
-                  leading:
-                      SessionCharacterAnimationView(
-                    characterId: member.id,
-                    state:
-                        selected == member.id
-                            ? 'COMMUNICATE'
-                            : 'IDLE',
-                    width: 48,
-                    height: 56,
-                  ),
-                  title: Text(
-                    member.name,
-                    style: TextStyle(
-                      color: t.text,
-                      fontSize: 13,
-                      fontWeight:
-                          FontWeight.w600,
+                return Material(
+                  color: t.surface,
+                  child: ListTile(
+                    onTap: () =>
+                        onSelect(member.id),
+                    selected:
+                        selected == member.id,
+                    selectedTileColor:
+                        t.primary.withValues(alpha: .13),
+                    leading:
+                        SessionCharacterAnimationView(
+                      characterId: member.id,
+                      state:
+                          selected == member.id
+                              ? 'COMMUNICATE'
+                              : 'IDLE',
+                      width: 48,
+                      height: 56,
                     ),
-                  ),
-                  subtitle: Text(
-                    member.role,
-                    style: TextStyle(
-                      color: t.mutedText,
-                      fontSize: 9,
+                    title: Text(
+                      member.name,
+                      style: TextStyle(
+                        color: t.text,
+                        fontSize: 13,
+                        fontWeight:
+                            FontWeight.w600,
+                      ),
+                    ),
+                    subtitle: Text(
+                      member.role,
+                      style: TextStyle(
+                        color: t.mutedText,
+                        fontSize: 9,
+                      ),
                     ),
                   ),
                 );
@@ -585,15 +590,16 @@ class _Conversation extends StatelessWidget {
         _CharacterChatPageState._registry ??
             const <_CharacterInfo>[];
 
-    final member = registry.cast<_CharacterInfo?>().firstWhere(
-          (x) => x?.id == target,
-          orElse: () => null,
-        ) ??
-        _CharacterInfo(
-          target,
-          target,
-          'Character workspace',
-        );
+    final member =
+        registry.cast<_CharacterInfo?>().firstWhere(
+              (x) => x?.id == target,
+              orElse: () => null,
+            ) ??
+            _CharacterInfo(
+              target,
+              target,
+              'Character workspace',
+            );
 
     final runtimeState =
         state?.agentId.toLowerCase() == target
