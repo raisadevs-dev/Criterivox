@@ -14,13 +14,6 @@ enum BloomCapability {
   explain,
 }
 
-enum BloomSuboption {
-  workspace,
-  chat,
-  stewardshipHome,
-  stewardshipChat,
-}
-
 class BloomOwner {
   final String id;
   final String name;
@@ -37,15 +30,13 @@ class BloomOwner {
 
 class Bloom extends StatefulWidget {
   final ValueChanged<BloomCapability> onSelected;
-  final ValueChanged<BloomSuboption>? onSuboption;
-  final ValueChanged<BloomCapability>? onOwnerChat;
+  final ValueChanged<BloomCapability>? onOpenCapability;
   final BloomCapability? selected;
 
   const Bloom({
     super.key,
     required this.onSelected,
-    this.onSuboption,
-    this.onOwnerChat,
+    this.onOpenCapability,
     this.selected,
   });
 
@@ -404,88 +395,38 @@ class _BloomState extends State<Bloom>
     bool compact,
     BloomCapability capability,
   ) {
-    final radius =
-        compact ? size * .34 : size * .32;
-
-    final cy =
-        compact ? size * .49 : size * .44;
-
-    final d =
-        compact ? 94.0 : 138.0;
-
-    final count =
-        BloomCapability.values.length;
-
-    final index =
-        BloomCapability.values
-            .indexOf(capability);
-
-    final angle =
-        -math.pi / 2 +
-            index *
-                2 *
-                math.pi /
-                count;
+    final radius = compact ? size * .34 : size * .32;
+    final cy = compact ? size * .49 : size * .44;
+    final d = compact ? 94.0 : 138.0;
+    final count = BloomCapability.values.length;
+    final index = BloomCapability.values.indexOf(capability);
+    final angle = -math.pi / 2 + index * 2 * math.pi / count;
 
     final nodeCenter = Offset(
-      size / 2 +
-          math.cos(angle) * radius,
-      cy +
-          math.sin(angle) * radius,
+      size / 2 + math.cos(angle) * radius,
+      cy + math.sin(angle) * radius,
     );
-
-    final owner =
-        Bloom.owners[capability]!;
-
-    final workspaceAction =
-        capability ==
-                BloomCapability.stewardship
-            ? BloomSuboption.stewardshipHome
-            : BloomSuboption.workspace;
 
     final chipY = math.max(
       4.0,
-      nodeCenter.dy -
-          d / 2 -
-          (compact ? 44.0 : 50.0),
+      nodeCenter.dy - d / 2 - (compact ? 44.0 : 50.0),
     );
 
     return Positioned(
       left: math.max(
         4.0,
-        nodeCenter.dx -
-            (compact ? 126.0 : 148.0),
+        nodeCenter.dx - (compact ? 58.0 : 70.0),
       ),
       top: chipY,
-      child: Row(
-        mainAxisSize:
-            MainAxisSize.min,
-        children: [
-          _ActionChip(
-            icon:
-                Icons.dashboard_customize_rounded,
-            label: 'Workspace',
-            accent:
-                Bloom.accents[capability]!,
-            onTap: () => widget.onSuboption
-                ?.call(workspaceAction),
-          ),
-          const SizedBox(width: 7),
-          _ActionChip(
-            icon: owner.icon,
-            label: owner.name,
-            accent:
-                Bloom.accents[capability]!,
-            onTap: () => widget.onOwnerChat
-                ?.call(capability),
-            avatar: true,
-          ),
-        ],
+      child: _ActionChip(
+        icon: Icons.open_in_new_rounded,
+        label: 'Open',
+        accent: Bloom.accents[capability]!,
+        onTap: () => widget.onOpenCapability?.call(capability),
       ),
     );
   }
 }
-
 class _Node extends StatelessWidget {
   final BloomCapability capability;
   final bool compact;
@@ -510,12 +451,6 @@ class _Node extends StatelessWidget {
     final owner =
         Bloom.owners[capability]!;
 
-    final reserved =
-        capability !=
-                BloomCapability.analyze &&
-            capability !=
-                BloomCapability.stewardship;
-
     final diameter =
         compact ? 94.0 : 138.0;
 
@@ -526,8 +461,7 @@ class _Node extends StatelessWidget {
         label:
             '${Bloom.labels[capability]} capability, '
             '${owner.name} responsible for '
-            '${owner.responsibility}'
-            '${reserved ? ', reserved' : ''}',
+            '${owner.responsibility}',
         child: InkWell(
           onTap: onTap,
           borderRadius:
