@@ -408,15 +408,6 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
                 t: t,
               ),
               const SizedBox(height: 14),
-              _ConflictPanel(
-                home: _homeJson,
-                chat: _chatJson,
-                winner: _winner,
-                onWinner: (k, v) =>
-                    setState(() => _winner[k] = v),
-                onMerge: _merge,
-                t: t,
-              ),
               const SizedBox(height: 14),
               _Quality(
                 s: s,
