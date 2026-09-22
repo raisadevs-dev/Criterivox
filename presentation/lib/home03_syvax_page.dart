@@ -4,7 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import 'interaction/home03_bloom.dart';
+import 'interaction/bloom.dart';
 import 'interaction/syvax.dart';
 import 'presentation/criterivox_theme.dart';
 
@@ -808,13 +808,9 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
     final activeHomes = bloom?['active_homes'];
     final traces = bloom?['traces'];
     final checkpoints = bloom?['checkpoints'];
-
     final activeHomeCount = activeHomes is List ? activeHomes.length : 0;
-
     final traceCount = traces is List ? traces.length : 0;
-
     final checkpointCount = checkpoints is List ? checkpoints.length : 0;
-
     final bloomMode = bloom?['mode'] ?? mode;
 
     return Container(
@@ -822,9 +818,7 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
       decoration: BoxDecoration(
         color: theme.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: theme.border,
-        ),
+        border: Border.all(color: theme.border),
       ),
       child: Column(
         children: [
@@ -832,7 +826,7 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
             children: [
               Expanded(
                 child: Text(
-                  '🌸 THE BLOOM · 8 HOMES',
+                  '🌸 THE BLOOM',
                   style: TextStyle(
                     color: theme.text,
                     fontSize: 12,
@@ -851,35 +845,27 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
             ],
           ),
           const SizedBox(height: 8),
-          Home03Bloom(
-            onOpen: widget.onOpen,
-            state: bloom,
+          Bloom(
+            onSelected: (capability) => widget.onOpen(
+              capability == BloomCapability.stewardship
+                  ? 'stewardship'
+                  : 'workspace',
+            ),
+            onOpenCapability: (capability) => widget.onOpen(
+              capability == BloomCapability.stewardship
+                  ? 'stewardship'
+                  : 'workspace',
+            ),
           ),
           const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Mode: $bloomMode · traces $traceCount · checkpoints $checkpointCount',
-                  style: TextStyle(
-                    color: theme.mutedText,
-                    fontSize: 9,
-                  ),
-                ),
-              ),
-              IconButton(
-                onPressed: () {
-                  widget.onOpen('stewardship');
-                },
-                icon: const Icon(
-                  Icons.inventory_2_rounded,
-                ),
-                tooltip: 'Open Data Stewardship',
-              ),
-            ],
+          Text(
+            'Mode: $bloomMode · traces $traceCount · checkpoints $checkpointCount',
+            style: TextStyle(
+              color: theme.mutedText,
+              fontSize: 9,
+            ),
           ),
         ],
       ),
     );
-  }
-}
+  }}
