@@ -49,7 +49,7 @@ class Bloom extends StatefulWidget {
   final ValueChanged<BloomActivation>? onOpenCapability;
   final BloomCapability? selected;
   final String? taskId;
-  final Future<bool> Function(BloomCapability capability)? activateCapability;
+  final Future<BloomActivation?> Function(BloomCapability capability)? activateCapability;
 
   const Bloom({
     super.key,
