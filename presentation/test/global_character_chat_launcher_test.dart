@@ -48,33 +48,22 @@ void main() {
         findsOneWidget,
       );
 
-      // The global overlay is not allowed to coexist with the dedicated
-      // CharacterChatPage route. The route remains the single canonical
-      // dedicated chat surface.
-      await tester.tap(
-        find.text('Character Chat', findRichText: false).first,
-      );
-
-      await _pumpUntil(
-        tester,
-        () => find.byKey(const ValueKey('chat')),
+      final globalChat = find.byKey(
+        const ValueKey('global-character-chat'),
       );
 
       expect(
-        find.byKey(const ValueKey('chat')),
+        globalChat,
         findsOneWidget,
       );
-      expect(
-        find.byKey(const ValueKey('global-character-chat')),
-        findsNothing,
-      );
 
-      final dedicatedChat = find.byKey(
-        const ValueKey('chat'),
+      final chatInput = find.descendant(
+        of: globalChat,
+        matching: find.byType(TextField),
       );
 
       expect(
-        dedicatedChat,
+        chatInput,
         findsOneWidget,
       );
 
@@ -205,10 +194,36 @@ void main() {
         findsOneWidget,
       );
 
-      // Global Chat is an application-level capability.
-      // Entering Civilization must not remove it.
-      // The dedicated chat route owns the canonical chat page.
-      // The global overlay must not mount a second chat surface over it.
+      // Civilization exposes the dedicated canonical chat route.
+      await tester.tap(
+        find.text('Syvax', findRichText: false),
+      );
+
+      await _pumpUntil(
+        tester,
+        () => find.byKey(const ValueKey('chat')),
+      );
+
+      expect(
+        find.byKey(const ValueKey('chat')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('global-character-chat')),
+        findsNothing,
+      );
+
+      // Return to the civilization surface and verify the application-level
+      // overlay remains available there without creating a second route.
+      await tester.tap(
+        find.text('Civilization · Gate 1', findRichText: false),
+      );
+
+      await _pumpUntil(
+        tester,
+        () => find.byKey(const ValueKey('civilization')),
+      );
+
       expect(
         find.byTooltip('Open character chat'),
         findsOneWidget,
