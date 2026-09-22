@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'character/character_identity.dart';
+import 'character/session_character_animation.dart';
 import 'presentation/criterivox_theme.dart';
 
 class AppIntroductionPage extends StatelessWidget {
@@ -65,112 +66,62 @@ class AppIntroductionPage extends StatelessWidget {
 
   Widget _townHallHero(CriterivoxTheme t, bool compact) {
     return Container(
-      clipBehavior: Clip.antiAlias,
+      padding: EdgeInsets.fromLTRB(
+        compact ? 12 : 20,
+        compact ? 14 : 20,
+        compact ? 12 : 20,
+        compact ? 16 : 20,
+      ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
         border: Border.all(color: t.border),
-        color: t.surfaceStrong,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [t.surfaceStrong, t.surface],
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AspectRatio(
-            aspectRatio: compact ? 1.15 : 2.15,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Image.asset(
-                  'assets/introduction/criterivox_15_specialists.webp',
-                  fit: BoxFit.cover,
-                  alignment: Alignment.center,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: t.surfaceStrong,
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.all(24),
-                      child: Text(
-                        'CRITERIVOX\n15 SPECIALISTS · 15 PERSPECTIVES · ONE MISSION',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: t.text,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1.4,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black.withValues(alpha: .08),
-                        Colors.black.withValues(alpha: .18),
-                        Colors.black.withValues(alpha: .82),
-                      ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  left: compact ? 18 : 30,
-                  right: compact ? 18 : 30,
-                  bottom: compact ? 18 : 26,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'TOWN HALL',
-                        style: TextStyle(
-                          color: t.primary,
-                          fontSize: compact ? 10 : 12,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 2,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        'CRITERIVOX',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: compact ? 28 : 42,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 3,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Different minds · One intelligence',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: .88),
-                          fontSize: compact ? 11 : 14,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        '15 specialists · 15 perspectives · one mission',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: .82),
-                          fontSize: compact ? 10 : 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+          Text(
+            'TOWN HALL',
+            style: TextStyle(
+              color: t.primary,
+              fontSize: compact ? 10 : 12,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 2,
             ),
           ),
-          Padding(
-            padding: EdgeInsets.all(compact ? 14 : 18),
-            child: Wrap(
-              spacing: 7,
-              runSpacing: 7,
-              children: [
-                for (final name in _specialists)
-                  _specialistChip(t, name),
-              ],
+          const SizedBox(height: 5),
+          Text(
+            'CRITERIVOX',
+            style: TextStyle(
+              color: t.text,
+              fontSize: compact ? 28 : 42,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 3,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            'Different minds · One intelligence',
+            style: TextStyle(
+              color: t.mutedText,
+              fontSize: compact ? 11 : 14,
+              letterSpacing: 1.2,
+            ),
+          ),
+          const SizedBox(height: 18),
+          _specialistGallery(t, compact),
+          const SizedBox(height: 14),
+          Text(
+            '15 specialists · 15 perspectives · one mission',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: t.mutedText,
+              fontSize: compact ? 10 : 12,
+              letterSpacing: .7,
             ),
           ),
         ],
@@ -178,22 +129,70 @@ class AppIntroductionPage extends StatelessWidget {
     );
   }
 
-  Widget _specialistChip(CriterivoxTheme t, String name) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-      decoration: BoxDecoration(
-        color: t.surface,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: t.border),
+  Widget _specialistGallery(CriterivoxTheme t, bool compact) {
+    final tileWidth = compact ? 82.0 : 118.0;
+    final tileHeight = compact ? 132.0 : 172.0;
+
+    return Center(
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: compact ? 5 : 8,
+        runSpacing: compact ? 7 : 9,
+        children: [
+          for (final name in _specialists)
+            _specialistPortrait(
+              t,
+              name,
+              width: tileWidth,
+              height: tileHeight,
+            ),
+        ],
       ),
-      child: Text(
-        name.toUpperCase(),
-        style: TextStyle(
-          color: t.text,
-          fontSize: 9,
-          fontWeight: FontWeight.w700,
-          letterSpacing: .8,
+    );
+  }
+
+  Widget _specialistPortrait(
+    CriterivoxTheme t,
+    String name, {
+    required double width,
+    required double height,
+  }) {
+    final id = name.toLowerCase();
+
+    return Container(
+      width: width,
+      height: height,
+      padding: const EdgeInsets.fromLTRB(5, 6, 5, 7),
+      decoration: BoxDecoration(
+        color: t.page.withValues(alpha: .82),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: t.primary.withValues(alpha: .20),
         ),
+      ),
+      child: Column(
+        children: [
+          Expanded(
+            child: SessionCharacterAnimationView(
+              characterId: id,
+              state: 'IDLE',
+              width: width - 10,
+              height: height - 42,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            name.toUpperCase(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: t.text,
+              fontSize: 8,
+              fontWeight: FontWeight.w800,
+              letterSpacing: .7,
+            ),
+          ),
+        ],
       ),
     );
   }
