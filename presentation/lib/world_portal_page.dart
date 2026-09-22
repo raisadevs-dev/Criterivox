@@ -179,8 +179,10 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
     }
 
     setState(() {
-      residence = record;
       saving = false;
+      if (residence == null) {
+        residence = record;
+      }
     });
   }
 
@@ -406,7 +408,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
           ),
           const SizedBox(height: 16),
           Text(
-            'The local Login / Sign up flow provisions an application identity and workspace record. It is not production authentication.',
+            'Your Human Residence identity is stored locally in Criterivox SQLite for V1; the browser keeps the active session in IndexedDB.',
             style: TextStyle(color: t.mutedText, fontSize: 10, height: 1.4),
           ),
         ],
