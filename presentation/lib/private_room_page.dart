@@ -267,134 +267,58 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     }
   }
 
+  bool allowExternalResearch = false;
+  Map<String, dynamic>? research;
+  List<Map<String, dynamic>> trace = <Map<String, dynamic>>[];
+
   Future<void> _generateOptions() async {
-    if (goal.text.trim().isEmpty || running) {
+    if (goal.text.trim().isEmpty || running || residence == null) return;
+    final token = residence!.metadata['session_token']?.toString();
+    if (token == null || token.isEmpty) {
+      setState(() => status = 'AUTHENTICATED_SESSION_REQUIRED');
       return;
     }
-
-    final currentResidence = residence;
-
-    if (currentResidence == null) {
-      if (mounted) {
-        setState(() {
-          status = 'NO_HOUSE_FOUND';
-        });
-      }
-
-      return;
-    }
-
     setState(() {
       running = true;
-      status = 'DHAREN + TARKIS + PRAMON • framing and option sparring';
+      status = allowExternalResearch ? 'RESEARCH_AUTHORIZED • Criterivox is gathering external evidence' : 'Criterivox is reasoning from supplied material';
       options = <String>[];
       challenges = <String>[];
-      challengedIndexes.clear();
+      trace = <Map<String, dynamic>>[];
+      research = null;
     });
-
     try {
-      final response = await http
-          .post(
-            Uri.base.resolve('/api/syvax/plan'),
-            headers: const <String, String>{
-              'content-type': 'application/json',
-            },
-            body: jsonEncode(
-              <String, dynamic>{
-                'message': goal.text.trim(),
-                'task_id': 'private-${currentResidence.residenceId}',
-              },
-            ),
-          )
-          .timeout(
-            const Duration(seconds: 6),
-          );
-
-      if (response.statusCode >= 400) {
-        throw Exception(
-          'planning request rejected (${response.statusCode})',
-        );
+      final response = await http.post(
+        Uri.base.resolve('/api/human-residence/decision'),
+        headers: const {'content-type': 'application/json'},
+        body: jsonEncode({
+          'session_token': token,
+          'residence_id': residence!.residenceId,
+          'goal': goal.text.trim(),
+          'data': data.text.trim(),
+          'context': contextCtl.text.trim(),
+          'allow_external_research': allowExternalResearch,
+        }),
+      ).timeout(const Duration(seconds: 30));
+      final body = jsonDecode(response.body);
+      if (response.statusCode < 200 || response.statusCode >= 300 || body is! Map) {
+        throw Exception(body is Map ? body['error'] ?? 'decision pipeline rejected' : 'decision pipeline rejected');
       }
-
-      final decoded = jsonDecode(response.body);
-
-      if (decoded is! Map) {
-        throw Exception(
-          'planning response was not a JSON object',
-        );
-      }
-
-      final json = Map<String, dynamic>.from(
-        decoded.map(
-          (key, value) => MapEntry(
-            key.toString(),
-            value,
-          ),
-        ),
-      );
-
-      final plan = json['plan'];
-
-      final steps = plan is Map && plan['steps'] is List
-          ? plan['steps'] as List
-          : const <dynamic>[];
-
-      final executionTrace = steps.take(6).map(
-        (step) {
-          if (step is Map) {
-            final character =
-                step['character_id'] ?? step['agent_id'] ?? 'Agent';
-
-            final action =
-                step['action'] ?? step['purpose'] ?? 'inspectable contribution';
-
-            return '$character: $action';
-          }
-
-          return '$step';
-        },
-      ).toList();
-
-      final generated = <String>[
-        'Option A • High Speed / Higher Risk • '
-            'prioritize rapid execution and accept tighter rollback margin.',
-        'Option B • Balanced • '
-            'trade speed, cost and reliability around your current preference vector.',
-        'Option C • Maximum Rigor / Slower Execution • '
-            'add validation, evidence checks and larger rollback margin.',
-      ];
-
-      if (!mounted) {
-        return;
-      }
-
+      final decoded = Map<String, dynamic>.from(body);
+      final strategy = decoded['strategy'] is Map ? Map<String, dynamic>.from(decoded['strategy'] as Map) : <String, dynamic>{};
+      final rawOptions = strategy['options'];
+      final rawChallenges = strategy['challenges'];
+      if (!mounted) return;
       setState(() {
-        options = <String>[
-          ...generated,
-          if (executionTrace.isNotEmpty)
-            'Execution trace: ${executionTrace.join(' → ')}',
-        ];
-
-        challenges = <String>[
-          'What assumption would break this option first?',
-          'What happens if a key constraint changes after execution?',
-          'Which evidence would make you reject this path?',
-        ];
-
+        options = rawOptions is List ? rawOptions.whereType<Map>().map((item) => '${item['label'] ?? item['id']}: ${item['approach'] ?? ''} • Risk: ${item['risk'] ?? 'review'}').toList() : <String>[];
+        challenges = rawChallenges is List ? rawChallenges.map((item) => '$item').toList() : <String>[];
+        trace = decoded['trace'] is List ? decoded['trace'].whereType<Map>().map((item) => Map<String, dynamic>.from(item)).toList() : <Map<String, dynamic>>[];
+        research = decoded['research'] is Map ? Map<String, dynamic>.from(decoded['research'] as Map) : null;
         running = false;
-        status = 'PARETO_READY • challenge before acceptance';
+        status = research != null ? 'RESEARCH_COMPLETE • evidence attached to decision trace' : 'DECISION_READY • challenge before acceptance';
       });
-
-      await _persist('options_generated');
+      await _persist('decision_pipeline_complete');
     } catch (e) {
-      if (!mounted) {
-        return;
-      }
-
-      setState(() {
-        running = false;
-        status = 'OPTION_GENERATION_PAUSED • $e';
-      });
+      if (mounted) setState(() { running = false; status = 'DECISION_PIPELINE_FAILED • $e'; });
     }
   }
 
