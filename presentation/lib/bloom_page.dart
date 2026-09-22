@@ -1,15 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'interaction/bloom.dart';
-import 'interaction/syvax.dart';
 import 'presentation/presentation_state.dart';
 import 'presentation/criterivox_theme.dart';
 
 class BloomPage extends StatefulWidget {
   final PresentationState? state;
-  final ValueChanged<BloomSuboption> onSub;
-  final ValueChanged<String> onSyvax;
   final ValueChanged<BloomCapability>? onCapability;
+  final ValueChanged<BloomCapability>? onOpenCapability;
   final VoidCallback onStewardship;
   final VoidCallback onHandoff;
   final VoidCallback onOpenAnalysis;
@@ -17,9 +15,8 @@ class BloomPage extends StatefulWidget {
   const BloomPage(
       {super.key,
       required this.state,
-      required this.onSub,
-      required this.onSyvax,
       this.onCapability,
+      this.onOpenCapability,
       required this.onStewardship,
       required this.onHandoff,
       required this.onOpenAnalysis,
@@ -96,10 +93,9 @@ class _BloomPageState extends State<BloomPage> {
                     state: widget.state,
                     selected: selected,
                     onCapability: _select,
-                    onSub: _handleSub,
+                    onOpenCapability: widget.onOpenCapability,
                     height: 560),
                 const SizedBox(height: 14),
-                Syvax(onSubmit: widget.onSyvax, busy: widget.busy),
                 const SizedBox(height: 14),
                 _ActivityPanel(state: widget.state)
               ])
@@ -110,15 +106,12 @@ class _BloomPageState extends State<BloomPage> {
                         state: widget.state,
                         selected: selected,
                         onCapability: _select,
-                        onSub: _handleSub,
+                        onOpenCapability: widget.onOpenCapability,
                         height: 600)),
                 const SizedBox(width: 16),
                 SizedBox(
                     width: 320,
                     child: Column(children: [
-                      Syvax(onSubmit: widget.onSyvax, busy: widget.busy),
-                      const SizedBox(height: 14),
-                      _ActivityPanel(state: widget.state)
                     ]))
               ]),
             const SizedBox(height: 14),
@@ -137,19 +130,7 @@ class _BloomPageState extends State<BloomPage> {
     widget.onCapability?.call(value);
   }
 
-  void _handleSub(BloomSuboption value) {
-    if (value == BloomSuboption.stewardshipHome) {
-      widget.onStewardship();
-      return;
-    }
-    widget.onSub(value);
-  }
-}
 
-class _ProactiveDoorway extends StatelessWidget {
-  final String taskId;
-  final VoidCallback onOpen;
-  const _ProactiveDoorway({required this.taskId, required this.onOpen});
   @override
   Widget build(BuildContext context) {
     final t = CriterivoxTheme.of(context);
@@ -225,13 +206,13 @@ class _BloomCard extends StatelessWidget {
   final PresentationState? state;
   final BloomCapability? selected;
   final ValueChanged<BloomCapability> onCapability;
-  final ValueChanged<BloomSuboption> onSub;
+  final ValueChanged<BloomCapability>? onOpenCapability;
   final double height;
   const _BloomCard(
       {required this.state,
       required this.selected,
       required this.onCapability,
-      required this.onSub,
+      required this.onOpenCapability,
       required this.height});
   @override
   Widget build(BuildContext context) {
@@ -265,7 +246,7 @@ class _BloomCard extends StatelessWidget {
                   child: Bloom(
                       onSelected: onCapability,
                       selected: selected,
-                      onSuboption: onSub)))
+                      onOpenCapability: onOpenCapability)))
         ]));
   }
 }
