@@ -9,13 +9,55 @@ from ..application.home03_services import home03_services
 from ..application.home03_store import home03_store
 from ..application.home03_bridge import install as install_home03_bridge
 from ..application.human_residence_store import human_residences
+from ..application.human_residence_local_store import human_residence_local
 from ..human.guest_pass import GuestPassManager
 from ..human.collaboration_routes import router as collaboration_router
 from ..infrastructure.runtime import runtime_connections
 install_home03_bridge(runtime_connections)
 router=APIRouter();router.include_router(collaboration_router);guest_passes=GuestPassManager()
 def _plan_payload(plan):return {'task_id':plan.task_id,'intent':{'goal':plan.intent.goal,'intent_type':plan.intent.intent_type,'confidence':plan.intent.confidence,'entities':plan.intent.entities},'steps':[step.__dict__ for step in plan.steps],'created_at':plan.created_at}
-@router.post('/api/human-residence')
+
+@router.post('/api/human-auth/signup')
+async def human_auth_signup(payload: dict):
+    try:
+        result = human_residence_local.signup(email=str(payload.get('email','')), password=str(payload.get('password','')), display_name=str(payload.get('display_name','')), residence_id=str(payload.get('residence_id','')), residence_type=str(payload.get('residence_type','private')), avatar_data_url=payload.get('avatar_data_url'))
+        return {'accepted': True, 'identity': result, 'session_token': human_residence_local.issue_session(result['owner_id']), 'storage': 'local-sqlite'}
+    except ValueError as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=400)
+
+@router.post('/api/human-auth/login')
+async def human_auth_login(payload: dict):
+    try:
+        result = human_residence_local.login(email=str(payload.get('email','')), password=str(payload.get('password','')))
+        return {'accepted': True, 'identity': result, 'session_token': human_residence_local.issue_session(result['owner_id']), 'storage': 'local-sqlite'}
+    except ValueError as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=401)
+
+@router.post('/api/human-auth/profile')
+async def human_auth_profile(payload: dict):
+    owner_id = human_residence_local.owner_for_session(str(payload.get('session_token','')))
+    if owner_id is None:
+        return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    try:
+        return {'accepted': True, 'identity': human_residence_local.update_profile(owner_id=owner_id, display_name=payload.get('display_name'), avatar_data_url=payload.get('avatar_data_url'), role=payload.get('role'))}
+    except ValueError as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=400)
+
+@router.post('/api/human-decisions')
+async def human_decision_save(payload: dict):
+    owner_id = human_residence_local.owner_for_session(str(payload.get('session_token','')))
+    if owner_id is None:
+        return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    decision = human_residence_local.save_decision(owner_id=owner_id, residence_id=str(payload.get('residence_id','')), title=str(payload.get('title','Criterivox Strategy')), goal=str(payload.get('goal','')), strategy=dict(payload.get('strategy',{})), trace=list(payload.get('trace',[])))
+    return {'accepted': True, 'decision': decision, 'storage': 'local-sqlite'}
+
+@router.get('/api/human-decisions')
+async def human_decisions_list(session_token: str, query: str = ''):
+    owner_id = human_residence_local.owner_for_session(session_token)
+    if owner_id is None:
+        return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    return {'accepted': True, 'decisions': human_residence_local.list_decisions(owner_id, query)}
+\n@router.post('/api/human-residence')
 async def human_residence(payload:dict):
  record=human_residences.upsert(dict(payload));return {'accepted':True,'residence':record,'storage':'python-local-mirror','browser_authority':'IndexedDB'}
 @router.get('/api/human-residence/{residence_id}')
