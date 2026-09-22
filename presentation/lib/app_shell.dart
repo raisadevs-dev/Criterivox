@@ -594,6 +594,7 @@ class _ShellState extends State<CriterivoxShell> {
       case 'private-room':
         return PrivateRoomPage(
           onWorkspace: () => open('workspace'),
+          onCollaborationRoom: () => open('collaboration-room'),
         );
 
       case 'collaboration-room':
@@ -825,6 +826,14 @@ class _SidebarState extends State<_Sidebar> {
                       _nav('Human Residence', Icons.home_work_rounded,
                           widget.page == 'human-residence',
                           () => widget.onOpen('human-residence'),
+                          true, t, indent: true),
+                      _nav('Sign Up / Log In', Icons.person_rounded,
+                          widget.page == 'human-residence-entry',
+                          () => widget.onOpen('human-residence-entry'),
+                          true, t, indent: true),
+                      _nav('Guest Pass', Icons.confirmation_number_rounded,
+                          widget.page == 'guest',
+                          () => widget.onOpen('guest'),
                           true, t, indent: true),
                       _nav('Private Room', Icons.lock_outline_rounded,
                           widget.page == 'private-room',
