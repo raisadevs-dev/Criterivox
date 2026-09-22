@@ -270,6 +270,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
   bool allowExternalResearch = false;
   Map<String, dynamic>? research;
   List<Map<String, dynamic>> trace = <Map<String, dynamic>>[];
+  String? decisionId;
 
   Future<void> _generateOptions() async {
     if (goal.text.trim().isEmpty || running || residence == null) return;
@@ -313,6 +314,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
         challenges = rawChallenges is List ? rawChallenges.map((item) => '$item').toList() : <String>[];
         trace = decoded['trace'] is List ? decoded['trace'].whereType<Map>().map((item) => Map<String, dynamic>.from(item)).toList() : <Map<String, dynamic>>[];
         research = decoded['research'] is Map ? Map<String, dynamic>.from(decoded['research'] as Map) : null;
+        decisionId = decoded['decision_id']?.toString();
         running = false;
         status = research != null ? 'RESEARCH_COMPLETE • evidence attached to decision trace' : 'DECISION_READY • challenge before acceptance';
       });
@@ -394,13 +396,19 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     first['learning'] = 'Outcome recorded for Medrus + Viveda review; '
         'no unsupported numeric calibration is invented.';
 
-    resultCtl.clear();
-
-    await _persist('result_logged');
-
-    if (mounted) {
-      setState(() {});
+    final token = residence!.metadata['session_token']?.toString();
+    if (token != null && decisionId != null) {
+      try {
+        await http.post(
+          Uri.base.resolve('/api/human-residence/decision/$decisionId/outcome'),
+          headers: const {'content-type': 'application/json'},
+          body: jsonEncode({'session_token': token, 'result': first['real_result']}),
+        ).timeout(const Duration(seconds: 8));
+      } catch (_) {}
     }
+    resultCtl.clear();
+    await _persist('result_logged');
+    if (mounted) setState(() {});
   }
 
   Future<void> _challenge(int index) async {
@@ -422,20 +430,39 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
 
     if (residence != null) {
       await _persist('challenge_recorded');
+      final token = residence!.metadata['session_token']?.toString();
+      if (token != null && decisionId != null) {
+        try {
+          await http.post(
+            Uri.base.resolve('/api/human-residence/decision/$decisionId/challenge'),
+            headers: const {'content-type': 'application/json'},
+            body: jsonEncode({'session_token': token, 'text': challenges[index]}),
+          ).timeout(const Duration(seconds: 8));
+        } catch (_) {}
+      }
     }
   }
 
   Future<void> _dispatch() async {
-    if (!actApproved || !secondFactor) {
-      return;
+    if (!actApproved || !secondFactor || residence == null || decisionId == null) return;
+    final token = residence!.metadata['session_token']?.toString();
+    if (token == null) return;
+    try {
+      final response = await http.post(
+        Uri.base.resolve('/api/human-residence/decision/$decisionId/accept'),
+        headers: const {'content-type': 'application/json'},
+        body: jsonEncode({
+          'session_token': token,
+          'action': 'execute',
+          'calendar_at': DateTime.now().toIso8601String(),
+        }),
+      ).timeout(const Duration(seconds: 8));
+      if (response.statusCode < 200 || response.statusCode >= 300) throw Exception('acceptance rejected');
+      setState(() => status = 'AUTHORIZED • BODHEX HANDLER • calendar execution event recorded');
+      await _persist('action_approved');
+    } catch (e) {
+      setState(() => status = 'ACTION_AUTHORIZATION_FAILED • $e');
     }
-
-    setState(() {
-      status = 'BODHEX DISPATCH GATE UNLOCKED • '
-          'awaiting explicit tool execution boundary';
-    });
-
-    await _persist('action_approved');
   }
 
   @override
