@@ -6,6 +6,20 @@ import 'dart:convert';
 
 import '../presentation/criterivox_theme.dart';
 
+class BloomActivation {
+  final BloomCapability capability;
+  final String route;
+  final String action;
+  final List<String> destinations;
+
+  const BloomActivation({
+    required this.capability,
+    required this.route,
+    required this.action,
+    required this.destinations,
+  });
+}
+
 enum BloomCapability {
   analyze,
   stewardship,
@@ -32,7 +46,7 @@ class BloomOwner {
 
 class Bloom extends StatefulWidget {
   final ValueChanged<BloomCapability> onSelected;
-  final ValueChanged<BloomCapability>? onOpenCapability;
+  final ValueChanged<BloomActivation>? onOpenCapability;
   final BloomCapability? selected;
   final String? taskId;
   final Future<bool> Function(BloomCapability capability)? activateCapability;
@@ -196,15 +210,15 @@ class _BloomState extends State<Bloom>
     });
 
     try {
-      final accepted = widget.activateCapability != null
+      final activation = widget.activateCapability != null
           ? await widget.activateCapability!(capability)
           : await _activateThroughPython(capability);
 
-      if (!accepted) {
+      if (activation == null) {
         throw Exception('Bloom activation was rejected by the Python backend.');
       }
 
-      callback(capability);
+      callback(activation);
     } catch (error) {
       if (!mounted) return;
       setState(() {
@@ -220,7 +234,8 @@ class _BloomState extends State<Bloom>
     }
   }
 
-  Future<bool> _activateThroughPython(
+
+  Future<BloomActivation?> _activateThroughPython(
     BloomCapability capability,
   ) async {
     final response = await http
@@ -249,7 +264,16 @@ class _BloomState extends State<Bloom>
       );
     }
 
-    return true;
+    final destinations = (decoded['destinations'] as List<dynamic>? ?? const [])
+        .map((value) => value.toString())
+        .toList(growable: false);
+
+    return BloomActivation(
+      capability: capability,
+      route: decoded['route']?.toString() ?? 'workspace',
+      action: decoded['action']?.toString() ?? '',
+      destinations: destinations,
+    );
   }
 
   @override
