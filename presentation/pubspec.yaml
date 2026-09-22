@@ -29,4 +29,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/characters/
-    - assets/character_chat/
+    - assets/character_chat/\n    - assets/introduction/
