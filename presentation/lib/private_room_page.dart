@@ -243,16 +243,28 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
   Future<void> _pickMaterial() async {
     final result = await FilePicker.platform.pickFiles(withData: true, allowMultiple: true);
     if (result == null) return;
-    setState(() {
-      materials.addAll(result.files.map((file) => <String, dynamic>{
-        'name': file.name,
-        'size': file.size,
-        'extension': file.extension,
-        'source': 'human-residence',
-      }));
-      status = 'MATERIALS_RECEIVED • materials ready for Criterivox intake';
-    });
-    await _persist('materials_received');
+    final encoded = result.files.where((file) => file.bytes != null).map((file) => <String, dynamic>{
+      'name': file.name,
+      'source_type': 'image' == (file.extension ?? '').toLowerCase() ? 'image' : 'file',
+      'channel': 'human-residence',
+      'content_base64': base64Encode(file.bytes!),
+      'processing_status': 'received',
+    }).toList();
+    try {
+      final response = await http.post(
+        Uri.base.resolve('/api/human-residence/intake'),
+        headers: const {'content-type': 'application/json'},
+        body: jsonEncode({'collection_id': residence?.residenceId, 'sources': encoded, 'supplied_context': {'goal': goal.text.trim(), 'context': contextCtl.text.trim()}}),
+      ).timeout(const Duration(seconds: 12));
+      if (response.statusCode < 200 || response.statusCode >= 300) throw Exception('intake rejected');
+      setState(() {
+        materials.addAll(result.files.map((file) => <String, dynamic>{'name': file.name, 'size': file.size, 'extension': file.extension, 'source': 'human-residence'}));
+        status = 'MATERIALS_RECEIVED • Python Data Foundation created';
+      });
+      await _persist('materials_received');
+    } catch (_) {
+      if (mounted) setState(() => status = 'MATERIAL_INTAKE_PAUSED • Python runtime rejected or unavailable');
+    }
   }
 
   Future<void> _generateOptions() async {
