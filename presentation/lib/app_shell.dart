@@ -515,48 +515,38 @@ class _ShellState extends State<CriterivoxShell> {
               ],
             ),
 
-            Positioned.fill(
-              child: IgnorePointer(
-                ignoring: !chatOverlayOpen,
-                child: AnimatedOpacity(
-                  opacity: chatOverlayOpen ? 1 : 0,
-                  duration: const Duration(
-                    milliseconds: 220,
-                  ),
-                  child: Material(
-                    color: t.page.withValues(alpha: .98),
-                    child: CharacterChatPage(
-                      key: const ValueKey(
-                        'global-character-chat',
-                      ),
-                      state: state,
-                      busy: busy,
-                      selectedAgent: chatTarget,
-                      onSelectAgent: (agent) {
-                        setState(() {
-                          chatTarget = agent;
-                        });
-                      },
-                      onSend:
-                          (message, agent, references) {
-                        send(
-                          message,
-                          target: agent,
-                          references: references,
-                        );
-                      },
-                      onOpenTask: () {
-                        setState(() {
-                          chatOverlayOpen = false;
-                        });
-
-                        open('workspace');
-                      },
+            if (chatOverlayOpen && page != 'chat')
+              Positioned.fill(
+                child: Material(
+                  color: t.page.withValues(alpha: .98),
+                  child: CharacterChatPage(
+                    key: const ValueKey(
+                      'global-character-chat',
                     ),
+                    state: state,
+                    busy: busy,
+                    selectedAgent: chatTarget,
+                    onSelectAgent: (agent) {
+                      setState(() {
+                        chatTarget = agent;
+                      });
+                    },
+                    onSend: (message, agent, references) {
+                      send(
+                        message,
+                        target: agent,
+                        references: references,
+                      );
+                    },
+                    onOpenTask: () {
+                      setState(() {
+                        chatOverlayOpen = false;
+                      });
+                      open('workspace');
+                    },
                   ),
                 ),
               ),
-            ),
 
             Positioned(
               right: 18,
