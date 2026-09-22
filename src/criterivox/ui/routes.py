@@ -1,7 +1,7 @@
 
 """Browser-facing UI routes and Home 03 interaction APIs."""
-from fastapi import APIRouter,Request
-from fastapi.responses import HTMLResponse,JSONResponse
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 import base64,binascii,hashlib,json,time
 from ..application.syvax import syvax_engine
 from ..application.bloom import bloom_controller
