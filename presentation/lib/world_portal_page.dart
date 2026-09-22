@@ -22,9 +22,7 @@ class HumanResidencePage extends StatefulWidget {
     required this.onWorkspace,
     this.onPrivateRoom,
     this.onCollaborationRoom,
-    this.onBloomWorkspace,
-    this.onBloomChat,
-    this.onBloomStewardship,
+    this.onBloomCapability,
   });
 
   @override
@@ -163,9 +161,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
           right: 22,
           bottom: 22,
           child: _BloomResidenceLauncher(
-            onWorkspace: widget.onBloomWorkspace ?? widget.onWorkspace,
-            onChat: widget.onBloomChat,
-            onStewardship: widget.onBloomStewardship,
+            onCapability: widget.onBloomCapability,
           ),
         ),
       ],
@@ -760,18 +756,15 @@ class GuestPassPage extends StatelessWidget {
 }
 
 class _BloomResidenceLauncher extends StatefulWidget {
-  final VoidCallback onWorkspace;
-  final VoidCallback? onChat;
-  final VoidCallback? onStewardship;
+  final ValueChanged<BloomCapability>? onCapability;
 
   const _BloomResidenceLauncher({
-    required this.onWorkspace,
-    this.onChat,
-    this.onStewardship,
+    this.onCapability,
   });
 
   @override
-  State<_BloomResidenceLauncher> createState() => _BloomResidenceLauncherState();
+  State<_BloomResidenceLauncher> createState() =>
+      _BloomResidenceLauncherState();
 }
 
 class _BloomResidenceLauncherState extends State<_BloomResidenceLauncher> {
@@ -799,10 +792,7 @@ class _BloomResidenceLauncherState extends State<_BloomResidenceLauncher> {
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(color: t.border),
                 boxShadow: const [
-                  BoxShadow(
-                    blurRadius: 28,
-                    spreadRadius: 2,
-                  ),
+                  BoxShadow(blurRadius: 28, spreadRadius: 2),
                 ],
               ),
               child: SingleChildScrollView(
@@ -810,19 +800,11 @@ class _BloomResidenceLauncherState extends State<_BloomResidenceLauncher> {
                   selected: selected,
                   onSelected: (capability) {
                     setState(() {
-                      selected = selected == capability ? null : capability;
+                      selected =
+                          selected == capability ? null : capability;
                     });
                   },
-                  onSuboption: (suboption) {
-                    if (suboption == BloomSuboption.stewardshipHome) {
-                      widget.onStewardship?.call();
-                    } else if (suboption == BloomSuboption.chat) {
-                      widget.onChat?.call();
-                    } else {
-                      widget.onWorkspace();
-                    }
-                  },
-                  onOwnerChat: (_) => widget.onChat?.call(),
+                  onOpenCapability: widget.onCapability,
                 ),
               ),
             ),
@@ -835,7 +817,9 @@ class _BloomResidenceLauncherState extends State<_BloomResidenceLauncher> {
                 if (!open) selected = null;
               });
             },
-            child: Icon(open ? Icons.close_rounded : Icons.auto_awesome_rounded),
+            child: Icon(
+              open ? Icons.close_rounded : Icons.auto_awesome_rounded,
+            ),
           ),
         ],
       ),
