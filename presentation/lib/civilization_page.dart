@@ -252,11 +252,6 @@ class _CivilizationPageState extends State<CivilizationPage> {
                 state: widget.state,
               ),
               const SizedBox(height: 12),
-              _RosterPanel(
-                selected: selectedCharacter,
-                onSelect: _selectCharacter,
-              ),
-              const SizedBox(height: 12),
               _Relations(
                 selected: selectedCharacter,
                 onSelect: _selectCharacter,
@@ -269,13 +264,6 @@ class _CivilizationPageState extends State<CivilizationPage> {
                     child: _BloomPanel(
                       onHome: _selectHome,
                       state: widget.state,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _RosterPanel(
-                      selected: selectedCharacter,
-                      onSelect: _selectCharacter,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -968,47 +956,6 @@ class _BloomPanel extends StatelessWidget {
               ),
             ),
         ],
-      ),
-    );
-  }
-}
-
-class _RosterPanel extends StatelessWidget {
-  final String? selected;
-  final ValueChanged<String> onSelect;
-
-  const _RosterPanel({
-    required this.selected,
-    required this.onSelect,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final t = CriterivoxTheme.of(context);
-
-    return _Panel(
-      title: 'CIVILIZATION REGISTRY',
-      subtitle: 'Identity · role · residency · current state',
-      child: Wrap(
-        spacing: 5,
-        runSpacing: 5,
-        children: CharacterIdentities.all.values
-            .map(
-              (profile) => ActionChip(
-                avatar: CircleAvatar(
-                  radius: 9,
-                  child: Text(
-                    profile.displayName.substring(0, 1),
-                  ),
-                ),
-                label: Text(profile.displayName),
-                backgroundColor: selected == profile.id
-                    ? t.primary.withValues(alpha: .15)
-                    : null,
-                onPressed: () => onSelect(profile.id),
-              ),
-            )
-            .toList(),
       ),
     );
   }
