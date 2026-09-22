@@ -272,6 +272,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
   List<Map<String, dynamic>> trace = <Map<String, dynamic>>[];
   String? decisionId;
   String? acceptedStrategyId;
+  String? calendarId;
   List<Map<String, dynamic>> calendarEvents = <Map<String, dynamic>>[];
   DateTime? plannedStart;
 
@@ -485,6 +486,10 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
         }),
       ).timeout(const Duration(seconds: 8));
       if (calendarResponse.statusCode < 200 || calendarResponse.statusCode >= 300) throw Exception('calendar creation rejected');
+      final calendarBody = jsonDecode(calendarResponse.body);
+      calendarId = calendarBody is Map && calendarBody['event'] is Map
+          ? (calendarBody['event']['calendar_id']?.toString())
+          : null;
       if (!mounted) return;
       setState(() {
         actApproved = true;
@@ -499,21 +504,20 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
   }
 
   Future<void> _dispatch() async {
-    if (!actApproved || !secondFactor || residence == null || decisionId == null) return;
+    if (!actApproved || !secondFactor || residence == null || decisionId == null || calendarId == null) return;
     final token = residence!.metadata['session_token']?.toString();
     if (token == null) return;
     try {
-      final response = await http.post(
-        Uri.base.resolve('/api/human-residence/decision/$decisionId/accept'),
+      final response = await http.patch(
+        Uri.base.resolve('/api/human-residence/calendar/$calendarId'),
         headers: const {'content-type': 'application/json'},
         body: jsonEncode({
           'session_token': token,
-          'action': 'execute',
-          'calendar_at': DateTime.now().toIso8601String(),
+          'status': 'execution_authorized',
         }),
       ).timeout(const Duration(seconds: 8));
-      if (response.statusCode < 200 || response.statusCode >= 300) throw Exception('acceptance rejected');
-      setState(() => status = 'AUTHORIZED • BODHEX HANDLER • calendar execution event recorded');
+      if (response.statusCode < 200 || response.statusCode >= 300) throw Exception('calendar execution authorization rejected');
+      setState(() => status = 'EXECUTION AUTHORIZED • BODHEX HANDLER • CALENDAR EVENT READY');
       await _persist('action_approved');
     } catch (e) {
       setState(() => status = 'ACTION_AUTHORIZATION_FAILED • $e');
