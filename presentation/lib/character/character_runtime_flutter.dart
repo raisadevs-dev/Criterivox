@@ -607,29 +607,94 @@ class _CharacterPainter extends CustomPainter {
         break;
 
       case 'messy':
-        final path = Path()
-          ..moveTo(-42.0, -92.0);
-
+        final path = Path()..moveTo(-42.0, -92.0);
         for (int i = 0; i < 9; i++) {
           final double x = -42.0 + i * 10.5;
-
           path.lineTo(
             x,
             -112.0 -
-                math.sin(
-                  i + time * 0.18,
-                ) *
-                    7.0 -
+                math.sin(i + time * 0.18) * 7.0 -
                 attention.abs(),
           );
         }
-
         path
           ..lineTo(42.0, -86.0)
           ..lineTo(-42.0, -86.0)
           ..close();
-
         canvas.drawPath(path, paint);
+        break;
+
+      case 'cropped':
+        canvas.drawOval(
+          Rect.fromCenter(
+            center: const Offset(0.0, -106.0),
+            width: 79.0,
+            height: 34.0,
+          ),
+          paint,
+        );
+        break;
+
+      case 'swept':
+        final swept = Path()
+          ..moveTo(-42.0, -88.0)
+          ..quadraticBezierTo(-8.0, -126.0, 42.0, -105.0)
+          ..lineTo(31.0, -89.0)
+          ..quadraticBezierTo(-5.0, -104.0, -42.0, -88.0)
+          ..close();
+        canvas.drawPath(swept, paint);
+        break;
+
+      case 'braided':
+        canvas.drawOval(
+          Rect.fromCenter(
+            center: const Offset(0.0, -105.0),
+            width: 79.0,
+            height: 40.0,
+          ),
+          paint,
+        );
+        for (final side in const [-1.0, 1.0]) {
+          for (int i = 0; i < 4; i++) {
+            canvas.drawCircle(
+              Offset(side * 37.0, -92.0 + i * 12.0 + sway),
+              5.0,
+              paint,
+            );
+          }
+        }
+        break;
+
+      case 'wavy':
+        final wave = Path()..moveTo(-42.0, -91.0);
+        for (int i = 0; i < 9; i++) {
+          final x = -42.0 + i * 10.5;
+          wave.lineTo(
+            x,
+            -109.0 - math.sin(i * 1.25 + time * 0.15) * 8.0,
+          );
+        }
+        wave
+          ..lineTo(42.0, -87.0)
+          ..lineTo(-42.0, -87.0)
+          ..close();
+        canvas.drawPath(wave, paint);
+        break;
+
+      case 'tied':
+        canvas.drawOval(
+          Rect.fromCenter(
+            center: const Offset(0.0, -105.0),
+            width: 80.0,
+            height: 41.0,
+          ),
+          paint,
+        );
+        canvas.drawCircle(
+          Offset(38.0 + sway, -103.0),
+          10.0,
+          paint,
+        );
         break;
 
       default:
@@ -883,32 +948,82 @@ class _CharacterPainter extends CustomPainter {
           ..color = character.accent
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2.0;
+        canvas.drawOval(const Rect.fromLTWH(-27.0, -88.0, 22.0, 14.0), glasses);
+        canvas.drawOval(const Rect.fromLTWH(5.0, -88.0, 22.0, 14.0), glasses);
+        canvas.drawLine(const Offset(-5.0, -81.0), const Offset(5.0, -81.0), glasses);
+        break;
 
-        canvas.drawOval(
-          const Rect.fromLTWH(
-            -27.0,
-            -88.0,
-            22.0,
-            14.0,
+      case 'slate':
+      case 'book':
+        final panel = Paint()..color = character.accent;
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromLTWH(39.0, -2.0 + bob, 27.0, 34.0),
+            const Radius.circular(4.0),
           ),
-          glasses,
+          panel,
         );
+        final panelLine = Paint()
+          ..color = character.dark
+          ..strokeWidth = 1.4;
+        canvas.drawLine(Offset(44.0, 7.0 + bob), Offset(61.0, 7.0 + bob), panelLine);
+        canvas.drawLine(Offset(44.0, 13.0 + bob), Offset(58.0, 13.0 + bob), panelLine);
+        canvas.drawLine(Offset(44.0, 19.0 + bob), Offset(61.0, 19.0 + bob), panelLine);
+        break;
 
-        canvas.drawOval(
-          const Rect.fromLTWH(
-            5.0,
-            -88.0,
-            22.0,
-            14.0,
+      case 'tool':
+      case 'scanner':
+        final tool = Paint()
+          ..color = character.accent
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3.0;
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromLTWH(42.0, -1.0 + bob, 22.0, 30.0),
+            const Radius.circular(5.0),
           ),
-          glasses,
+          tool,
         );
+        canvas.drawCircle(Offset(53.0, 8.0 + bob), 4.0, tool);
+        canvas.drawLine(Offset(53.0, 13.0 + bob), Offset(53.0, 24.0 + bob), tool);
+        break;
 
-        canvas.drawLine(
-          const Offset(-5.0, -81.0),
-          const Offset(5.0, -81.0),
-          glasses,
+      case 'question':
+        final q = Paint()
+          ..color = character.accent
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3.0
+          ..strokeCap = StrokeCap.round;
+        canvas.drawArc(
+          Rect.fromLTWH(44.0, -6.0 + bob, 18.0, 16.0),
+          math.pi * 1.1,
+          math.pi * 1.55,
+          false,
+          q,
         );
+        canvas.drawCircle(Offset(53.0, 18.0 + bob), 2.0, q);
+        break;
+
+      case 'link':
+        final link = Paint()
+          ..color = character.accent
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3.0;
+        canvas.drawOval(const Rect.fromLTWH(40.0, 0.0, 20.0, 12.0), link);
+        canvas.drawOval(const Rect.fromLTWH(49.0, 7.0, 20.0, 12.0), link);
+        break;
+
+      case 'compass':
+        final compass = Paint()
+          ..color = character.accent
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.5;
+        canvas.drawCircle(Offset(52.0, 8.0 + bob), 11.0, compass);
+        canvas.drawLine(Offset(52.0, -2.0 + bob), Offset(52.0, 18.0 + bob), compass);
+        canvas.drawLine(Offset(42.0, 8.0 + bob), Offset(62.0, 8.0 + bob), compass);
+        break;
+
+      case 'none':
         break;
     }
 
