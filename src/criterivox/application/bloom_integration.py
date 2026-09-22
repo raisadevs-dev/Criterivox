@@ -10,6 +10,7 @@ class BloomCapability(str, Enum):
     """Capabilities exposed by the Bloom interaction."""
 
     ANALYZE = "analyze"
+    DATA_STEWARDSHIP = "stewardship"
     COMPARE = "compare"
     EXPLORE = "explore"
     PLAN = "plan"
@@ -21,6 +22,7 @@ class ApplicationAction(str, Enum):
     """Application-level actions produced by Bloom."""
 
     REQUEST_ANALYSIS = "request_analysis"
+    OPEN_DATA_STEWARDSHIP = "open_data_stewardship"
     REQUEST_COMPARISON = "request_comparison"
     REQUEST_EXPLORATION = "request_exploration"
     REQUEST_PLAN = "request_plan"
@@ -56,6 +58,7 @@ class BloomIntegration:
 
     _CAPABILITY_ACTIONS = {
         BloomCapability.ANALYZE: ApplicationAction.REQUEST_ANALYSIS,
+        BloomCapability.DATA_STEWARDSHIP: ApplicationAction.OPEN_DATA_STEWARDSHIP,
         BloomCapability.COMPARE: ApplicationAction.REQUEST_COMPARISON,
         BloomCapability.EXPLORE: ApplicationAction.REQUEST_EXPLORATION,
         BloomCapability.PLAN: ApplicationAction.REQUEST_PLAN,
