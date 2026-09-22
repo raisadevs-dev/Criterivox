@@ -13,6 +13,7 @@ import 'human_residence_entry_page.dart';
 import 'guest_pass_experience_page.dart';
 import 'private_room_page.dart';
 import 'collaboration_room_page.dart';
+import 'decision_history_page.dart';
 import 'chat/character_chat_page.dart';
 import 'context/home02_context_console.dart';
 import 'interaction/bloom.dart';
@@ -591,6 +592,9 @@ class _ShellState extends State<CriterivoxShell> {
           onBloomCapability: handleBloomActivation,
         );
 
+      case 'decision-history':
+        return DecisionHistoryPage(onBack: () => open('private-room'));
+
       case 'private-room':
         return PrivateRoomPage(
           onWorkspace: () => open('workspace'),
@@ -847,9 +851,9 @@ class _SidebarState extends State<_Sidebar> {
                           widget.page == 'private-room',
                           () => widget.onOpen('private-room'),
                           true, t, indent: true),
-                      _nav('Results Journal', Icons.menu_book_outlined,
-                          widget.page == 'private-room',
-                          () => widget.onOpen('private-room'),
+                      _nav('Previous Decisions', Icons.history_rounded,
+                          widget.page == 'decision-history',
+                          () => widget.onOpen('decision-history'),
                           true, t, indent: true),
                       _subgroup('COLLABORATION COMMONS', Icons.forum_outlined, [
                         _ChildNav('Meeting Hall', 'collaboration-room'),
