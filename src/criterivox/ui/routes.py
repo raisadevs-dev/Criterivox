@@ -2,7 +2,6 @@
 """Browser-facing UI routes and Home 03 interaction APIs."""
 from fastapi import APIRouter,Request
 from fastapi.responses import HTMLResponse,JSONResponse
-from fastapi.templating import Jinja2Templates
 import base64,binascii,hashlib,json,time
 from ..application.syvax import syvax_engine
 from ..application.bloom import bloom_controller
@@ -14,16 +13,7 @@ from ..human.guest_pass import GuestPassManager
 from ..human.collaboration_routes import router as collaboration_router
 from ..infrastructure.runtime import runtime_connections
 install_home03_bridge(runtime_connections)
-router=APIRouter();router.include_router(collaboration_router);templates=Jinja2Templates(directory='src/criterivox/ui/templates');guest_passes=GuestPassManager()
-@router.get('/',response_class=HTMLResponse)
-def home(request:Request):return templates.TemplateResponse(request=request,name='home.html',context={'request':request,'title':'Criterivox'})
-@router.get('/settings',response_class=HTMLResponse)
-def settings_page(request:Request):return templates.TemplateResponse(request=request,name='home.html',context={'request':request,'title':'Criterivox Settings'})
-@router.get('/home-03',response_class=HTMLResponse)
-def home03(request:Request):return templates.TemplateResponse(request=request,name='home03.html',context={'request':request,'title':'Home 03 • Syvax + The Bloom'})
-def placeholder_page(request,page_name):return templates.TemplateResponse(request=request,name='home.html',context={'request':request,'title':f'Criterivox {page_name}'})
-def _register_placeholder(page_name):router.add_api_route(f'/{page_name}',lambda request,_page_name=page_name:placeholder_page(request,_page_name),methods=['GET'],response_class=HTMLResponse,name=f'{page_name}_page')
-for _page in ('workspace','data','intelligence','explanations','experiments','knowledge'):_register_placeholder(_page)
+router=APIRouter();router.include_router(collaboration_router);guest_passes=GuestPassManager()
 def _plan_payload(plan):return {'task_id':plan.task_id,'intent':{'goal':plan.intent.goal,'intent_type':plan.intent.intent_type,'confidence':plan.intent.confidence,'entities':plan.intent.entities},'steps':[step.__dict__ for step in plan.steps],'created_at':plan.created_at}
 @router.post('/api/human-residence')
 async def human_residence(payload:dict):
