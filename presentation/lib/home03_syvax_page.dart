@@ -317,7 +317,6 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
                                 busy: busy,
                               ),
                               const SizedBox(height: 14),
-                              _bloom(theme),
                             ],
                           );
                         }
@@ -339,7 +338,6 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
                                     busy: busy,
                                   ),
                                   const SizedBox(height: 14),
-                                  _bloom(theme),
                                 ],
                               ),
                             ),
@@ -804,64 +802,4 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
     );
   }
 
-  Widget _bloom(CriterivoxTheme theme) {
-    final activeHomes = bloom?['active_homes'];
-    final traces = bloom?['traces'];
-    final checkpoints = bloom?['checkpoints'];
-    final activeHomeCount = activeHomes is List ? activeHomes.length : 0;
-    final traceCount = traces is List ? traces.length : 0;
-    final checkpointCount = checkpoints is List ? checkpoints.length : 0;
-    final bloomMode = bloom?['mode'] ?? mode;
-
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: theme.surface,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: theme.border),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  '🌸 THE BLOOM',
-                  style: TextStyle(
-                    color: theme.text,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              Text(
-                '$activeHomeCount ACTIVE',
-                style: TextStyle(
-                  color: theme.primary,
-                  fontSize: 9,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Bloom(
-            onSelected: (_) {},
-            onOpenCapability: (capability) => widget.onOpen(
-              capability == BloomCapability.stewardship
-                  ? 'stewardship'
-                  : 'workspace',
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Mode: $bloomMode · traces $traceCount · checkpoints $checkpointCount',
-            style: TextStyle(
-              color: theme.mutedText,
-              fontSize: 9,
-            ),
-          ),
-        ],
-      ),
-    );
-  }}
+}
