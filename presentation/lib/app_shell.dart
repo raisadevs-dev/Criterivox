@@ -181,30 +181,19 @@ class _ShellState extends State<CriterivoxShell> {
     });
   }
 
-  void showReserved(String capability) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(
-            '$capability is reserved for a future capability sprint.',
-          ),
-        ),
-      );
-  }
-
-  void handleBloomCapability(
-    BloomCapability capability,
-  ) {
-    if (capability == BloomCapability.stewardship) {
-      open('stewardship');
-      return;
-    }
-
-    if (capability != BloomCapability.analyze) {
-      showReserved(
-        Bloom.labels[capability] ?? capability.name,
-      );
+  void handleBloomCapability(BloomCapability capability) {
+    switch (capability) {
+      case BloomCapability.stewardship:
+        open('stewardship');
+        break;
+      case BloomCapability.analyze:
+      case BloomCapability.compare:
+      case BloomCapability.explore:
+      case BloomCapability.plan:
+      case BloomCapability.insights:
+      case BloomCapability.explain:
+        open('workspace');
+        break;
     }
   }
 
@@ -456,7 +445,6 @@ class _ShellState extends State<CriterivoxShell> {
                   scrollController:
                       _sidebarScrollController,
                   onOpen: open,
-                  onReserved: showReserved,
                   onToggle: () {
                     setState(() {
                       railOpen = !railOpen;
@@ -717,36 +705,11 @@ class _ShellState extends State<CriterivoxShell> {
           key: const ValueKey('bloom'),
           state: state,
           onCapability: handleBloomCapability,
-          onSub: (value) {
-            switch (value) {
-              case BloomSuboption.workspace:
-                open('workspace');
-                break;
-
-              case BloomSuboption.chat:
-                open('chat');
-                break;
-
-              case BloomSuboption.stewardshipHome:
-                open('stewardship');
-                break;
-
-              case BloomSuboption.stewardshipChat:
-                chatWith('sandre');
-                break;
-            }
-          },
-          onSyvax: (message) {
-            send(
-              message,
-              target: 'syvax',
-            );
-          },
-          onStewardship: () =>
-              open('stewardship'),
+          onSub: (_) {},
+          onSyvax: (_) {},
+          onStewardship: () => open('stewardship'),
           onHandoff: handoffFromBloom,
-          onOpenAnalysis: () =>
-              open('workspace'),
+          onOpenAnalysis: () => open('workspace'),
           busy: busy,
         );
     }
