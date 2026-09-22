@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import '../presentation/criterivox_theme.dart';
 
@@ -32,12 +34,14 @@ class Bloom extends StatefulWidget {
   final ValueChanged<BloomCapability> onSelected;
   final ValueChanged<BloomCapability>? onOpenCapability;
   final BloomCapability? selected;
+  final String? taskId;
 
   const Bloom({
     super.key,
     required this.onSelected,
     this.onOpenCapability,
     this.selected,
+    this.taskId,
   });
 
   static const labels = <BloomCapability, String>{
@@ -161,6 +165,8 @@ class _BloomState extends State<Bloom>
       )..repeat(reverse: true);
 
   BloomCapability? expanded;
+  bool _opening = false;
+  String? _backendError;
 
   @override
   void dispose() {
@@ -172,9 +178,64 @@ class _BloomState extends State<Bloom>
     setState(() {
       expanded =
           expanded == capability ? null : capability;
+      _backendError = null;
     });
 
     widget.onSelected(capability);
+  }
+
+  Future<void> _open(BloomCapability capability) async {
+    final callback = widget.onOpenCapability;
+    if (callback == null || _opening) return;
+
+    setState(() {
+      _opening = true;
+      _backendError = null;
+    });
+
+    try {
+      final response = await http
+          .post(
+            Uri.base.resolve('/api/bloom/activate'),
+            headers: const {
+              'content-type': 'application/json',
+            },
+            body: jsonEncode({
+              'capability': capability.name == 'stewardship'
+                  ? 'stewardship'
+                  : capability.name,
+              'source': 'flutter-bloom',
+              if (widget.taskId != null) 'task_id': widget.taskId,
+            }),
+          )
+          .timeout(const Duration(seconds: 3));
+
+      final decoded = response.body.isEmpty
+          ? <String, dynamic>{}
+          : jsonDecode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode < 200 ||
+          response.statusCode >= 300 ||
+          decoded['accepted'] == false) {
+        throw Exception(
+          decoded['error']?.toString() ?? 'Bloom activation was rejected.',
+        );
+      }
+
+      callback(capability);
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _backendError =
+            'Bloom could not activate this capability: $error';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _opening = false;
+        });
+      }
+    }
   }
 
   @override
@@ -243,6 +304,31 @@ class _BloomState extends State<Bloom>
                   size,
                   compact,
                   expanded!,
+                ),
+              if (_backendError != null)
+                Positioned(
+                  left: 12,
+                  right: 12,
+                  bottom: 0,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: t.surfaceStrong,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: t.warning),
+                      ),
+                      child: Text(
+                        _backendError!,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: t.warning,
+                          fontSize: 9,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
             ],
           ),
@@ -419,10 +505,10 @@ class _BloomState extends State<Bloom>
       ),
       top: chipY,
       child: _ActionChip(
-        icon: Icons.open_in_new_rounded,
-        label: 'Open',
+        icon: _opening ? Icons.hourglass_top_rounded : Icons.open_in_new_rounded,
+        label: _opening ? 'Opening…' : 'Open',
         accent: Bloom.accents[capability]!,
-        onTap: () => widget.onOpenCapability?.call(capability),
+        onTap: () => _open(capability),
       ),
     );
   }
