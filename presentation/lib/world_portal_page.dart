@@ -123,6 +123,16 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
         body: jsonEncode({'email': email.text.trim(), 'password': password.text, 'display_name': name.text.trim(), 'residence_id': id, 'residence_type': type}),
       ).timeout(const Duration(seconds: 6));
       if (authResponse.statusCode < 200 || authResponse.statusCode >= 300) throw Exception('Signup rejected');
+      final auth = jsonDecode(authResponse.body) as Map<String, dynamic>;
+      final token = auth['session_token']?.toString();
+      if (token != null) {
+        final saved = HumanResidenceRecord(
+          residenceId: record.residenceId, ownerId: record.ownerId, displayName: record.displayName,
+          email: record.email, residenceType: record.residenceType, createdAt: record.createdAt,
+          members: record.members, metadata: {...record.metadata, 'session_token': token},
+        );
+        await store.save(saved);
+      }
     } catch (_) {
       if (mounted) setState(() { saving = false; status = 'Signup could not be completed by the local Python runtime.'; });
       return;
@@ -391,6 +401,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
       if (response.statusCode < 200 || response.statusCode >= 300) throw Exception('Login rejected');
       final payload = jsonDecode(response.body) as Map<String, dynamic>;
       final identity = Map<String, dynamic>.from(payload['identity'] as Map);
+      final token = payload['session_token']?.toString();
       final existing = await store.load();
       if (!mounted) return;
       if (existing == null) {
