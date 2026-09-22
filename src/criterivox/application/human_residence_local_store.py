@@ -80,6 +80,15 @@ class HumanResidenceLocalStore:
                     updated_at TEXT NOT NULL
                 );
                 CREATE INDEX IF NOT EXISTS idx_decisions_owner ON decisions(owner_id, created_at DESC);
+                CREATE TABLE IF NOT EXISTS decision_events (
+                    event_id TEXT PRIMARY KEY,
+                    decision_id TEXT NOT NULL,
+                    owner_id TEXT NOT NULL,
+                    event_type TEXT NOT NULL,
+                    payload_json TEXT NOT NULL,
+                    created_at TEXT NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_decision_events_decision ON decision_events(decision_id, created_at ASC);
             """)
 
     def signup(self, *, email: str, password: str, display_name: str, residence_id: str,
@@ -190,6 +199,36 @@ class HumanResidenceLocalStore:
                 (owner_id, f"%{query}%", f"%{query}%"),
             ).fetchall()
         return [self._decision_row(row) for row in rows]
+
+    def record_decision_event(self, *, decision_id: str, owner_id: str, event_type: str, payload: dict[str, Any]) -> dict[str, Any]:
+        event_id = f"event-{secrets.token_urlsafe(12)}"
+        now = _now()
+        with self._connect() as db:
+            row = db.execute("SELECT owner_id FROM decisions WHERE decision_id=?", (decision_id,)).fetchone()
+            if row is None or row["owner_id"] != owner_id:
+                raise ValueError("decision not found")
+            db.execute(
+                "INSERT INTO decision_events(event_id,decision_id,owner_id,event_type,payload_json,created_at) VALUES (?,?,?,?,?,?)",
+                (event_id, decision_id, owner_id, event_type, json.dumps(payload, default=str, sort_keys=True), now),
+            )
+        return {"event_id": event_id, "decision_id": decision_id, "event_type": event_type, "payload": payload, "created_at": now}
+
+    def decision_events(self, *, decision_id: str, owner_id: str) -> list[dict[str, Any]]:
+        with self._connect() as db:
+            rows = db.execute(
+                "SELECT * FROM decision_events WHERE decision_id=? AND owner_id=? ORDER BY created_at ASC",
+                (decision_id, owner_id),
+            ).fetchall()
+        return [
+            {
+                "event_id": row["event_id"],
+                "decision_id": row["decision_id"],
+                "event_type": row["event_type"],
+                "payload": json.loads(row["payload_json"]),
+                "created_at": row["created_at"],
+            }
+            for row in rows
+        ]
 
     def get_decision(self, decision_id: str) -> dict[str, Any] | None:
         with self._connect() as db:
