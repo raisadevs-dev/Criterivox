@@ -10,6 +10,7 @@ import 'civilization_home_preview_page.dart';
 import 'level2_operational_page.dart';
 import 'world_portal_page.dart' hide CivilizationPage;
 import 'human_residence_entry_page.dart';
+import 'guest_pass_experience_page.dart';
 import 'private_room_page.dart';
 import 'collaboration_room_page.dart';
 import 'chat/character_chat_page.dart';
@@ -619,6 +620,11 @@ class _ShellState extends State<CriterivoxShell> {
       case 'collaboration-room':
         return const CollaborationRoomPage();
 
+      case 'guest':
+        return GuestPassExperiencePage(
+          onWorkspace: () => open('workspace'),
+        );
+
       case 'civilization':
         return CivilizationPage(
           key: const ValueKey('civilization'),
@@ -737,7 +743,8 @@ class _ShellState extends State<CriterivoxShell> {
   }
 }
 
-class _Sidebar extends StatelessWidget {
+
+class _Sidebar extends StatefulWidget {
   final String page;
   final bool expanded;
   final ScrollController scrollController;
@@ -755,8 +762,17 @@ class _Sidebar extends StatelessWidget {
   });
 
   @override
+  State<_Sidebar> createState() => _SidebarState();
+}
+
+class _SidebarState extends State<_Sidebar> {
+  bool humanTerritoryOpen = true;
+  bool civilizationOpen = true;
+
+  @override
   Widget build(BuildContext context) {
     final t = criterivox_theme.CriterivoxTheme.of(context);
+    final expanded = widget.expanded;
     final width = expanded ? 244.0 : 76.0;
 
     return AnimatedContainer(
@@ -764,24 +780,20 @@ class _Sidebar extends StatelessWidget {
       width: width,
       decoration: BoxDecoration(
         color: t.surface.withValues(alpha: .96),
-        border: Border(
-          right: BorderSide(
-            color: t.border,
-          ),
-        ),
+        border: Border(right: BorderSide(color: t.border)),
       ),
       child: Column(
         children: [
           Padding(
             padding: EdgeInsets.fromLTRB(
-              expanded ? 18 : 10,
-              18,
-              10,
-              14,
+              expanded ? 18 : 4, 18, expanded ? 10 : 4, 14,
             ),
             child: Row(
+              mainAxisAlignment: expanded
+                  ? MainAxisAlignment.start
+                  : MainAxisAlignment.center,
               children: [
-                const _BrandMark(size: 34),
+                _BrandMark(size: expanded ? 34 : 28),
                 if (expanded) ...[
                   const SizedBox(width: 10),
                   Expanded(
@@ -795,16 +807,22 @@ class _Sidebar extends StatelessWidget {
                     ),
                   ),
                 ],
-                IconButton(
-                  tooltip: expanded
-                      ? 'Collapse sidebar'
-                      : 'Open sidebar',
-                  onPressed: onToggle,
-                  icon: Icon(
-                    expanded
-                        ? Icons.chevron_left_rounded
-                        : Icons.chevron_right_rounded,
-                    color: t.mutedText,
+                SizedBox(
+                  width: expanded ? null : 32,
+                  height: expanded ? null : 32,
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    tooltip: expanded
+                        ? 'Collapse sidebar'
+                        : 'Open sidebar',
+                    onPressed: widget.onToggle,
+                    icon: Icon(
+                      expanded
+                          ? Icons.chevron_left_rounded
+                          : Icons.chevron_right_rounded,
+                      color: t.mutedText,
+                      size: expanded ? 24 : 20,
+                    ),
                   ),
                 ),
               ],
@@ -812,154 +830,145 @@ class _Sidebar extends StatelessWidget {
           ),
           Expanded(
             child: Scrollbar(
-              controller: scrollController,
+              controller: widget.scrollController,
               thumbVisibility: expanded,
               child: SingleChildScrollView(
-                controller: scrollController,
+                controller: widget.scrollController,
                 primary: false,
-                padding: EdgeInsets.symmetric(
-                  horizontal: expanded ? 12 : 8,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: expanded ? 12 : 8),
                 child: Column(
                   children: [
-                    _StatusCard(
-                      expanded: expanded,
-                    ),
+                    _StatusCard(expanded: expanded),
                     const SizedBox(height: 18),
-                    _section(
-                      'START HERE',
-                      expanded,
-                      t,
-                    ),
+                    _section('START HERE', expanded, t),
                     _nav(
                       'App Introduction',
                       Icons.auto_awesome_rounded,
-                      page == 'intro',
-                      () => onOpen('intro'),
-                      expanded,
-                      t,
+                      widget.page == 'intro',
+                      () => widget.onOpen('intro'),
+                      expanded, t,
                     ),
-                    const SizedBox(height: 8),
-                    _section(
-                      'NAVIGATION',
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Civilization · Gate 1',
-                      Icons.location_city_rounded,
-                      page == 'civilization',
-                      () => onOpen('civilization'),
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Bloom',
-                      Icons.spa_rounded,
-                      page == 'bloom',
-                      () => onOpen('bloom'),
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Data Stewardship',
-                      Icons.inventory_2_rounded,
-                      page == 'stewardship',
-                      () => onOpen('stewardship'),
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Analysis Workspace',
-                      Icons.account_tree_rounded,
-                      page == 'workspace',
-                      () => onOpen('workspace'),
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Home 02 • Context Intelligence',
-                      Icons.hub_rounded,
-                      page == 'home02',
-                      () => onOpen('home02'),
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Human Residence',
+                    const SizedBox(height: 12),
+
+                    _group(
+                      'HUMAN TERRITORY',
                       Icons.home_work_rounded,
-                      page == 'human-residence' ||
-                          page == 'human-residence-entry',
-                      () => onOpen(
-                        'human-residence-entry',
-                      ),
-                      expanded,
-                      t,
+                      humanTerritoryOpen,
+                      widget.page == 'human-residence' ||
+                          widget.page == 'human-residence-entry' ||
+                          widget.page == 'private-room' ||
+                          widget.page == 'collaboration-room' ||
+                          widget.page == 'guest',
+                      () => setState(() {
+                        humanTerritoryOpen = !humanTerritoryOpen;
+                      }),
+                      expanded, t,
                     ),
-                    _nav(
-                      'Private Room',
-                      Icons.lock_outline_rounded,
-                      page == 'private-room',
-                      () => onOpen('private-room'),
-                      expanded,
-                      t,
+                    if (expanded && humanTerritoryOpen) ...[
+                      _section('LOGIN / SIGN UP', true, t),
+                      _nav('Human Residence', Icons.home_work_rounded,
+                          widget.page == 'human-residence' ||
+                              widget.page == 'human-residence-entry',
+                          () => widget.onOpen('human-residence-entry'),
+                          true, t, indent: true),
+                      _nav('Private Room', Icons.lock_outline_rounded,
+                          widget.page == 'private-room',
+                          () => widget.onOpen('private-room'),
+                          true, t, indent: true),
+                      _nav('Collaboration Room', Icons.groups_rounded,
+                          widget.page == 'collaboration-room',
+                          () => widget.onOpen('collaboration-room'),
+                          true, t, indent: true),
+                      _nav('Decision Desk', Icons.fact_check_outlined,
+                          widget.page == 'private-room',
+                          () => widget.onOpen('private-room'),
+                          true, t, indent: true),
+                      _nav('Results Journal', Icons.menu_book_outlined,
+                          widget.page == 'private-room',
+                          () => widget.onOpen('private-room'),
+                          true, t, indent: true),
+                      _subgroup('COLLABORATION COMMONS', Icons.forum_outlined, [
+                        _ChildNav('Meeting Hall', 'collaboration-room'),
+                        _ChildNav('Project Rooms', 'collaboration-room'),
+                        _ChildNav('Shared Workspaces', 'collaboration-room'),
+                      ], t),
+                      _subgroup('GUEST DISTRICT', Icons.travel_explore_rounded, [
+                        _ChildNav('Guest Camp', 'guest'),
+                        _ChildNav('Welcome Pavilion', 'guest'),
+                        _ChildNav('Goal Desk', 'guest'),
+                        _ChildNav('Context Table', 'guest'),
+                        _ChildNav('Temporary Decision Space', 'guest'),
+                      ], t),
+                    ],
+
+                    const SizedBox(height: 12),
+                    _group(
+                      'CRITERIVOX CIVILIZATION',
+                      Icons.location_city_rounded,
+                      civilizationOpen,
+                      widget.page == 'civilization' ||
+                          widget.page == 'home-preview' ||
+                          widget.page == 'level2' ||
+                          widget.page == 'bloom',
+                      () => setState(() {
+                        civilizationOpen = !civilizationOpen;
+                      }),
+                      expanded, t,
                     ),
-                    _nav(
-                      'Collaboration Room',
-                      Icons.groups_rounded,
-                      page == 'collaboration-room',
-                      () => onOpen(
-                        'collaboration-room',
-                      ),
-                      expanded,
-                      t,
-                    ),
-                    const SizedBox(height: 16),
-                    _section(
-                      'FUTURE CAPABILITIES',
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Compare',
-                      Icons.balance_rounded,
-                      false,
-                      () => onReserved('Compare'),
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Explore',
-                      Icons.search_rounded,
-                      false,
-                      () => onReserved('Explore'),
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Plan',
-                      Icons.calendar_month_rounded,
-                      false,
-                      () => onReserved('Plan'),
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Insights',
-                      Icons.lightbulb_outline_rounded,
-                      false,
-                      () => onReserved('Insights'),
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Explain',
-                      Icons.chat_bubble_outline_rounded,
-                      false,
-                      () => onReserved('Explain'),
-                      expanded,
-                      t,
-                    ),
+                    if (expanded && civilizationOpen) ...[
+                      _nav('BLOOM NEXUS', Icons.spa_rounded,
+                          widget.page == 'bloom',
+                          () => widget.onOpen('bloom'),
+                          true, t, indent: true),
+                      _civilizationGroup('DATA STEWARDSHIP QUARTER',
+                          'Data Stewardship Home', 'data',
+                          ['Sandre', 'Kaelen'], Icons.inventory_2_rounded, t),
+                      _civilizationGroup('CONTEXT QUARTER',
+                          'Context Home', 'context',
+                          ['Dharen', 'Anuka'], Icons.hub_rounded, t),
+                      _civilizationGroup('GATEWAY QUARTER',
+                          'Gateway Home', 'gateway',
+                          ['Syvax'], Icons.route_rounded, t),
+                      _civilizationGroup('INTELLIGENCE QUARTER',
+                          'Intelligence Home', 'reasoning',
+                          ['Vivren', 'Tarkis'], Icons.psychology_rounded, t),
+                      _civilizationGroup('DECISION & ACTION QUARTER',
+                          'Planning & Decision Home', 'decision',
+                          ['Pramon', 'Bodhex', 'Manis'], Icons.gavel_rounded, t),
+                      _civilizationGroup('EVIDENCE & EXPERIMENT QUARTER',
+                          'Evidence & Experiment Home', 'evidence',
+                          ['Medrus', 'Epistre', 'Veridat'], Icons.science_outlined, t),
+                      _civilizationGroup('KNOWLEDGE QUARTER',
+                          'Knowledge Home', 'knowledge',
+                          ['Viveda'], Icons.menu_book_rounded, t),
+                      _subgroup('CHALLENGE & REVIEW QUARTER', Icons.rate_review_outlined, [
+                        _ChildNav('Challenge & Review Home', 'civilization'),
+                        _ChildNav('Manis', 'civilization'),
+                      ], t),
+                      _subgroup('NETWORK TERRITORY', Icons.alt_route_rounded, [
+                        _ChildNav('Anukor', 'civilization'),
+                        _ChildNav('Network Streets', 'civilization'),
+                        _ChildNav('Routing Junctions', 'civilization'),
+                        _ChildNav('Bridges', 'civilization'),
+                        _ChildNav('Signal Towers', 'civilization'),
+                      ], t),
+                      _subgroup('CIVIC COMMONS', Icons.park_outlined, [
+                        _ChildNav('Discovery Playground', 'civilization'),
+                        _ChildNav('Observation Treehouses', 'civilization'),
+                        _ChildNav('Gardens', 'civilization'),
+                        _ChildNav('Parks', 'civilization'),
+                        _ChildNav('Civic Streets', 'civilization'),
+                      ], t),
+                      _subgroup('OUTER CRITERIVOX WORLD', Icons.public_rounded, [
+                        _ChildNav('Countryside Village', 'civilization'),
+                        _ChildNav('Fields', 'civilization'),
+                        _ChildNav('Streams', 'civilization'),
+                        _ChildNav('CRITERIVOX COAST', 'civilization'),
+                        _ChildNav('Information Harbour', 'civilization'),
+                        _ChildNav('Transfer Pier', 'civilization'),
+                        _ChildNav('Beach', 'civilization'),
+                      ], t),
+                    ],
                   ],
                 ),
               ),
@@ -970,24 +979,12 @@ class _Sidebar extends StatelessWidget {
     );
   }
 
-  Widget _section(
-    String text,
-    bool visible,
-    criterivox_theme.CriterivoxTheme t,
-  ) {
-    if (!visible) {
-      return const SizedBox(height: 8);
-    }
-
+  Widget _section(String text, bool visible, criterivox_theme.CriterivoxTheme t) {
+    if (!visible) return const SizedBox(height: 8);
     return Align(
       alignment: Alignment.centerLeft,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          10,
-          4,
-          10,
-          6,
-        ),
+        padding: const EdgeInsets.fromLTRB(10, 4, 10, 6),
         child: Text(
           text,
           style: TextStyle(
@@ -1001,14 +998,119 @@ class _Sidebar extends StatelessWidget {
     );
   }
 
+  Widget _group(
+    String title,
+    IconData icon,
+    bool open,
+    bool active,
+    VoidCallback onToggle,
+    bool visible,
+    criterivox_theme.CriterivoxTheme t,
+  ) {
+    return Material(
+      color: t.surface,
+      child: Tooltip(
+        message: visible ? '' : title,
+        child: ListTile(
+          onTap: visible ? onToggle : null,
+          selected: active,
+          dense: true,
+          contentPadding: EdgeInsets.symmetric(horizontal: visible ? 10 : 13),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          selectedTileColor: t.primary.withValues(alpha: .13),
+          leading: Icon(icon, size: 19,
+              color: active ? t.primary : t.mutedText),
+          title: visible
+              ? Text(title, overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: active ? t.text : t.mutedText,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: .35,
+                  ))
+              : null,
+          trailing: visible
+              ? Icon(open
+                  ? Icons.keyboard_arrow_down_rounded
+                  : Icons.keyboard_arrow_right_rounded,
+                  color: t.mutedText)
+              : null,
+        ),
+      ),
+    );
+  }
+
+  Widget _subgroup(
+    String title,
+    IconData icon,
+    List<_ChildNav> children,
+    criterivox_theme.CriterivoxTheme t,
+  ) {
+    return ExpansionTile(
+      dense: true,
+      tilePadding: const EdgeInsets.symmetric(horizontal: 18),
+      childrenPadding: const EdgeInsets.only(left: 18, right: 4),
+      leading: Icon(icon, size: 17, color: t.mutedText),
+      title: Text(title, overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: t.mutedText,
+            fontSize: 9.5,
+            fontWeight: FontWeight.w700,
+            letterSpacing: .55,
+          )),
+      children: children.map((child) => _nav(
+        child.label,
+        Icons.chevron_right_rounded,
+        false,
+        () => widget.onOpen(child.route),
+        true, t, indent: true,
+      )).toList(),
+    );
+  }
+
+  Widget _civilizationGroup(
+    String quarter,
+    String home,
+    String homeId,
+    List<String> residents,
+    IconData icon,
+    criterivox_theme.CriterivoxTheme t,
+  ) {
+    return ExpansionTile(
+      dense: true,
+      tilePadding: const EdgeInsets.symmetric(horizontal: 18),
+      childrenPadding: const EdgeInsets.only(left: 18, right: 4),
+      leading: Icon(icon, size: 17, color: t.mutedText),
+      title: Text(quarter, overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: t.mutedText,
+            fontSize: 9.5,
+            fontWeight: FontWeight.w700,
+            letterSpacing: .55,
+          )),
+      children: [
+        _nav(home, Icons.home_outlined, false,
+            () => widget.onOpen('civilization'), true, t, indent: true),
+        ...residents.map((resident) => _nav(
+          resident,
+          Icons.person_outline_rounded,
+          false,
+          () => widget.onOpen('civilization'),
+          true, t, indent: true,
+        )),
+      ],
+    );
+  }
+
   Widget _nav(
     String label,
     IconData icon,
     bool active,
     VoidCallback onTap,
     bool visible,
-    criterivox_theme.CriterivoxTheme t,
-  ) {
+    criterivox_theme.CriterivoxTheme t, {
+    bool indent = false,
+  }) {
     return Material(
       color: t.surface,
       child: Tooltip(
@@ -1018,38 +1120,32 @@ class _Sidebar extends StatelessWidget {
           selected: active,
           dense: true,
           horizontalTitleGap: 12,
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: visible ? 10 : 13,
+          contentPadding: EdgeInsets.only(
+            left: indent ? 24 : (visible ? 10 : 13),
+            right: visible ? 10 : 13,
           ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          selectedTileColor:
-              t.primary.withValues(alpha: .13),
-          leading: Icon(
-            icon,
-            size: 19,
-            color:
-                active ? t.primary : t.mutedText,
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          selectedTileColor: t.primary.withValues(alpha: .13),
+          leading: Icon(icon, size: 18,
+              color: active ? t.primary : t.mutedText),
           title: visible
-              ? Text(
-                  label,
+              ? Text(label, overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: active
-                        ? t.text
-                        : t.mutedText,
-                    fontSize: 12,
-                    fontWeight: active
-                        ? FontWeight.w700
-                        : FontWeight.w500,
-                  ),
-                )
+                    color: active ? t.text : t.mutedText,
+                    fontSize: indent ? 11 : 12,
+                    fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                  ))
               : null,
         ),
       ),
     );
   }
+}
+
+class _ChildNav {
+  final String label;
+  final String route;
+  const _ChildNav(this.label, this.route);
 }
 
 class _StatusCard extends StatelessWidget {
