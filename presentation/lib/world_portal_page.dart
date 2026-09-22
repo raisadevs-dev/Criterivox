@@ -12,7 +12,7 @@ class HumanResidencePage extends StatefulWidget {
   final VoidCallback onWorkspace;
   final VoidCallback? onPrivateRoom;
   final VoidCallback? onCollaborationRoom;
-  final ValueChanged<BloomCapability>? onBloomCapability;
+  final ValueChanged<BloomActivation>? onBloomCapability;
 
   const HumanResidencePage({
     super.key,
@@ -754,7 +754,7 @@ class GuestPassPage extends StatelessWidget {
 }
 
 class _BloomResidenceLauncher extends StatefulWidget {
-  final ValueChanged<BloomCapability>? onCapability;
+  final ValueChanged<BloomActivation>? onCapability;
 
   const _BloomResidenceLauncher({
     this.onCapability,
