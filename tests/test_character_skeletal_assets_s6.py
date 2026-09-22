@@ -51,10 +51,20 @@ def test_current_character_renderer_has_visual_profiles():
 
     for character_id in (
         "dharen",
-        "syvax",
+        "vivren",
+        "tarkis",
         "sandre",
-        "kaelen",
+        "pramon",
+        "syvax",
+        "bodhex",
+        "manis",
         "anuka",
+        "viveda",
+        "kaelen",
+        "anukor",
+        "medrus",
+        "epistre",
+        "veridat",
     ):
         assert f"'{character_id}'" in text
 
@@ -87,3 +97,13 @@ def test_generated_vector_animation_is_secondary_representation():
 
     # Generated SVG is an in-memory secondary representation.
     # It is not a file-backed character-asset dependency.
+
+def test_complete_roster_has_no_generic_visual_fallback():
+    text = read(PROFILE)
+
+    for character_id in (
+        "dharen", "vivren", "tarkis", "sandre", "pramon",
+        "syvax", "bodhex", "manis", "anuka", "viveda",
+        "kaelen", "anukor", "medrus", "epistre", "veridat",
+    ):
+        assert f"'{character_id}': CharacterVisualProfile(" in text
