@@ -4,6 +4,8 @@ from datetime import datetime, timezone
 from hashlib import sha256
 from typing import Any, Literal
 
+from criterivox.application.bloom_integration import BloomCapability, BloomIntegration
+
 Mode = Literal["HITL", "HOTL"]
 
 @dataclass(frozen=True)
@@ -66,6 +68,56 @@ class BloomController:
             raise ValueError("Bloom mode must be HITL or HOTL.")
         self.mode = mode
         return mode
+
+    def activate_capability(
+        self,
+        capability: str,
+        *,
+        source: str = "human",
+        task_id: str | None = None,
+        context: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Record a Bloom capability activation and return its backend routing contract."""
+        try:
+            selected = BloomCapability(str(capability).strip().lower())
+        except ValueError as exc:
+            raise ValueError(f"Unknown Bloom capability: {capability}") from exc
+
+        integration = BloomIntegration()
+        mapping = integration.map_capability(selected)
+        event = integration.action_to_event(mapping.action)
+        agents = integration.event_to_agents(event).character_ids if event else ()
+
+        destinations = {
+            BloomCapability.ANALYZE: ["Home 04"],
+            BloomCapability.DATA_STEWARDSHIP: ["Home 01"],
+            BloomCapability.COMPARE: ["Home 02"],
+            BloomCapability.EXPLORE: ["Home 04"],
+            BloomCapability.PLAN: ["Home 05"],
+            BloomCapability.INSIGHTS: ["Home 04"],
+            BloomCapability.EXPLAIN: ["Home 03"],
+        }[selected]
+
+        seed = self.route_seed(
+            source=source,
+            destinations=destinations,
+            payload={
+                "capability": selected.value,
+                "action": mapping.action.value,
+                "task_id": task_id,
+                "context": context or {},
+            },
+        )
+
+        return {
+            "capability": selected.value,
+            "action": mapping.action.value,
+            "event": event.value if event else None,
+            "agents": list(agents),
+            "destinations": destinations,
+            "seed": seed,
+            "route": "stewardship" if selected is BloomCapability.DATA_STEWARDSHIP else "workspace",
+        }
 
     def state(self) -> dict[str, Any]:
         return {"mode": self.mode, "petals": self.petals(), "active_homes": sorted(self.active), "seeds": self.seeds[-20:], "checkpoints": self.checkpoints[-20:], "traces": self.traces[-50:]}
