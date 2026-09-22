@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 
 import 'human_residence_store.dart';
@@ -8,10 +9,12 @@ import 'presentation/criterivox_theme.dart';
 
 class PrivateRoomPage extends StatefulWidget {
   final VoidCallback onWorkspace;
+  final VoidCallback? onCollaborationRoom;
 
   const PrivateRoomPage({
     super.key,
     required this.onWorkspace,
+    this.onCollaborationRoom,
   });
 
   @override
@@ -25,6 +28,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
   final TextEditingController data = TextEditingController();
   final TextEditingController contextCtl = TextEditingController();
   final TextEditingController resultCtl = TextEditingController();
+  final List<Map<String, dynamic>> materials = <Map<String, dynamic>>[];
 
   HumanResidenceRecord? residence;
 
@@ -234,6 +238,21 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
             'Python mirror unavailable';
       });
     }
+  }
+
+  Future<void> _pickMaterial() async {
+    final result = await FilePicker.platform.pickFiles(withData: true, allowMultiple: true);
+    if (result == null) return;
+    setState(() {
+      materials.addAll(result.files.map((file) => <String, dynamic>{
+        'name': file.name,
+        'size': file.size,
+        'extension': file.extension,
+        'source': 'human-residence',
+      }));
+      status = 'MATERIALS_RECEIVED • materials ready for Criterivox intake';
+    });
+    await _persist('materials_received');
   }
 
   Future<void> _generateOptions() async {
@@ -576,6 +595,25 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
                 'and changing conditions.',
           ),
           const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: OutlinedButton.icon(
+              onPressed: _pickMaterial,
+              icon: const Icon(Icons.attach_file_rounded),
+              label: const Text('Add files / images / folders'),
+            ),
+          ),
+          if (materials.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            ...materials.take(8).map((item) => ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.insert_drive_file_outlined, size: 18),
+              title: Text(item['name'].toString(), style: const TextStyle(fontSize: 10)),
+              subtitle: Text(item['size'].toString() + ' bytes • Human Residence intake', style: const TextStyle(fontSize: 9)),
+            )),
+          ],
+          const SizedBox(height: 10),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -905,6 +943,16 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     );
   }
 
+  Future<void> _downloadStrategy() async {
+    final lines = <String>[
+      '# Criterivox Strategy', '', 'Goal: ' + goal.text.trim(), '',
+      'Options', ...options.map((x) => '- ' + x), '',
+      'Trade-offs', 'Speed: ' + speed.round().toString(), 'Cost: ' + cost.round().toString(),
+      'Reliability: ' + reliability.round().toString(), '', 'Challenges', ...challenges.map((x) => '- ' + x),
+    ];
+    await FilePicker.platform.saveFile(fileName: 'criterivox-strategy.md', bytes: utf8.encode(lines.join('\n')));
+  }
+
   Widget _journal(CriterivoxTheme theme) {
     return _panel(
       theme,
@@ -955,6 +1003,12 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
                     ),
                   ),
                 ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: _downloadStrategy,
+            icon: const Icon(Icons.download_rounded),
+            label: const Text('Download current strategy'),
+          ),
           const SizedBox(height: 8),
           TextField(
             controller: resultCtl,
