@@ -50,6 +50,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
     name.dispose();
     email.dispose();
     clubName.dispose();
+    password.dispose();
     super.dispose();
   }
 
@@ -88,6 +89,11 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
         ? clubName.text.trim()
         : name.text.trim();
 
+    if (password.text.length < 8) {
+      setState(() { saving = false; status = 'Password must contain at least 8 characters.'; });
+      return;
+    }
+
     final record = HumanResidenceRecord(
       residenceId: id,
       ownerId: 'local-${DateTime.now().millisecondsSinceEpoch}',
@@ -109,6 +115,18 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
     );
 
     await store.save(record);
+
+    try {
+      final authResponse = await http.post(
+        Uri.base.resolve('/api/human-auth/signup'),
+        headers: const {'content-type': 'application/json'},
+        body: jsonEncode({'email': email.text.trim(), 'password': password.text, 'display_name': name.text.trim(), 'residence_id': id, 'residence_type': type}),
+      ).timeout(const Duration(seconds: 6));
+      if (authResponse.statusCode < 200 || authResponse.statusCode >= 300) throw Exception('Signup rejected');
+    } catch (_) {
+      if (mounted) setState(() { saving = false; status = 'Signup could not be completed by the local Python runtime.'; });
+      return;
+    }
 
     try {
       final response = await http
@@ -254,11 +272,9 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
                   ),
                   const SizedBox(height: 10),
                   TextField(
-                    controller: name,
-                    decoration: const InputDecoration(
-                      labelText: 'Name',
-                      border: OutlineInputBorder(),
-                    ),
+                    controller: password,
+                    obscureText: true,
+                    decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder()),
                   ),
                   const SizedBox(height: 12),
                   OutlinedButton.icon(
@@ -300,9 +316,15 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
                   ),
                   const SizedBox(height: 10),
                   TextField(
+                    controller: password,
+                    obscureText: true,
+                    decoration: const InputDecoration(labelText: 'Password (8+ characters)', border: OutlineInputBorder()),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
                     controller: email,
                     decoration: const InputDecoration(
-                      labelText: 'Email (local profile)',
+                      labelText: 'Email',
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -356,33 +378,34 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
     );
   }
   Future<void> _login() async {
-    final existing = await store.load();
-    if (!mounted) return;
-
-    if (existing == null) {
-      setState(() {
-        status = 'No local residence found. Use Sign up to create one.';
-      });
+    if (email.text.trim().isEmpty || password.text.length < 8) {
+      setState(() => status = 'Enter your email and 8+ character password.');
       return;
     }
-
-    final matchesEmail = email.text.trim().isEmpty ||
-        (existing.email ?? '').toLowerCase() == email.text.trim().toLowerCase();
-    final matchesName = name.text.trim().isEmpty ||
-        existing.displayName.toLowerCase() == name.text.trim().toLowerCase();
-
-    if (!matchesEmail || !matchesName) {
+    try {
+      final response = await http.post(
+        Uri.base.resolve('/api/human-auth/login'),
+        headers: const {'content-type': 'application/json'},
+        body: jsonEncode({'email': email.text.trim(), 'password': password.text}),
+      ).timeout(const Duration(seconds: 6));
+      if (response.statusCode < 200 || response.statusCode >= 300) throw Exception('Login rejected');
+      final payload = jsonDecode(response.body) as Map<String, dynamic>;
+      final identity = Map<String, dynamic>.from(payload['identity'] as Map);
+      final existing = await store.load();
+      if (!mounted) return;
+      if (existing == null) {
+        setState(() => status = 'Identity authenticated, but no local residence record was found.');
+        return;
+      }
       setState(() {
-        status = 'Local residence identity did not match the saved record.';
+        residence = existing;
+        mode = existing.residenceType;
+        name.text = identity['display_name']?.toString() ?? existing.displayName;
+        status = 'Residence restored from authenticated local identity.';
       });
-      return;
+    } catch (_) {
+      if (mounted) setState(() => status = 'Login unavailable or credentials rejected.');
     }
-
-    setState(() {
-      residence = existing;
-      mode = existing.residenceType;
-      status = 'Local residence restored.';
-    });
   }
 
   Widget _mode(
