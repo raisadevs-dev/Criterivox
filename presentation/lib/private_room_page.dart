@@ -419,6 +419,31 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     );
 
     await _persist('decision_saved');
+    final token = residence?.metadata['session_token']?.toString();
+    if (token != null) {
+      try {
+        await http.post(
+          Uri.base.resolve('/api/human-decisions'),
+          headers: const {'content-type': 'application/json'},
+          body: jsonEncode({
+            'session_token': token,
+            'residence_id': residence!.residenceId,
+            'title': goal.text.trim().isEmpty ? 'Criterivox Strategy' : goal.text.trim(),
+            'goal': goal.text.trim(),
+            'strategy': {
+              'options': options,
+              'speed': speed.round(),
+              'cost': cost.round(),
+              'reliability': reliability.round(),
+              'challenges': challenges,
+            },
+            'trace': options.where((x) => x.startsWith('Execution trace:')).toList(),
+          }),
+        ).timeout(const Duration(seconds: 8));
+      } catch (_) {
+        // IndexedDB remains the active session authority if the runtime is unavailable.
+      }
+    }
 
     if (mounted) {
       setState(() {});
