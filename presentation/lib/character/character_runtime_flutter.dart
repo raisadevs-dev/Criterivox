@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-$oldImport
+import 'package:presentation/character/character_identity.dart';
 import 'package:presentation/character/character_visual_profile.dart';
 
 /// Flutter-side visual runtime for a Criterivox character.
