@@ -39,24 +39,36 @@ void main() {
   );
 
   testWidgets(
-    'Bloom keeps future capabilities visibly reserved',
+    'Bloom opens every capability without character chat or future-sprint reservation',
     (WidgetTester tester) async {
+      BloomCapability? opened;
+
       await tester.pumpWidget(
         MaterialApp(
           home: Bloom(
             onSelected: (_) {},
+            onOpenCapability: (value) => opened = value,
           ),
         ),
       );
 
+      for (final capability in BloomCapability.values) {
+        final label = Bloom.labels[capability]!;
+        await tester.tap(find.text(label));
+        await tester.pump();
+        expect(find.text('Open'), findsOneWidget);
+        await tester.tap(find.text('Open'));
+        await tester.pump();
+        expect(opened, capability);
+      }
+
       expect(
         find.bySemanticsLabel(
-          RegExp(
-            r'Compare capability, Dharen responsible for Context structure, reserved',
-          ),
+          RegExp(r'Compare capability, Dharen responsible for Context structure'),
         ),
         findsOneWidget,
       );
+      expect(find.text('reserved'), findsNothing);
     },
   );
 
