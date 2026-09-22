@@ -12,9 +12,7 @@ class HumanResidencePage extends StatefulWidget {
   final VoidCallback onWorkspace;
   final VoidCallback? onPrivateRoom;
   final VoidCallback? onCollaborationRoom;
-  final VoidCallback? onBloomWorkspace;
-  final VoidCallback? onBloomChat;
-  final VoidCallback? onBloomStewardship;
+  final ValueChanged<BloomCapability>? onBloomCapability;
 
   const HumanResidencePage({
     super.key,
