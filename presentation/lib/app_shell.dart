@@ -15,7 +15,7 @@ import 'private_room_page.dart';
 import 'collaboration_room_page.dart';
 import 'decision_history_page.dart';
 import 'chat/character_chat_page.dart';
-import 'context/home02_context_console.dart';
+import 'context/context_intelligence_page.dart';
 import 'interaction/bloom.dart';
 import 'presentation/criterivox_theme.dart' as criterivox_theme;
 import 'presentation/presentation_state.dart';
@@ -656,22 +656,29 @@ class _ShellState extends State<CriterivoxShell> {
         );
 
       case 'home02':
-        return Home02ContextConsole(
+        return ContextIntelligencePage(
           key: const ValueKey('home02'),
           state: workspaceState,
+          busy: busy,
+          task: task,
+          data: data,
+          contextText: ctx,
+          onStart: start,
           onBuildContext: buildContext,
           onManualAdapt: adaptContext,
           onOpenChat: () => open('chat'),
+          onChatCharacter: chatWith,
           onCreateSandbox: createSandbox,
           onRunSandbox: runSandbox,
           onInspectSandbox: inspectSandbox,
           onPromoteSandbox: promoteSandbox,
           onDiscardSandbox: discardSandbox,
           sandboxReady: sandboxId != null,
+          initialLayer: 0,
         );
 
       case 'workspace':
-        return AnalysisContextWorkspacePage(
+        return ContextIntelligencePage(
           key: const ValueKey('workspace'),
           state: workspaceState,
           busy: busy,
@@ -680,8 +687,16 @@ class _ShellState extends State<CriterivoxShell> {
           contextText: ctx,
           onStart: start,
           onBuildContext: buildContext,
+          onManualAdapt: adaptContext,
           onOpenChat: () => open('chat'),
           onChatCharacter: chatWith,
+          onCreateSandbox: createSandbox,
+          onRunSandbox: runSandbox,
+          onInspectSandbox: inspectSandbox,
+          onPromoteSandbox: promoteSandbox,
+          onDiscardSandbox: discardSandbox,
+          sandboxReady: sandboxId != null,
+          initialLayer: 2,
         );
 
       case 'stewardship':
