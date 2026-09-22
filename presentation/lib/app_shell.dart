@@ -181,20 +181,8 @@ class _ShellState extends State<CriterivoxShell> {
     });
   }
 
-  void handleBloomCapability(BloomCapability capability) {
-    switch (capability) {
-      case BloomCapability.stewardship:
-        open('stewardship');
-        break;
-      case BloomCapability.analyze:
-      case BloomCapability.compare:
-      case BloomCapability.explore:
-      case BloomCapability.plan:
-      case BloomCapability.insights:
-      case BloomCapability.explain:
-        open('workspace');
-        break;
-    }
+  void handleBloomActivation(BloomActivation activation) {
+    open(activation.route);
   }
 
   void handoffFromBloom() {
@@ -600,7 +588,7 @@ class _ShellState extends State<CriterivoxShell> {
           onWorkspace: () => open('private-room'),
           onPrivateRoom: () => open('private-room'),
           onCollaborationRoom: () => open('collaboration-room'),
-          onBloomCapability: handleBloomCapability,
+          onBloomCapability: handleBloomActivation,
         );
 
       case 'private-room':
@@ -703,7 +691,7 @@ class _ShellState extends State<CriterivoxShell> {
           key: const ValueKey('bloom'),
           state: state,
           onCapability: (_) {},
-          onOpenCapability: handleBloomCapability,
+          onOpenCapability: handleBloomActivation,
           onStewardship: () => open('stewardship'),
           onHandoff: handoffFromBloom,
           onOpenAnalysis: () => open('workspace'),
