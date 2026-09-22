@@ -317,6 +317,53 @@ async def home03_checkpoint(payload):
 async def home03_replay(payload):return home03_services.restore(str(payload.get('checkpoint_id','')))
 @router.post('/api/home03/fork')
 async def home03_fork(payload):return home03_services.fork(str(payload.get('checkpoint_id','')),str(payload.get('name','Replay branch')))
+@router.post('/api/human-residence/intake-folder')
+async def human_residence_intake_folder(payload: dict):
+    """Desktop/local folder intake belongs to Human Residence, not Data Stewardship."""
+    import os
+    folder_path = str(payload.get('folder_path') or '').strip()
+    collection_id = str(payload.get('collection_id') or '')
+    if not folder_path or not os.path.isdir(folder_path):
+        return JSONResponse({'accepted': False, 'error': 'folder_path is unavailable to the local runtime'}, status_code=400)
+
+    sources = []
+    for root, _, files in os.walk(folder_path):
+        for name in files[:200]:
+            full = os.path.join(root, name)
+            try:
+                with open(full, 'rb') as handle:
+                    data = handle.read()
+                sources.append({
+                    'name': os.path.relpath(full, folder_path),
+                    'source_type': 'file',
+                    'channel': 'human-residence-folder',
+                    'content_base64': base64.b64encode(data).decode('ascii'),
+                })
+            except OSError:
+                continue
+            if len(sources) >= 200:
+                break
+        if len(sources) >= 200:
+            break
+
+    if not sources:
+        return JSONResponse({'accepted': False, 'error': 'folder contains no readable files'}, status_code=400)
+
+    from ..application.data_foundation_store import data_foundations
+    foundation = data_foundations.ingest({
+        'sources': sources,
+        'collection_id': collection_id or None,
+        'supplied_context': {
+            'entered_through': 'Human Residence',
+            **dict(payload.get('supplied_context') or {}),
+        },
+    })
+    return {
+        'accepted': True,
+        'foundation_id': foundation.foundation_id,
+        'source_count': len(sources),
+    }
+
 @router.post('/api/home03/ingest')
 async def home03_ingest(payload:dict):
  name=str(payload.get('filename','upload'));encoded=str(payload.get('content_base64',''))
