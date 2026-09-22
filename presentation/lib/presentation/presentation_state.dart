@@ -400,13 +400,16 @@ class PresentationState {
       );
     }
 
-    final agentId = decoded['character_id'];
+    final rawAgentId = decoded['character_id'];
+    final agentId = rawAgentId is String
+        ? rawAgentId.trim().toLowerCase()
+        : rawAgentId;
     final stateValue = decoded['character_state'];
     final active = decoded['active'];
     final prominence = decoded['prominence'];
 
     if (agentId is! String ||
-        agentId.trim().isEmpty ||
+        agentId.isEmpty ||
         !CharacterIdentities.all.containsKey(agentId)) {
       throw const FormatException(
         'Runtime message has an unknown character.',
