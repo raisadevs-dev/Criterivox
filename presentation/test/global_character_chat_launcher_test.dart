@@ -48,6 +48,27 @@ void main() {
         findsOneWidget,
       );
 
+      // The global overlay is not allowed to coexist with the dedicated
+      // CharacterChatPage route. The route remains the single canonical
+      // dedicated chat surface.
+      await tester.tap(
+        find.text('Character Chat', findRichText: false).first,
+      );
+
+      await _pumpUntil(
+        tester,
+        () => find.byKey(const ValueKey('chat')),
+      );
+
+      expect(
+        find.byKey(const ValueKey('chat')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('global-character-chat')),
+        findsNothing,
+      );
+
       final globalChat = find.byKey(
         const ValueKey('global-character-chat'),
       );
