@@ -8,7 +8,7 @@ import 'bloom_page.dart';
 import 'civilization_page.dart';
 import 'civilization_home_preview_page.dart';
 import 'level2_operational_page.dart';
-import 'world_portal_page.dart' hide CivilizationPage;
+import 'world_portal_page.dart';
 import 'human_residence_entry_page.dart';
 import 'guest_pass_experience_page.dart';
 import 'private_room_page.dart';
