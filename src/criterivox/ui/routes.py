@@ -278,11 +278,17 @@ async def syvax_replan(payload:dict):
  plan=syvax_engine.compile_plan(str(payload.get('message','')),str(payload.get('task_id','')) or None);return syvax_engine.revise_from_runtime(plan,dict(payload.get('runtime_event',{})))
 @router.post('/api/syvax/dispatch')
 async def syvax_dispatch(payload:dict):
- message=str(payload.get('message','')).strip();safety=syvax_engine.safety_check(message)
- if safety['status']=='blocked':return JSONResponse({'safety':safety,'plan':None},status_code=422)
- plan=syvax_engine.compile_plan(message,payload.get('task_id'));candidate=syvax_engine.candidate_route(plan)
- if not candidate['validation']['valid']:return JSONResponse({'safety':safety,'plan':_plan_payload(plan),'candidate':candidate,'dispatched':False},status_code=409)
- result=home03_services.dispatch(message,plan.task_id,_plan_payload(plan));return {'safety':safety,'plan':_plan_payload(plan),'candidate':candidate,'adaptive':result,'dispatched':True,'execution_status':'control_plane_accepted'}
+ message=str(payload.get('message','')).strip()
+ prepared=syvax_engine.prepare(message,payload.get('task_id'))
+ safety=prepared['safety']
+ if safety['status']=='blocked':
+  return JSONResponse({'safety':safety,'plan':None},status_code=422)
+ plan=prepared['plan']
+ candidate=prepared['candidate']
+ if not candidate['validation']['valid']:
+  return JSONResponse({'safety':safety,'plan':plan,'candidate':candidate,'dispatched':False},status_code=409)
+ result=home03_services.dispatch(message,plan['task_id'],plan)
+ return {'safety':safety,'plan':plan,'candidate':candidate,'adaptive':result,'dispatched':True,'execution_status':'control_plane_accepted'}
 @router.post('/api/syvax/steer')
 async def syvax_steer(payload:dict):return {**syvax_engine.steer(str(payload.get('task_id','')),str(payload.get('correction',''))),'runtime':home03_services.suspend(str(payload.get('task_id','')),str(payload.get('correction','')))}
 @router.post('/api/syvax/resume')
@@ -365,15 +371,13 @@ async def human_residence_intake_folder(payload: dict):
     }
 
 @router.post('/api/home03/ingest')
-async def home03_ingest(payload:dict):
- name=str(payload.get('filename','upload'));encoded=str(payload.get('content_base64',''))
- try:data=base64.b64decode(encoded,validate=True)
- except (ValueError,binascii.Error):return JSONResponse({'accepted':False,'error':'content_base64 is invalid'},status_code=400)
- if len(data)>8*1024*1024:return JSONResponse({'accepted':False,'error':'8 MB upload limit exceeded'},status_code=413)
- cid=str(payload.get('collection_id') or f'home03-{abs(hash(name))}');source={'name':name,'source_type':'file','channel':'home03-universal-dropzone','collection_id':cid,'content':data.decode('utf-8',errors='replace')}
- from ..application.data_foundation_store import data_foundations
- foundation=data_foundations.ingest({'sources':[source],'collection_id':cid,'supplied_context':{'entered_through':'Home 03 Universal Dropzone','content_type':payload.get('content_type')}})
- return {'accepted':True,'filename':name,'size':len(data),'foundation_id':foundation.foundation_id,'forward_target':'Sandre/Data Foundation'}
+async def home03_ingest_legacy():
+ return JSONResponse({
+  'accepted': False,
+  'error': 'Home 03 is not an ingestion boundary. Upload through Human Residence.',
+  'redirect': '/api/human-residence/intake',
+ }, status_code=410)
+
 @router.get('/api/bloom/capabilities')
 async def bloom_capabilities():
     from ..application.bloom_integration import BloomCapability, BloomIntegration
