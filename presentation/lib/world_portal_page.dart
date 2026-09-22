@@ -130,18 +130,20 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
       final authResponse = await http.post(
         Uri.base.resolve('/api/human-auth/signup'),
         headers: const {'content-type': 'application/json'},
-        body: jsonEncode({'email': email.text.trim(), 'password': password.text, 'display_name': name.text.trim(), 'residence_id': id, 'residence_type': type}),
+        body: jsonEncode({'email': email.text.trim(), 'password': password.text, 'display_name': name.text.trim(), 'residence_id': id, 'residence_type': type, 'avatar_data_url': avatarDataUrl}),
       ).timeout(const Duration(seconds: 6));
       if (authResponse.statusCode < 200 || authResponse.statusCode >= 300) throw Exception('Signup rejected');
       final auth = jsonDecode(authResponse.body) as Map<String, dynamic>;
       final token = auth['session_token']?.toString();
+      final identity = auth['identity'] is Map ? Map<String,dynamic>.from(auth['identity'] as Map) : <String,dynamic>{};
       if (token != null) {
         final saved = HumanResidenceRecord(
-          residenceId: record.residenceId, ownerId: record.ownerId, displayName: record.displayName,
+          residenceId: record.residenceId, ownerId: identity['owner_id']?.toString() ?? record.ownerId, displayName: record.displayName,
           email: record.email, residenceType: record.residenceType, createdAt: record.createdAt,
           members: record.members, metadata: {...record.metadata, 'session_token': token},
         );
         await store.save(saved);
+        residence = saved;
       }
     } catch (_) {
       if (mounted) setState(() { saving = false; status = 'Signup could not be completed by the local Python runtime.'; });
