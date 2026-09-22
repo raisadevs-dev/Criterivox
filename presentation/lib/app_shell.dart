@@ -600,9 +600,7 @@ class _ShellState extends State<CriterivoxShell> {
           onWorkspace: () => open('private-room'),
           onPrivateRoom: () => open('private-room'),
           onCollaborationRoom: () => open('collaboration-room'),
-          onBloomWorkspace: () => open('workspace'),
-          onBloomChat: () => open('chat'),
-          onBloomStewardship: () => open('stewardship'),
+          onBloomCapability: handleBloomCapability,
         );
 
       case 'private-room':
