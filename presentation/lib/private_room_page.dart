@@ -245,7 +245,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     if (result == null) return;
     final encoded = result.files.where((file) => file.bytes != null).map((file) => <String, dynamic>{
       'name': file.name,
-      'source_type': 'image' == (file.extension ?? '').toLowerCase() ? 'image' : 'file',
+      'source_type': const {'png','jpg','jpeg','webp','gif'}.contains((file.extension ?? '').toLowerCase()) ? 'image' : 'file',
       'channel': 'human-residence',
       'content_base64': base64Encode(file.bytes!),
       'processing_status': 'received',
