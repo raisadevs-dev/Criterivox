@@ -313,7 +313,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
       final rawChallenges = strategy['challenges'];
       if (!mounted) return;
       setState(() {
-        options = rawOptions is List ? rawOptions.whereType<Map>().map((item) => '${item['label'] ?? item['id']}: ${item['approach'] ?? ''} • Risk: ${item['risk'] ?? 'review'}').toList() : <String>[];
+        options = rawOptions is List ? rawOptions.whereType<Map>().map((item) => (item['id'] ?? '').toString() + '|' + (item['label'] ?? '').toString() + ': ' + (item['approach'] ?? '').toString() + ' • Risk: ' + (item['risk'] ?? 'review').toString()).toList() : <String>[];
         challenges = rawChallenges is List ? rawChallenges.map((item) => '$item').toList() : <String>[];
         trace = decoded['trace'] is List ? decoded['trace'].whereType<Map>().map((item) => Map<String, dynamic>.from(item)).toList() : <Map<String, dynamic>>[];
         research = decoded['research'] is Map ? Map<String, dynamic>.from(decoded['research'] as Map) : null;
@@ -1014,13 +1014,15 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
             contentPadding: EdgeInsets.zero,
           ),
           FilledButton.icon(
+            onPressed: decisionId == null ? null : _acceptStrategy,
+            icon: const Icon(Icons.check_circle_outline),
+            label: const Text('Accept selected strategy'),
+          ),
+          const SizedBox(height: 8),
+          FilledButton.icon(
             onPressed: actApproved && secondFactor ? _dispatch : null,
-            icon: const Icon(
-              Icons.lock_open_rounded,
-            ),
-            label: const Text(
-              'Unlock Bodhex action dispatch',
-            ),
+            icon: const Icon(Icons.lock_open_rounded),
+            label: const Text('Unlock Bodhex action dispatch'),
           ),
         ],
       ),
