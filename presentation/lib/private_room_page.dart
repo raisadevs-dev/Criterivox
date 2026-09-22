@@ -240,6 +240,36 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     }
   }
 
+  Future<void> _pickFolder() async {
+    try {
+      final path = await FilePicker.platform.getDirectoryPath();
+      if (path == null) return;
+      final response = await http.post(
+        Uri.base.resolve('/api/human-residence/intake-folder'),
+        headers: const {'content-type': 'application/json'},
+        body: jsonEncode({
+          'collection_id': residence?.residenceId,
+          'folder_path': path,
+          'supplied_context': {
+            'entered_through': 'Human Residence',
+            'goal': goal.text.trim(),
+            'context': contextCtl.text.trim(),
+          },
+        }),
+      ).timeout(const Duration(seconds: 20));
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw Exception('folder intake rejected');
+      }
+      if (!mounted) return;
+      setState(() => status = 'FOLDER_INTAKE_RECEIVED • Python Data Foundation processing');
+      await _persist('folder_intake_received');
+    } catch (_) {
+      if (mounted) {
+        setState(() => status = 'FOLDER_INTAKE_UNAVAILABLE • use Add files on this browser target');
+      }
+    }
+  }
+
   Future<void> _pickMaterial() async {
     final result = await FilePicker.platform.pickFiles(withData: true, allowMultiple: true);
     if (result == null) return;
@@ -648,10 +678,21 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
           const SizedBox(height: 10),
           Align(
             alignment: Alignment.centerLeft,
-            child: OutlinedButton.icon(
-              onPressed: _pickMaterial,
-              icon: const Icon(Icons.attach_file_rounded),
-              label: const Text('Add files / images / folders'),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: _pickMaterial,
+                  icon: const Icon(Icons.attach_file_rounded),
+                  label: const Text('Add files / images'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: _pickFolder,
+                  icon: const Icon(Icons.folder_open_rounded),
+                  label: const Text('Add folder'),
+                ),
+              ],
             ),
           ),
           if (materials.isNotEmpty) ...[
