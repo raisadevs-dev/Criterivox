@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:file_picker/file_picker.dart';
 
 import 'human_residence_store.dart';
 import 'interaction/bloom.dart';
@@ -72,6 +73,14 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
     }
   }
 
+  Future<void> _pickAvatar() async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
+    if (result == null || result.files.single.bytes == null) return;
+    final file = result.files.single;
+    final ext = (file.extension ?? 'png').toLowerCase();
+    setState(() => avatarDataUrl = 'data:image/$ext;base64,${base64Encode(file.bytes!)}');
+  }
+
   Future<void> _create() async {
     if (name.text.trim().isEmpty) {
       return;
@@ -111,6 +120,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
         'rooms':
             type == 'club' ? ['collaboration'] : ['private', 'collaboration'],
         'local_first': true,
+        'avatar_data_url': avatarDataUrl,
       },
     );
 
@@ -348,6 +358,20 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
                       ),
                     ),
                   ],
+                  const SizedBox(height: 10),
+                  Row(children:[
+                    CircleAvatar(
+                      radius: 24,
+                      backgroundImage: avatarDataUrl != null ? MemoryImage(base64Decode(avatarDataUrl!.split(',').last)) : null,
+                      child: avatarDataUrl == null ? const Icon(Icons.person_rounded) : null,
+                    ),
+                    const SizedBox(width: 10),
+                    OutlinedButton.icon(
+                      onPressed: _pickAvatar,
+                      icon: const Icon(Icons.photo_camera_outlined),
+                      label: const Text('Add profile photo'),
+                    ),
+                  ]),
                   const SizedBox(height: 16),
                   Wrap(
                     spacing: 10,
@@ -489,14 +513,20 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
             ),
           ),
           const SizedBox(height: 7),
-          Text(
-            currentResidence.displayName,
-            style: TextStyle(
-              color: t.text,
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
+          Row(children:[
+            CircleAvatar(
+              radius: 24,
+              backgroundImage: currentResidence.metadata['avatar_data_url'] is String
+                  ? MemoryImage(base64Decode((currentResidence.metadata['avatar_data_url'] as String).split(',').last))
+                  : null,
+              child: currentResidence.metadata['avatar_data_url'] is String ? null : const Icon(Icons.person_rounded),
             ),
-          ),
+            const SizedBox(width: 12),
+            Expanded(child: Text(
+              currentResidence.displayName,
+              style: TextStyle(color: t.text, fontSize: 28, fontWeight: FontWeight.w800),
+            )),
+          ]),
           const SizedBox(height: 5),
           Text(
             currentResidence.residenceType == 'club'
