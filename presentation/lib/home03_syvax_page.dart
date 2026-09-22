@@ -1,6 +1,4 @@
 import 'dart:convert';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -140,63 +138,6 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
     }
   }
 
-  Future<void> attach() async {
-    final result = await FilePicker.platform.pickFiles(
-      withData: true,
-      allowMultiple: false,
-    );
-
-    if (result == null || result.files.isEmpty) {
-      return;
-    }
-
-    final file = result.files.single;
-    final bytes = file.bytes;
-
-    if (bytes == null || bytes.length > 8 * 1024 * 1024) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Universal Dropzone accepts files up to 8 MB.',
-            ),
-          ),
-        );
-      }
-      return;
-    }
-
-    try {
-      final response = await post(
-        '/api/home03/ingest',
-        {
-          'filename': file.name,
-          'content_type': file.extension,
-          'content_base64': base64Encode(bytes),
-        },
-      );
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Sent to Sandre · foundation ${response['foundation_id']}',
-            ),
-          ),
-        );
-      }
-
-      await loadBloom();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$e'),
-          ),
-        );
-      }
-    }
-  }
 
   @override
   void initState() {
@@ -266,7 +207,7 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
                                 ),
                               ),
                               Text(
-                                'Dialogue · routing · safety · steering · output translation',
+                                'Receive · Route · Control · Output',
                                 style: TextStyle(
                                   color: theme.mutedText,
                                   fontSize: 11,
@@ -320,8 +261,6 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
                       },
                     ),
                     const SizedBox(height: 14),
-                    _dropzone(theme),
-                    const SizedBox(height: 14),
                     _workbench(theme, rawPlan),
                     const SizedBox(height: 14),
                     _steering(theme),
@@ -367,7 +306,6 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
                         mode = currentMode;
                       });
 
-                      await loadBloom();
                     },
               style: TextButton.styleFrom(
                 backgroundColor: mode == currentMode
@@ -518,61 +456,6 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
     );
   }
 
-  Widget _dropzone(CriterivoxTheme theme) {
-    return InkWell(
-      onTap: attach,
-      borderRadius: BorderRadius.circular(22),
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: theme.surface,
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(
-            color: theme.primary.withValues(alpha: .55),
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.upload_file_rounded,
-              color: theme.primary,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'UNIVERSAL DROPZONE',
-                    style: TextStyle(
-                      color: theme.text,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 11,
-                    ),
-                  ),
-                  Text(
-                    'Voice/image/document/code payload → normalize → Sandre / Data Foundation',
-                    style: TextStyle(
-                      color: theme.mutedText,
-                      fontSize: 9,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              'ATTACH',
-              style: TextStyle(
-                color: theme.primary,
-                fontSize: 9,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _workbench(
     CriterivoxTheme theme,
@@ -583,17 +466,8 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
     if (view == 'json') {
       content = const JsonEncoder.withIndent('  ').convert(
         {
-          'plan': null,
-          'rendered': null,
-          'bloom': null,
-        },
-      );
-
-      content = const JsonEncoder.withIndent('  ').convert(
-        {
           'plan': plan,
           'rendered': rendered,
-          'bloom': bloom,
         },
       );
     } else if (view == 'reasoning') {
