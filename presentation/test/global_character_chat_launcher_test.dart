@@ -69,22 +69,12 @@ void main() {
         findsNothing,
       );
 
-      final globalChat = find.byKey(
-        const ValueKey('global-character-chat'),
+      final dedicatedChat = find.byKey(
+        const ValueKey('chat'),
       );
 
       expect(
-        globalChat,
-        findsOneWidget,
-      );
-
-      final chatInput = find.descendant(
-        of: globalChat,
-        matching: find.byType(TextField),
-      );
-
-      expect(
-        chatInput,
+        dedicatedChat,
         findsOneWidget,
       );
 
