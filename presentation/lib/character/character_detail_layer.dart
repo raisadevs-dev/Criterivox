@@ -77,6 +77,62 @@ class _DetailPainter extends CustomPainter {
         canvas.drawCircle(const Offset(-47, -91), 8 + pulse * 2, glow);
         canvas.drawCircle(const Offset(47, -91), 8 + pulse * 2, glow);
         break;
+      case 'vivren':
+        canvas.drawArc(
+          Rect.fromCircle(center: const Offset(0, -78), radius: 48),
+          -1.1,
+          2.2,
+          false,
+          p..strokeWidth = 1.6,
+        );
+        break;
+      case 'tarkis':
+        canvas.drawLine(const Offset(48, -6), Offset(62, -18 + drift), p..strokeWidth = 2);
+        canvas.drawLine(const Offset(48, -6), Offset(58, 5 + drift), p..strokeWidth = 2);
+        break;
+      case 'pramon':
+        canvas.drawRect(const Rect.fromLTWH(43, -10, 19, 27), p..style = PaintingStyle.stroke..strokeWidth = 2);
+        break;
+      case 'bodhex':
+        canvas.drawCircle(Offset(55, 2 + drift), 7 + pulse * 2, glow);
+        canvas.drawLine(Offset(48, 2 + drift), Offset(62, 2 + drift), p..strokeWidth = 2);
+        break;
+      case 'manis':
+        canvas.drawArc(
+          const Rect.fromLTWH(45, -8, 16, 14),
+          math.pi * 1.1,
+          math.pi * 1.5,
+          false,
+          p..strokeWidth = 2,
+        );
+        break;
+      case 'viveda':
+        canvas.drawRect(const Rect.fromLTWH(43, -8, 22, 28), p..style = PaintingStyle.stroke..strokeWidth = 2);
+        canvas.drawLine(const Offset(48, -1), const Offset(60, -1), p..strokeWidth = 1.5);
+        canvas.drawLine(const Offset(48, 5), const Offset(58, 5), p..strokeWidth = 1.5);
+        break;
+      case 'anukor':
+        canvas.drawCircle(Offset(55, 1 + drift), 8, glow);
+        canvas.drawCircle(Offset(55, 1 + drift), 5, p..style = PaintingStyle.stroke..strokeWidth = 1.8);
+        break;
+      case 'medrus':
+        canvas.drawCircle(Offset(55, 2 + drift), 8 + pulse, glow);
+        canvas.drawLine(const Offset(55, -7), Offset(55, 11 + drift), p..strokeWidth = 2);
+        break;
+      case 'epistre':
+        canvas.drawCircle(Offset(53, 1 + drift), 10, p..style = PaintingStyle.stroke..strokeWidth = 1.8);
+        canvas.drawLine(Offset(53, -9 + drift), Offset(53, 11 + drift), p..strokeWidth = 1.4);
+        canvas.drawLine(Offset(43, 1 + drift), Offset(63, 1 + drift), p..strokeWidth = 1.4);
+        break;
+      case 'veridat':
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromLTWH(42, -6 + drift, 24, 17),
+            const Radius.circular(4),
+          ),
+          p..style = PaintingStyle.stroke..strokeWidth = 2,
+        );
+        break;
     }
   }
 
