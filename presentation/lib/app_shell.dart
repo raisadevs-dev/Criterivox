@@ -719,7 +719,6 @@ class _Sidebar extends StatefulWidget {
   final bool expanded;
   final ScrollController scrollController;
   final ValueChanged<String> onOpen;
-  final ValueChanged<String> onReserved;
   final VoidCallback onToggle;
 
   const _Sidebar({
@@ -727,7 +726,6 @@ class _Sidebar extends StatefulWidget {
     required this.expanded,
     required this.scrollController,
     required this.onOpen,
-    required this.onReserved,
     required this.onToggle,
   });
 
