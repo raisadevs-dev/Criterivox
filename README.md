@@ -1,333 +1,164 @@
 # Criterivox
 
-Criterivox is a **research-driven, context-aware intelligence and decision-support system**. It originated from the problem of understanding social-media content through platform data, creator-provided context, and system-derived analysis, and is being engineered so that the underlying intelligence architecture is not permanently coupled to one platform or deployment model.
-
-## Project Status
-
-**S5 — Data Foundation + Sandre Data Stewardship is complete.** S5 established the provenance-aware data foundation, confirmation-gated stewardship workflow, Sandre working surface, and runtime integration required to carry validated material toward Dharen analysis. The Python ↔ WebSocket ↔ Flutter architecture remains intact.
-
-**S6 — Context Intelligence is COMPLETE.** S6 closed the operational context-intelligence foundation, including Dharen/Anuka context responsibilities, durable context state, browser-first residency, sandbox/replay, dynamic budgeting, telemetry/presentation integration, reproducible learned-model code, evidence verification and the S6 closure/verification record. S6 is therefore treated as a completed sprint; subsequent work builds on its verified foundation.
-
-## S6 Direction
-
-S6 adds an operational context layer above the S5 foundation. It structures, protects, adapts, persists, replays and hands off context while preserving S5 provenance and browser-first residency.
-
-```text
-Human Residence
-      ↓
-Syvax — dialogue / gateway / orchestration
-      ↓
-S5 DataFoundation
-      ↓
-S6 Context Intelligence
-      ↓
-Dharen — Context Master
-      ↓
-ContextFrame
-      ├── normal flow
-      └── trigger → Anuka — Context Adaptor
-                    ↓
-             adaptive state / fork
-                    ↓
-       Criterivox computational workers
-                    ↓
-        result / evidence / options
-                    ↓
-             Human Residence
-```
-
-## S5 → S6 Foundation
-
-```text
-USER MATERIAL
-      ↓
-SOURCE / COLLECTION INTAKE
-      ↓
-EXTRACTION
-      ↓
-CANDIDATE INFORMATION
-      ↓
-USER CONFIRMATION
-      ↓
-PROFILE / QUALITY
-      ↓
-NORMALIZE / PREPARE
-      ↓
-CANONICAL DATA
-      ↓
-SANDRE DATA STEWARDSHIP
-      ↓
-DHAREN CONTEXT INTELLIGENCE
-      ↓
-PROVENANCE → CONTEXT → INTERPRETATION
-```
+Criterivox is a research-driven, context-aware intelligence and decision-support system.
 
-S5 preserves source identity, provenance, user confirmation, explicit missingness, anomaly flags, reproducible transformations, and canonical downstream representation. S6 consumes the **complete DataFoundation** rather than a reduced summary.
+It began as an application for analysing information with context and gradually evolved into a broader research prototype for traceable, inspectable and human-controlled decision support.
 
-## Criterivox Civilization and Human Residence
+## Current Status
 
-Criterivox is represented as two connected environments:
+**Sprints 1–10 have been crossed.**
 
-- **Criterivox Civilization** — specialised computational workers/homes and their domain interactions.
-- **Human Residence** — the human-side decision environment.
+The current main branch is the integrated project baseline. Major work from the product shell, character interaction, data foundation, context intelligence, reasoning, XAI/evidence, reusable capability architecture, frontend completion and character-chat/intelligence integration has been consolidated.
 
-The human is not another autonomous worker. The Human Residence loop is:
+**Next phase: UI Stabilization.**
 
-```text
-Goal → Data + Context → Criterivox → Decision/Options
-→ Challenge → Accept/Reject → Action
-→ Real-world Result → new evidence/context
-```
+This is not another intelligence-architecture sprint. The purpose is to make the existing system visually coherent, correctly composed, responsive and faithful to the underlying runtime contracts.
 
-Syvax is the gateway between these environments. Bloom is the capability-discovery/world surface. Neither is the source of authoritative S5/S6 computational state.
+## Sprint History
 
-## Character and Interaction Boundary
+| Sprint | Focus | Current outcome |
+|---|---|---|
+| **S1** | Product shell + Bloom foundation | User-facing shell, navigation and Bloom foundation established |
+| **S2** | Character-driven interaction + Flutter visual integration | Character interaction and presentation foundation established |
+| **S3** | Application Bloom | Syvax/Bloom connected to the application/runtime boundary |
+| **S4** | Domain Analysis Workspace | Analysis task flow, Python ↔ Flutter path and first functional Dharen runtime integration established |
+| **S5** | Data Foundation + Sandre Data Stewardship | Provenance-aware data foundation, confirmation and stewardship workflow established |
+| **S6** | Context Intelligence | Durable context, transfer, replay, sandboxing, budgeting and Dharen/Anuka context responsibilities established |
+| **S7** | Reasoning Research Bureau | Inspectable reasoning architecture, provenance, intervention and reasoning research surface established |
+| **S8** | XAI / Evidence Research Bureau | Evidence, verification, provenance, integrity and human-facing XAI evaluation boundaries established |
+| **S9** | Capability & Intelligence Architecture | Reusable capabilities, pipelines, routing, execution controls, checkpoints and audit primitives established |
+| **S10** | Integrated baseline + cross-sprint reconciliation | Major architecture/frontend/character-chat/intelligence work consolidated into main; regression baseline restored |
 
-- **Syvax** remains the dialogue host, interaction gateway, routing/orchestration and presentation boundary.
-- **Sandre** owns Data Stewardship upstream of S6.
-- **Kaelen** handles build/experimentation work and short-lived scratchpad activity.
-- **Dharen** owns contextual structure, baseline framing and downstream handoff.
-- **Anuka** is conditionally activated for changed requirements, evidence, hypotheses, constraints, drift, counterfactuals or downstream incompatibility.
-- **Bloom** remains the capability-discovery surface rather than a duplicate work area.
-- Characters are representations of computational responsibilities, not the underlying ML/model itself.
-- Character conversations are independent buffers while task/context/evidence state remains shared and authoritative.
+Detailed research history is recorded in:
 
-## S6 Operational Capabilities
+docs/research/PROJECT-RESEARCH-JOURNEY-THROUGH-S10.md
 
-- Dynamic context pruning and attentive compression
-- Hierarchical memory structuring
-- Adaptive context windowing
-- Stateful context transfer across agent boundaries
-- Context isolation through sandboxing
-- In-context scratchpad persistence
-- Context clash / poisoning prevention
-- Dynamic hierarchy tiering
-- Priority-tiered token budgeting
-- Contextual replay and shadow testing
+## What Criterivox Became
 
-## Character Animation Stack
+Original direction:
 
-Criterivox uses a local Web 2D skeletal presentation runtime:
+    Human / Information → Analysis → Useful Answer
 
-- **Flutter / Dart** — application presentation, semantic state transport, responsive layout and accessibility.
-- **HTML + standard JavaScript** — local skeletal rendering boundary embedded through `HtmlElementView`.
-- **Plain JSON skeleton data** — bones, slots, character skins/signatures and animation tracks.
-- **DragonBones / Spine-style concepts** — hierarchical bones, slots/skins, animation tracks and blended state transitions.
+Current architecture:
 
-The current renderer is an original lightweight Criterivox skeletal runtime. It is deliberately renderer-independent from the Python/domain layer and leaves a future production DragonBones or Spine adapter as a separate research/licensing decision.
+    Human Goal / Problem
+            ↓
+    Human Residence
+            ↓
+    Character Interaction / Syvax
+            ↓
+    Data + Provenance
+            ↓
+    Context Intelligence
+            ↓
+    Inspectable Reasoning
+            ↓
+    Evidence / XAI
+            ↓
+    Verification
+            ↓
+    Reusable Capabilities / Pipelines
+            ↓
+    Authorized Execution
+            ↓
+    Result / Audit
+            ↓
+    Knowledge / Adaptation / Future Journey
+            ↓
+    Human Decision
 
-## Character State Vocabulary
+The project therefore evolved from a content-analysis/application idea into an integrated research prototype for human decision support.
 
-```text
-IDLE
-RECEIVE
-WORK
-COMMUNICATE
-HANDOFF
-COMPLETE
-WARNING
-```
+## What We Learned Beyond the Original Goal
 
-Python/domain/application layers emit semantic state. Flutter carries the contract and the local Web runtime blends the corresponding skeletal pose.
+1. **Data is not just input.** S5 made source identity, provenance, confirmation, missingness and transformation history part of the downstream foundation.
+2. **Context is not just prompt text.** S6 introduced durable context state, transfer, isolation, replay, adaptation and budgeting boundaries.
+3. **Reasoning needs inspectable artifacts.** S7 established structured reasoning records, dependency/provenance structures and intervention boundaries instead of pretending hidden chain-of-thought is an exposed product artifact.
+4. **Explanations need evidence.** S8 established evidence, verification, provenance and integrity as separate research boundaries.
+5. **Human authority is architectural.** Challenge, approval and consequential-action authority are represented explicitly.
+6. **Characters are responsibility surfaces.** Character identities do not imply fifteen independent trained intelligence models.
+7. **Capabilities should be reusable.** S9 separated reusable computational capabilities from character identities.
+8. **The system became researchable.** The architecture now supports investigation of evidence traceability, explanation understanding, uncertainty comprehension, challenge quality, correction traceability, authorization awareness, context transfer and reasoning inspection.
 
-## S6 Closure and Verification
+## Current Research Position
 
-The S6 closure record and subsequent verification work established the completed sprint boundary. The repository contains the operational context runtime surface, complete DataFoundation handoff to Dharen, Dharen firewall and conditional Anuka triggers, sandbox controls, context telemetry to presentation, S6 testing/verification work, and the documented S6 closure record.
+The central research direction is:
 
-Implementation, trained artifacts, runtime inference and CI evidence remain separate claims. S6 completion means the **S6 sprint scope is closed**, not that every later research question in Criterivox has been solved.
+> How can context-aware, evidence-grounded and inspectable computational support help humans make better-informed decisions while preserving human authority?
 
-## Research Foundation
+The repository contains implementation and evaluation boundaries for this question, but implementation alone does not prove that the system improves human decision-making. Empirical conclusions require appropriate experiments, participants, datasets, measurements and analysis.
 
-Research remains a first-class part of Criterivox. Engineering prototypes are used to test feasibility and architecture, while research claims are kept separate from implementation evidence.
+## Current Verification Baseline
 
-The current S6 research boundary explicitly distinguishes **EVIDENCE, DECISION, ASSUMPTION, HYPOTHESIS, IMPLEMENTED, FUTURE, and UNKNOWN**.
+**Flutter regression suite: 107 passed, 0 failed.**
 
-### Research direction
+This establishes a green regression baseline for the tested presentation behavior. It does not establish that every runtime path or research claim is empirically validated.
 
-The broader research direction investigates how **context-aware intelligence and explanation can support human decision-making** rather than merely producing automated outputs.
+The application also successfully launched after clearing stale Flutter build state with flutter clean. The remaining problems are now primarily runtime/UI integration and presentation-composition problems.
 
-## Further S6 Documentation
+## Next Phase — UI Stabilization
 
-- `docs/sprints/S6-BACKLOG.md` — consolidated remaining S6 work and exit gates.
-- `docs/architecture/S6-SOLID-MODULAR-BOUNDARIES.md` — modular/SOLID boundary decisions.
-- `docs/architecture/CRITERIVOX-CIVILIZATION-HUMAN-RESIDENCE-S6.md` — Bloom/Syvax/Civilization/Human Residence relationship.
-- `docs/adr/ADR-009-s6-context-human-civilization-boundary.md` — accepted architectural decision.
+Known problems currently include:
 
-
----
-
-# Current Truth — Post-S6 State
-
-> **Status snapshot for the current \`main\` branch:** Criterivox has moved beyond the S6 context foundation into an integrated **reasoning + evidence/XAI + reusable capability architecture**, with the major S7, S8, S9, frontend-completion, and character-chat work reconciled into \`main\`. This is an architecture-and-research implementation milestone, **not a claim that the entire product is finished or that every planned intelligence capability is production-complete**.
-
-## Where We Came From
-
-S6 established the context-intelligence foundation:
-
-- provenance-aware S5 data remains the upstream data foundation;
-- durable context state and context transfer were introduced;
-- Dharen/Anuka context responsibilities were formalized;
-- browser-first residency, sandbox/replay, budgeting and adaptive context mechanisms were established;
-- the architecture explicitly separates implementation, learned artifacts, runtime inference and research evidence.
-
-The important change after S6 is that Criterivox is no longer only a **data + context pipeline**. The repository now contains research and architectural layers for **reasoning, evidence/XAI, human intervention, verification, reusable capabilities, execution controls and observable orchestration**.
-
-## S7 — Reasoning Research Bureau
-
-**S7 reasoning architecture is implemented and integrated.**
-
-The repository now contains:
-
-- a dedicated Reasoning Research Bureau boundary;
-- staged reasoning lifecycle and dependency graph;
-- inspectable/public reasoning graph models;
-- branch provenance;
-- reusable reasoning and critical-thinking mechanisms;
-- explicit insufficiency and intervention contracts;
-- reasoning scenario fixtures and validation;
-- a reasoning-bureau presentation surface.
-
-The architectural intent is deliberate: Criterivox exposes **inspectable reasoning artifacts and structured explanations**, not hidden chain-of-thought.
-
-S7 therefore establishes a researchable reasoning layer between context/evidence and decisions, while retaining human intervention as an explicit part of the lifecycle.
-
-## S8 — XAI / Evidence Research Bureau
-
-**The S8 computational and epistemic foundation is integrated. The experimental S8 visual environment is explicitly deferred for redesign.**
-
-S8 establishes durable boundaries for:
-
-- evidence artifacts and provenance;
-- verification;
-- temporal validity/invalidation;
-- authorization and human intervention;
-- artifact integrity and tamper detection;
-- persistence and reload;
-- explanation/provenance inspection;
-- cross-context access controls;
-- research evaluation of understanding, traceability, problem detection, challenge quality, correction traceability, uncertainty comprehension and authorization awareness.
-
-The S8 evaluation protocol intentionally avoids inventing a universal confidence threshold. Research results are to be reported by task and dimension, with study-specific thresholds and sampling documented separately.
-
-## S9 — Capability & Intelligence Architecture
-
-**S9 architecture is finalized and integrated.**
-
-S9 turns previously domain-specific mechanisms into reusable system primitives:
-
-- capability descriptors and registry;
-- reusable pipeline definitions and dependency validation;
-- deterministic topological execution;
-- execution policy, permissions, budgets, retries and circuit breakers;
-- human-authority and challenge states;
-- execution journals and checkpoints;
-- trace/span and audit primitives;
-- capability routing;
-- artifact integrity;
-- compatibility between the S6 capability boundary and the generic capability registry.
-
-Key architectural invariants now include:
-
-1. Homes are presentation/organizational concepts, not computational authorities.
-2. Characters are behavioral/presentation identities, not independent intelligence owners.
-3. Capabilities are reusable and character-independent.
-4. Pipelines use explicit dependency edges and reject cycles.
-5. Events connect work without character-to-character computational coupling.
-6. S8 remains the durable artifact/event persistence boundary.
-7. Consequential execution requires explicit human authority.
-8. Checkpoints and replay use persisted records rather than fictional state.
-9. Routing is a control-plane primitive rather than a monolithic character orchestrator.
-
-S9 also explicitly leaves distributed transport/MCP, production distributed tracing, universal knowledge/skill engines and other unsupported capabilities **deferred rather than pretending they exist**.
-
-## Character Chat and Civilization Integration
-
-The later integration work has brought the character-chat backbone into the same \`main\` baseline.
-
-The current architecture therefore treats the characters as **interaction surfaces over real system responsibilities**, not as separate autonomous models. The character registry, responsibility boundaries, handoff contracts, message chips, capability contracts, runtime/application integration and research/test material are part of the consolidated repository.
-
-The full character set is represented in the registry:
-
-\`syvax, dharen, sandre, kaelen, anuka, vivren, tarkis, pramon, bodhex, medrus, epistre, veridat, manis, viveda, anukor\`
-
-This does **not** mean every character has an independent trained model. Characters remain presentation/routing identities over shared authoritative runtime capabilities and state.
-
-## What \`main\` Actually Represents Now
-
-The current architecture can be summarized as:
-
-\`\`\`text
-Human Goal / Problem
-        ↓
-Human Residence
-        ↓
-Syvax / Character Interaction Boundary
-        ↓
-Context + Provenance
-        ↓
-S7 Reasoning
-        ↓
-S8 Evidence / XAI / Verification
-        ↓
-S9 Reusable Capabilities + Pipelines
-        ↓
-Authorized Execution
-        ↓
-Result / Verification / Audit
-        ↓
-Knowledge / Adaptation / Future Journey
-        ↓
-Human Decision
-\`\`\`
-
-The repository now has substantially more than a chatbot UI. It contains a research-oriented architecture for making computational work **traceable, inspectable, challengeable, authorized and reusable**.
-
-## What Is Still Not Truthfully Claimable
-
-The following must **not** be described as universally complete merely because their architecture exists:
+- runtime messages containing an unknown character identity;
+- duplicated UI surfaces/components;
+- mismatched component composition;
+- unbalanced visual hierarchy;
+- responsive/layout overflow;
+- reusable components being used where page-specific composition is required;
+- conflicts between global overlays and page-local surfaces.
+
+The UI phase will focus on:
+
+1. Component ownership
+2. Character identity contract
+3. Page-specific composition
+4. Reusable-component boundaries
+5. Responsive layout
+6. Removal of duplicate surfaces
+7. Runtime ↔ UI state reconciliation
+8. Visual regression verification
+
+No new architectural layer should be introduced merely to hide these problems.
+
+## What Is Not Being Claimed
+
+Criterivox is not being described as:
 
 - a fully autonomous general intelligence;
 - a universally trained Criterivox model;
-- a production-grade distributed intelligence network;
-- production MCP/external tool infrastructure;
-- universal knowledge-graph or skill-learning engines;
-- universal empirical thresholds for confidence, data quality or model selection;
-- complete automatic integration of every S4–S8 lifecycle artifact into every runtime path;
-- a finished experimental S8 visual environment;
-- complete end-to-end empirical validation of the entire civilization.
+- a production distributed intelligence network;
+- production MCP/external-tool infrastructure;
+- a universal knowledge/skill-learning engine;
+- a system with universal empirical confidence or explainability thresholds;
+- a completely empirically validated end-to-end civilization.
 
-Some of these have contracts, persistence models, test fixtures or architectural boundaries. That is evidence of implementation at those layers, **not evidence that the entire capability is empirically solved**.
+The project is an implemented research prototype and evolving decision-support architecture with durable foundations for context, inspectable reasoning, evidence/XAI, verification, human challenge, reusable capabilities and controlled execution.
 
-## Current Maturity Statement
+## Repository Principle
 
-**Criterivox has progressed from a context-aware data foundation into a multi-layer research system with implemented reasoning, evidence/XAI, verification, human-authority, reusable-capability and execution architecture.**
+The repository distinguishes:
 
-The strongest current claim is therefore:
+- **IMPLEMENTED** — present in the codebase/runtime boundary;
+- **VERIFIED** — supported by tests or explicit verification evidence;
+- **RESEARCH QUESTION** — investigated but not yet empirically settled;
+- **FUTURE** — intentionally deferred;
+- **UNKNOWN** — not established by current evidence.
 
-> **Criterivox is an implemented research prototype and evolving decision-support architecture with durable foundations for context, inspectable reasoning, evidence/XAI, verification, human challenge, reusable capabilities and controlled execution. It is not yet a universally validated autonomous intelligence system.**
+Architecture is not automatically empirical evidence. Tests are not automatically research findings. UI is not authoritative computational state. Characters are not automatically independent models. Human decision authority remains explicit.
 
-That distinction is part of the project's research integrity.
+## Project Research Record
 
-## Repository Integration State
+The consolidated research journey, including where the project started, what each sprint asked, what was established, what was learned beyond the original plan, current research questions and their evidence status, is maintained in:
 
-The major recent branches have been reconciled into \`main\`, including:
+docs/research/PROJECT-RESEARCH-JOURNEY-THROUGH-S10.md
 
-- S9 Capability & Intelligence Architecture;
-- frontend-completion work;
-- intelligence-bureau integration;
-- character-chat-backbone and its Set 4 validation work.
+## Current Position
 
-The current \`main\` branch should therefore be treated as the **integrated baseline** for subsequent development rather than continuing feature work from the older pre-reconciliation branches.
+**Sprints 1–10: crossed.**
 
-## Immediate Research/Engineering Reality
+**Current baseline: integrated main.**
 
-The next work is not to invent another architectural layer for the sake of having another sprint number. The priority is to **close the gap between existing contracts and verified end-to-end behavior**:
+**Next phase: UI Stabilization.**
 
-1. broad regression and integration verification;
-2. complete the remaining S4/S6–S8 partial lifecycle integrations;
-3. connect the research bureaus cleanly to the current frontend and character experience;
-4. verify evidence, reasoning, execution, verification and provenance as one operational journey;
-5. collect empirical evaluation data rather than substituting architecture diagrams for evidence;
-6. document every genuine research contribution separately from planned work.
-
-Human decision authority remains explicit throughout this progression.
+The architectural foundation is now substantial enough that the next job is not to keep adding layers. The next job is to make the system we already built coherent, balanced, understandable and faithful to its actual runtime behavior.
