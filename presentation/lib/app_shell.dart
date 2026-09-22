@@ -20,7 +20,7 @@ import 'interaction/bloom.dart';
 import 'presentation/criterivox_theme.dart' as criterivox_theme;
 import 'presentation/presentation_state.dart';
 import 'presentation/runtime_client.dart';
-import 'stewardship_live_workspace_page.dart';
+import 'data_stewardship_page.dart';
 
 class CriterivoxShell extends StatefulWidget {
   final bool isDarkMode;
@@ -683,7 +683,7 @@ class _ShellState extends State<CriterivoxShell> {
         );
 
       case 'stewardship':
-        return StewardshipLiveWorkspacePage(
+        return DataStewardshipPage(
           key: const ValueKey('stewardship'),
           state: state,
           runtime: runtime,
