@@ -57,7 +57,26 @@ async def human_decisions_list(session_token: str, query: str = ''):
     if owner_id is None:
         return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
     return {'accepted': True, 'decisions': human_residence_local.list_decisions(owner_id, query)}
-\n@router.post('/api/human-residence')
+\n@router.post('/api/human-residence/intake')
+async def human_residence_intake(payload: dict):
+    sources = payload.get('sources')
+    if not isinstance(sources, list) or not sources:
+        return JSONResponse({'accepted': False, 'error': 'at least one source is required'}, status_code=400)
+    try:
+        from ..application.data_foundation_store import data_foundations
+        foundation = data_foundations.ingest({
+            'sources': sources[:50],
+            'collection_id': payload.get('collection_id'),
+            'supplied_context': {
+                'entered_through': 'Human Residence',
+                **dict(payload.get('supplied_context') or {}),
+            },
+        })
+        return {'accepted': True, 'foundation_id': foundation.foundation_id, 'sources': [s.to_dict() for s in foundation.sources]}
+    except (ValueError, TypeError) as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=400)
+
+@router.post('/api/human-residence')
 async def human_residence(payload:dict):
  record=human_residences.upsert(dict(payload));return {'accepted':True,'residence':record,'storage':'python-local-mirror','browser_authority':'IndexedDB'}
 @router.get('/api/human-residence/{residence_id}')
