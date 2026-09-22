@@ -89,6 +89,21 @@ class HumanResidenceLocalStore:
                     created_at TEXT NOT NULL
                 );
                 CREATE INDEX IF NOT EXISTS idx_decision_events_decision ON decision_events(decision_id, created_at ASC);
+                CREATE TABLE IF NOT EXISTS calendar_events (
+                    calendar_id TEXT PRIMARY KEY,
+                    owner_id TEXT NOT NULL,
+                    residence_id TEXT NOT NULL,
+                    decision_id TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    starts_at TEXT NOT NULL,
+                    ends_at TEXT,
+                    status TEXT NOT NULL,
+                    strategy_id TEXT,
+                    notes TEXT NOT NULL DEFAULT '',
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_calendar_owner ON calendar_events(owner_id, starts_at ASC);
             """)
 
     def signup(self, *, email: str, password: str, display_name: str, residence_id: str,
@@ -229,6 +244,56 @@ class HumanResidenceLocalStore:
             }
             for row in rows
         ]
+
+    def create_calendar_event(self, *, owner_id: str, residence_id: str, decision_id: str,
+                              title: str, starts_at: str, ends_at: str | None = None,
+                              strategy_id: str | None = None, notes: str = "") -> dict[str, Any]:
+        if not self.get_decision(decision_id):
+            raise ValueError("decision not found")
+        calendar_id = f"calendar-{secrets.token_urlsafe(12)}"
+        now = _now()
+        with self._connect() as db:
+            db.execute(
+                """INSERT INTO calendar_events
+                (calendar_id,owner_id,residence_id,decision_id,title,starts_at,ends_at,status,strategy_id,notes,created_at,updated_at)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (calendar_id, owner_id, residence_id, decision_id, title.strip() or "Criterivox strategy",
+                 starts_at, ends_at, "scheduled", strategy_id, notes, now, now),
+            )
+        return self.get_calendar_event(calendar_id) or {}
+
+    def get_calendar_event(self, calendar_id: str) -> dict[str, Any] | None:
+        with self._connect() as db:
+            row = db.execute("SELECT * FROM calendar_events WHERE calendar_id=?", (calendar_id,)).fetchone()
+        return dict(row) if row else None
+
+    def list_calendar_events(self, owner_id: str, *, from_at: str | None = None, to_at: str | None = None) -> list[dict[str, Any]]:
+        clauses = ["owner_id=?"]
+        params: list[Any] = [owner_id]
+        if from_at:
+            clauses.append("starts_at>=?")
+            params.append(from_at)
+        if to_at:
+            clauses.append("starts_at<=?")
+            params.append(to_at)
+        with self._connect() as db:
+            rows = db.execute(
+                "SELECT * FROM calendar_events WHERE " + " AND ".join(clauses) + " ORDER BY starts_at ASC",
+                params,
+            ).fetchall()
+        return [dict(row) for row in rows]
+
+    def update_calendar_event(self, *, calendar_id: str, owner_id: str, status: str | None = None,
+                              starts_at: str | None = None, ends_at: str | None = None) -> dict[str, Any]:
+        event = self.get_calendar_event(calendar_id)
+        if not event or event["owner_id"] != owner_id:
+            raise ValueError("calendar event not found")
+        with self._connect() as db:
+            db.execute(
+                "UPDATE calendar_events SET status=?, starts_at=?, ends_at=?, updated_at=? WHERE calendar_id=?",
+                (status or event["status"], starts_at or event["starts_at"], ends_at if ends_at is not None else event["ends_at"], _now(), calendar_id),
+            )
+        return self.get_calendar_event(calendar_id) or {}
 
     def get_decision(self, decision_id: str) -> dict[str, Any] | None:
         with self._connect() as db:
