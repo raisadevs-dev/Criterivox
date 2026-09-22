@@ -4,7 +4,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import 'interaction/bloom.dart';
 import 'interaction/syvax.dart';
 import 'presentation/criterivox_theme.dart';
 
@@ -25,7 +24,6 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
   final correction = TextEditingController();
 
   Map<String, dynamic>? plan;
-  Map<String, dynamic>? bloom;
   Map<String, dynamic>? rendered;
 
   String mode = 'HITL';
@@ -73,28 +71,6 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
     return data;
   }
 
-  Future<void> loadBloom() async {
-    try {
-      final response = await http.get(
-        base.replace(
-          path: '${base.path}/api/bloom/state',
-        ),
-      );
-
-      if (response.statusCode < 300 && mounted) {
-        final decoded = jsonDecode(response.body);
-
-        if (decoded is Map) {
-          setState(() {
-            bloom = Map<String, dynamic>.from(decoded);
-          });
-        }
-      }
-    } catch (_) {
-      // Bloom state is supplementary. The main Syvax workflow
-      // should remain usable when the Bloom endpoint is unavailable.
-    }
-  }
 
   Future<void> dispatch(String text) async {
     if (text.trim().isEmpty || busy) {
@@ -147,7 +123,6 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
         rendered = renderResult;
       });
 
-      await loadBloom();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -226,7 +201,6 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
   @override
   void initState() {
     super.initState();
-    loadBloom();
   }
 
   @override
@@ -380,13 +354,6 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
                   : () async {
                       await post(
                         '/api/syvax/oversight',
-                        {
-                          'mode': currentMode,
-                        },
-                      );
-
-                      await post(
-                        '/api/bloom/mode',
                         {
                           'mode': currentMode,
                         },
