@@ -354,7 +354,6 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
                       child: _Intake(
                         sources: _sources,
                         onFiles: _files,
-                        onFolder: _folder,
                         onText: _textSource,
                         text: _text,
                         onIngest: _ingest,
@@ -414,10 +413,6 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
                 t: t,
               ),
               const SizedBox(height: 14),
-              _Sandre(
-                s: s,
-                t: t,
-              ),
             ],
           ),
         );
@@ -630,12 +625,6 @@ class _Intake extends StatelessWidget {
                   'Upload Files',
                   Icons.upload_file,
                   onFiles,
-                  t,
-                ),
-                _Button(
-                  'Add Folder to Python',
-                  Icons.folder_open,
-                  onFolder,
                   t,
                 ),
               ],
