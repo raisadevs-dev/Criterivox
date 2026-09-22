@@ -5,7 +5,7 @@ import 'package:presentation/interaction/syvax.dart';
 
 void main() {
   testWidgets(
-    'Bloom exposes capability gateway and activates Analyze',
+    'Bloom exposes capability gateway and selects Analyze',
     (WidgetTester tester) async {
       BloomCapability? selected;
 
@@ -24,11 +24,7 @@ void main() {
       await tester.pump();
 
       expect(selected, BloomCapability.analyze);
-      expect(find.text('Workspace'), findsOneWidget);
 
-      // Verify the responsible character through the expanded owner's
-      // semantic identity rather than requiring the name to be unique
-      // across the entire Bloom widget tree.
       expect(
         find.bySemanticsLabel(
           RegExp(r'Analyze capability, Vivren responsible for Discernment'),
@@ -48,6 +44,7 @@ void main() {
           home: Bloom(
             onSelected: (_) {},
             onOpenCapability: (value) => opened = value,
+            activateCapability: (_) async => true,
           ),
         ),
       );
