@@ -11,6 +11,8 @@ import 'generated_vector_animation.dart';
 class SessionCharacterAnimation {
   static final int sessionSeed =
       DateTime.now().microsecondsSinceEpoch ^ math.Random().nextInt(0x7fffffff);
+  /// All 15 specialists share the same animation engine; visual identity is
+  /// supplied by the canonical profile registry.
   static final activeCharacters = CharacterVisualProfile.registry.keys.toSet();
   static bool supports(String id) =>
       CharacterVisualProfile.forId(id) != null &&
