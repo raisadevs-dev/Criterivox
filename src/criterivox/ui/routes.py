@@ -270,9 +270,13 @@ async def guest_session_leave(session_id:str):
 async def guest_pass_status():return {'active_ephemeral_sessions':guest_passes.active_count(),'ttl_seconds':guest_passes.ttl_seconds}
 @router.post('/api/syvax/plan')
 async def syvax_plan(payload:dict):
- message=str(payload.get('message','')).strip();safety=syvax_engine.safety_check(message)
- if safety['status']=='blocked':return JSONResponse({'safety':safety,'plan':None},status_code=422)
- plan=syvax_engine.compile_plan(message,payload.get('task_id'));return {'safety':safety,'plan':_plan_payload(plan),'candidate':syvax_engine.candidate_route(plan)}
+ prepared=syvax_engine.prepare(
+  str(payload.get('message','')).strip(),
+  payload.get('task_id'),
+ )
+ if prepared['safety']['status']=='blocked':
+  return JSONResponse({'safety':prepared['safety'],'plan':None},status_code=422)
+ return prepared
 @router.post('/api/syvax/replan')
 async def syvax_replan(payload:dict):
  plan=syvax_engine.compile_plan(str(payload.get('message','')),str(payload.get('task_id','')) or None);return syvax_engine.revise_from_runtime(plan,dict(payload.get('runtime_event',{})))
