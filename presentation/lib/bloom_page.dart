@@ -205,7 +205,7 @@ class _BloomCard extends StatelessWidget {
   final PresentationState? state;
   final BloomCapability? selected;
   final ValueChanged<BloomCapability> onCapability;
-  final ValueChanged<BloomCapability>? onOpenCapability;
+  final ValueChanged<BloomActivation>? onOpenCapability;
   final double height;
   const _BloomCard(
       {required this.state,
