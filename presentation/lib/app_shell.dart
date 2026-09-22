@@ -21,6 +21,7 @@ import 'presentation/criterivox_theme.dart' as criterivox_theme;
 import 'presentation/presentation_state.dart';
 import 'presentation/runtime_client.dart';
 import 'data_stewardship_page.dart';
+import 'home03_syvax_page.dart';
 
 class CriterivoxShell extends StatefulWidget {
   final bool isDarkMode;
@@ -699,6 +700,12 @@ class _ShellState extends State<CriterivoxShell> {
           initialLayer: 2,
         );
 
+      case 'gateway':
+        return Home03SyvaxPage(
+          key: const ValueKey('gateway'),
+          onOpen: open,
+        );
+
       case 'stewardship':
         return DataStewardshipPage(
           key: const ValueKey('stewardship'),
@@ -1077,8 +1084,15 @@ class _SidebarState extends State<_Sidebar> {
         _nav(
           home,
           Icons.home_outlined,
-          homeId == 'data' && widget.page == 'stewardship',
-          () => widget.onOpen(homeId == 'data' ? 'stewardship' : 'civilization'),
+          homeId == 'data' && widget.page == 'stewardship' ||
+              homeId == 'gateway' && widget.page == 'gateway',
+          () => widget.onOpen(
+            homeId == 'data'
+                ? 'stewardship'
+                : homeId == 'gateway'
+                    ? 'gateway'
+                    : 'civilization',
+          ),
           true,
           t,
           indent: true,
@@ -1086,8 +1100,15 @@ class _SidebarState extends State<_Sidebar> {
         ...residents.map((resident) => _nav(
           resident,
           Icons.person_outline_rounded,
-          homeId == 'data' && widget.page == 'stewardship',
-          () => widget.onOpen(homeId == 'data' ? 'stewardship' : 'civilization'),
+          homeId == 'data' && widget.page == 'stewardship' ||
+              homeId == 'gateway' && widget.page == 'gateway',
+          () => widget.onOpen(
+            homeId == 'data'
+                ? 'stewardship'
+                : homeId == 'gateway'
+                    ? 'gateway'
+                    : 'civilization',
+          ),
           true,
           t,
           indent: true,
