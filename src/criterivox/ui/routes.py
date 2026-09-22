@@ -153,6 +153,55 @@ async def human_residence_decision(payload: dict):
     except Exception as exc:
         return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=502)
 
+@router.get('/api/human-residence/calendar')
+async def human_residence_calendar(session_token: str, from_at: str | None = None, to_at: str | None = None):
+    owner_id = human_residence_local.owner_for_session(session_token)
+    if owner_id is None:
+        return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    return {'accepted': True, 'events': human_residence_local.list_calendar_events(owner_id, from_at=from_at, to_at=to_at)}
+
+@router.post('/api/human-residence/calendar')
+async def human_residence_calendar_create(payload: dict):
+    owner_id = human_residence_local.owner_for_session(str(payload.get('session_token', '')))
+    if owner_id is None:
+        return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    try:
+        event = human_residence_local.create_calendar_event(
+            owner_id=owner_id,
+            residence_id=str(payload.get('residence_id', '')),
+            decision_id=str(payload.get('decision_id', '')),
+            title=str(payload.get('title', 'Criterivox strategy')),
+            starts_at=str(payload.get('starts_at', '')),
+            ends_at=payload.get('ends_at'),
+            strategy_id=payload.get('strategy_id'),
+            notes=str(payload.get('notes', '')),
+        )
+        human_residence_local.record_decision_event(
+            decision_id=event['decision_id'],
+            owner_id=owner_id,
+            event_type='scheduled',
+            payload={'calendar_id': event['calendar_id'], 'starts_at': event['starts_at'], 'title': event['title']},
+        )
+        return {'accepted': True, 'event': event}
+    except ValueError as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=400)
+
+@router.patch('/api/human-residence/calendar/{calendar_id}')
+async def human_residence_calendar_update(calendar_id: str, payload: dict):
+    owner_id = human_residence_local.owner_for_session(str(payload.get('session_token', '')))
+    if owner_id is None:
+        return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    try:
+        return {'accepted': True, 'event': human_residence_local.update_calendar_event(
+            calendar_id=calendar_id,
+            owner_id=owner_id,
+            status=payload.get('status'),
+            starts_at=payload.get('starts_at'),
+            ends_at=payload.get('ends_at'),
+        )}
+    except ValueError as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=404)
+
 @router.get('/api/human-residence/research/status')
 async def human_residence_research_status():
     from ..application.external_research import google_research
