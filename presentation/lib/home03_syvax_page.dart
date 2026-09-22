@@ -846,11 +846,7 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
           ),
           const SizedBox(height: 8),
           Bloom(
-            onSelected: (capability) => widget.onOpen(
-              capability == BloomCapability.stewardship
-                  ? 'stewardship'
-                  : 'workspace',
-            ),
+            onSelected: (_) {},
             onOpenCapability: (capability) => widget.onOpen(
               capability == BloomCapability.stewardship
                   ? 'stewardship'
