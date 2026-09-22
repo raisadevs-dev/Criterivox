@@ -30,14 +30,6 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
   final _why = TextEditingController();
   final _logQuery = TextEditingController();
 
-  final _homeJson = TextEditingController(
-    text: '{"purpose":"analysis","platform":"Instagram"}',
-  );
-
-  final _chatJson = TextEditingController(
-    text: '{"purpose":"research evidence","platform":"Instagram"}',
-  );
-
   final List<Map<String, dynamic>> _sources = [];
 
   String? _foundationId;
@@ -50,8 +42,6 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
     'transformation_history': false,
   };
 
-  final Map<String, String> _winner = {};
-
   @override
   void dispose() {
     for (final controller in [
@@ -59,8 +49,6 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
       _what,
       _why,
       _logQuery,
-      _homeJson,
-      _chatJson,
     ]) {
       controller.dispose();
     }
@@ -177,70 +165,6 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
     );
   }
 
-  void _merge() {
-    try {
-      final home = jsonDecode(_homeJson.text);
-      final chat = jsonDecode(_chatJson.text);
-
-      if (home is! Map || chat is! Map) {
-        throw const FormatException();
-      }
-
-      final conflicts = <String>[];
-
-      for (final field in {...home.keys, ...chat.keys}) {
-        if (home[field] != chat[field]) {
-          conflicts.add(field.toString());
-        }
-      }
-
-      final unresolved = conflicts
-          .where((field) => !_winner.containsKey(field))
-          .toList();
-
-      if (conflicts.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No conflicting fields were found.'),
-          ),
-        );
-        return;
-      }
-
-      if (unresolved.isNotEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Choose Home or Chat for every conflict before merging: '
-              '${unresolved.join(', ')}',
-            ),
-          ),
-        );
-        return;
-      }
-
-      final winners = {
-        for (final field in conflicts) field: _winner[field]!,
-      };
-
-      _action(
-        'merge_conflicts',
-        values: {
-          'home': Map<String, dynamic>.from(home),
-          'chat': Map<String, dynamic>.from(chat),
-          'winners': winners,
-        },
-      );
-    } catch (_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Conflict inputs must be valid JSON objects.',
-          ),
-        ),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
