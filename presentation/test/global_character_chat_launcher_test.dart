@@ -196,6 +196,8 @@ void main() {
 
       // Global Chat is an application-level capability.
       // Entering Civilization must not remove it.
+      // The dedicated chat route owns the canonical chat page.
+      // The global overlay must not mount a second chat surface over it.
       expect(
         find.byTooltip('Open character chat'),
         findsOneWidget,
