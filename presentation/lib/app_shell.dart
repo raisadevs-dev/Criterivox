@@ -702,7 +702,7 @@ class _ShellState extends State<CriterivoxShell> {
         return BloomPage(
           key: const ValueKey('bloom'),
           state: state,
-          onCapability: handleBloomCapability,
+          onCapability: (_) {},
           onOpenCapability: handleBloomCapability,
           onStewardship: () => open('stewardship'),
           onHandoff: handoffFromBloom,
