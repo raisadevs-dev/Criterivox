@@ -379,18 +379,20 @@ class _ShellState extends State<CriterivoxShell> {
   }
 
   void _openHome(String home) {
-    setState(() {
-      civilizationHome = home;
-    });
-
+    if (home == 'data') {
+      open('stewardship');
+      return;
+    }
+    setState(() => civilizationHome = home);
     open('home-preview');
   }
 
   void _openLevel2(String home) {
-    setState(() {
-      civilizationHome = home;
-    });
-
+    if (home == 'data') {
+      open('stewardship');
+      return;
+    }
+    setState(() => civilizationHome = home);
     open('level2');
   }
 
@@ -1057,14 +1059,23 @@ class _SidebarState extends State<_Sidebar> {
             letterSpacing: .55,
           )),
       children: [
-        _nav(home, Icons.home_outlined, false,
-            () => widget.onOpen('civilization'), true, t, indent: true),
+        _nav(
+          home,
+          Icons.home_outlined,
+          homeId == 'data' && widget.page == 'stewardship',
+          () => widget.onOpen(homeId == 'data' ? 'stewardship' : 'civilization'),
+          true,
+          t,
+          indent: true,
+        ),
         ...residents.map((resident) => _nav(
           resident,
           Icons.person_outline_rounded,
-          false,
-          () => widget.onOpen('civilization'),
-          true, t, indent: true,
+          homeId == 'data' && widget.page == 'stewardship',
+          () => widget.onOpen(homeId == 'data' ? 'stewardship' : 'civilization'),
+          true,
+          t,
+          indent: true,
         )),
       ],
     );
