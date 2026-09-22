@@ -271,6 +271,9 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
   Map<String, dynamic>? research;
   List<Map<String, dynamic>> trace = <Map<String, dynamic>>[];
   String? decisionId;
+  String? acceptedStrategyId;
+  List<Map<String, dynamic>> calendarEvents = <Map<String, dynamic>>[];
+  DateTime? plannedStart;
 
   Future<void> _generateOptions() async {
     if (goal.text.trim().isEmpty || running || residence == null) return;
@@ -443,6 +446,58 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     }
   }
 
+  Future<void> _loadCalendar() async {
+    final token = residence?.metadata['session_token']?.toString();
+    if (token == null) return;
+    try {
+      final response = await http.get(Uri.base.resolve('/api/human-residence/calendar?session_token=' + Uri.encodeQueryComponent(token))).timeout(const Duration(seconds: 8));
+      if (response.statusCode < 200 || response.statusCode >= 300) return;
+      final body = jsonDecode(response.body);
+      if (body is Map && body['events'] is List && mounted) {
+        setState(() => calendarEvents = (body['events'] as List).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList());
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _acceptStrategy() async {
+    if (residence == null || decisionId == null || options.isEmpty) return;
+    final token = residence!.metadata['session_token']?.toString();
+    if (token == null) return;
+    final start = plannedStart ?? DateTime.now().add(const Duration(days: 1));
+    try {
+      final response = await http.post(
+        Uri.base.resolve('/api/human-residence/decision/$decisionId/accept'),
+        headers: const {'content-type': 'application/json'},
+        body: jsonEncode({'session_token': token, 'action': 'execute', 'calendar_at': start.toIso8601String()}),
+      ).timeout(const Duration(seconds: 8));
+      if (response.statusCode < 200 || response.statusCode >= 300) throw Exception('strategy acceptance rejected');
+      final calendarResponse = await http.post(
+        Uri.base.resolve('/api/human-residence/calendar'),
+        headers: const {'content-type': 'application/json'},
+        body: jsonEncode({
+          'session_token': token,
+          'residence_id': residence!.residenceId,
+          'decision_id': decisionId,
+          'title': goal.text.trim().isEmpty ? 'Criterivox strategy execution' : goal.text.trim(),
+          'starts_at': start.toIso8601String(),
+          'strategy_id': acceptedStrategyId ?? 'B',
+          'notes': options.join('\\n'),
+        }),
+      ).timeout(const Duration(seconds: 8));
+      if (calendarResponse.statusCode < 200 || calendarResponse.statusCode >= 300) throw Exception('calendar creation rejected');
+      if (!mounted) return;
+      setState(() {
+        actApproved = true;
+        secondFactor = true;
+        status = 'STRATEGY ACCEPTED • CALENDAR EVENT CREATED • BODHEX READY';
+      });
+      await _loadCalendar();
+      await _persist('strategy_accepted_and_scheduled');
+    } catch (e) {
+      if (mounted) setState(() => status = 'ACCEPTANCE_OR_CALENDAR_FAILED • $e');
+    }
+  }
+
   Future<void> _dispatch() async {
     if (!actApproved || !secondFactor || residence == null || decisionId == null) return;
     final token = residence!.metadata['session_token']?.toString();
@@ -494,6 +549,8 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
           _challengeBench(theme),
           const SizedBox(height: 14),
           _actGate(theme),
+          const SizedBox(height: 14),
+          _calendar(theme),
           const SizedBox(height: 14),
           _researchTrace(theme),
           const SizedBox(height: 14),
@@ -872,6 +929,35 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
               height: 1.4,
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _calendar(CriterivoxTheme theme) {
+    return _panel(
+      theme,
+      '5 • CRITERIVOX CALENDAR',
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Accepted strategies become scheduled work here. No external calendar API is required.', style: TextStyle(color: theme.mutedText, fontSize: 10)),
+          const SizedBox(height: 8),
+          Row(children: [
+            Expanded(child: Text('Start: ' + (plannedStart ?? DateTime.now().add(const Duration(days: 1))).toString(), style: TextStyle(color: theme.text, fontSize: 10))),
+            OutlinedButton(onPressed: () async {
+              final picked = await showDatePicker(context: context, firstDate: DateTime.now(), lastDate: DateTime.now().add(const Duration(days: 3650)), initialDate: plannedStart ?? DateTime.now().add(const Duration(days: 1)));
+              if (picked != null) setState(() => plannedStart = DateTime(picked.year, picked.month, picked.day, 9));
+            }, child: const Text('Schedule')),
+          ]),
+          const SizedBox(height: 8),
+          ...calendarEvents.take(12).map((event) => ListTile(
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            title: Text((event['title'] ?? '').toString(), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700)),
+            subtitle: Text((event['starts_at'] ?? '').toString() + ' • ' + (event['status'] ?? '').toString(), style: TextStyle(color: theme.mutedText, fontSize: 9)),
+          )),
+          FilledButton.icon(onPressed: decisionId == null ? null : _acceptStrategy, icon: const Icon(Icons.event_available), label: const Text('Accept strategy & put it on calendar')),
         ],
       ),
     );
