@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'foundation/criterivox_responsive_scene.dart';
-import 'foundation/criterivox_scene.dart';
 import 'foundation/criterivox_status.dart';
-import 'foundation/criterivox_visual_tokens.dart';
-import 's7/s7_environment_page.dart';
 
 class CriterivoxTheme {
   final Color page;
@@ -50,28 +47,6 @@ enum Level2Truth {
   planned,
   researchPrototype,
   unavailable,
-}
-
-extension _TruthLabel on Level2Truth {
-  String get label => switch (this) {
-        Level2Truth.live => 'LIVE',
-        Level2Truth.functionallyImplemented => 'FUNCTIONALLY IMPLEMENTED',
-        Level2Truth.simulated => 'SIMULATED',
-        Level2Truth.staticPresentation => 'STATIC PRESENTATION',
-        Level2Truth.planned => 'PLANNED',
-        Level2Truth.researchPrototype => 'RESEARCH PROTOTYPE',
-        Level2Truth.unavailable => 'UNAVAILABLE',
-      };
-
-  CriterivoxStatus get status => switch (this) {
-        Level2Truth.live => CriterivoxStatus.active,
-        Level2Truth.functionallyImplemented => CriterivoxStatus.complete,
-        Level2Truth.simulated => CriterivoxStatus.simulated,
-        Level2Truth.staticPresentation => CriterivoxStatus.ready,
-        Level2Truth.planned => CriterivoxStatus.planned,
-        Level2Truth.researchPrototype => CriterivoxStatus.researchPrototype,
-        Level2Truth.unavailable => CriterivoxStatus.unavailable,
-      };
 }
 
 class Level2RoomSpec {
@@ -1318,7 +1293,6 @@ class _Level2OperationalPageState extends State<Level2OperationalPage> {
 
 
     final theme = CriterivoxTheme.of(context);
-    final visual = CriterivoxVisualTokens.of(context);
     final responsive =
         CriterivoxResponsive(MediaQuery.sizeOf(context).width);
 
@@ -1377,3 +1351,11 @@ class _Level2OperationalPageState extends State<Level2OperationalPage> {
                     detail: '${rooms.length} documented rooms',
                   ),
                 ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

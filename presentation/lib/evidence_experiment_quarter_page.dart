@@ -72,7 +72,7 @@ class _EvidenceExperimentQuarterPageState extends State<EvidenceExperimentQuarte
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text('LIVE MEMBERS', style: TextStyle(color: t.mutedText, fontWeight: FontWeight.w800, letterSpacing: 1.2, fontSize: 10)),
       const SizedBox(height: 12),
-      Wrap(spacing: 12, runSpacing: 12, children: const [
+      const Wrap(spacing: 12, runSpacing: 12, children: [
         _MemberCard(id: 'medrus', role: 'Historical memory · temporal retrieval'),
         _MemberCard(id: 'epistre', role: 'Provenance · explanation · attribution'),
         _MemberCard(id: 'veridat', role: 'Verification · grounding · contradiction'),
@@ -95,7 +95,7 @@ class _EvidenceExperimentQuarterPageState extends State<EvidenceExperimentQuarte
         _ActionChip(label: 'View uncertainty', icon: Icons.help_outline, onPressed: () => _inspect('uncertainty')),
       ]),
       const SizedBox(height: 10),
-      Text('Selected: ' + _selectedArtifact, style: TextStyle(color: t.mutedText, fontSize: 10)),
+      Text('Selected: $_selectedArtifact', style: TextStyle(color: t.mutedText, fontSize: 10)),
     ]),
   );
 
@@ -141,8 +141,8 @@ class _EvidenceExpansion extends StatelessWidget {
           onTap: onToggle,
           leading: Icon(expanded ? Icons.expand_less : Icons.expand_more, color: t.primary),
           title: Text(part.name, style: TextStyle(color: t.text, fontWeight: FontWeight.w800, fontSize: 12)),
-          subtitle: Text(part.owner + ' · ' + part.output, style: TextStyle(color: t.mutedText, fontSize: 9)),
-          trailing: IconButton(tooltip: 'Inspect ' + part.name, onPressed: onInspect, icon: const Icon(Icons.visibility_outlined)),
+          subtitle: Text('${part.owner} · ${part.output}', style: TextStyle(color: t.mutedText, fontSize: 9)),
+          trailing: IconButton(tooltip: 'Inspect ${part.name}', onPressed: onInspect, icon: const Icon(Icons.visibility_outlined)),
         ),
         if (expanded) Padding(
           padding: const EdgeInsets.fromLTRB(54, 0, 16, 14),
@@ -168,7 +168,7 @@ class _Meta extends StatelessWidget {
   const _Meta({required this.label, required this.value});
   @override Widget build(BuildContext context) {
     final t = criterivox_theme.CriterivoxTheme.of(context);
-    return Container(padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7), decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), border: Border.all(color: t.border)), child: Text(label + ' · ' + value, style: TextStyle(color: t.mutedText, fontSize: 9)));
+    return Container(padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7), decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), border: Border.all(color: t.border)), child: Text('$label · $value', style: TextStyle(color: t.mutedText, fontSize: 9)));
   }
 }
 

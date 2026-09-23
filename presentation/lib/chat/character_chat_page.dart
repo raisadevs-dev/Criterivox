@@ -1016,10 +1016,7 @@ class _InterpretationCard extends StatelessWidget {
     final pending = status == 'PENDING';
     final timedOut = status == 'UNCONFIRMED_TIMEOUT';
     final language = state.inputLanguageProfile;
-    final languageText = language == null ? '' : 'Language: ' +
-        '${language['primary_language'] ?? 'unknown'}' +
-        (language['code_mixed'] == true ? ' • code-mixed' : '') +
-        (language['transliterated'] == true ? ' • transliterated' : '');
+    final languageText = language == null ? '' : 'Language: ${language['primary_language'] ?? 'unknown'}${language['code_mixed'] == true ? ' • code-mixed' : ''}${language['transliterated'] == true ? ' • transliterated' : ''}';
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(color: t.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: timedOut ? t.warning : t.border)),

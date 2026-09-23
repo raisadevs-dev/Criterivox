@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'presentation/language_mode.dart';
 
 import 'character/character_identity.dart';
 import 'character/session_character_animation.dart';
@@ -22,50 +21,50 @@ class CivilizationPage extends StatefulWidget {
 
   /// Canonical civilization Homes exposed to presentation tests and
   /// other presentation surfaces.
-  static const List<_Home> canonicalHomes = <_Home>[
-    _Home(
+  static const List<CivilizationHome> canonicalHomes = <CivilizationHome>[
+    CivilizationHome(
       'context',
       'Context House',
       'Context & Data District',
       ['dharen', 'anuka'],
       'Context framing, adaptation and scope control',
     ),
-    _Home(
+    CivilizationHome(
       'data',
       'Data Stewardship House',
       'Context & Data District',
       ['sandre', 'kaelen'],
       'Data foundation, stewardship and transformation',
     ),
-    _Home(
+    CivilizationHome(
       'gateway',
       'Gateway House',
       'Interaction District',
       ['syvax'],
       'Human-machine dialogue and interaction boundary',
     ),
-    _Home(
+    CivilizationHome(
       'reasoning',
       'Reasoning House',
       'Intelligence District',
       ['vivren', 'tarkis'],
       'Critical reasoning and hypothesis exploration',
     ),
-    _Home(
+    CivilizationHome(
       'decision',
       'Decision House',
       'Decision & Insight District',
       ['pramon', 'bodhex', 'manis'],
       'Evidence, insight, alternatives and deliberation',
     ),
-    _Home(
+    CivilizationHome(
       'evidence',
       'Evidence House',
       'Evidence & Verification District',
       ['medrus', 'epistre', 'veridat'],
       'Retention, explanation and verification',
     ),
-    _Home(
+    CivilizationHome(
       'knowledge',
       'Knowledge House',
       'Knowledge District',
@@ -75,18 +74,18 @@ class CivilizationPage extends StatefulWidget {
   ];
 
   /// Compatibility/read-model alias used by existing presentation tests.
-  static const List<_Home> homes = canonicalHomes;
+  static const List<CivilizationHome> homes = canonicalHomes;
 
-  static const List<_Relation> relationships = <_Relation>[
-    _Relation('dharen', 'vivren', 'context → reasoning'),
-    _Relation('tarkis', 'medrus', 'hypothesis → evidence'),
-    _Relation('medrus', 'veridat', 'evidence → verification'),
-    _Relation('veridat', 'pramon', 'verification → planning'),
-    _Relation('manis', 'vivren', 'challenge ↔ reasoning'),
-    _Relation('viveda', 'medrus', 'knowledge ← retained evidence'),
-    _Relation('syvax', 'dharen', 'human interaction → context'),
-    _Relation('anukor', 'syvax', 'network routing'),
-    _Relation('anukor', 'veridat', 'network routing'),
+  static const List<CivilizationRelation> relationships = <CivilizationRelation>[
+    CivilizationRelation('dharen', 'vivren', 'context → reasoning'),
+    CivilizationRelation('tarkis', 'medrus', 'hypothesis → evidence'),
+    CivilizationRelation('medrus', 'veridat', 'evidence → verification'),
+    CivilizationRelation('veridat', 'pramon', 'verification → planning'),
+    CivilizationRelation('manis', 'vivren', 'challenge ↔ reasoning'),
+    CivilizationRelation('viveda', 'medrus', 'knowledge ← retained evidence'),
+    CivilizationRelation('syvax', 'dharen', 'human interaction → context'),
+    CivilizationRelation('anukor', 'syvax', 'network routing'),
+    CivilizationRelation('anukor', 'veridat', 'network routing'),
   ];
 
   @override
@@ -241,7 +240,7 @@ class _CivilizationPageState extends State<CivilizationPage> {
               selected: selectedCharacter,
               onSelect: _selectCharacter,
             ),
-
+          ],
         ),
       ),
     );
@@ -278,14 +277,14 @@ class _CivilizationPageState extends State<CivilizationPage> {
   }
 }
 
-class _Home {
+class CivilizationHome {
   final String id;
   final String name;
   final String district;
   final List<String> residents;
   final String responsibility;
 
-  const _Home(
+  const CivilizationHome(
     this.id,
     this.name,
     this.district,
@@ -294,12 +293,12 @@ class _Home {
   );
 }
 
-class _Relation {
+class CivilizationRelation {
   final String from;
   final String to;
   final String meaning;
 
-  const _Relation(
+  const CivilizationRelation(
     this.from,
     this.to,
     this.meaning,
@@ -442,7 +441,7 @@ class _WorldLighting extends StatelessWidget {
 }
 
 class _WorldCharacters extends StatelessWidget {
-  final List<_Home> homes;
+  final List<CivilizationHome> homes;
   final String? selectedHome;
   final String? selectedCharacter;
   final PresentationState? state;
@@ -506,7 +505,7 @@ class _WorldCharacters extends StatelessWidget {
   }
 
   Widget _buildHomeNode({
-    required List<_Home> homes,
+    required List<CivilizationHome> homes,
     required int index,
     required Offset center,
     required double rx,
@@ -528,6 +527,164 @@ class _WorldCharacters extends StatelessWidget {
         state: state,
         onHome: () => onHome(homes[index].id),
         onCharacter: onCharacter,
+      ),
+    );
+  }
+}
+
+class _HomeNode extends StatelessWidget {
+  final CivilizationHome home;
+  final bool selected;
+  final String? selectedCharacter;
+  final PresentationState? state;
+  final VoidCallback onHome;
+  final ValueChanged<String> onCharacter;
+
+  const _HomeNode({
+    required this.home,
+    required this.selected,
+    required this.selectedCharacter,
+    required this.state,
+    required this.onHome,
+    required this.onCharacter,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+
+    return Semantics(
+      container: true,
+      label: '${home.name}, ${home.residents.length} residents',
+      child: GestureDetector(
+        onTap: onHome,
+        child: Container(
+          width: 156,
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: t.surfaceStrong,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: selected ? t.primary : t.border,
+              width: selected ? 2 : 1,
+            ),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: t.primary.withValues(alpha: .18),
+                      blurRadius: 12,
+                    ),
+                  ]
+                : null,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.location_city_rounded,
+                      size: 16, color: t.primary),
+                  const SizedBox(width: 5),
+                  Expanded(
+                    child: Text(
+                      home.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: t.text,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                home.district,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: t.mutedText, fontSize: 8),
+              ),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 3,
+                runSpacing: 3,
+                children: [
+                  for (final resident in home.residents)
+                    InkWell(
+                      onTap: () => onCharacter(resident),
+                      child: Text(
+                        CharacterIdentities.resolve(resident).displayName,
+                        style: TextStyle(
+                          color: selectedCharacter == resident
+                              ? t.primary
+                              : t.text,
+                          fontSize: 8,
+                          fontWeight: selectedCharacter == resident
+                              ? FontWeight.w800
+                              : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HomePreview extends StatelessWidget {
+  final CivilizationHome home;
+  final PresentationState? state;
+  final VoidCallback onEnter;
+  final VoidCallback onClose;
+
+  const _HomePreview({
+    required this.home,
+    required this.state,
+    required this.onEnter,
+    required this.onClose,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+
+    return _Panel(
+      title: home.name,
+      subtitle: home.district,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            home.responsibility,
+            style: TextStyle(color: t.text, fontSize: 10, height: 1.35),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Residents: ${home.residents.join(', ')}',
+            style: TextStyle(color: t.mutedText, fontSize: 9),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            children: [
+              FilledButton.tonal(
+                onPressed: onEnter,
+                child: const Text('Enter Home'),
+              ),
+              OutlinedButton(
+                onPressed: onClose,
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -636,257 +793,60 @@ class _CharacterBriefing extends StatelessWidget {
   }
 }
 
-class _AnukorHeroPanel extends StatelessWidget {
-  final String section;
-  final ValueChanged<String> onSelect;
-  final VoidCallback onClose;
-
-  const _AnukorHeroPanel({
-    required this.section,
-    required this.onSelect,
-    required this.onClose,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final t = CriterivoxTheme.of(context);
-    final sections = const <String, String>{
-      'overview': 'Network Role',
-      'responsibility': 'Responsibility',
-      'network': 'Network View',
-      'handoffs': 'Handoffs',
-    };
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: t.surfaceStrong,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: t.primary.withValues(alpha: .45)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SessionCharacterAnimationView(
-                characterId: 'anukor',
-                state: 'IDLE',
-                width: 86,
-                height: 108,
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'NETWORK RESIDENT',
-                      style: TextStyle(
-                        color: t.primary,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      'Anukor',
-                      style: TextStyle(
-                        color: t.text,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    Text(
-                      'Adaptive Transfer · No permanent Home',
-                      style: TextStyle(color: t.mutedText, fontSize: 10),
-                    ),
-                  ],
-                ),
-              ),
-              IconButton(
-                tooltip: 'Close Anukor network panel',
-                onPressed: onClose,
-                icon: const Icon(Icons.close_rounded),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
-              for (final entry in sections.entries)
-                ChoiceChip(
-                  label: Text(entry.value),
-                  selected: section == entry.key,
-                  onSelected: (_) => onSelect(entry.key),
-                ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          _AnukorHeroContent(section: section),
-        ],
-      ),
-    );
-  }
-}
-
-class _AnukorHeroContent extends StatelessWidget {
-  final String section;
-
-  const _AnukorHeroContent({required this.section});
+class _Legend extends StatelessWidget {
+  const _Legend();
 
   @override
   Widget build(BuildContext context) {
     final t = CriterivoxTheme.of(context);
 
-    switch (section) {
-      case 'responsibility':
-        return _AnukorContentBlock(
-          title: 'REGISTERED RESPONSIBILITY',
-          body:
-              'Adaptive Transfer: handles system-level adaptation and transfer between contexts.',
-          chips: const [
-            'adaptive_transfer',
-            'context_transfer',
-            'knowledge_reuse',
-          ],
-        );
-      case 'network':
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _AnukorRouteDiagram(t: t),
-            const SizedBox(height: 8),
-            Text(
-              'Live route, trace, envelope, and event details appear here only when the runtime supplies them. No fabricated telemetry is shown.',
-              style: TextStyle(
-                color: t.mutedText,
-                fontSize: 9,
-                height: 1.35,
-              ),
-            ),
-          ],
-        );
-      case 'handoffs':
-        return _AnukorContentBlock(
-          title: 'REGISTERED HANDOFFS',
-          body:
-              'Adaptive-transfer work can hand off to contextual adaptation, knowledge support, or retained findings.',
-          chips: const [
-            'Anuka · contextual adaptation',
-            'Viveda · knowledge support',
-            'Medrus · retained findings',
-          ],
-        );
-      case 'overview':
-      default:
-        return _AnukorContentBlock(
-          title: 'NETWORK ROLE',
-          body:
-              'Anukor is the network/control-plane resident. His spatial presence follows meaningful transfer activity instead of a fixed Home.',
-          chips: const [
-            'Network routing',
-            'Context transfer',
-            'No permanent Home',
-          ],
-        );
-    }
-  }
-}
-
-class _AnukorRouteDiagram extends StatelessWidget {
-  final CriterivoxThemeData t;
-
-  const _AnukorRouteDiagram({required this.t});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: t.surface.withValues(alpha: .55),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: t.border),
-      ),
+    return _Panel(
+      title: 'CIVILIZATION LEGEND',
+      subtitle: 'Select a Home or resident to inspect its role.',
       child: Wrap(
-        alignment: WrapAlignment.center,
-        crossAxisAlignment: WrapCrossAlignment.center,
         spacing: 8,
-        runSpacing: 8,
-        children: const [
-          _AnukorRouteNode('Syvax'),
-          Icon(Icons.arrow_forward_rounded, size: 15),
-          _AnukorRouteNode('Anukor'),
-          Icon(Icons.alt_route_rounded, size: 16),
-          _AnukorRouteNode('Target Home'),
+        runSpacing: 6,
+        children: [
+          _LegendItem(
+            icon: Icons.location_city_rounded,
+            label: 'Home',
+            color: t.primary,
+          ),
+          _LegendItem(
+            icon: Icons.person_rounded,
+            label: 'Resident',
+            color: t.text,
+          ),
+          _LegendItem(
+            icon: Icons.alt_route_rounded,
+            label: 'Network resident',
+            color: t.mutedText,
+          ),
         ],
       ),
     );
   }
 }
 
-class _AnukorRouteNode extends StatelessWidget {
+class _LegendItem extends StatelessWidget {
+  final IconData icon;
   final String label;
+  final Color color;
 
-  const _AnukorRouteNode(this.label);
-
-  @override
-  Widget build(BuildContext context) {
-    return Chip(
-      avatar: const Icon(Icons.hub_outlined, size: 14),
-      label: Text(label),
-    );
-  }
-}
-
-class _AnukorContentBlock extends StatelessWidget {
-  final String title;
-  final String body;
-  final List<String> chips;
-
-  const _AnukorContentBlock({
-    required this.title,
-    required this.body,
-    required this.chips,
+  const _LegendItem({
+    required this.icon,
+    required this.label,
+    required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    final t = CriterivoxTheme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            color: t.primary,
-            fontSize: 9,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1,
-          ),
-        ),
-        const SizedBox(height: 5),
-        Text(
-          body,
-          style: TextStyle(
-            color: t.text,
-            fontSize: 10.5,
-            height: 1.4,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: [
-            for (final chip in chips)
-              Chip(label: Text(chip)),
-          ],
-        ),
+        Icon(icon, size: 14, color: color),
+        const SizedBox(width: 4),
+        Text(label, style: TextStyle(color: color, fontSize: 8.5)),
       ],
     );
   }

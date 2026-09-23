@@ -34,9 +34,7 @@ class _DecisionHistoryPageState extends State<DecisionHistoryPage> {
     final payload = <String,dynamic>{'decision':d,'strategy':d['strategy'] ?? {},'trace':d['trace'] ?? []};
     final text = ext == 'json'
       ? const JsonEncoder.withIndent('  ').convert(payload)
-      : '# Criterivox Strategy\n\nGoal: ' + (d['goal'] ?? '').toString() +
-        '\n\nStrategy\n' + (d['strategy'] ?? {}).toString() +
-        '\n\nTrace\n' + (d['trace'] ?? []).toString();
+      : '# Criterivox Strategy\n\nGoal: ${d['goal'] ?? ''}\n\nStrategy\n${d['strategy'] ?? {}}\n\nTrace\n${d['trace'] ?? []}';
     await FilePicker.platform.saveFile(fileName:'criterivox-decision.$ext',bytes:utf8.encode(text));
   }
 

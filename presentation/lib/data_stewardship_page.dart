@@ -228,7 +228,7 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
               ),
               _LiveMembers(
                 state: s,
-                onChat: onChatCharacter,
+                onChat: widget.onChatCharacter,
                 t: t,
               ),
               const SizedBox(height: 14),
@@ -361,14 +361,12 @@ class _LiveMembers extends StatelessWidget {
           responsibility: 'Data Stewardship',
           workDescription: 'Owns intake, inspection, confirmation, provenance, quality and safe handoff.',
           state: state?.agentId == 'sandre' ? state?.characterState ?? 'IDLE' : 'IDLE',
-          onChat: () => onChat?.call('sandre'),
         ),
         LiveAgentPanel(
           characterId: 'kaelen',
           responsibility: 'Build + Experimentation',
           workDescription: 'Builds from Sandre-confirmed material through transformation and preparation.',
           state: state?.agentId == 'kaelen' ? state?.characterState ?? 'WORK' : 'WORK',
-          onChat: () => onChat?.call('kaelen'),
         ),
       ];
       return _Panel(

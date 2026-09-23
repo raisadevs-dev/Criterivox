@@ -344,7 +344,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
       final rawChallenges = strategy['challenges'];
       if (!mounted) return;
       setState(() {
-        options = rawOptions is List ? rawOptions.whereType<Map>().map((item) => (item['id'] ?? '').toString() + '|' + (item['label'] ?? '').toString() + ': ' + (item['approach'] ?? '').toString() + ' • Risk: ' + (item['risk'] ?? 'review').toString()).toList() : <String>[];
+        options = rawOptions is List ? rawOptions.whereType<Map>().map((item) => '${item['id'] ?? ''}|${item['label'] ?? ''}: ${item['approach'] ?? ''} • Risk: ${item['risk'] ?? 'review'}').toList() : <String>[];
         challenges = rawChallenges is List ? rawChallenges.map((item) => '$item').toList() : <String>[];
         trace = decoded['trace'] is List ? decoded['trace'].whereType<Map>().map((item) => Map<String, dynamic>.from(item)).toList() : <Map<String, dynamic>>[];
         research = decoded['research'] is Map ? Map<String, dynamic>.from(decoded['research'] as Map) : null;
@@ -481,7 +481,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     final token = residence?.metadata['session_token']?.toString();
     if (token == null) return;
     try {
-      final response = await http.get(Uri.base.resolve('/api/human-residence/calendar?session_token=' + Uri.encodeQueryComponent(token))).timeout(const Duration(seconds: 8));
+      final response = await http.get(Uri.base.resolve('/api/human-residence/calendar?session_token=${Uri.encodeQueryComponent(token)}')).timeout(const Duration(seconds: 8));
       if (response.statusCode < 200 || response.statusCode >= 300) return;
       final body = jsonDecode(response.body);
       if (body is Map && body['events'] is List && mounted) {
@@ -702,7 +702,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.insert_drive_file_outlined, size: 18),
               title: Text(item['name'].toString(), style: const TextStyle(fontSize: 10)),
-              subtitle: Text(item['size'].toString() + ' bytes • Human Residence intake', style: const TextStyle(fontSize: 9)),
+              subtitle: Text('${item['size']} bytes • Human Residence intake', style: const TextStyle(fontSize: 9)),
             )),
           ],
           const SizedBox(height: 10),
@@ -989,7 +989,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
           Text('Accepted strategies become scheduled work here. No external calendar API is required.', style: TextStyle(color: theme.mutedText, fontSize: 10)),
           const SizedBox(height: 8),
           Row(children: [
-            Expanded(child: Text('Start: ' + (plannedStart ?? DateTime.now().add(const Duration(days: 1))).toString(), style: TextStyle(color: theme.text, fontSize: 10))),
+            Expanded(child: Text('Start: ${plannedStart ?? DateTime.now().add(const Duration(days: 1))}', style: TextStyle(color: theme.text, fontSize: 10))),
             OutlinedButton(onPressed: () async {
               final picked = await showDatePicker(context: context, firstDate: DateTime.now(), lastDate: DateTime.now().add(const Duration(days: 3650)), initialDate: plannedStart ?? DateTime.now().add(const Duration(days: 1)));
               if (picked != null) setState(() => plannedStart = DateTime(picked.year, picked.month, picked.day, 9));
@@ -1000,7 +1000,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
             dense: true,
             contentPadding: EdgeInsets.zero,
             title: Text((event['title'] ?? '').toString(), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700)),
-            subtitle: Text((event['starts_at'] ?? '').toString() + ' • ' + (event['status'] ?? '').toString(), style: TextStyle(color: theme.mutedText, fontSize: 9)),
+            subtitle: Text('${event['starts_at'] ?? ''} • ${event['status'] ?? ''}', style: TextStyle(color: theme.mutedText, fontSize: 9)),
           )),
           FilledButton.icon(onPressed: decisionId == null ? null : _acceptStrategy, icon: const Icon(Icons.event_available), label: const Text('Accept strategy & put it on calendar')),
         ],
@@ -1076,10 +1076,10 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
 
   Future<void> _downloadStrategy() async {
     final lines = <String>[
-      '# Criterivox Strategy', '', 'Goal: ' + goal.text.trim(), '',
-      'Options', ...options.map((x) => '- ' + x), '',
-      'Trade-offs', 'Speed: ' + speed.round().toString(), 'Cost: ' + cost.round().toString(),
-      'Reliability: ' + reliability.round().toString(), '', 'Challenges', ...challenges.map((x) => '- ' + x),
+      '# Criterivox Strategy', '', 'Goal: ${goal.text.trim()}', '',
+      'Options', ...options.map((x) => '- $x'), '',
+      'Trade-offs', 'Speed: ${speed.round()}', 'Cost: ${cost.round()}',
+      'Reliability: ${reliability.round()}', '', 'Challenges', ...challenges.map((x) => '- $x'),
     ];
     await FilePicker.platform.saveFile(fileName: 'criterivox-strategy.md', bytes: utf8.encode(lines.join('\n')));
   }
@@ -1095,8 +1095,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
         children: [
           if (research != null)
             Text(
-              'Google research: ' + (research?['query'] ?? '').toString() + ' • ' +
-                  (results is List ? results.length : 0).toString() + ' results',
+              'Google research: ${research?['query'] ?? ''} • ${results is List ? results.length : 0} results',
               style: TextStyle(color: theme.text, fontWeight: FontWeight.w700, fontSize: 10),
             ),
           if (results is List)
@@ -1106,7 +1105,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
                     contentPadding: EdgeInsets.zero,
                     title: Text((item['title'] ?? '').toString(), style: const TextStyle(fontSize: 10)),
                     subtitle: Text(
-                      (item['snippet'] ?? '').toString() + '\n' + (item['url'] ?? '').toString(),
+                      '${item['snippet'] ?? ''}\n${item['url'] ?? ''}',
                       style: TextStyle(color: theme.mutedText, fontSize: 9),
                     ),
                   )
@@ -1115,9 +1114,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
             ...trace.map((event) => Padding(
               padding: const EdgeInsets.only(top: 5),
               child: Text(
-                (event['actor'] ?? '').toString() + ' • ' +
-                    (event['responsibility'] ?? '').toString() + ' • ' +
-                    (event['detail'] ?? '').toString(),
+                '${event['actor'] ?? ''} • ${event['responsibility'] ?? ''} • ${event['detail'] ?? ''}',
                 style: TextStyle(color: theme.mutedText, fontSize: 9, height: 1.4),
               ),
             )),

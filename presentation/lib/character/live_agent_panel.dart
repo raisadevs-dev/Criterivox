@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'presentation/language_mode.dart';
-
 import '../presentation/criterivox_theme.dart';
 import 'character_identity.dart';
 import 'character_runtime_flutter.dart';
@@ -45,7 +43,7 @@ class _LiveAgentPanelState extends State<LiveAgentPanel> {
         children: [
           Semantics(
             button: true,
-            label: '${identity.nameFor(CriterivoxLanguageScope.of(context).language.code)} work panel',
+            label: '${identity.nameFor('en')} work panel',
             value: expanded ? 'expanded' : 'collapsed',
             child: InkWell(
               onTap: () => setState(() => expanded = !expanded),
@@ -69,7 +67,7 @@ class _LiveAgentPanelState extends State<LiveAgentPanel> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(identity.nameFor(CriterivoxLanguageScope.of(context).language.code), style: TextStyle(color: theme.text, fontSize: 13, fontWeight: FontWeight.w800)),
+                          Text(identity.nameFor('en'), style: TextStyle(color: theme.text, fontSize: 13, fontWeight: FontWeight.w800)),
                           const SizedBox(height: 2),
                           Text(widget.responsibility, style: TextStyle(color: theme.mutedText, fontSize: 9.5)),
                         ],

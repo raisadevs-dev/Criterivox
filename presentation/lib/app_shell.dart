@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import 'analysis_context_workspace_page.dart';
 import 'app_introduction_page.dart';
 import 'bloom_page.dart';
 import 'civilization_page.dart';
@@ -14,6 +13,7 @@ import 'guest_pass_experience_page.dart';
 import 'private_room_page.dart';
 import 'collaboration_room_page.dart';
 import 'decision_history_page.dart';
+import 'chat/character_chat_page.dart';
 import 'context/context_intelligence_page.dart';
 import 'interaction/bloom.dart';
 import 'presentation/criterivox_theme.dart' as criterivox_theme;
@@ -529,10 +529,10 @@ class _ShellState extends State<CriterivoxShell> {
                 Expanded(
                   child: Column(
                     children: [
-                      Align(
+                      const Align(
                         alignment: Alignment.topRight,
                         child: Padding(
-                          padding: const EdgeInsets.only(right: 12, top: 4),
+                          padding: EdgeInsets.only(right: 12, top: 4),
                           child: CriterivoxLanguageSelector(),
                         ),
                       ),
@@ -855,6 +855,153 @@ class _ShellState extends State<CriterivoxShell> {
 }
 
 
+class _TopBar extends StatefulWidget {
+  final bool isDarkMode;
+  final VoidCallback onToggleTheme;
+  final bool connectionLive;
+  final ValueChanged<String> onSearch;
+
+  const _TopBar({
+    required this.isDarkMode,
+    required this.onToggleTheme,
+    required this.connectionLive,
+    required this.onSearch,
+  });
+
+  @override
+  State<_TopBar> createState() => _TopBarState();
+}
+
+class _TopBarState extends State<_TopBar> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = criterivox_theme.CriterivoxTheme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              onSubmitted: widget.onSearch,
+              style: TextStyle(color: t.text),
+              decoration: InputDecoration(
+                hintText: 'Search research history',
+                hintStyle: TextStyle(color: t.mutedText),
+                prefixIcon: Icon(Icons.search_rounded, color: t.mutedText),
+                filled: true,
+                fillColor: t.surface,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: t.border),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: t.border),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Icon(
+            Icons.circle,
+            size: 10,
+            color: widget.connectionLive ? Colors.green : t.mutedText,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            widget.connectionLive ? 'Connected' : 'Offline',
+            style: TextStyle(color: t.mutedText, fontSize: 12),
+          ),
+          IconButton(
+            tooltip: widget.isDarkMode ? 'Use light theme' : 'Use dark theme',
+            onPressed: widget.onToggleTheme,
+            icon: Icon(
+              widget.isDarkMode
+                  ? Icons.light_mode_outlined
+                  : Icons.dark_mode_outlined,
+              color: t.mutedText,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BrandMark extends StatelessWidget {
+  final double size;
+
+  const _BrandMark({required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = criterivox_theme.CriterivoxTheme.of(context);
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: theme.primary,
+        borderRadius: BorderRadius.circular(size * 0.28),
+      ),
+      child: Icon(
+        Icons.auto_awesome_rounded,
+        color: Colors.white,
+        size: size * 0.58,
+      ),
+    );
+  }
+}
+
+class _StatusCard extends StatelessWidget {
+  final bool expanded;
+
+  const _StatusCard({required this.expanded});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = criterivox_theme.CriterivoxTheme.of(context);
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(expanded ? 12 : 8),
+      decoration: BoxDecoration(
+        color: t.primary.withValues(alpha: .10),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: t.border),
+      ),
+      child: expanded
+          ? Row(
+              children: [
+                Icon(Icons.circle, size: 10, color: t.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Research workspace ready',
+                    style: TextStyle(
+                      color: t.text,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : Icon(Icons.circle, size: 10, color: t.primary),
+    );
+  }
+}
+
 class _Sidebar extends StatefulWidget {
   final String page;
   final bool expanded;
@@ -876,9 +1023,197 @@ class _Sidebar extends StatefulWidget {
   State<_Sidebar> createState() => _SidebarState();
 }
 
+class _ChildNav {
+  final String label;
+  final String page;
+
+  const _ChildNav(this.label, this.page);
+}
+
 class _SidebarState extends State<_Sidebar> {
   bool humanTerritoryOpen = true;
   bool civilizationOpen = true;
+
+  Widget _section(
+    String label,
+    bool expanded,
+    dynamic t,
+  ) {
+    if (!expanded) {
+      return const SizedBox(height: 12);
+    }
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+        child: Text(
+          label.toUpperCase(),
+          style: TextStyle(
+            color: t.mutedText,
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            letterSpacing: .8,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _nav(
+    String label,
+    IconData icon,
+    bool selected,
+    VoidCallback onTap,
+    bool expanded,
+    dynamic t, {
+    bool indent = false,
+  }) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: indent && expanded ? 12 : 0,
+        bottom: 4,
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(
+            horizontal: expanded ? 10 : 8,
+            vertical: 10,
+          ),
+          decoration: BoxDecoration(
+            color: selected ? t.primary.withValues(alpha: .14) : null,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisAlignment: expanded
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: selected ? t.primary : t.mutedText,
+                size: 20,
+              ),
+              if (expanded) ...[
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: selected ? t.text : t.mutedText,
+                      fontSize: 13,
+                      fontWeight: selected
+                          ? FontWeight.w600
+                          : FontWeight.w400,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _group(
+    String label,
+    IconData icon,
+    bool open,
+    bool selected,
+    VoidCallback onTap,
+    bool expanded,
+    dynamic t,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(
+            horizontal: expanded ? 10 : 8,
+            vertical: 10,
+          ),
+          decoration: BoxDecoration(
+            color: selected ? t.primary.withValues(alpha: .14) : null,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisAlignment: expanded
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: selected ? t.primary : t.mutedText,
+                size: 20,
+              ),
+              if (expanded) ...[
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: selected ? t.text : t.mutedText,
+                      fontSize: 13,
+                      fontWeight: selected
+                          ? FontWeight.w600
+                          : FontWeight.w400,
+                    ),
+                  ),
+                ),
+                Icon(
+                  open
+                      ? Icons.expand_less_rounded
+                      : Icons.expand_more_rounded,
+                  color: t.mutedText,
+                  size: 18,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _subgroup(
+    String label,
+    IconData icon,
+    List<_ChildNav> children,
+    dynamic t,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _group(
+          label,
+          icon,
+          true,
+          children.any((child) => child.page == widget.page),
+          () {},
+          true,
+          t,
+        ),
+        ...children.map(
+          (child) => _nav(
+            child.label,
+            Icons.chevron_right_rounded,
+            child.page == widget.page,
+            () => widget.onOpen(child.page),
+            true,
+            t,
+            indent: true,
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1011,3 +1346,14 @@ class _SidebarState extends State<_Sidebar> {
                         _ChildNav(strings.projectRooms, 'collaboration-room'),
                         _ChildNav(strings.sharedWorkspaces, 'collaboration-room'),
                       ], t),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

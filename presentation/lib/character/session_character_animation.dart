@@ -104,7 +104,9 @@ class _SessionCharacterAnimationViewState
   void _updateTicker(bool oldReduced) {
     if (widget.reducedMotion) {
       _controller.stop();
-    } else if (oldReduced) _controller.repeat();
+    } else if (oldReduced) {
+      _controller.repeat();
+    }
   }
 
   @override

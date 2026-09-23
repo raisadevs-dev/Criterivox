@@ -108,7 +108,7 @@ class _BloomPageState extends State<BloomPage> {
                         onOpenCapability: widget.onOpenCapability,
                         height: 600)),
                 const SizedBox(width: 16),
-                SizedBox(
+                const SizedBox(
                     width: 320,
                     child: Column(children: [
                     ]))
@@ -129,6 +129,46 @@ class _BloomPageState extends State<BloomPage> {
     widget.onCapability?.call(value);
   }
 
+}
+
+class _Lifecycle extends StatelessWidget {
+  final PresentationState? state;
+
+  const _Lifecycle({required this.state});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+    final status = state?.taskState ?? 'IDLE';
+    return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+        decoration: BoxDecoration(
+            color: t.surfaceStrong,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: t.border)),
+        child: Row(children: [
+          Icon(Icons.timeline_rounded, color: t.primary, size: 18),
+          const SizedBox(width: 9),
+          Expanded(
+              child: Text('Lifecycle',
+                  style: TextStyle(
+                      color: t.text,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700))),
+          Text(status,
+              style: TextStyle(
+                  color: t.mutedText,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700))
+        ]));
+  }
+}
+
+class _ProactiveDoorway extends StatelessWidget {
+  final String taskId;
+  final VoidCallback onOpen;
+
+  const _ProactiveDoorway({required this.taskId, required this.onOpen});
 
   @override
   Widget build(BuildContext context) {

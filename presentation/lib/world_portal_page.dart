@@ -33,7 +33,9 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
 
   final name = TextEditingController();
   final email = TextEditingController();
+  final password = TextEditingController();
   final clubName = TextEditingController();
+  String avatarDataUrl = '';
 
   String mode = 'house';
   HumanResidenceRecord? residence;
@@ -53,8 +55,8 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
   void dispose() {
     name.dispose();
     email.dispose();
-    clubName.dispose();
     password.dispose();
+    clubName.dispose();
     super.dispose();
   }
 
@@ -229,9 +231,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
 
     setState(() {
       saving = false;
-      if (residence == null) {
-        residence = record;
-      }
+      residence ??= record;
     });
   }
 
@@ -463,8 +463,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
                   Row(children:[
                     CircleAvatar(
                       radius: 24,
-                      backgroundImage: avatarDataUrl != null ? MemoryImage(base64Decode(avatarDataUrl!.split(',').last)) : null,
-                      child: avatarDataUrl == null ? const Icon(Icons.person_rounded) : null,
+                      backgroundImage: MemoryImage(base64Decode(avatarDataUrl.split(',').last)),
                     ),
                     const SizedBox(width: 10),
                     OutlinedButton.icon(
@@ -526,7 +525,6 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
       if (response.statusCode < 200 || response.statusCode >= 300) throw Exception('Login rejected');
       final payload = jsonDecode(response.body) as Map<String, dynamic>;
       final identity = Map<String, dynamic>.from(payload['identity'] as Map);
-      final token = payload['session_token']?.toString();
       final existing = await store.load();
       if (!mounted) return;
       if (existing == null) {
@@ -776,7 +774,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               DropdownButtonFormField<String>(
-                value: 'succeeded',
+                initialValue: 'succeeded',
                 items: const [
                   DropdownMenuItem(value: 'succeeded', child: Text('Succeeded')),
                   DropdownMenuItem(value: 'partial', child: Text('Partly succeeded')),
@@ -972,74 +970,6 @@ class GuestPassPage extends StatelessWidget {
                 label: const Text(
                   'Start guest workspace',
                 ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-
-
-class GuestPassPage extends StatelessWidget {
-  final VoidCallback onWorkspace;
-
-  const GuestPassPage({
-    super.key,
-    required this.onWorkspace,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final t = CriterivoxTheme.of(context);
-
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(30),
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 680),
-          padding: const EdgeInsets.all(28),
-          decoration: BoxDecoration(
-            color: t.surface,
-            borderRadius: BorderRadius.circular(26),
-            border: Border.all(color: t.primary.withValues(alpha: .3)),
-          ),
-          child: Column(
-            children: [
-              const Icon(Icons.confirmation_number_rounded, size: 42),
-              const SizedBox(height: 14),
-              Text(
-                'GUEST PASS',
-                style: TextStyle(
-                  color: t.primary,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 2,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Experience Criterivox before building a house.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: t.text,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Bring a Goal + Data + Context. The Guest Pass starts an isolated workspace session without creating a permanent residence.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: t.mutedText, fontSize: 12, height: 1.5),
-              ),
-              const SizedBox(height: 20),
-              FilledButton.icon(
-                onPressed: onWorkspace,
-                icon: const Icon(Icons.play_arrow_rounded),
-                label: const Text('Start guest workspace'),
               ),
             ],
           ),

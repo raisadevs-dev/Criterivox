@@ -743,8 +743,7 @@ class _ActionChip extends StatelessWidget {
     required this.label,
     required this.accent,
     required this.onTap,
-    this.avatar = false,
-  });
+  }) : avatar = false;
 
   @override
   Widget build(BuildContext context) {

@@ -51,9 +51,9 @@ class AppIntroductionPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _townHallHero(t, compact),
+              _townHallHero(t, compact, context),
               const SizedBox(height: 22),
-              _civilizationRegistry(t, compact),
+              _civilizationRegistry(t, compact, context),
               const SizedBox(height: 22),
               _capabilities(t),
             ],
@@ -63,7 +63,11 @@ class AppIntroductionPage extends StatelessWidget {
     );
   }
 
-  Widget _townHallHero(CriterivoxTheme t, bool compact) {
+  Widget _townHallHero(
+    CriterivoxTheme t,
+    bool compact,
+    BuildContext context,
+  ) {
     return Container(
       padding: EdgeInsets.fromLTRB(
         compact ? 12 : 20,
@@ -112,7 +116,7 @@ class AppIntroductionPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 18),
-          _specialistGallery(t, compact),
+          _specialistGallery(t, compact, context),
           const SizedBox(height: 14),
           Text(
             '15 specialists · 15 perspectives · one mission',
@@ -128,7 +132,11 @@ class AppIntroductionPage extends StatelessWidget {
     );
   }
 
-  Widget _specialistGallery(CriterivoxTheme t, bool compact) {
+  Widget _specialistGallery(
+    CriterivoxTheme t,
+    bool compact,
+    BuildContext context,
+  ) {
     final tileWidth = compact ? 82.0 : 118.0;
     final tileHeight = compact ? 132.0 : 172.0;
 
@@ -142,6 +150,7 @@ class AppIntroductionPage extends StatelessWidget {
             _specialistPortrait(
               t,
               name,
+              context: context,
               width: tileWidth,
               height: tileHeight,
             ),
@@ -153,6 +162,7 @@ class AppIntroductionPage extends StatelessWidget {
   Widget _specialistPortrait(
     CriterivoxTheme t,
     String name, {
+    required BuildContext context,
     required double width,
     required double height,
   }) {
@@ -199,7 +209,11 @@ class AppIntroductionPage extends StatelessWidget {
     );
   }
 
-  Widget _civilizationRegistry(CriterivoxTheme t, bool compact) {
+  Widget _civilizationRegistry(
+    CriterivoxTheme t,
+    bool compact,
+    BuildContext context,
+  ) {
     final profiles = CharacterIdentities.all.values.toList();
 
     return Container(

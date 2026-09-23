@@ -267,7 +267,6 @@ class CharacterRuntimeClient {
         'target_character': targetCharacter,
         if (taskId != null) 'task_id': taskId,
         'message': message,
-        'language_mode': languageMode,
         'data': data,
         'context': context,
         'references': references,

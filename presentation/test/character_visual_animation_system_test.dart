@@ -27,7 +27,7 @@ void main() {
     for (final id in expected) {
       final profile = CharacterVisualProfile.forId(id);
       expect(profile, isNotNull);
-      expect(profile!.accent.value, isNot(0));
+      expect(profile!.accent.toARGB32(), isNot(0));
     }
   });
 
@@ -38,9 +38,9 @@ void main() {
 
     final signatures = profiles
         .map((p) => [
-              p.body.value,
-              p.hair.value,
-              p.accent.value,
+              p.body.toARGB32(),
+              p.hair.toARGB32(),
+              p.accent.toARGB32(),
               p.hairStyle.name,
               p.clothing.name,
               p.accessory.name,

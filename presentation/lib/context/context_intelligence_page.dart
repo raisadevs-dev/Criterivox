@@ -180,6 +180,7 @@ class ContextIntelligencePage extends StatelessWidget {
                     onStart: onStart,
                     onBuildContext: onBuildContext,
                     onChatCharacter: onChatCharacter,
+                    onOpenChat: () => onChatCharacter?.call('anuka'),
                   ),
                 ],
               ),

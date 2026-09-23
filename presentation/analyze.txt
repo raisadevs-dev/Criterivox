@@ -18,29 +18,26 @@ warning - Unused import: 'dart:math'. Try removing the import directive - lib\s7
 warning - Unused import: 's8_character_profile_card.dart'. Try removing the import directive - lib\s8_character_system.dart:6:8 - unused_import
 warning - The value of the local variable 'conclusion' isn't used. Try removing the variable or using it - lib\s8_explanation_pipeline.dart:58:11 - unused_local_variable
 warning - The value of the local variable 'steps' isn't used. Try removing the variable or using it - lib\s8_explanation_pipeline.dart:64:11 - unused_local_variable
-   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion. Try replacing the use of the deprecated member with the replacement - test\character_visual_animation_system_test.dart:11:30 - deprecated_member_use
-  error - Target of URI doesn't exist: 'package:presentation/s8_environment_entities.dart'. Try creating the file referenced by the URI, or try using a URI for a file that does exist - test\s8\s8_character_environment_test.dart:4:8 - uri_does_not_exist
-  error - Undefined name 'S8EnvironmentEntityCluster'. Try correcting the name to one that is defined, or defining the name - test\s8\s8_character_environment_test.dart:19:24 - undefined_identifier
-  error - Undefined name 'S8EnvironmentEntity'. Try correcting the name to one that is defined, or defining the name - test\s8\s8_character_environment_test.dart:20:24 - undefined_identifier
-  error - Undefined name 'S8EnvironmentEntityCluster'. Try correcting the name to one that is defined, or defining the name - test\s8\s8_character_environment_test.dart:28:26 - undefined_identifier
-  error - Undefined name 'S8EnvironmentEntity'. Try correcting the name to one that is defined, or defining the name - test\s8\s8_character_environment_test.dart:29:26 - undefined_identifier
-   info - Unnecessary 'const' keyword. Try removing the keyword - test\s8_authoritative_state_test.dart:25:16 - unnecessary_const
-  error - The name 'S8ArtifactValidator' isn't a class. Try correcting the name to match an existing class - test\s8_authoritative_state_test.dart:65:18 - creation_with_non_type
-  error - The name 'S8ArtifactValidator' isn't a class. Try correcting the name to match an existing class - test\s8_authoritative_state_test.dart:67:13 - creation_with_non_type
-  error - Invalid constant value - test\s8_human_authority_test.dart:36:172 - invalid_constant
-  error - The function 'Color' isn't defined. Try importing the library that defines 'Color', correcting the name to the name of an existing function, or defining a function named 'Color' - test\s8_human_authority_test.dart:36:172 - undefined_function
-  error - Invalid constant value - test\s8_human_authority_test.dart:37:183 - invalid_constant
-  error - The function 'Color' isn't defined. Try importing the library that defines 'Color', correcting the name to the name of an existing function, or defining a function named 'Color' - test\s8_human_authority_test.dart:37:183 - undefined_function
-  error - Invalid constant value - test\s8_human_authority_test.dart:38:190 - invalid_constant
-  error - The function 'Color' isn't defined. Try importing the library that defines 'Color', correcting the name to the name of an existing function, or defining a function named 'Color' - test\s8_human_authority_test.dart:38:190 - undefined_function
-  error - Target of URI doesn't exist: 'package:presentation/s8_human_action_panel.dart'. Try creating the file referenced by the URI, or try using a URI for a file that does exist - test\s8_set_i_test.dart:3:8 - uri_does_not_exist
-  error - The named parameter 'epistre' is required, but there's no corresponding argument. Try adding the required argument - test\s8_set_i_test.dart:42:7 - missing_required_argument
-  error - The named parameter 'humanActions' is required, but there's no corresponding argument. Try adding the required argument - test\s8_set_i_test.dart:42:7 - missing_required_argument
-  error - The named parameter 'lifecycleLabel' is required, but there's no corresponding argument. Try adding the required argument - test\s8_set_i_test.dart:42:7 - missing_required_argument
-  error - The named parameter 'medrus' is required, but there's no corresponding argument. Try adding the required argument - test\s8_set_i_test.dart:42:7 - missing_required_argument
-  error - The named parameter 'recentEvents' is required, but there's no corresponding argument. Try adding the required argument - test\s8_set_i_test.dart:42:7 - missing_required_argument
-  error - The named parameter 'synthetic' is required, but there's no corresponding argument. Try adding the required argument - test\s8_set_i_test.dart:42:7 - missing_required_argument
-  error - The named parameter 'unknowns' is required, but there's no corresponding argument. Try adding the required argument - test\s8_set_i_test.dart:42:7 - missing_required_argument
-  error - The named parameter 'veridat' is required, but there's no corresponding argument. Try adding the required argument - test\s8_set_i_test.dart:42:7 - missing_required_argument
-  error - Undefined name 'S8HumanActionPanelModel'. Try correcting the name to one that is defined, or defining the name - test\s8_set_i_test.dart:47:21 - undefined_identifier
+  error - Undefined name 'password'. Try correcting the name to one that is defined, or defining the name - lib\world_portal_page.dart:57:5 - undefined_identifier
+  error - Undefined name 'avatarDataUrl'. Try correcting the name to one that is defined, or defining the name - lib\world_portal_page.dart:87:20 - undefined_identifier
+  error - Undefined name 'password'. Try correcting the name to one that is defined, or defining the name - lib\world_portal_page.dart:107:9 - undefined_identifier
+  error - Undefined name 'avatarDataUrl'. Try correcting the name to one that is defined, or defining the name - lib\world_portal_page.dart:129:28 - undefined_identifier
+  error - Undefined name 'password'. Try correcting the name to one that is defined, or defining the name - lib\world_portal_page.dart:139:67 - undefined_identifier
+  error - Undefined name 'avatarDataUrl'. Try correcting the name to one that is defined, or defining the name - lib\world_portal_page.dart:139:179 - undefined_identifier
+   info - The 'if' statement could be replaced by a null-aware assignment. Try using the '??=' operator to conditionally assign a value - lib\world_portal_page.dart:232:7 - prefer_conditional_assignment
+  error - Undefined name 'password'. Try correcting the name to one that is defined, or defining the name - lib\world_portal_page.dart:348:33 - undefined_identifier
+  error - Undefined name 'password'. Try correcting the name to one that is defined, or defining the name - lib\world_portal_page.dart:392:33 - undefined_identifier
+  error - Undefined name 'avatarDataUrl'. Try correcting the name to one that is defined, or defining the name - lib\world_portal_page.dart:466:40 - undefined_identifier
+  error - Undefined name 'avatarDataUrl'. Try correcting the name to one that is defined, or defining the name - lib\world_portal_page.dart:466:89 - undefined_identifier
+  error - Undefined name 'avatarDataUrl'. Try correcting the name to one that is defined, or defining the name - lib\world_portal_page.dart:467:30 - undefined_identifier
+  error - Undefined name 'password'. Try correcting the name to one that is defined, or defining the name - lib\world_portal_page.dart:516:38 - undefined_identifier
+  error - Undefined name 'password'. Try correcting the name to one that is defined, or defining the name - lib\world_portal_page.dart:524:67 - undefined_identifier
+warning - The value of the local variable 'token' isn't used. Try removing the variable or using it - lib\world_portal_page.dart:529:13 - unused_local_variable
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre. Try replacing the use of the deprecated member with the replacement - lib\world_portal_page.dart:779:17 - deprecated_member_use
+  error - The name 'GuestPassPage' is already defined. Try renaming one of the declarations - lib\world_portal_page.dart:986:7 - duplicate_definition
+warning - The asset file 'assets/character_chat/\n' doesn't exist. Try creating the file or fixing the path to the file - pubspec.yaml:32:7 - asset_does_not_exist
+   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion. Try replacing the use of the deprecated member with the replacement - test\character_visual_animation_system_test.dart:30:30 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion. Try replacing the use of the deprecated member with the replacement - test\character_visual_animation_system_test.dart:41:22 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion. Try replacing the use of the deprecated member with the replacement - test\character_visual_animation_system_test.dart:42:22 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion. Try replacing the use of the deprecated member with the replacement - test\character_visual_animation_system_test.dart:43:24 - deprecated_member_use
 

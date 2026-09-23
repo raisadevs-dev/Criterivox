@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'presentation/language_mode.dart';
 
 import 'character/character_identity.dart';
 import 'character/session_character_animation.dart';

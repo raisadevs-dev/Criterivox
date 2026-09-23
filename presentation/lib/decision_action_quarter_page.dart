@@ -34,9 +34,8 @@ class _DecisionActionQuarterPageState
 
   HumanResidenceRecord? _residence;
   bool _loading = true;
-  String _status = 'CONNECTING TO DECISION STATE';
   List<Map<String, dynamic>> _decisions = <Map<String, dynamic>>[];
-  List<Map<String, dynamic>> _calendar = <Map<String, dynamic>>[];
+  List<Map<String, dynamic>> _calendarEvents = <Map<String, dynamic>>[];
   final Set<String> _openPanels = <String>{'decision.planning'};
 
   static const _parts = <_DecisionPanel>[
@@ -100,9 +99,6 @@ class _DecisionActionQuarterPageState
       setState(() {
         _residence = residence;
         _loading = false;
-        _status = residence == null
-            ? 'WAITING FOR HUMAN RESIDENCE DECISION STATE'
-            : 'DECISION CHAMBER CONNECTED';
       });
       if (residence != null) {
         await _loadRuntimeState(residence);
@@ -111,7 +107,6 @@ class _DecisionActionQuarterPageState
       if (!mounted) return;
       setState(() {
         _loading = false;
-        _status = 'DECISION STATE LOAD FAILED • $error';
       });
     }
   }
@@ -162,12 +157,10 @@ class _DecisionActionQuarterPageState
 
       setState(() {
         _decisions = nextDecisions;
-        _calendar = nextCalendar;
-        _status = 'DECISION CHAMBER LIVE • ${nextCalendar.length} CALENDAR EVENTS';
+        _calendarEvents = nextCalendar;
       });
     } catch (error) {
       if (!mounted) return;
-      setState(() => _status = 'LOCAL DECISION STATE • RUNTIME SYNC UNAVAILABLE');
     }
   }
 
@@ -384,13 +377,13 @@ class _DecisionActionQuarterPageState
             style: TextStyle(color: theme.mutedText, fontSize: 10, height: 1.4),
           ),
           const SizedBox(height: 10),
-          if (_calendar.isEmpty)
+          if (_calendarEvents.isEmpty)
             Text(
               'No scheduled decision work yet.',
               style: TextStyle(color: theme.mutedText, fontSize: 10),
             )
           else
-            ..._calendar.take(8).map(
+            ..._calendarEvents.take(8).map(
               (event) => Container(
                 margin: const EdgeInsets.only(bottom: 7),
                 padding: const EdgeInsets.all(10),
@@ -521,7 +514,7 @@ class _DecisionActionQuarterPageState
     } else if (id == 'decision.rationale') {
       value = 'Rationale is retained with the decision record and its event history.';
     } else if (id == 'decision.contract') {
-      value = _calendar.isEmpty
+      value = _calendarEvents.isEmpty
           ? 'Action contract: no accepted calendar event yet.'
           : 'Action contract: accepted work is represented by calendar state.';
     } else if (id == 'decision.dag' || id == 'decision.replay' || id == 'decision.circuit') {
