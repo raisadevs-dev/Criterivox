@@ -1,11 +1,14 @@
 from __future__ import annotations
 import asyncio,base64,binascii,json
+from datetime import datetime, timedelta, timezone
+from uuid import uuid4
 from dataclasses import dataclass,field
 from typing import Any
 from pydantic import BaseModel,ConfigDict,Field,ValidationError,model_validator
 from criterivox.application.analysis_tasks import analysis_tasks
 from criterivox.application.contracts import ApplicationRequest
 from criterivox.application.conversation import interpret_message
+from criterivox.application.language_intake import interpretation_summary
 from criterivox.application.data_foundation_store import data_foundations
 from criterivox.application.service import UnsupportedCapabilityError
 from criterivox.domain.analysis import AnalysisReference,AnalysisTask,AnalysisTaskSource,AnalysisTaskState
@@ -13,7 +16,9 @@ from criterivox.domain.characters import CharacterActivityManager,CharacterState
 from criterivox.presentation.contract import PresentationContract
 from criterivox.application.state_runtime import state_runtime
 from criterivox.application.state_chat import respond_state_query
-MAX_REFERENCE_BYTES=4*1024*1024;MAX_REFERENCE_COUNT=50;MAX_REFERENCE_BATCH_BYTES=8*1024*1024;ALLOWED_CHAT_CHARACTERS={'syvax','dharen','sandre','kaelen','anuka','vivren','tarkis','pramon','bodhex','medrus','epistre','veridat','manis','viveda','anukor'}
+MAX_REFERENCE_BYTES=4*1024*1024;
+CHAT_CONFIRMATION_TIMEOUT_SECONDS=60;
+_pending_chat_confirmations:dict[str,dict[str,Any]]={};MAX_REFERENCE_COUNT=50;MAX_REFERENCE_BATCH_BYTES=8*1024*1024;ALLOWED_CHAT_CHARACTERS={'syvax','dharen','sandre','kaelen','anuka','vivren','tarkis','pramon','bodhex','medrus','epistre','veridat','manis','viveda','anukor'}
 class AnalysisRequest(BaseModel):
  model_config=ConfigDict(extra='forbid');data:dict[str,Any]=Field(default_factory=dict);context:dict[str,Any]=Field(default_factory=dict);task:str=Field(min_length=1,max_length=500)
  @model_validator(mode='after')
@@ -110,6 +115,79 @@ async def _sync_chat_material(refs,details,message,task_id):
  foundation=data_foundations.ingest(_foundation_payload(refs,details,message,task_id))
  fields={'foundation_id':foundation.foundation_id,'foundation_material_set_id':foundation.foundation_id,'foundation_source_count':len(foundation.sources),'foundation_candidate_count':len(foundation.candidates),'foundation_confirmation':foundation.confirmation_status.value,'foundation_preview_question':'Is this what you intended to submit?','foundation_recipient':'syvax'}
  await runtime_connections.publish(PresentationContract.from_state('Sandre',CharacterState.RECEIVE,active=True,prominence=.9,message=f'Sandre received {len(foundation.sources)} chat material source(s). Extraction is now available in Data Stewardship.',event='MATERIAL_RECEIVED',**fields));await asyncio.sleep(.05);await runtime_connections.publish(PresentationContract.from_state('Sandre',CharacterState.WORK,active=True,prominence=.9,message='Sandre completed the initial chat-material extraction and profiling. The same foundation is now visible to the stewardship workspace.',event='EXTRACTION_COMPLETED',**fields));return foundation
+async def _publish_chat_interpretation(character:str, *, confirmation_id:str, original:str, interpretation, status:str, deadline:str|None=None, task_id:str|None=None) -> None:
+ profile = interpretation.language_profile.to_dict() if interpretation.language_profile else {}
+ await runtime_connections.publish(
+  PresentationContract.from_state(
+   character, CharacterState.COMMUNICATE, active=True, prominence=.9,
+   message=(
+    "I interpreted your request. Review the interpretation before continuing."
+    if status == "PENDING"
+    else "Interpretation confirmed. Criterivox is continuing the work."
+    if status == "CONFIRMED"
+    else "No confirmation arrived within 1 minute. Criterivox continued with the recorded interpretation and marked it unconfirmed."
+    if status == "UNCONFIRMED_TIMEOUT"
+    else "The interpretation was corrected by the human."
+   ),
+   event="CHAT_INTERPRETATION_CONFIRMATION",
+   task_id=task_id,
+   input_original=original,
+   input_language_profile=profile,
+   input_interpretation=interpretation.normalized_text,
+   input_semantic_summary=interpretation.semantic_summary or interpretation_summary(interpretation.intent, interpretation.route_target),
+   input_confirmation_status=status,
+   input_confirmation_deadline=deadline,
+   input_confirmation_id=confirmation_id,
+  )
+ )
+
+async def _continue_confirmed_chat(item:dict[str,Any], *, status:str) -> None:
+ interpretation=item["interpretation"]; task=item["task"]
+ await _publish_chat_interpretation(
+  item["character"], confirmation_id=item["confirmation_id"], original=item["original"],
+  interpretation=interpretation, status=status, deadline=item["deadline"], task_id=task.task_id
+ )
+ if status == "CONFIRMED":
+  item["confirmation_status"]="CONFIRMED"
+ if status == "UNCONFIRMED_TIMEOUT":
+  item["confirmation_status"]="UNCONFIRMED_TIMEOUT"
+ if interpretation.intent in {"analyze","handoff","unknown","change_request","continue"} and not task.is_terminal:
+  await dharen_runtime.publish_task(task,message="Criterivox is continuing the task from the recorded human interpretation.",event="INTERPRETATION_ACCEPTED_CONTINUATION")
+  asyncio.create_task(analysis_tasks.execute(task.task_id))
+
+async def _expire_chat_confirmation(confirmation_id:str) -> None:
+ await asyncio.sleep(CHAT_CONFIRMATION_TIMEOUT_SECONDS)
+ item=_pending_chat_confirmations.get(confirmation_id)
+ if item is None or item.get("confirmation_status") != "PENDING":
+  return
+ await _continue_confirmed_chat(item,status="UNCONFIRMED_TIMEOUT")
+ _pending_chat_confirmations.pop(confirmation_id,None)
+
+async def _queue_chat_confirmation(*, character:str, original:str, interpretation, task:AnalysisTask) -> str:
+ confirmation_id=f"IC-{uuid4().hex[:12]}"
+ deadline=(datetime.now(timezone.utc)+timedelta(seconds=CHAT_CONFIRMATION_TIMEOUT_SECONDS)).isoformat()
+ item={"confirmation_id":confirmation_id,"character":character,"original":original,"interpretation":interpretation,"task":task,"deadline":deadline,"confirmation_status":"PENDING"}
+ _pending_chat_confirmations[confirmation_id]=item
+ await _publish_chat_interpretation(character,confirmation_id=confirmation_id,original=original,interpretation=interpretation,status="PENDING",deadline=deadline,task_id=task.task_id)
+ asyncio.create_task(_expire_chat_confirmation(confirmation_id))
+ return confirmation_id
+
+async def handle_chat_interpretation_confirmation(payload:dict[str,Any]) -> None:
+ confirmation_id=str(payload.get("confirmation_id","")).strip()
+ item=_pending_chat_confirmations.get(confirmation_id)
+ if item is None:
+  return
+ if item.get("confirmation_status") != "PENDING":
+  return
+ accepted=bool(payload.get("accepted",False))
+ if not accepted:
+  item["confirmation_status"]="REJECTED"
+  await _publish_chat_interpretation(item["character"],confirmation_id=confirmation_id,original=item["original"],interpretation=item["interpretation"],status="CORRECTED",deadline=item["deadline"],task_id=item["task"].task_id)
+  _pending_chat_confirmations.pop(confirmation_id,None)
+  return
+ await _continue_confirmed_chat(item,status="CONFIRMED")
+ _pending_chat_confirmations.pop(confirmation_id,None)
+
 async def handle_application_request(payload):
  request=parse_application_request(payload)
  if request.intent.value!='analyze':raise UnsupportedCapabilityError(f"Capability '{request.intent.value}' is reserved for a future sprint.")
@@ -125,6 +203,10 @@ async def handle_chat_message(payload):
  task_id=payload.get('task_id');message=payload.get('message')
  if not isinstance(message,str) or not message.strip() or len(message)>2000:raise ValueError('Chat message is invalid.')
  interpretation=interpret_message(message);refs,details=_parse_chat_references(payload.get('references',[]));await _sync_chat_material(refs,details,message,task_id)
+ if interpretation.intent in {"analyze","handoff","unknown","change_request","continue"}:
+  task=analysis_tasks.get_task(str(task_id)) if task_id is not None else analysis_tasks.create_task(task=interpretation.normalized_text,data=payload.get('data') if isinstance(payload.get('data'),dict) else {},context=payload.get('context') if isinstance(payload.get('context'),dict) else {},source=AnalysisTaskSource.CHAT,references=refs,reference_details=details)
+  await _queue_chat_confirmation(character=target,original=message,interpretation=interpretation,task=task)
+  return
  if target not in {'syvax','dharen'}:
   await _safe_character_chat(payload)
   return
