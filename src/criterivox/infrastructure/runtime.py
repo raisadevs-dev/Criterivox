@@ -171,7 +171,7 @@ async def _expire_chat_confirmation(confirmation_id:str) -> None:
  _record_instrumentation(event_type='interpretation_confirmation_timeout',participant_id=item.get('participant_id'),payload={'confirmation_status':'UNCONFIRMED_TIMEOUT','confirmation_id':confirmation_id,'task_id':item['task'].task_id,'timeout_seconds':CHAT_CONFIRMATION_TIMEOUT_SECONDS})
  _pending_chat_confirmations.pop(confirmation_id,None)
 
-async def _queue_chat_confirmation(*, character:str, original:str, interpretation, task:AnalysisTask) -> str:
+async def _queue_chat_confirmation(*, character:str, original:str, interpretation, task:AnalysisTask, participant_id:str|None=None) -> str:
  confirmation_id=f"IC-{uuid4().hex[:12]}"
  deadline=(datetime.now(timezone.utc)+timedelta(seconds=CHAT_CONFIRMATION_TIMEOUT_SECONDS)).isoformat()
  item={"confirmation_id":confirmation_id,"character":character,"original":original,"interpretation":interpretation,"task":task,"deadline":deadline,"confirmation_status":"PENDING","participant_id":participant_id}
