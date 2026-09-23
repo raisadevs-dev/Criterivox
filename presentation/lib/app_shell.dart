@@ -503,8 +503,11 @@ class _ShellState extends State<CriterivoxShell> {
             ? null
             : dharenStates.first);
 
-    return Scaffold(
-      backgroundColor: t.page,
+    return CriterivoxLanguageScope(
+      language: widget.language,
+      onChanged: widget.onLanguageChanged ?? (_) {},
+      child: Scaffold(
+        backgroundColor: t.page,
       body: SafeArea(
         child: Stack(
           children: [
@@ -648,6 +651,7 @@ class _ShellState extends State<CriterivoxShell> {
               ),
             ),
           ],
+        ),
         ),
       ),
     );
