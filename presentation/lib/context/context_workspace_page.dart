@@ -6,12 +6,11 @@ import '../presentation/presentation_state.dart';
 class ContextWorkspacePage extends StatelessWidget {
   final PresentationState? state;
   final VoidCallback onBuildContext;
-  final VoidCallback onOpenChat;
   const ContextWorkspacePage(
       {super.key,
       required this.state,
       required this.onBuildContext,
-      required this.onOpenChat});
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -71,11 +70,7 @@ class ContextWorkspacePage extends StatelessWidget {
                         state?.foundationId == null ? null : onBuildContext,
                     icon: const Icon(Icons.account_tree_rounded, size: 17),
                     label: const Text('Build context from S5 material')),
-                const SizedBox(width: 10),
-                OutlinedButton.icon(
-                    onPressed: onOpenChat,
-                    icon: const Icon(Icons.forum_outlined, size: 17),
-                    label: const Text('Character interaction'))
+  
               ]),
               const SizedBox(height: 24),
               _Section(
