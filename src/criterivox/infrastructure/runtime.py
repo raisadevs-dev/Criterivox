@@ -188,6 +188,8 @@ async def handle_chat_interpretation_confirmation(payload:dict[str,Any]) -> None
  if item.get("confirmation_status") != "PENDING":
   return
  accepted=bool(payload.get("accepted",False))
+ participant_id=_research_identity(payload) or item.get('participant_id')
+ _record_instrumentation(event_type='interpretation_confirmation_received',participant_id=participant_id,payload={'confirmation_status':'CONFIRMED' if accepted else 'CORRECTED','confirmation_id':confirmation_id,'task_id':item['task'].task_id})
  if not accepted:
   item["confirmation_status"]="REJECTED"
   await _publish_chat_interpretation(item["character"],confirmation_id=confirmation_id,original=item["original"],interpretation=item["interpretation"],status="CORRECTED",deadline=item["deadline"],task_id=item["task"].task_id)
