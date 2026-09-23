@@ -244,6 +244,7 @@ class CharacterRuntimeClient {
     Map<String, dynamic> data = const {},
     Map<String, dynamic> context = const {},
     List<Map<String, dynamic>> references = const [],
+    String? languageMode,
   }) =>
       _send({
         'type': 'chat_message',
@@ -253,6 +254,7 @@ class CharacterRuntimeClient {
         'data': data,
         'context': context,
         'references': references,
+        'language_mode': languageMode ?? this.languageMode,
       });
 
   void buildContext({
