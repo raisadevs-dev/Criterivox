@@ -872,6 +872,7 @@ class _SidebarState extends State<_Sidebar> {
   Widget build(BuildContext context) {
     final t = criterivox_theme.CriterivoxTheme.of(context);
     final expanded = widget.expanded;
+    final strings = CriterivoxStrings(widget.language);
     final width = expanded ? 244.0 : 76.0;
 
     return AnimatedContainer(
@@ -939,9 +940,9 @@ class _SidebarState extends State<_Sidebar> {
                   children: [
                     _StatusCard(expanded: expanded),
                     const SizedBox(height: 18),
-                    _section('START HERE', expanded, t),
+                    _section(strings.startHere, expanded, t),
                     _nav(
-                      'App Introduction',
+                      strings.appIntroduction,
                       Icons.auto_awesome_rounded,
                       widget.page == 'intro',
                       () => widget.onOpen('intro'),
@@ -950,7 +951,7 @@ class _SidebarState extends State<_Sidebar> {
                     const SizedBox(height: 12),
 
                     _group(
-                      'HUMAN TERRITORY',
+                      strings.humanTerritory,
                       Icons.home_work_rounded,
                       humanTerritoryOpen,
                       widget.page == 'human-residence' ||
@@ -964,37 +965,37 @@ class _SidebarState extends State<_Sidebar> {
                       expanded, t,
                     ),
                     if (expanded && humanTerritoryOpen) ...[
-                      _section('LOGIN / SIGN UP', true, t),
-                      _nav('Human Residence', Icons.home_work_rounded,
+                      _section(strings.loginSignup, true, t),
+                      _nav(strings.humanResidence, Icons.home_work_rounded,
                           widget.page == 'human-residence',
                           () => widget.onOpen('human-residence'),
                           true, t, indent: true),
-                      _nav('Sign Up / Log In', Icons.person_rounded,
+                      _nav(strings.signUpLogin, Icons.person_rounded,
                           widget.page == 'human-residence-entry',
                           () => widget.onOpen('human-residence-entry'),
                           true, t, indent: true),
-                      _nav('Guest Pass', Icons.confirmation_number_rounded,
+                      _nav(strings.guestPass, Icons.confirmation_number_rounded,
                           widget.page == 'guest',
                           () => widget.onOpen('guest'),
                           true, t, indent: true),
-                      _nav('Private Room', Icons.lock_outline_rounded,
+                      _nav(strings.privateRoom, Icons.lock_outline_rounded,
                           widget.page == 'private-room',
                           () => widget.onOpen('private-room'),
                           true, t, indent: true),
-                      _nav('Collaboration Room', Icons.groups_rounded,
+                      _nav(strings.collaborationRoom, Icons.groups_rounded,
                           widget.page == 'collaboration-room',
                           () => widget.onOpen('collaboration-room'),
                           true, t, indent: true),
-                      _nav('Decision Desk', Icons.fact_check_outlined,
+                      _nav(strings.decisionDesk, Icons.fact_check_outlined,
                           widget.page == 'private-room',
                           () => widget.onOpen('private-room'),
                           true, t, indent: true),
-                      _nav('Previous Decisions', Icons.history_rounded,
+                      _nav(strings.previousDecisions, Icons.history_rounded,
                           widget.page == 'decision-history',
                           () => widget.onOpen('decision-history'),
                           true, t, indent: true),
-                      _subgroup('COLLABORATION COMMONS', Icons.forum_outlined, [
-                        _ChildNav('Meeting Hall', 'collaboration-room'),
-                        _ChildNav('Project Rooms', 'collaboration-room'),
-                        _ChildNav('Shared Workspaces', 'collaboration-room'),
+                      _subgroup(strings.collaborationCommons, Icons.forum_outlined, [
+                        _ChildNav(strings.meetingHall, 'collaboration-room'),
+                        _ChildNav(strings.projectRooms, 'collaboration-room'),
+                        _ChildNav(strings.sharedWorkspaces, 'collaboration-room'),
                       ], t),
