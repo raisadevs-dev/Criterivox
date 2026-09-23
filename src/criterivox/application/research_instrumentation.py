@@ -227,6 +227,43 @@ class ResearchInstrumentationStore:
                 (_now(), session_id),
             )
 
+    def attach_participant(
+        self,
+        *,
+        session_id: str,
+        participant_id: str,
+        language_mode: str | None = None,
+    ) -> None:
+        with self._connect() as db:
+            exists = db.execute(
+                "SELECT 1 FROM research_participants WHERE participant_id=?",
+                (participant_id,),
+            ).fetchone()
+            if exists is None:
+                raise ValueError("research participant not found")
+            if language_mode is None:
+                db.execute(
+                    "UPDATE research_sessions SET participant_id=? WHERE session_id=?",
+                    (participant_id, session_id),
+                )
+            else:
+                db.execute(
+                    "UPDATE research_sessions SET participant_id=?, language_mode=? WHERE session_id=?",
+                    (participant_id, language_mode, session_id),
+                )
+
+    def has_research_consent(self, participant_id: str) -> bool:
+        consent = self._consent(participant_id)
+        return bool(consent and consent["research_data"])
+
+    def has_raw_text_consent(self, participant_id: str) -> bool:
+        consent = self._consent(participant_id)
+        return bool(consent and consent["research_data"] and consent["raw_text"])
+
+    def has_outcome_consent(self, participant_id: str) -> bool:
+        consent = self._consent(participant_id)
+        return bool(consent and consent["research_data"] and consent["outcome_follow_up"])
+
     def record_event(
         self,
         *,
