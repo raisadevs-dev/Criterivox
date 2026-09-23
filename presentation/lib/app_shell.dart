@@ -94,6 +94,7 @@ class _ShellState extends State<CriterivoxShell> {
 
     runtime =
         widget.runtimeClient ?? CharacterRuntimeClient();
+    runtime.setLanguageMode(widget.language.code);
 
     _stateSubscription = runtime.states.listen((value) {
       if (!mounted) {
@@ -162,6 +163,14 @@ class _ShellState extends State<CriterivoxShell> {
 
     if (widget.connectRuntime) {
       runtime.connect();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant CriterivoxShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.language.code != widget.language.code) {
+      runtime.setLanguageMode(widget.language.code);
     }
   }
 
