@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'presentation/language_mode.dart';
 
 import 'package:flutter/material.dart';
 import 'package:presentation/character/character_identity.dart';
@@ -77,7 +78,7 @@ class _CharacterRuntimeViewState extends State<CharacterRuntimeView>
       height: widget.height,
       child: Semantics(
         container: true,
-        label: '${identity.displayName} character',
+        label: '${identity.nameFor(CriterivoxLanguageScope.of(context).language.code)} character',
         value: normalizedState,
         child: AnimatedBuilder(
           animation: _controller,
