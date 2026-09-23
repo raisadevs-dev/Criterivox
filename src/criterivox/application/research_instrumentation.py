@@ -252,6 +252,14 @@ class ResearchInstrumentationStore:
                     (participant_id, language_mode, session_id),
                 )
 
+    def latest_session_id(self, participant_id: str) -> str | None:
+        with self._connect() as db:
+            row = db.execute(
+                "SELECT session_id FROM research_sessions WHERE participant_id=? ORDER BY started_at DESC LIMIT 1",
+                (participant_id,),
+            ).fetchone()
+        return row["session_id"] if row else None
+
     def has_research_consent(self, participant_id: str) -> bool:
         consent = self._consent(participant_id)
         return bool(consent and consent["research_data"])
