@@ -216,6 +216,8 @@ def _record_instrumentation(*,event_type:str,payload:dict[str,Any],participant_i
  try:
   if participant_id and not research_instrumentation.has_research_consent(participant_id):
    participant_id=None
+  if participant_id is None:
+   payload={key:value for key,value in payload.items() if key in {'language_mode','intent','route_target','event_class','timeout_seconds','confirmation_status'}}
   session_id=_research_sessions.get(participant_id or '')
   if session_id is None:
    session=research_instrumentation.start_session(participant_id=participant_id,language_mode=str(payload.get('language_mode') or 'auto'),source='runtime')
