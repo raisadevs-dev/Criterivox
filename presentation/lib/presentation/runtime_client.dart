@@ -6,6 +6,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'context_residency_store.dart';
 import 'foundation_residency_store.dart';
+import '../human_residence_store.dart';
 import 'presentation_state.dart';
 
 class CharacterRuntimeClient {
@@ -23,8 +24,23 @@ class CharacterRuntimeClient {
   bool _connecting = false;
   bool _foundationRecoveryInFlight = false;
   String languageMode = 'auto';
+  String? researchParticipantId;
 
   void setLanguageMode(String code) => languageMode = code;
+
+  Future<void> loadResearchIdentity() async {
+    try {
+      final residence = await HumanResidenceStore().load();
+      final allowed = residence?.metadata['research_consent'] == true;
+      if (allowed) {
+        researchParticipantId = residence?.metadata['research_participant_id']?.toString();
+      } else {
+        researchParticipantId = null;
+      }
+    } catch (_) {
+      researchParticipantId = null;
+    }
+  }
 
   final List<Map<String, dynamic>> _pending = [];
   final _states = StreamController<PresentationState>.broadcast();
@@ -256,6 +272,7 @@ class CharacterRuntimeClient {
         'context': context,
         'references': references,
         'language_mode': languageMode ?? this.languageMode,
+        if (researchParticipantId != null) 'research_participant_id': researchParticipantId,
       });
 
   void buildContext({
