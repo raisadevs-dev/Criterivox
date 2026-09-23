@@ -73,7 +73,7 @@ class CriterivoxLanguageSelector extends StatelessWidget {
     final language = scope?.language ?? CriterivoxLanguage.auto;
     return PopupMenuButton<CriterivoxLanguage>(
       tooltip: language.englishName == 'Automatic' ? 'Language / भाषा' : language.nativeName,
-      initialValue: scope.language,
+      initialValue: language,
       onSelected: scope?.onChanged ?? (_) {},
       itemBuilder: (context) => [
         for (final item in CriterivoxLanguage.supported)
