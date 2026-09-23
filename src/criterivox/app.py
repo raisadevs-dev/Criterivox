@@ -20,7 +20,7 @@ from .application.data_foundation_store import data_foundations
 from .application.sandre_stewardship import SandreStewardship
 from .application.s5_feature_runtime import S5FeatureRuntime
 from .application import foundation_runtime_bridge  # noqa: F401
-from .infrastructure.runtime import dharen_runtime, handle_application_request, handle_chat_message, parse_analysis_request, runtime_connections
+from .infrastructure.runtime import dharen_runtime, handle_application_request, handle_chat_message, handle_chat_interpretation_confirmation, parse_analysis_request, runtime_connections
 from .logging_config import configure_logging
 from .presentation.contract import PresentationContract
 from .ui.routes import router
