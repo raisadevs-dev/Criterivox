@@ -8,7 +8,6 @@ class LiveAgentPanel extends StatefulWidget {
   final String responsibility;
   final String workDescription;
   final String state;
-  final VoidCallback? onChat;
   final bool initiallyExpanded;
 
   const LiveAgentPanel({
@@ -17,7 +16,6 @@ class LiveAgentPanel extends StatefulWidget {
     required this.responsibility,
     required this.workDescription,
     required this.state,
-    this.onChat,
     this.initiallyExpanded = false,
   });
 
@@ -106,14 +104,6 @@ class _LiveAgentPanelState extends State<LiveAgentPanel> {
                       Text(identity.role, style: TextStyle(color: theme.text, fontSize: 14, fontWeight: FontWeight.w800)),
                       const SizedBox(height: 10),
                       Text(widget.workDescription, style: TextStyle(color: theme.mutedText, fontSize: 10.5, height: 1.45)),
-                      if (widget.onChat != null) ...[
-                        const SizedBox(height: 12),
-                        OutlinedButton.icon(
-                          onPressed: widget.onChat,
-                          icon: const Icon(Icons.forum_outlined, size: 15),
-                          label: Text('Open ${identity.displayName} chat'),
-                        ),
-                      ],
                     ],
                   );
                   return narrow
