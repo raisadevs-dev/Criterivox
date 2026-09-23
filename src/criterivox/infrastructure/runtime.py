@@ -8,7 +8,8 @@ from pydantic import BaseModel,ConfigDict,Field,ValidationError,model_validator
 from criterivox.application.analysis_tasks import analysis_tasks
 from criterivox.application.contracts import ApplicationRequest
 from criterivox.application.conversation import interpret_message
-from criterivox.application.language_intake import interpretation_summary
+from criterivox.application.language_intake import detect_language_profile, interpretation_summary
+from criterivox.application.language_service import language_service
 from criterivox.application.data_foundation_store import data_foundations
 from criterivox.application.service import UnsupportedCapabilityError
 from criterivox.domain.analysis import AnalysisReference,AnalysisTask,AnalysisTaskSource,AnalysisTaskState
@@ -18,7 +19,8 @@ from criterivox.application.state_runtime import state_runtime
 from criterivox.application.state_chat import respond_state_query
 MAX_REFERENCE_BYTES=4*1024*1024;
 CHAT_CONFIRMATION_TIMEOUT_SECONDS=60;
-_pending_chat_confirmations:dict[str,dict[str,Any]]={};MAX_REFERENCE_COUNT=50;MAX_REFERENCE_BATCH_BYTES=8*1024*1024;ALLOWED_CHAT_CHARACTERS={'syvax','dharen','sandre','kaelen','anuka','vivren','tarkis','pramon','bodhex','medrus','epistre','veridat','manis','viveda','anukor'}
+_pending_chat_confirmations:dict[str,dict[str,Any]]={};
+_task_language_profiles:dict[str,Any]={};MAX_REFERENCE_COUNT=50;MAX_REFERENCE_BATCH_BYTES=8*1024*1024;ALLOWED_CHAT_CHARACTERS={'syvax','dharen','sandre','kaelen','anuka','vivren','tarkis','pramon','bodhex','medrus','epistre','veridat','manis','viveda','anukor'}
 class AnalysisRequest(BaseModel):
  model_config=ConfigDict(extra='forbid');data:dict[str,Any]=Field(default_factory=dict);context:dict[str,Any]=Field(default_factory=dict);task:str=Field(min_length=1,max_length=500)
  @model_validator(mode='after')
@@ -120,21 +122,22 @@ async def _publish_chat_interpretation(character:str, *, confirmation_id:str, or
  await runtime_connections.publish(
   PresentationContract.from_state(
    character, CharacterState.COMMUNICATE, active=True, prominence=.9,
-   message=(
-    "I interpreted your request. Review the interpretation before continuing."
+   message=await language_service.to_user_language(
+    ("I interpreted your request. Review the interpretation before continuing."
     if status == "PENDING"
     else "Interpretation confirmed. Criterivox is continuing the work."
     if status == "CONFIRMED"
     else "No confirmation arrived within 1 minute. Criterivox continued with the recorded interpretation and marked it unconfirmed."
     if status == "UNCONFIRMED_TIMEOUT"
-    else "The interpretation was corrected by the human."
+    else "The interpretation was corrected by the human."),
+    interpretation.language_profile,
    ),
    event="CHAT_INTERPRETATION_CONFIRMATION",
    task_id=task_id,
    input_original=original,
    input_language_profile=profile,
    input_interpretation=interpretation.normalized_text,
-   input_semantic_summary=interpretation.semantic_summary or interpretation_summary(interpretation.intent, interpretation.route_target),
+   input_semantic_summary=await language_service.to_user_language(interpretation.semantic_summary or interpretation_summary(interpretation.intent, interpretation.route_target), interpretation.language_profile),
    input_confirmation_status=status,
    input_confirmation_deadline=deadline,
    input_confirmation_id=confirmation_id,
@@ -202,9 +205,10 @@ async def handle_chat_message(payload):
  if target not in ALLOWED_CHAT_CHARACTERS:raise ValueError('Unknown chat character.')
  task_id=payload.get('task_id');message=payload.get('message')
  if not isinstance(message,str) or not message.strip() or len(message)>2000:raise ValueError('Chat message is invalid.')
- interpretation=interpret_message(message);refs,details=_parse_chat_references(payload.get('references',[]));await _sync_chat_material(refs,details,message,task_id)
+ profile=detect_language_profile(message);normalized=await language_service.to_reasoning_language(message,profile);interpretation=interpret_message(normalized);refs,details=_parse_chat_references(payload.get('references',[]));await _sync_chat_material(refs,details,message,task_id)
  if interpretation.intent in {"analyze","handoff","unknown","change_request","continue"}:
   task=analysis_tasks.get_task(str(task_id)) if task_id is not None else analysis_tasks.create_task(task=interpretation.normalized_text,data=payload.get('data') if isinstance(payload.get('data'),dict) else {},context=payload.get('context') if isinstance(payload.get('context'),dict) else {},source=AnalysisTaskSource.CHAT,references=refs,reference_details=details)
+  _task_language_profiles[task.task_id]=profile
   await _queue_chat_confirmation(character=target,original=message,interpretation=interpretation,task=task)
   return
  if target not in {'syvax','dharen'}:
