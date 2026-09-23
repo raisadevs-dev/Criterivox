@@ -22,6 +22,9 @@ class CharacterRuntimeClient {
   bool _disposed = false;
   bool _connecting = false;
   bool _foundationRecoveryInFlight = false;
+  String languageMode = 'auto';
+
+  void setLanguageMode(String code) => languageMode = code;
 
   final List<Map<String, dynamic>> _pending = [];
   final _states = StreamController<PresentationState>.broadcast();
@@ -176,6 +179,7 @@ class CharacterRuntimeClient {
         'context': context,
         'source': source,
         'references': references,
+        'language_mode': languageMode,
       });
 
   void requestAnalysis({
@@ -206,6 +210,7 @@ class CharacterRuntimeClient {
         if (taskId != null) 'task_id': taskId,
         'requested_by': 'human',
         'context': context,
+        'language_mode': languageMode,
       });
 
   void approveOperation(String commandId) =>
