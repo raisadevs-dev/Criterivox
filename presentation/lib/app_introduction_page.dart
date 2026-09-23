@@ -6,13 +6,11 @@ import 'presentation/criterivox_theme.dart';
 
 class AppIntroductionPage extends StatelessWidget {
   final VoidCallback onOpenWorkspace;
-  final VoidCallback onOpenChat;
   final VoidCallback onOpenCivilization;
 
   const AppIntroductionPage({
     super.key,
     required this.onOpenWorkspace,
-    required this.onOpenChat,
     required this.onOpenCivilization,
   });
 
