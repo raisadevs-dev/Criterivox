@@ -601,7 +601,9 @@ class _ShellState extends State<CriterivoxShell> {
           key: const ValueKey('level2'),
           homeId: civilizationHome ?? 'context',
           onBack: () => open('home-preview'),
-          onEnterRoom: _openReasoningRoom,
+          onEnterRoom: civilizationHome == 'reasoning'
+              ? _openReasoningRoom
+              : null,
         );
 
       case 'human-residence-entry':
