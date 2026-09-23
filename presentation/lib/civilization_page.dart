@@ -13,13 +13,11 @@ import 'presentation/presentation_state.dart';
 class CivilizationPage extends StatefulWidget {
   final PresentationState? state;
   final ValueChanged<String>? onOpenHome;
-  final VoidCallback? onOpenChat;
 
   const CivilizationPage({
     super.key,
     this.state,
     this.onOpenHome,
-    this.onOpenChat,
   });
 
   /// Canonical civilization Homes exposed to presentation tests and
@@ -189,15 +187,6 @@ class _CivilizationPageState extends State<CivilizationPage> {
                       ),
                     ),
                   ),
-                  if (widget.onOpenChat != null)
-                    TextButton.icon(
-                      onPressed: widget.onOpenChat,
-                      icon: const Icon(
-                        Icons.forum_outlined,
-                        size: 16,
-                      ),
-                      label: const Text('Syvax'),
-                    ),
                 ],
               ),
             ),
