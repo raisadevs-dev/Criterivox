@@ -10,6 +10,7 @@ from criterivox.application.contracts import ApplicationRequest
 from criterivox.application.conversation import interpret_message
 from criterivox.application.language_intake import detect_language_profile, interpretation_summary
 from criterivox.application.language_service import language_service
+from criterivox.application.research_instrumentation import research_instrumentation
 from criterivox.application.data_foundation_store import data_foundations
 from criterivox.application.service import UnsupportedCapabilityError
 from criterivox.domain.analysis import AnalysisReference,AnalysisTask,AnalysisTaskSource,AnalysisTaskState
@@ -20,7 +21,8 @@ from criterivox.application.state_chat import respond_state_query
 MAX_REFERENCE_BYTES=4*1024*1024;
 CHAT_CONFIRMATION_TIMEOUT_SECONDS=60;
 _pending_chat_confirmations:dict[str,dict[str,Any]]={};
-_task_language_profiles:dict[str,Any]={};MAX_REFERENCE_COUNT=50;MAX_REFERENCE_BATCH_BYTES=8*1024*1024;ALLOWED_CHAT_CHARACTERS={'syvax','dharen','sandre','kaelen','anuka','vivren','tarkis','pramon','bodhex','medrus','epistre','veridat','manis','viveda','anukor'}
+_task_language_profiles:dict[str,Any]={};
+_research_sessions:dict[str,str]={};MAX_REFERENCE_COUNT=50;MAX_REFERENCE_BATCH_BYTES=8*1024*1024;ALLOWED_CHAT_CHARACTERS={'syvax','dharen','sandre','kaelen','anuka','vivren','tarkis','pramon','bodhex','medrus','epistre','veridat','manis','viveda','anukor'}
 class AnalysisRequest(BaseModel):
  model_config=ConfigDict(extra='forbid');data:dict[str,Any]=Field(default_factory=dict);context:dict[str,Any]=Field(default_factory=dict);task:str=Field(min_length=1,max_length=500)
  @model_validator(mode='after')
@@ -166,6 +168,7 @@ async def _expire_chat_confirmation(confirmation_id:str) -> None:
  if item is None or item.get("confirmation_status") != "PENDING":
   return
  await _continue_confirmed_chat(item,status="UNCONFIRMED_TIMEOUT")
+ _record_instrumentation(event_type='interpretation_confirmation_timeout',participant_id=None,payload={'confirmation_status':'UNCONFIRMED_TIMEOUT','confirmation_id':confirmation_id,'task_id':item['task'].task_id,'timeout_seconds':CHAT_CONFIRMATION_TIMEOUT_SECONDS})
  _pending_chat_confirmations.pop(confirmation_id,None)
 
 async def _queue_chat_confirmation(*, character:str, original:str, interpretation, task:AnalysisTask) -> str:
@@ -201,17 +204,35 @@ async def handle_application_request(payload):
   if not task.is_terminal:asyncio.create_task(analysis_tasks.execute(task.task_id))
   return
  task=analysis_tasks.create_task(task=request.task,data=request.data,context=request.context,source=_task_source(request.source),references=request.references);await dharen_runtime.publish_task(task,message='Analysis task created. Dharen is ready to receive it.',event='ANALYSIS_TASK_CREATED');asyncio.create_task(analysis_tasks.execute(task.task_id))
+
+
+def _research_identity(payload:dict[str,Any]) -> str|None:
+ value=payload.get('research_participant_id')
+ return str(value).strip() or None if value is not None else None
+
+def _record_instrumentation(*,event_type:str,payload:dict[str,Any],participant_id:str|None=None,raw_text:bool=False) -> None:
+ try:
+  session_id=_research_sessions.get(participant_id or '')
+  if session_id is None:
+   session=research_instrumentation.start_session(participant_id=participant_id,language_mode=str(payload.get('language_mode') or 'auto'),source='runtime')
+   session_id=session.session_id
+   if participant_id:_research_sessions[participant_id]=session_id
+  research_instrumentation.record_event(session_id=session_id,participant_id=participant_id,event_type=event_type,payload=payload,research_scope='research' if participant_id else 'operational',contains_raw_text=raw_text)
+ except (PermissionError,ValueError):
+  return
+
 async def handle_chat_message(payload):
  if not isinstance(payload,dict):raise ValueError('Malformed chat message.')
  target=str(payload.get('target_character','syvax')).strip().lower()
  if target not in ALLOWED_CHAT_CHARACTERS:raise ValueError('Unknown chat character.')
  task_id=payload.get('task_id');message=payload.get('message')
  if not isinstance(message,str) or not message.strip() or len(message)>2000:raise ValueError('Chat message is invalid.')
- profile=detect_language_profile(message);normalized=await language_service.to_reasoning_language(message,profile);interpretation=interpret_message(normalized);object.__setattr__(interpretation,'language_profile',profile);refs,details=_parse_chat_references(payload.get('references',[]));await _sync_chat_material(refs,details,message,task_id)
+ profile=detect_language_profile(message);normalized=await language_service.to_reasoning_language(message,profile);interpretation=interpret_message(normalized);object.__setattr__(interpretation,'language_profile',profile);refs,details=_parse_chat_references(payload.get('references',[]));await _sync_chat_material(refs,details,message,task_id);participant_id=_research_identity(payload);_record_instrumentation(event_type='human_input_received',participant_id=participant_id,payload={'intent':interpretation.intent,'route_target':interpretation.route_target,'language_profile':profile.to_dict(),'normalized_meaning':interpretation.normalized_text,'semantic_summary':interpretation.semantic_summary,'task_id':task_id,'language_mode':payload.get('language_mode','auto')});_record_instrumentation(event_type='human_input_raw_text',participant_id=participant_id,payload={'raw_text':message,'language_profile':profile.to_dict()},raw_text=True)
  if interpretation.intent in {"analyze","handoff","unknown","change_request","continue"}:
   task=analysis_tasks.get_task(str(task_id)) if task_id is not None else analysis_tasks.create_task(task=interpretation.normalized_text,data=payload.get('data') if isinstance(payload.get('data'),dict) else {},context=payload.get('context') if isinstance(payload.get('context'),dict) else {},source=AnalysisTaskSource.CHAT,references=refs,reference_details=details)
   _task_language_profiles[task.task_id]=profile
   await _queue_chat_confirmation(character=target,original=message,interpretation=interpretation,task=task)
+  _record_instrumentation(event_type='interpretation_confirmation_requested',participant_id=participant_id,payload={'confirmation_status':'PENDING','task_id':task.task_id,'interpretation':interpretation.normalized_text,'confirmation_timeout_seconds':CHAT_CONFIRMATION_TIMEOUT_SECONDS})
   return
  if target not in {'syvax','dharen'}:
   await _safe_character_chat(payload)
