@@ -115,3 +115,28 @@ class CriterivoxLocalizedText {
 
   static String preserveTechnical(String value) => value;
 }
+
+
+class CriterivoxStrings {
+  final CriterivoxLanguage language;
+  const CriterivoxStrings(this.language);
+
+  String _text(String en, Map<String, String> translations) =>
+      translations[language.code] ?? en;
+
+  String get startHere => _text('START HERE', {'hi':'यहाँ से शुरू करें','mr':'येथून सुरू करा'});
+  String get appIntroduction => _text('App Introduction', {'hi':'ऐप परिचय','mr':'अॅप परिचय'});
+  String get humanTerritory => _text('HUMAN TERRITORY', {'hi':'मानव क्षेत्र','mr':'मानवी क्षेत्र'});
+  String get loginSignup => _text('LOGIN / SIGN UP', {'hi':'लॉग इन / साइन अप','mr':'लॉग इन / साइन अप'});
+  String get humanResidence => _text('Human Residence', {'hi':'मानव निवास','mr':'मानवी निवास'});
+  String get signUpLogin => _text('Sign Up / Log In', {'hi':'साइन अप / लॉग इन','mr':'साइन अप / लॉग इन'});
+  String get guestPass => _text('Guest Pass', {'hi':'अतिथि पास','mr':'अतिथी पास'});
+  String get privateRoom => _text('Private Room', {'hi':'निजी कक्ष','mr':'खाजगी कक्ष'});
+  String get collaborationRoom => _text('Collaboration Room', {'hi':'सहयोग कक्ष','mr':'सहकार्य कक्ष'});
+  String get decisionDesk => _text('Decision Desk', {'hi':'निर्णय डेस्क','mr':'निर्णय डेस्क'});
+  String get previousDecisions => _text('Previous Decisions', {'hi':'पिछले निर्णय','mr':'मागील निर्णय'});
+  String get collaborationCommons => _text('COLLABORATION COMMONS', {'hi':'सहयोग साझा क्षेत्र','mr':'सहकार्य सामायिक क्षेत्र'});
+  String get meetingHall => _text('Meeting Hall', {'hi':'बैठक कक्ष','mr':'बैठक सभागृह'});
+  String get projectRooms => _text('Project Rooms', {'hi':'परियोजना कक्ष','mr':'प्रकल्प कक्ष'});
+  String get sharedWorkspaces => _text('Shared Workspaces', {'hi':'साझा कार्यक्षेत्र','mr':'सामायिक कार्यक्षेत्र'});
+}
