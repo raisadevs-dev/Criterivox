@@ -90,11 +90,11 @@ The repository contains implementation and evaluation boundaries for this questi
 
 ## Current Verification Baseline
 
-**Flutter regression suite: 107 passed, 0 failed.**
+**Historical Flutter baseline: 107 passed, 0 failed.**
 
-This establishes a green regression baseline for the tested presentation behavior. It does not establish that every runtime path or research claim is empirically validated.
+That was the pre-final-instrumentation presentation baseline. The current branch has additional runtime, localization and research-instrumentation changes; no fresh CI run is claimed until GitHub Actions reports one.
 
-The application also successfully launched after clearing stale Flutter build state with flutter clean. The remaining problems are now primarily runtime/UI integration and presentation-composition problems.
+The application previously launched after clearing stale Flutter build state with flutter clean. The final integration changes should be verified in a fresh Flutter/Python environment before a release build is treated as validated.
 
 ## Final Integration Position
 
