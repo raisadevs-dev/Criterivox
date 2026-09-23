@@ -12,14 +12,12 @@ import 'presentation/criterivox_theme.dart' as criterivox_theme;
 class CivilizationHomePreviewPage extends StatelessWidget {
   final String homeId;
   final VoidCallback onBack;
-  final VoidCallback? onChat;
   final ValueChanged<String>? onOpenOperationalHome;
 
   const CivilizationHomePreviewPage({
     super.key,
     required this.homeId,
     required this.onBack,
-    this.onChat,
     this.onOpenOperationalHome,
   });
 
@@ -294,14 +292,6 @@ class CivilizationHomePreviewPage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (onChat != null)
-                    FilledButton.icon(
-                      onPressed: onChat,
-                      icon: const Icon(Icons.forum_outlined),
-                      label: const Text('Talk to Syvax'),
-                    ),
-                  if (onChat != null)
-                    const SizedBox(width: 10),
                   OutlinedButton.icon(
                     onPressed: onBack,
                     icon: const Icon(Icons.map_outlined),
@@ -450,8 +440,8 @@ class _Rooms extends StatelessWidget {
           ),
           const SizedBox(height: 5),
           Text(
-            'Named spatial responsibilities are visible now; '
-            'operational behavior belongs to later Level 2 work.',
+            'Named spatial responsibilities stay visible here; '
+            'operational work opens as a closable inspection layer over this home.',
             style: TextStyle(
               color: t.mutedText,
               fontSize: 9,
@@ -481,8 +471,10 @@ class _Rooms extends StatelessWidget {
               Icons.meeting_room_outlined,
               size: 16,
             ),
-            label: const Text(
-              home.rooms.isEmpty ? 'Open chamber' : (home.name.contains('Decision') ? 'Open Decision & Action Chamber' : 'Enter Level 2 operational spaces'),
+            label: Text(
+              home.name.contains('Decision')
+                  ? 'Open Human Challenge & Review'
+                  : 'Open Level 2 inspection',
             ),
           ),
         ],
