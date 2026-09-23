@@ -494,15 +494,6 @@ class _ShellState extends State<CriterivoxShell> {
       body: SafeArea(
         child: Stack(
           children: [
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                if (widget.onLanguageChanged != null)
-                  CriterivoxLanguageSelector(),
-                const SizedBox(width: 8),
-              ],
-            ),
             Row(
               children: [
                 _Sidebar(
@@ -520,6 +511,13 @@ class _ShellState extends State<CriterivoxShell> {
                 Expanded(
                   child: Column(
                     children: [
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 12, top: 4),
+                          child: CriterivoxLanguageSelector(),
+                        ),
+                      ),
                       _TopBar(
                         isDarkMode: widget.isDarkMode,
                         onToggleTheme:
