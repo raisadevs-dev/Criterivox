@@ -179,7 +179,6 @@ class ContextIntelligencePage extends StatelessWidget {
                     contextText: contextText,
                     onStart: onStart,
                     onBuildContext: onBuildContext,
-                    onOpenChat: onOpenChat,
                     onChatCharacter: onChatCharacter,
                   ),
                 ],
