@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'presentation/language_mode.dart';
 
 import '../presentation/criterivox_theme.dart';
 import '../presentation/presentation_state.dart';
@@ -20,7 +21,7 @@ class CharacterPresentation extends StatelessWidget {
 
     return Semantics(
       container: true,
-      label: '${identity.displayName}, ${identity.role}',
+      label: '${identity.nameFor(CriterivoxLanguageScope.of(context).language.code)}, ${identity.role}',
       value: state.characterState,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -34,7 +35,7 @@ class CharacterPresentation extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            identity.displayName,
+            identity.nameFor(CriterivoxLanguageScope.of(context).language.code),
             style: TextStyle(
               color: theme.text,
               fontSize: 20,
