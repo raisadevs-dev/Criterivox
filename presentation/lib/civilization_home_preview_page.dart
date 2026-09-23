@@ -78,10 +78,10 @@ class CivilizationHomePreviewPage extends StatelessWidget {
       ],
     ),
     'decision': _HomeInfo(
-      'Decision House',
-      'Decision & Insight District',
-      ['pramon', 'bodhex', 'manis'],
-      'Evidence, insight, alternatives and deliberation',
+      'Decision & Action Chamber',
+      'Decision District',
+      ['pramon', 'bodhex'],
+      'Planning, review, action contracts, calendar and controlled execution',
       [
         'Evidence Desk',
         'Insight Room',
@@ -482,7 +482,7 @@ class _Rooms extends StatelessWidget {
               size: 16,
             ),
             label: const Text(
-              'Enter Level 2 operational spaces',
+              home.rooms.isEmpty ? 'Open chamber' : (home.name.contains('Decision') ? 'Open Decision & Action Chamber' : 'Enter Level 2 operational spaces'),
             ),
           ),
         ],
