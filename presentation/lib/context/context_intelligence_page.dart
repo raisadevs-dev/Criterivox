@@ -21,7 +21,6 @@ class ContextIntelligencePage extends StatelessWidget {
   final VoidCallback onStart;
   final VoidCallback onBuildContext;
   final VoidCallback onManualAdapt;
-  final VoidCallback onOpenChat;
   final ValueChanged<String>? onChatCharacter;
   final VoidCallback onCreateSandbox;
   final VoidCallback onRunSandbox;
@@ -41,7 +40,6 @@ class ContextIntelligencePage extends StatelessWidget {
     required this.onStart,
     required this.onBuildContext,
     required this.onManualAdapt,
-    required this.onOpenChat,
     this.onChatCharacter,
     required this.onCreateSandbox,
     required this.onRunSandbox,
@@ -113,7 +111,6 @@ class ContextIntelligencePage extends StatelessWidget {
                     workDescription:
                         'Establishes scope, baseline, priority and the authoritative context boundary.',
                     state: _agentState('dharen'),
-                    onChat: () => onChatCharacter?.call('dharen'),
                   ),
                   LiveAgentPanel(
                     characterId: 'anuka',
@@ -121,7 +118,6 @@ class ContextIntelligencePage extends StatelessWidget {
                     workDescription:
                         'Re-evaluates context when goals, evidence or constraints shift and supports controlled forks.',
                     state: _agentState('anuka'),
-                    onChat: () => onChatCharacter?.call('anuka'),
                   ),
                 ];
                 return narrow
@@ -164,7 +160,6 @@ class ContextIntelligencePage extends StatelessWidget {
                     state: state,
                     onBuildContext: onBuildContext,
                     onManualAdapt: onManualAdapt,
-                    onOpenChat: onOpenChat,
                     onCreateSandbox: onCreateSandbox,
                     onRunSandbox: onRunSandbox,
                     onInspectSandbox: onInspectSandbox,
@@ -175,7 +170,6 @@ class ContextIntelligencePage extends StatelessWidget {
                   ContextWorkspacePage(
                     state: state,
                     onBuildContext: onBuildContext,
-                    onOpenChat: onOpenChat,
                   ),
                   AnalysisContextWorkspacePage(
                     state: state,
