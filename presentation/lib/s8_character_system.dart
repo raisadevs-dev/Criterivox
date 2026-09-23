@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'presentation/language_mode.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import 'character/character_identity.dart';
@@ -26,7 +27,7 @@ class S8CharacterView extends StatelessWidget {
 
     return Semantics(
       button: onTap != null,
-      label: '${identity.displayName}, ${identity.role}',
+      label: '${identity.nameFor(CriterivoxLanguageScope.of(context).language.code)}, ${identity.role}',
       value: state.activityLabel,
       child: GestureDetector(
         onTap: onTap,
@@ -41,7 +42,7 @@ class S8CharacterView extends StatelessWidget {
               height: 228,
             ),
             Text(
-              identity.displayName,
+              identity.nameFor(CriterivoxLanguageScope.of(context).language.code),
               style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.white),
             ),
             const SizedBox(height: 3),
@@ -106,7 +107,7 @@ class S8CharacterProfileOverlay extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(children: [
-                Expanded(child: Text(identity.displayName, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900))),
+                Expanded(child: Text(identity.nameFor(CriterivoxLanguageScope.of(context).language.code), style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900))),
                 IconButton(onPressed: onClose, icon: const Icon(Icons.close, color: Colors.white70)),
               ]),
               Text(identity.role, style: TextStyle(color: character.accent, fontWeight: FontWeight.w700)),
