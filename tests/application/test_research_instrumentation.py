@@ -64,6 +64,31 @@ def test_raw_text_requires_explicit_raw_text_consent(tmp_path):
         )
 
 
+def test_raw_text_is_allowed_after_explicit_raw_text_consent(tmp_path):
+    store = make_store(tmp_path)
+    participant = store.register_participant(
+        display_name="Research Participant", email="participant@example.test"
+    )
+    store.record_consent(
+        participant_id=participant.participant_id,
+        consent_version="v1",
+        research_data=True,
+        raw_text=True,
+    )
+    session = store.start_session(participant_id=participant.participant_id)
+
+    event_id = store.record_event(
+        session_id=session.session_id,
+        participant_id=participant.participant_id,
+        event_type="human_message",
+        payload={"raw_text": "example"},
+        research_scope="research",
+        contains_raw_text=True,
+    )
+
+    assert event_id.startswith("event-")
+
+
 def test_outcome_requires_explicit_follow_up_consent(tmp_path):
     store = make_store(tmp_path)
     participant = store.register_participant(
@@ -112,6 +137,8 @@ def test_research_events_and_outcomes_are_queryable(tmp_path):
         helped_score=9,
         improvement_request="Keep the explanation trace visible.",
     )
+
+    assert store.latest_session_id(participant.participant_id) == session.session_id
 
     counts = ResearchQuestionAnalyzer(store).event_counts()
     summary = ResearchQuestionAnalyzer(store).outcome_summary()
