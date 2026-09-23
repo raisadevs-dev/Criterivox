@@ -23,6 +23,7 @@ import 'presentation/runtime_client.dart';
 import 'data_stewardship_page.dart';
 import 'home03_syvax_page.dart';
 import 's7/s7_environment_page.dart';
+import 'decision_action_quarter_page.dart';
 
 class CriterivoxShell extends StatefulWidget {
   final bool isDarkMode;
@@ -402,6 +403,10 @@ class _ShellState extends State<CriterivoxShell> {
       return;
     }
     setState(() => civilizationHome = home);
+    if (home == 'decision') {
+      open('decision-action');
+      return;
+    }
     open('level2');
   }
 
@@ -575,6 +580,13 @@ class _ShellState extends State<CriterivoxShell> {
     }
 
     switch (page) {
+      case 'decision-action':
+        return DecisionActionQuarterPage(
+          key: const ValueKey('decision-action'),
+          onBack: () => open('home-preview'),
+          onOpenHumanDecisionWorkspace: () => open('private-room'),
+        );
+
       case 'home-preview':
         return CivilizationHomePreviewPage(
           key: const ValueKey('home-preview'),
