@@ -7,7 +7,11 @@ import 's7_visuals.dart';
 import 's7_functional_layer.dart';
 
 class S7EnvironmentPage extends StatefulWidget {
-  const S7EnvironmentPage({super.key});
+  /// System-owned reasoning room. Initial task/data arrive from Human Residence;
+  /// this page is not an intake boundary.
+  final String? sessionId;
+
+  const S7EnvironmentPage({super.key, this.sessionId});
 
   @override
   State<S7EnvironmentPage> createState() => _S7EnvironmentPageState();
@@ -28,28 +32,34 @@ class _S7EnvironmentPageState extends State<S7EnvironmentPage>
     duration: const Duration(seconds: 14),
   )..repeat();
 
-  final task = TextEditingController(
-    text:
-        'Compare two possible explanations for the supplied observations and identify uncertainty and limitations.',
-  );
-
-  final contextText = TextEditingController(
-    text: '''{
-  "observations": [
-    "Signal A increased after event X.",
-    "Signal A returned toward baseline when event X stopped.",
-    "An independent measurement showed a weaker version of the same pattern."
-  ],
-  "source": "synthetic S7 research fixture"
-}''',
-  );
-
   @override
   void dispose() {
     motion.dispose();
-    task.dispose();
-    contextText.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final sessionId = widget.sessionId;
+    if (sessionId != null && sessionId.trim().isNotEmpty) {
+      _loadSession(sessionId.trim());
+    }
+  }
+
+  Future<void> _loadSession(String sessionId) async {
+    try {
+      final response = await http.get(Uri.parse('$api/sessions/$sessionId'));
+      if (!mounted) return;
+      final body = jsonDecode(response.body);
+      if (response.statusCode >= 400 || body is! Map) {
+        setState(() => error = body is Map ? body['error']?.toString() : 'Unable to load reasoning session.');
+        return;
+      }
+      setState(() => session = Map<String, dynamic>.from(body));
+    } catch (e) {
+      if (mounted) setState(() => error = _errorText(e));
+    }
   }
 
   List<Map<String, dynamic>> list(dynamic value) {
@@ -81,53 +91,6 @@ class _S7EnvironmentPageState extends State<S7EnvironmentPage>
     }
 
     return <String, dynamic>{'description': raw};
-  }
-
-  Future<void> run() async {
-    setState(() {
-      busy = true;
-      error = null;
-      selected = null;
-    });
-
-    try {
-      final response = await http.post(
-        Uri.parse('$api/sessions'),
-        headers: const {
-          'content-type': 'application/json',
-        },
-        body: jsonEncode({
-          'task': task.text.trim(),
-          'context': contextValue(),
-        }),
-      );
-
-      final body = jsonDecode(response.body);
-
-      if (response.statusCode >= 400) {
-        throw Exception(
-          body is Map ? body['error'] : 'S7 request failed',
-        );
-      }
-
-      if (body is! Map) {
-        throw Exception('S7 returned an invalid session.');
-      }
-
-      setState(() {
-        session = Map<String, dynamic>.from(body);
-      });
-    } catch (e) {
-      setState(() {
-        error = _errorText(e);
-      });
-    } finally {
-      if (mounted) {
-        setState(() {
-          busy = false;
-        });
-      }
-    }
   }
 
   String _errorText(Object error) {
@@ -445,73 +408,13 @@ class _S7EnvironmentPageState extends State<S7EnvironmentPage>
     }
   }
 
-  void preset(String id) {
-    switch (id) {
-      case 'normal':
-        task.text =
-            'Compare two possible explanations for the supplied observations and identify uncertainty and limitations.';
-        contextText.text = '''{
-  "observations": [
-    "Signal A increased after event X.",
-    "Signal A returned toward baseline when event X stopped.",
-    "An independent measurement showed a weaker version of the same pattern."
-  ],
-  "source": "synthetic S7 research fixture"
-}''';
-        break;
-
-      case 'competing':
-        task.text =
-            'Explore competing explanations for the observation and compare the candidate reasoning paths.';
-        contextText.text = '''{
-  "observations": [
-    "The observed change follows event X.",
-    "The same change can also be explained by background condition Y."
-  ],
-  "candidate_hypotheses": [
-    "event X is causal",
-    "condition Y is causal"
-  ],
-  "source": "synthetic competing-hypothesis fixture"
-}''';
-        break;
-
-      case 'contradiction':
-        task.text =
-            'Evaluate the observation while preserving contradictory evidence and explicitly reporting unresolved disagreement.';
-        contextText.text = '''{
-  "observations": [
-    "Measurement A supports explanation P.",
-    "Measurement B conflicts with explanation P.",
-    "Measurement C is inconclusive."
-  ],
-  "contradictions": [
-    "A conflicts with B"
-  ],
-  "source": "synthetic contradiction fixture"
-}''';
-        break;
-
-      case 'insufficient':
-        task.text =
-            'Determine whether the supplied information is sufficient to establish a bounded analytical conclusion.';
-        contextText.clear();
-        break;
-    }
-
-    setState(() {
-      session = null;
-      selected = null;
-      error = null;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final artifacts = list(session?['artifacts']);
 
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: const Color(0xff03050b),
+      backgroundColor: scheme.surface,
       body: AnimatedBuilder(
         animation: motion,
         builder: (_, __) => Stack(
@@ -761,9 +664,7 @@ class _S7EnvironmentPageState extends State<S7EnvironmentPage>
           const Color(0xffc8b7ff),
         ),
         const SizedBox(height: 14),
-        _requestPanel(),
-        const SizedBox(height: 10),
-        _fixtureStrip(),
+        _sourceStatus(),
         const SizedBox(height: 14),
         if (compact) ...[
           SizedBox(
@@ -1434,116 +1335,24 @@ class _S7EnvironmentPageState extends State<S7EnvironmentPage>
     );
   }
 
-  Widget _requestPanel() {
+  Widget _sourceStatus() {
+    final hasSession = session?['session_id'] != null;
     return S7GlassPanel(
-      title: 'NEW ANALYTICAL REQUEST',
+      title: 'SYSTEM INPUT BOUNDARY',
       accent: const Color(0xffc8b7ff),
-      child: Column(
+      child: Row(
         children: [
-          Row(
-            crossAxisAlignment:
-                CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: task,
-                  maxLines: 2,
-                  decoration: const InputDecoration(
-                    labelText: 'Task',
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: TextField(
-                  controller: contextText,
-                  maxLines: 3,
-                  decoration: const InputDecoration(
-                    labelText:
-                        'Structured context / internal Criterivox data',
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              FilledButton.icon(
-                onPressed: busy ? null : run,
-                icon: const Icon(
-                  Icons.play_arrow_rounded,
-                ),
-                label: const Text('RUN BUREAU'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 7),
-          const Align(
-            alignment: Alignment.centerLeft,
+          Icon(hasSession ? Icons.link_rounded : Icons.hourglass_empty_rounded, size: 16, color: const Color(0xffc8b7ff)),
+          const SizedBox(width: 9),
+          Expanded(
             child: Text(
-              'Boundary: human or upstream structured request → S7. Characters visualize authoritative state; mechanisms compute.',
-              style: TextStyle(
-                fontSize: 7,
-                color: Colors.white30,
-              ),
+              hasSession
+                  ? 'This Bureau session was supplied by Human Residence. Reasoning is now operating on the authoritative session.'
+                  : 'Waiting for a reasoning session from Human Residence. Direct task and dataset entry is closed in this room.',
+              style: const TextStyle(fontSize: 8, color: Colors.white54),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _fixtureStrip() {
-    return S7GlassPanel(
-      title: 'TEST CASES · LOCAL FIXTURE LAB',
-      accent: const Color(0xffffc77d),
-      child: Wrap(
-        spacing: 6,
-        runSpacing: 6,
-        children: [
-          _presetButton('NORMAL', 'normal'),
-          _presetButton('COMPETING', 'competing'),
-          _presetButton(
-            'CONTRADICTION',
-            'contradiction',
-          ),
-          _presetButton(
-            'INSUFFICIENT CONTEXT',
-            'insufficient',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _presetButton(
-    String label,
-    String id,
-  ) {
-    return OutlinedButton.icon(
-      onPressed: busy ? null : () => preset(id),
-      icon: const Icon(
-        Icons.science_outlined,
-        size: 12,
-      ),
-      label: Text(
-        label,
-        style: const TextStyle(
-          fontSize: 7,
-          letterSpacing: .7,
-        ),
-      ),
-      style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.white60,
-        side: BorderSide(
-          color: Colors.white.withValues(
-            alpha: .10,
-          ),
-        ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 9,
-          vertical: 7,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
       ),
     );
   }
