@@ -235,6 +235,7 @@ class ResearchInstrumentationStore:
         payload: dict[str, Any] | None = None,
         participant_id: str | None = None,
         research_scope: str = "operational",
+        contains_raw_text: bool = False,
     ) -> str:
         """Record a minimal event.
 
@@ -249,6 +250,10 @@ class ResearchInstrumentationStore:
             consent = self._consent(participant_id)
             if not consent or not consent["research_data"]:
                 raise PermissionError("research_data consent is required")
+            if contains_raw_text and not consent["raw_text"]:
+                raise PermissionError("raw_text consent is required")
+        if contains_raw_text and research_scope != "research":
+            raise PermissionError("raw_text can only be recorded as research data")
 
         event_id = _id("event")
         with self._connect() as db:
