@@ -37,10 +37,8 @@ void main() {
         findsOneWidget,
       );
 
-      expect(
-        find.text('App Introduction'),
-        findsOneWidget,
-      );
+      expect(find.text('App Introduction'), findsOneWidget);
+      expect(find.byTooltip(RegExp('Language')), findsOneWidget);
     },
   );
 
@@ -233,10 +231,7 @@ void main() {
         findsOneWidget,
       );
 
-      expect(
-        find.text('Meet Syvax'),
-        findsOneWidget,
-      );
+      expect(find.text('Meet the people who make the decision'), findsOneWidget);
     },
   );
 }
