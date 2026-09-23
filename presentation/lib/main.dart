@@ -104,7 +104,9 @@ class _CriterivoxAppState extends State<CriterivoxApp> {
           onChanged: _setLanguage,
           child: CriterivoxShell(
               language: _language,
-              onLanguageChanged: _setLanguage,
+              onLanguageChanged: (language) {
+                _setLanguage(language);
+              },
               isDarkMode: _themeMode == ThemeMode.dark,
               onToggleTheme: _toggleTheme),
         ),
