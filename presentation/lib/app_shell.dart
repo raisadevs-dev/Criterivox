@@ -411,6 +411,11 @@ class _ShellState extends State<CriterivoxShell> {
       return;
     }
 
+    if (home == 'knowledge') {
+      _openHome08Inspection();
+      return;
+    }
+
     if (home == 'evidence') {
       open('evidence-experiment');
       return;
@@ -428,6 +433,23 @@ class _ShellState extends State<CriterivoxShell> {
           child: SafeArea(
             child: Level2OperationalPage(
               homeId: 'decision',
+              onBack: () => Navigator.of(dialogContext).pop(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _openHome08Inspection() async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return Dialog.fullscreen(
+          child: SafeArea(
+            child: Level2OperationalPage(
+              homeId: 'knowledge',
               onBack: () => Navigator.of(dialogContext).pop(),
             ),
           ),
