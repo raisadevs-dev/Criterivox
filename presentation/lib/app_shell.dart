@@ -14,7 +14,6 @@ import 'guest_pass_experience_page.dart';
 import 'private_room_page.dart';
 import 'collaboration_room_page.dart';
 import 'decision_history_page.dart';
-import 'chat/character_chat_page.dart';
 import 'context/context_intelligence_page.dart';
 import 'interaction/bloom.dart';
 import 'presentation/criterivox_theme.dart' as criterivox_theme;
@@ -704,7 +703,6 @@ class _ShellState extends State<CriterivoxShell> {
         return CivilizationPage(
           key: const ValueKey('civilization'),
           state: state,
-          onOpenChat: () => open('chat'),
           onOpenHome: _openHome,
         );
 
@@ -714,7 +712,6 @@ class _ShellState extends State<CriterivoxShell> {
           onOpenWorkspace: () => open('workspace'),
           onOpenCivilization: () =>
               open('civilization'),
-          onOpenChat: () => open('chat'),
         );
 
       case 'chat':
@@ -750,8 +747,7 @@ class _ShellState extends State<CriterivoxShell> {
           onStart: start,
           onBuildContext: buildContext,
           onManualAdapt: adaptContext,
-          onOpenChat: () => open('chat'),
-          onChatCharacter: chatWith,
+          onChatCharacter: null,
           onCreateSandbox: createSandbox,
           onRunSandbox: runSandbox,
           onInspectSandbox: inspectSandbox,
@@ -772,8 +768,7 @@ class _ShellState extends State<CriterivoxShell> {
           onStart: start,
           onBuildContext: buildContext,
           onManualAdapt: adaptContext,
-          onOpenChat: () => open('chat'),
-          onChatCharacter: chatWith,
+          onChatCharacter: null,
           onCreateSandbox: createSandbox,
           onRunSandbox: runSandbox,
           onInspectSandbox: inspectSandbox,
@@ -794,7 +789,7 @@ class _ShellState extends State<CriterivoxShell> {
           key: const ValueKey('stewardship'),
           state: state,
           runtime: runtime,
-          onChatCharacter: chatWith,
+          onChatCharacter: null,
         );
 
       case 'bloom':
