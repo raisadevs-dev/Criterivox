@@ -56,8 +56,8 @@ class CriterivoxLanguageScope extends InheritedWidget {
     required super.child,
   });
 
-  static CriterivoxLanguageScope of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<CriterivoxLanguageScope>()!;
+  static CriterivoxLanguageScope? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<CriterivoxLanguageScope>();
 
   @override
   bool updateShouldNotify(CriterivoxLanguageScope oldWidget) =>
@@ -69,18 +69,19 @@ class CriterivoxLanguageSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scope = CriterivoxLanguageScope.of(context);
+    final scope = CriterivoxLanguageScope.maybeOf(context);
+    final language = scope?.language ?? CriterivoxLanguage.auto;
     return PopupMenuButton<CriterivoxLanguage>(
-      tooltip: scope.language.englishName == 'Automatic' ? 'Language / भाषा' : scope.language.nativeName,
+      tooltip: language.englishName == 'Automatic' ? 'Language / भाषा' : language.nativeName,
       initialValue: scope.language,
-      onSelected: scope.onChanged,
+      onSelected: scope?.onChanged ?? (_) {},
       itemBuilder: (context) => [
         for (final language in CriterivoxLanguage.supported)
           PopupMenuItem<CriterivoxLanguage>(
             value: language,
             child: Row(
               children: [
-                if (language.code == scope.language.code)
+                if (language.code == language.code)
                   const Icon(Icons.check, size: 18)
                 else
                   const SizedBox(width: 18),
