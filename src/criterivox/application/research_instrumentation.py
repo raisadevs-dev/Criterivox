@@ -145,12 +145,12 @@ class ResearchInstrumentationStore:
                 """
             )
 
-    def register_participant(self, *, display_name: str, email: str) -> ResearchParticipant:
+    def register_participant(self, *, display_name: str, email: str, participant_id: str | None = None) -> ResearchParticipant:
         display_name = display_name.strip()
         email = email.strip().lower()
         if not display_name or not email:
             raise ValueError("display_name and email are required")
-        participant = ResearchParticipant(_id("participant"), display_name, email, _now())
+        participant = ResearchParticipant(participant_id or _id("participant"), display_name, email, _now())
         with self._connect() as db:
             db.execute(
                 "INSERT INTO research_participants VALUES (?,?,?,?)",
