@@ -71,8 +71,11 @@ def record_research_consent(payload: dict) -> JSONResponse:
 
 @app.post("/api/research/outcome")
 def record_research_outcome(payload: dict) -> JSONResponse:
+    session_id = str(payload.get("session_id", "")).strip() or research_instrumentation.latest_session_id(str(payload.get("participant_id", "")))
+    if not session_id:
+        return JSONResponse({"error": "no research session exists for this participant"}, status_code=400)
     outcome_id = research_instrumentation.record_outcome(
-        session_id=str(payload.get("session_id", "")),
+        session_id=session_id,
         participant_id=str(payload.get("participant_id", "")),
         success_state=str(payload.get("success_state", "")),
         helped_score=float(payload["helped_score"]) if payload.get("helped_score") is not None else None,
