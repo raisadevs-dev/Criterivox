@@ -97,6 +97,7 @@ class CivilizationPage extends StatefulWidget {
 class _CivilizationPageState extends State<CivilizationPage> {
   String? selectedCharacter;
   String? selectedHome;
+  String? anukorPanel;
 
   @override
   Widget build(BuildContext context) {
@@ -260,6 +261,7 @@ class _CivilizationPageState extends State<CivilizationPage> {
     setState(() {
       selectedHome = id;
       selectedCharacter = null;
+      anukorPanel = null;
     });
   }
 
@@ -271,6 +273,7 @@ class _CivilizationPageState extends State<CivilizationPage> {
     setState(() {
       selectedCharacter = id;
       selectedHome = home?.id;
+      anukorPanel = id == 'anukor' ? 'overview' : null;
     });
   }
 
@@ -639,6 +642,262 @@ class _CharacterBriefing extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _AnukorHeroPanel extends StatelessWidget {
+  final String section;
+  final ValueChanged<String> onSelect;
+  final VoidCallback onClose;
+
+  const _AnukorHeroPanel({
+    required this.section,
+    required this.onSelect,
+    required this.onClose,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+    final sections = const <String, String>{
+      'overview': 'Network Role',
+      'responsibility': 'Responsibility',
+      'network': 'Network View',
+      'handoffs': 'Handoffs',
+    };
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: t.surfaceStrong,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: t.primary.withValues(alpha: .45)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SessionCharacterAnimationView(
+                characterId: 'anukor',
+                state: 'IDLE',
+                width: 86,
+                height: 108,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'NETWORK RESIDENT',
+                      style: TextStyle(
+                        color: t.primary,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'Anukor',
+                      style: TextStyle(
+                        color: t.text,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    Text(
+                      'Adaptive Transfer · No permanent Home',
+                      style: TextStyle(color: t.mutedText, fontSize: 10),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                tooltip: 'Close Anukor network panel',
+                onPressed: onClose,
+                icon: const Icon(Icons.close_rounded),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final entry in sections.entries)
+                ChoiceChip(
+                  label: Text(entry.value),
+                  selected: section == entry.key,
+                  onSelected: (_) => onSelect(entry.key),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _AnukorHeroContent(section: section),
+        ],
+      ),
+    );
+  }
+}
+
+class _AnukorHeroContent extends StatelessWidget {
+  final String section;
+
+  const _AnukorHeroContent({required this.section});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+
+    switch (section) {
+      case 'responsibility':
+        return _AnukorContentBlock(
+          title: 'REGISTERED RESPONSIBILITY',
+          body:
+              'Adaptive Transfer: handles system-level adaptation and transfer between contexts.',
+          chips: const [
+            'adaptive_transfer',
+            'context_transfer',
+            'knowledge_reuse',
+          ],
+        );
+      case 'network':
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _AnukorRouteDiagram(t: t),
+            const SizedBox(height: 8),
+            Text(
+              'Live route, trace, envelope, and event details appear here only when the runtime supplies them. No fabricated telemetry is shown.',
+              style: TextStyle(
+                color: t.mutedText,
+                fontSize: 9,
+                height: 1.35,
+              ),
+            ),
+          ],
+        );
+      case 'handoffs':
+        return _AnukorContentBlock(
+          title: 'REGISTERED HANDOFFS',
+          body:
+              'Adaptive-transfer work can hand off to contextual adaptation, knowledge support, or retained findings.',
+          chips: const [
+            'Anuka · contextual adaptation',
+            'Viveda · knowledge support',
+            'Medrus · retained findings',
+          ],
+        );
+      case 'overview':
+      default:
+        return _AnukorContentBlock(
+          title: 'NETWORK ROLE',
+          body:
+              'Anukor is the network/control-plane resident. His spatial presence follows meaningful transfer activity instead of a fixed Home.',
+          chips: const [
+            'Network routing',
+            'Context transfer',
+            'No permanent Home',
+          ],
+        );
+    }
+  }
+}
+
+class _AnukorRouteDiagram extends StatelessWidget {
+  final CriterivoxThemeData t;
+
+  const _AnukorRouteDiagram({required this.t});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: t.surface.withValues(alpha: .55),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: t.border),
+      ),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 8,
+        runSpacing: 8,
+        children: const [
+          _AnukorRouteNode('Syvax'),
+          Icon(Icons.arrow_forward_rounded, size: 15),
+          _AnukorRouteNode('Anukor'),
+          Icon(Icons.alt_route_rounded, size: 16),
+          _AnukorRouteNode('Target Home'),
+        ],
+      ),
+    );
+  }
+}
+
+class _AnukorRouteNode extends StatelessWidget {
+  final String label;
+
+  const _AnukorRouteNode(this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    return Chip(
+      avatar: const Icon(Icons.hub_outlined, size: 14),
+      label: Text(label),
+    );
+  }
+}
+
+class _AnukorContentBlock extends StatelessWidget {
+  final String title;
+  final String body;
+  final List<String> chips;
+
+  const _AnukorContentBlock({
+    required this.title,
+    required this.body,
+    required this.chips,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            color: t.primary,
+            fontSize: 9,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          body,
+          style: TextStyle(
+            color: t.text,
+            fontSize: 10.5,
+            height: 1.4,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            for (final chip in chips)
+              Chip(label: Text(chip)),
+          ],
+        ),
+      ],
     );
   }
 }
