@@ -10,9 +10,9 @@ It began as an application for analysing information with context and gradually 
 
 The current main branch is the integrated project baseline. Major work from the product shell, character interaction, data foundation, context intelligence, reasoning, XAI/evidence, reusable capability architecture, frontend completion and character-chat/intelligence integration has been consolidated.
 
-**Next phase: UI Stabilization.**
+**Current phase: Final Integrated Research Prototype.**
 
-This is not another intelligence-architecture sprint. The purpose is to make the existing system visually coherent, correctly composed, responsive and faithful to the underlying runtime contracts.
+The implementation baseline now includes stabilized presentation behavior, multilingual human input handling, interpretation confirmation with a one-minute unattended continuation rule, and consent-aware research instrumentation backed by local SQLite.
 
 ## Sprint History
 
@@ -96,7 +96,7 @@ This establishes a green regression baseline for the tested presentation behavio
 
 The application also successfully launched after clearing stale Flutter build state with flutter clean. The remaining problems are now primarily runtime/UI integration and presentation-composition problems.
 
-## Next Phase — UI Stabilization
+## Final Integration Position
 
 Known problems currently include:
 
@@ -108,18 +108,17 @@ Known problems currently include:
 - reusable components being used where page-specific composition is required;
 - conflicts between global overlays and page-local surfaces.
 
-The UI phase will focus on:
+The final integration focuses on:
 
-1. Component ownership
-2. Character identity contract
-3. Page-specific composition
-4. Reusable-component boundaries
-5. Responsive layout
-6. Removal of duplicate surfaces
-7. Runtime ↔ UI state reconciliation
-8. Visual regression verification
+1. Human-facing localization and character-name presentation
+2. Single canonical Global Chat surface
+3. Natural-language interpretation and confirmation trace
+4. Research instrumentation and consent boundaries
+5. Outcome and improvement-feedback capture
+6. Tests aligned with the final architecture
+7. Documentation aligned with the final implementation
 
-No new architectural layer should be introduced merely to hide these problems.
+Current implementation authority is documented in `docs/FINAL-INTEGRATED-RESEARCH-PROTOTYPE.md`.
 
 ## What Is Not Being Claimed
 
@@ -162,3 +161,9 @@ docs/research/PROJECT-RESEARCH-JOURNEY-THROUGH-S10.md
 **Next phase: UI Stabilization.**
 
 The architectural foundation is now substantial enough that the next job is not to keep adding layers. The next job is to make the system we already built coherent, balanced, understandable and faithful to its actual runtime behavior.
+
+## Research Instrumentation
+
+Criterivox includes a consent-aware research instrumentation boundary. It records structured interaction events, optional participant identity, language/interpretation traces and optional outcome reports in a local SQLite research store. Raw human messages require a separate raw-text consent. The instrumentation boundary is designed so the SQLite implementation can later be replaced by a server-backed research repository.
+
+See `docs/FINAL-INTEGRATED-RESEARCH-PROTOTYPE.md` for the current architecture and data boundaries.
