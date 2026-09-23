@@ -585,6 +585,15 @@ class _ShellState extends State<CriterivoxShell> {
                       });
                       open('workspace');
                     },
+                    onConfirmInterpretation: (accepted) {
+                      final id = state?.inputConfirmationId;
+                      if (id != null) {
+                        runtime.confirmChatInterpretation(
+                          confirmationId: id,
+                          accepted: accepted,
+                        );
+                      }
+                    },
                   ),
                 ),
               ),
