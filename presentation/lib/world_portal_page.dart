@@ -39,6 +39,9 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
   HumanResidenceRecord? residence;
   bool saving = false;
   String status = '';
+  bool researchConsent = false;
+  bool rawTextConsent = false;
+  bool outcomeFollowUpConsent = false;
 
   @override
   void initState() {
@@ -136,11 +139,54 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
       final auth = jsonDecode(authResponse.body) as Map<String, dynamic>;
       final token = auth['session_token']?.toString();
       final identity = auth['identity'] is Map ? Map<String,dynamic>.from(auth['identity'] as Map) : <String,dynamic>{};
+      String? researchParticipantId;
+      if (researchConsent) {
+        try {
+          final researchResponse = await http.post(
+            Uri.base.resolve('/api/research/register'),
+            headers: const {'content-type': 'application/json'},
+            body: jsonEncode({
+              'display_name': name.text.trim(),
+              'email': email.text.trim(),
+            }),
+          ).timeout(const Duration(seconds: 4));
+          if (researchResponse.statusCode >= 200 && researchResponse.statusCode < 300) {
+            final research = jsonDecode(researchResponse.body) as Map<String, dynamic>;
+            researchParticipantId = research['participant_id']?.toString();
+            if (researchParticipantId != null) {
+              final consentResponse = await http.post(
+                Uri.base.resolve('/api/research/consent'),
+                headers: const {'content-type': 'application/json'},
+                body: jsonEncode({
+                  'participant_id': researchParticipantId,
+                  'consent_version': 'v1',
+                  'research_data': true,
+                  'identifiable_data': true,
+                  'raw_text': rawTextConsent,
+                  'outcome_follow_up': outcomeFollowUpConsent,
+                }),
+              ).timeout(const Duration(seconds: 4));
+              if (consentResponse.statusCode < 200 || consentResponse.statusCode >= 300) {
+                researchParticipantId = null;
+              }
+            }
+          }
+        } catch (_) {
+          researchParticipantId = null;
+        }
+      }
       if (token != null) {
         final saved = HumanResidenceRecord(
           residenceId: record.residenceId, ownerId: identity['owner_id']?.toString() ?? record.ownerId, displayName: record.displayName,
           email: record.email, residenceType: record.residenceType, createdAt: record.createdAt,
-          members: record.members, metadata: {...record.metadata, 'session_token': token},
+          members: record.members, metadata: {
+            ...record.metadata,
+            'session_token': token,
+            if (researchParticipantId != null) 'research_participant_id': researchParticipantId,
+            'research_consent': researchConsent && researchParticipantId != null,
+            'research_raw_text_consent': rawTextConsent && researchParticipantId != null,
+            'research_outcome_follow_up': outcomeFollowUpConsent && researchParticipantId != null,
+          },
         );
         await store.save(saved);
         residence = saved;
@@ -362,6 +408,54 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
                       ),
                     ),
                   ],
+                  const SizedBox(height: 14),
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: t.border),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Optional research participation', style: TextStyle(color: t.text, fontWeight: FontWeight.w800)),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Your Criterivox use can contribute to research. Participation is optional. Passwords and authentication secrets are never collected for research.',
+                          style: TextStyle(color: t.mutedText, fontSize: 11, height: 1.4),
+                        ),
+                        CheckboxListTile(
+                          contentPadding: EdgeInsets.zero,
+                          value: researchConsent,
+                          onChanged: (value) => setState(() {
+                            researchConsent = value ?? false;
+                            if (!researchConsent) {
+                              rawTextConsent = false;
+                              outcomeFollowUpConsent = false;
+                            }
+                          }),
+                          title: const Text('Allow my Criterivox sessions to be used for research'),
+                          subtitle: const Text('Name and email may identify the research participant.'),
+                        ),
+                        if (researchConsent) ...[
+                          CheckboxListTile(
+                            contentPadding: EdgeInsets.zero,
+                            value: rawTextConsent,
+                            onChanged: (value) => setState(() => rawTextConsent = value ?? false),
+                            title: const Text('Allow retention of my original messages'),
+                            subtitle: const Text('Otherwise research uses structured interpretation/events without raw message text.'),
+                          ),
+                          CheckboxListTile(
+                            contentPadding: EdgeInsets.zero,
+                            value: outcomeFollowUpConsent,
+                            onChanged: (value) => setState(() => outcomeFollowUpConsent = value ?? false),
+                            title: const Text('Allow outcome follow-up'),
+                            subtitle: const Text('You may later report whether Criterivox helped and what should improve.'),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   Row(children:[
                     CircleAvatar(
