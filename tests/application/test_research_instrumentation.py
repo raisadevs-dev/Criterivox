@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import sqlite3
-
 import pytest
 
 from criterivox.application.research_instrumentation import (
@@ -41,6 +39,29 @@ def test_operational_event_does_not_require_research_consent(tmp_path):
     )
 
     assert event_id.startswith("event-")
+
+
+def test_raw_text_requires_explicit_raw_text_consent(tmp_path):
+    store = make_store(tmp_path)
+    participant = store.register_participant(
+        display_name="Research Participant", email="participant@example.test"
+    )
+    store.record_consent(
+        participant_id=participant.participant_id,
+        consent_version="v1",
+        research_data=True,
+    )
+    session = store.start_session(participant_id=participant.participant_id)
+
+    with pytest.raises(PermissionError):
+        store.record_event(
+            session_id=session.session_id,
+            participant_id=participant.participant_id,
+            event_type="human_message",
+            payload={"raw_text": "example"},
+            research_scope="research",
+            contains_raw_text=True,
+        )
 
 
 def test_outcome_requires_explicit_follow_up_consent(tmp_path):
