@@ -38,11 +38,6 @@ class CriterivoxLanguage {
   bool get isAutomatic => code == 'auto';
   bool get isHindi => code == 'hi';
 
-  String text(String englishText, {String? hindiText}) {
-    if (isHindi) return hindiText ?? englishText;
-    return englishText;
-  }
-
   static CriterivoxLanguage fromCode(String? value) =>
       supported.firstWhere(
         (item) => item.code == value,
@@ -76,7 +71,7 @@ class CriterivoxLanguageSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final scope = CriterivoxLanguageScope.of(context);
     return PopupMenuButton<CriterivoxLanguage>(
-      tooltip: 'Language',
+      tooltip: scope.language.englishName == 'Automatic' ? 'Language / भाषा' : scope.language.nativeName,
       initialValue: scope.language,
       onSelected: scope.onChanged,
       itemBuilder: (context) => [
