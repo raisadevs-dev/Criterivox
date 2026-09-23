@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'character/character_identity.dart';
 import 'character/session_character_animation.dart';
 import 'presentation/criterivox_theme.dart';
+import 'presentation/language_mode.dart';
 
 class AppIntroductionPage extends StatelessWidget {
   final VoidCallback onOpenWorkspace;
@@ -156,6 +157,9 @@ class AppIntroductionPage extends StatelessWidget {
     required double height,
   }) {
     final id = name.toLowerCase();
+    final displayName = CharacterIdentities.resolve(id).nameFor(
+      CriterivoxLanguageScope.maybeOf(context)?.language.code ?? 'en',
+    );
 
     return Container(
       width: width,
@@ -180,7 +184,7 @@ class AppIntroductionPage extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            name.toUpperCase(),
+            displayName.toUpperCase(),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
@@ -235,10 +239,16 @@ class AppIntroductionPage extends StatelessWidget {
                   avatar: CircleAvatar(
                     radius: 9,
                     child: Text(
-                      profile.displayName.substring(0, 1),
+                      profile.nameFor(
+                        CriterivoxLanguageScope.maybeOf(context)?.language.code ?? 'en',
+                      ).substring(0, 1),
                     ),
                   ),
-                  label: Text(profile.displayName),
+                  label: Text(
+                    profile.nameFor(
+                      CriterivoxLanguageScope.maybeOf(context)?.language.code ?? 'en',
+                    ),
+                  ),
                   onPressed: onOpenCivilization,
                 ),
             ],
