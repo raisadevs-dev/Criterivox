@@ -84,7 +84,7 @@ async def human_decision_accept(decision_id: str, payload: dict):
             payload={'calendar_at': payload.get('calendar_at'), 'action': payload.get('action', 'execute'), 'actor': 'human'},
         )
         return {'accepted': True, 'event': event, 'execution': {
-            'status': 'AUTHORIZED',
+            'status': 'ACCEPTED',
             'handler': 'bodhex',
             'calendar_at': payload.get('calendar_at'),
         }}
