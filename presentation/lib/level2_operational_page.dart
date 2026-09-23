@@ -5,7 +5,6 @@ import 'foundation/criterivox_scene.dart';
 import 'foundation/criterivox_status.dart';
 import 'foundation/criterivox_visual_tokens.dart';
 import 's7/s7_environment_page.dart';
-import 's8_evidence_bureau_page.dart';
 
 class CriterivoxTheme {
   final Color page;
@@ -1316,17 +1315,7 @@ class _Level2OperationalPageState extends State<Level2OperationalPage> {
       });
     }
 
-    if (selected != null &&
-        selected.truth == Level2Truth.researchPrototype &&
-        widget.homeId == 'evidence') {
-      return _EmbeddedResearch(
-        title: selected.name,
-        subtitle:
-            'S8 boundary · synthetic standalone evidence bureau; no live claim is implied',
-        child: const S8EvidenceBureauPage(),
-        onBack: () => setState(() => selectedRoomId = null),
-      );
-    }
+
 
     final theme = CriterivoxTheme.of(context);
     final visual = CriterivoxVisualTokens.of(context);
