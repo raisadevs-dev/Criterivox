@@ -16,7 +16,7 @@ class _CriterivoxAppState extends State<CriterivoxApp> {
   static const _languageKey = 'criterivox.language';
   final SharedPreferencesAsync _preferences = SharedPreferencesAsync();
   ThemeMode _themeMode = ThemeMode.dark;
-  CriterivoxLanguage _language = CriterivoxLanguage.english;
+  CriterivoxLanguage _language = CriterivoxLanguage.auto;
 
   @override
   void initState() {
@@ -94,6 +94,7 @@ class _CriterivoxAppState extends State<CriterivoxApp> {
   @override
   Widget build(BuildContext context) => MaterialApp(
         title: 'Criterivox',
+        locale: _language.isAutomatic ? null : Locale(_language.code),
         debugShowCheckedModeBanner: false,
         themeMode: _themeMode,
         theme: _theme(Brightness.light, CriterivoxTheme.light),
@@ -102,6 +103,8 @@ class _CriterivoxAppState extends State<CriterivoxApp> {
           language: _language,
           onChanged: _setLanguage,
           child: CriterivoxShell(
+              language: _language,
+              onLanguageChanged: _setLanguage,
               isDarkMode: _themeMode == ThemeMode.dark,
               onToggleTheme: _toggleTheme),
         ),
