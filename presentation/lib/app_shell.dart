@@ -516,6 +516,7 @@ class _ShellState extends State<CriterivoxShell> {
                       railOpen = !railOpen;
                     });
                   },
+                  language: widget.language,
                 ),
                 Expanded(
                   child: Column(
@@ -851,6 +852,7 @@ class _Sidebar extends StatefulWidget {
   final ScrollController scrollController;
   final ValueChanged<String> onOpen;
   final VoidCallback onToggle;
+  final CriterivoxLanguage language;
 
   const _Sidebar({
     required this.page,
@@ -858,6 +860,7 @@ class _Sidebar extends StatefulWidget {
     required this.scrollController,
     required this.onOpen,
     required this.onToggle,
+    required this.language,
   });
 
   @override
