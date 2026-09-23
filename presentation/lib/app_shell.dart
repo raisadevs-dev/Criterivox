@@ -403,16 +403,37 @@ class _ShellState extends State<CriterivoxShell> {
       open('stewardship');
       return;
     }
+
     setState(() => civilizationHome = home);
+
     if (home == 'decision') {
-      open('decision-action');
+      _openHome07Inspection();
       return;
     }
+
     if (home == 'evidence') {
       open('evidence-experiment');
       return;
     }
+
     open('level2');
+  }
+
+  Future<void> _openHome07Inspection() async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return Dialog.fullscreen(
+          child: SafeArea(
+            child: Level2OperationalPage(
+              homeId: 'decision',
+              onBack: () => Navigator.of(dialogContext).pop(),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void toggleGlobalChat() {
@@ -604,7 +625,6 @@ class _ShellState extends State<CriterivoxShell> {
           key: const ValueKey('home-preview'),
           homeId: civilizationHome ?? 'context',
           onBack: () => open('civilization'),
-          onChat: () => open('chat'),
           onOpenOperationalHome: _openLevel2,
         );
 
