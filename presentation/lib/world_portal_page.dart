@@ -72,6 +72,9 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
         name.text = r.displayName;
         email.text = r.email ?? '';
         clubName.text = r.residenceType == 'club' ? r.displayName : '';
+        researchConsent = r.metadata['research_consent'] == true;
+        rawTextConsent = r.metadata['research_raw_text_consent'] == true;
+        outcomeFollowUpConsent = r.metadata['research_outcome_follow_up'] == true;
       });
     }
   }
@@ -645,6 +648,41 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
               ),
             ),
           ],
+          if (currentResidence.metadata['research_consent'] == true &&
+              currentResidence.metadata['research_outcome_follow_up'] == true) ...[
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: t.surfaceStrong,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: t.border),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.science_outlined, color: t.primary),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Research follow-up', style: TextStyle(color: t.text, fontWeight: FontWeight.w800)),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Tell Criterivox whether the work helped, what happened in the real world, and what should improve.',
+                          style: TextStyle(color: t.mutedText, fontSize: 11, height: 1.4),
+                        ),
+                      ],
+                    ),
+                  ),
+                  OutlinedButton(
+                    onPressed: _recordResearchOutcome,
+                    child: const Text('Record outcome'),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
           const SizedBox(height: 20),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -721,6 +759,102 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
         ],
       ),
     );
+  }
+
+  Future<void> _recordResearchOutcome() async {
+    final success = TextEditingController();
+    final helpful = TextEditingController();
+    final improvement = TextEditingController();
+    final summary = TextEditingController();
+
+    final values = await showDialog<Map<String, String>>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Research outcome'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<String>(
+                value: 'succeeded',
+                items: const [
+                  DropdownMenuItem(value: 'succeeded', child: Text('Succeeded')),
+                  DropdownMenuItem(value: 'partial', child: Text('Partly succeeded')),
+                  DropdownMenuItem(value: 'not_succeeded', child: Text('Did not succeed')),
+                  DropdownMenuItem(value: 'unknown', child: Text('Not known yet')),
+                ],
+                onChanged: (value) => success.text = value ?? 'unknown',
+                decoration: const InputDecoration(labelText: 'Outcome'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: helpful,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(labelText: 'How helpful was Criterivox? (0–10)'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: summary,
+                minLines: 2,
+                maxLines: 4,
+                decoration: const InputDecoration(labelText: 'What happened?'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: improvement,
+                minLines: 2,
+                maxLines: 4,
+                decoration: const InputDecoration(labelText: 'What should Criterivox improve?'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Cancel')),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop({
+              'success_state': success.text.isEmpty ? 'unknown' : success.text,
+              'helped_score': helpful.text.trim(),
+              'outcome_summary': summary.text.trim(),
+              'improvement_request': improvement.text.trim(),
+            }),
+            child: const Text('Save outcome'),
+          ),
+        ],
+      ),
+    );
+
+    success.dispose();
+    helpful.dispose();
+    improvement.dispose();
+    summary.dispose();
+
+    if (values == null) return;
+    final participantId = residence?.metadata['research_participant_id']?.toString();
+    if (participantId == null) return;
+
+    try {
+      final response = await http.post(
+        Uri.base.resolve('/api/research/outcome'),
+        headers: const {'content-type': 'application/json'},
+        body: jsonEncode({
+          'participant_id': participantId,
+          'success_state': values['success_state'],
+          'helped_score': double.tryParse(values['helped_score'] ?? ''),
+          'outcome_summary': values['outcome_summary'],
+          'improvement_request': values['improvement_request'],
+        }),
+      ).timeout(const Duration(seconds: 5));
+
+      if (!mounted) return;
+      setState(() {
+        status = response.statusCode >= 200 && response.statusCode < 300
+            ? 'Research outcome recorded.'
+            : 'Research outcome could not be recorded.';
+      });
+    } catch (_) {
+      if (mounted) setState(() => status = 'Research outcome could not be recorded.');
+    }
   }
 
   Widget _room(
