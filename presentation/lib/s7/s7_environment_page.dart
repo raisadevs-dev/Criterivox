@@ -73,26 +73,6 @@ class _S7EnvironmentPageState extends State<S7EnvironmentPage>
         .toList();
   }
 
-  Map<String, dynamic> contextValue() {
-    final raw = contextText.text.trim();
-
-    if (raw.isEmpty) {
-      return <String, dynamic>{};
-    }
-
-    try {
-      final value = jsonDecode(raw);
-
-      if (value is Map) {
-        return Map<String, dynamic>.from(value);
-      }
-    } on FormatException {
-      // Plain text is accepted as a structured description at the boundary.
-    }
-
-    return <String, dynamic>{'description': raw};
-  }
-
   String _errorText(Object error) {
     final text = error.toString();
 
