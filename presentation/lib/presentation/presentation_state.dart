@@ -660,6 +660,13 @@ class PresentationState {
           strings(decoded['activity']),
       error:
           optionalString(decoded['error']),
+      inputOriginal: optionalString(decoded['input_original']),
+      inputLanguageProfile: map(decoded['input_language_profile']),
+      inputInterpretation: optionalString(decoded['input_interpretation']),
+      inputSemanticSummary: optionalString(decoded['input_semantic_summary']),
+      inputConfirmationStatus: optionalString(decoded['input_confirmation_status']),
+      inputConfirmationDeadline: optionalString(decoded['input_confirmation_deadline']),
+      inputConfirmationId: optionalString(decoded['input_confirmation_id']),
     );
   }
 
