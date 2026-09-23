@@ -7,12 +7,7 @@ import 's7_visuals.dart';
 import 's7_functional_layer.dart';
 
 class S7EnvironmentPage extends StatefulWidget {
-  /// S7 is a system-owned reasoning environment. Human task/data intake
-  /// happens in Human Residence; this page only observes the resulting session
-  /// and exposes bounded human intervention controls.
-  final String? sessionId;
-
-  const S7EnvironmentPage({super.key, this.sessionId});
+  const S7EnvironmentPage({super.key});
 
   @override
   State<S7EnvironmentPage> createState() => _S7EnvironmentPageState();
@@ -33,9 +28,13 @@ class _S7EnvironmentPageState extends State<S7EnvironmentPage>
     duration: const Duration(seconds: 14),
   )..repeat();
 
-  // No direct task/context controllers live here. Intake belongs to Human Residence.
+  final task = TextEditingController(
+    text:
+        'Compare two possible explanations for the supplied observations and identify uncertainty and limitations.',
+  );
 
-  /*
+  final contextText = TextEditingController(
+    text: '''{
   "observations": [
     "Signal A increased after event X.",
     "Signal A returned toward baseline when event X stopped.",
@@ -46,37 +45,10 @@ class _S7EnvironmentPageState extends State<S7EnvironmentPage>
   );
 
   @override
-  void initState() {
-    super.initState();
-    if (widget.sessionId != null && widget.sessionId!.trim().isNotEmpty) {
-      _loadSession(widget.sessionId!.trim());
-    }
-  }
-
-  Future<void> _loadSession(String sessionId) async {
-    try {
-      final response = await http.get(Uri.parse('$api/sessions/$sessionId'));
-      if (!mounted) return;
-      final body = jsonDecode(response.body);
-      if (response.statusCode >= 400 || body is! Map) {
-        setState(() => error = body is Map ? body['error']?.toString() : 'Unable to load reasoning session.');
-        return;
-      }
-      setState(() => session = Map<String, dynamic>.from(body));
-      _connectLive(sessionId);
-    } catch (e) {
-      if (mounted) setState(() => error = _errorText(e));
-    }
-  }
-
-  void _connectLive(String sessionId) {
-    // Live transport is intentionally observational here. Human commands remain
-    // bounded interventions against an already-created Residence-originated task.
-  }
-
-  @override
   void dispose() {
     motion.dispose();
+    task.dispose();
+    contextText.dispose();
     super.dispose();
   }
 
