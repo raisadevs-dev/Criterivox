@@ -222,6 +222,16 @@ class CharacterRuntimeClient {
         'actor': 'human',
       });
 
+  void confirmChatInterpretation({
+    required String confirmationId,
+    required bool accepted,
+  }) =>
+      _send({
+        'type': 'chat_interpretation_confirmation',
+        'confirmation_id': confirmationId,
+        'accepted': accepted,
+      });
+
   void sendChat({
     String? taskId,
     required String message,
