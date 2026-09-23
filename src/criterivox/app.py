@@ -17,6 +17,7 @@ from .application.analysis_tasks import analysis_tasks
 from .application.character_chat import PROFILES, handle_character_chat, sign_off_task_scratchpad
 from .application.context_engine import ContextEngine
 from .application.data_foundation_store import data_foundations
+from .application.research_instrumentation import research_instrumentation
 from .application.sandre_stewardship import SandreStewardship
 from .application.s5_feature_runtime import S5FeatureRuntime
 from .application import foundation_runtime_bridge  # noqa: F401
@@ -34,6 +35,52 @@ stewardship = SandreStewardship()
 context_engine = ContextEngine()
 observability = ObservabilityTimeline()
 _context_snapshots: dict[str, dict[str, object]] = {}
+
+@app.post("/api/research/register")
+def register_research_participant(payload: dict) -> JSONResponse:
+    participant = research_instrumentation.register_participant(
+        display_name=str(payload.get("display_name", "")),
+        email=str(payload.get("email", "")),
+    )
+    return JSONResponse({
+        "participant_id": participant.participant_id,
+        "display_name": participant.display_name,
+        "email": participant.email,
+    })
+
+
+@app.post("/api/research/consent")
+def record_research_consent(payload: dict) -> JSONResponse:
+    consent = research_instrumentation.record_consent(
+        participant_id=str(payload.get("participant_id", "")),
+        consent_version=str(payload.get("consent_version", "v1")),
+        research_data=bool(payload.get("research_data", False)),
+        identifiable_data=bool(payload.get("identifiable_data", False)),
+        raw_text=bool(payload.get("raw_text", False)),
+        outcome_follow_up=bool(payload.get("outcome_follow_up", False)),
+    )
+    return JSONResponse({
+        "participant_id": consent.participant_id,
+        "research_data": consent.research_data,
+        "identifiable_data": consent.identifiable_data,
+        "raw_text": consent.raw_text,
+        "outcome_follow_up": consent.outcome_follow_up,
+        "granted_at": consent.granted_at,
+    })
+
+
+@app.post("/api/research/outcome")
+def record_research_outcome(payload: dict) -> JSONResponse:
+    outcome_id = research_instrumentation.record_outcome(
+        session_id=str(payload.get("session_id", "")),
+        participant_id=str(payload.get("participant_id", "")),
+        success_state=str(payload.get("success_state", "")),
+        helped_score=float(payload["helped_score"]) if payload.get("helped_score") is not None else None,
+        improvement_request=str(payload["improvement_request"]) if payload.get("improvement_request") is not None else None,
+        outcome_summary=str(payload["outcome_summary"]) if payload.get("outcome_summary") is not None else None,
+    )
+    return JSONResponse({"outcome_id": outcome_id})
+
 
 @app.get("/health")
 def health() -> JSONResponse:
