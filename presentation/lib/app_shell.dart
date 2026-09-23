@@ -17,6 +17,7 @@ import 'decision_history_page.dart';
 import 'context/context_intelligence_page.dart';
 import 'interaction/bloom.dart';
 import 'presentation/criterivox_theme.dart' as criterivox_theme;
+import 'presentation/language_mode.dart';
 import 'presentation/presentation_state.dart';
 import 'presentation/runtime_client.dart';
 import 'data_stewardship_page.dart';
@@ -30,6 +31,8 @@ class CriterivoxShell extends StatefulWidget {
   final VoidCallback onToggleTheme;
   final bool connectRuntime;
   final CharacterRuntimeClient? runtimeClient;
+  final CriterivoxLanguage language;
+  final ValueChanged<CriterivoxLanguage>? onLanguageChanged;
 
   const CriterivoxShell({
     super.key,
@@ -37,6 +40,8 @@ class CriterivoxShell extends StatefulWidget {
     this.onToggleTheme = _noop,
     this.connectRuntime = true,
     this.runtimeClient,
+    this.language = CriterivoxLanguage.auto,
+    this.onLanguageChanged,
   });
 
   static void _noop() {}
@@ -489,6 +494,15 @@ class _ShellState extends State<CriterivoxShell> {
       body: SafeArea(
         child: Stack(
           children: [
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (widget.onLanguageChanged != null)
+                  CriterivoxLanguageSelector(),
+                const SizedBox(width: 8),
+              ],
+            ),
             Row(
               children: [
                 _Sidebar(
