@@ -1,3 +1,7 @@
+> **Historical record.** This document is retained for project history. It is not the current implementation authority. See `docs/FINAL-INTEGRATED-RESEARCH-PROTOTYPE.md`.
+
+---
+
 # S6 — CURRENT STATUS
 
 **Branch:** `s6-home03-syvax-bloom-complete`  
