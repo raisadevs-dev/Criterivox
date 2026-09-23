@@ -168,13 +168,13 @@ async def _expire_chat_confirmation(confirmation_id:str) -> None:
  if item is None or item.get("confirmation_status") != "PENDING":
   return
  await _continue_confirmed_chat(item,status="UNCONFIRMED_TIMEOUT")
- _record_instrumentation(event_type='interpretation_confirmation_timeout',participant_id=None,payload={'confirmation_status':'UNCONFIRMED_TIMEOUT','confirmation_id':confirmation_id,'task_id':item['task'].task_id,'timeout_seconds':CHAT_CONFIRMATION_TIMEOUT_SECONDS})
+ _record_instrumentation(event_type='interpretation_confirmation_timeout',participant_id=item.get('participant_id'),payload={'confirmation_status':'UNCONFIRMED_TIMEOUT','confirmation_id':confirmation_id,'task_id':item['task'].task_id,'timeout_seconds':CHAT_CONFIRMATION_TIMEOUT_SECONDS})
  _pending_chat_confirmations.pop(confirmation_id,None)
 
 async def _queue_chat_confirmation(*, character:str, original:str, interpretation, task:AnalysisTask) -> str:
  confirmation_id=f"IC-{uuid4().hex[:12]}"
  deadline=(datetime.now(timezone.utc)+timedelta(seconds=CHAT_CONFIRMATION_TIMEOUT_SECONDS)).isoformat()
- item={"confirmation_id":confirmation_id,"character":character,"original":original,"interpretation":interpretation,"task":task,"deadline":deadline,"confirmation_status":"PENDING"}
+ item={"confirmation_id":confirmation_id,"character":character,"original":original,"interpretation":interpretation,"task":task,"deadline":deadline,"confirmation_status":"PENDING","participant_id":participant_id}
  _pending_chat_confirmations[confirmation_id]=item
  await _publish_chat_interpretation(character,confirmation_id=confirmation_id,original=original,interpretation=interpretation,status="PENDING",deadline=deadline,task_id=task.task_id)
  asyncio.create_task(_expire_chat_confirmation(confirmation_id))
@@ -212,6 +212,8 @@ def _research_identity(payload:dict[str,Any]) -> str|None:
 
 def _record_instrumentation(*,event_type:str,payload:dict[str,Any],participant_id:str|None=None,raw_text:bool=False) -> None:
  try:
+  if participant_id and not research_instrumentation.has_research_consent(participant_id):
+   participant_id=None
   session_id=_research_sessions.get(participant_id or '')
   if session_id is None:
    session=research_instrumentation.start_session(participant_id=participant_id,language_mode=str(payload.get('language_mode') or 'auto'),source='runtime')
@@ -231,7 +233,7 @@ async def handle_chat_message(payload):
  if interpretation.intent in {"analyze","handoff","unknown","change_request","continue"}:
   task=analysis_tasks.get_task(str(task_id)) if task_id is not None else analysis_tasks.create_task(task=interpretation.normalized_text,data=payload.get('data') if isinstance(payload.get('data'),dict) else {},context=payload.get('context') if isinstance(payload.get('context'),dict) else {},source=AnalysisTaskSource.CHAT,references=refs,reference_details=details)
   _task_language_profiles[task.task_id]=profile
-  await _queue_chat_confirmation(character=target,original=message,interpretation=interpretation,task=task)
+  await _queue_chat_confirmation(character=target,original=message,interpretation=interpretation,task=task,participant_id=participant_id)
   _record_instrumentation(event_type='interpretation_confirmation_requested',participant_id=participant_id,payload={'confirmation_status':'PENDING','task_id':task.task_id,'interpretation':interpretation.normalized_text,'confirmation_timeout_seconds':CHAT_CONFIRMATION_TIMEOUT_SECONDS})
   return
  if target not in {'syvax','dharen'}:
