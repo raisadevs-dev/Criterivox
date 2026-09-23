@@ -233,12 +233,12 @@ class CivilizationHomePreviewPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            'This is the Level 1 '
-                            'Home-entry/read-model '
-                            'boundary. Room operations '
-                            'are intentionally deferred '
-                            'to the deeper Level 2 '
-                            'implementation.',
+                            homeId == 'decision'
+                                ? 'Home 05 is one operational chamber. '
+                                  'Its Level 2 responsibilities are openable panels '
+                                  'inside this chamber, not separate rooms or navigation doors.'
+                                : 'This is the Level 1 Home-entry/read-model boundary. '
+                                  'Operational details remain behind the home boundary.',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: t.mutedText,
