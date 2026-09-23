@@ -76,21 +76,21 @@ class CriterivoxLanguageSelector extends StatelessWidget {
       initialValue: scope.language,
       onSelected: scope?.onChanged ?? (_) {},
       itemBuilder: (context) => [
-        for (final language in CriterivoxLanguage.supported)
+        for (final item in CriterivoxLanguage.supported)
           PopupMenuItem<CriterivoxLanguage>(
-            value: language,
+            value: item,
             child: Row(
               children: [
-                if (language.code == language.code)
+                if (item.code == language.code)
                   const Icon(Icons.check, size: 18)
                 else
                   const SizedBox(width: 18),
                 const SizedBox(width: 8),
-                Text(language.nativeName),
-                if (!language.isAutomatic) ...[
+                Text(item.nativeName),
+                if (!item.isAutomatic) ...[
                   const SizedBox(width: 8),
                   Text(
-                    language.englishName,
+                    item.englishName,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
