@@ -207,7 +207,7 @@ async def handle_chat_message(payload):
  if target not in ALLOWED_CHAT_CHARACTERS:raise ValueError('Unknown chat character.')
  task_id=payload.get('task_id');message=payload.get('message')
  if not isinstance(message,str) or not message.strip() or len(message)>2000:raise ValueError('Chat message is invalid.')
- profile=detect_language_profile(message);normalized=await language_service.to_reasoning_language(message,profile);interpretation=interpret_message(normalized);refs,details=_parse_chat_references(payload.get('references',[]));await _sync_chat_material(refs,details,message,task_id)
+ profile=detect_language_profile(message);normalized=await language_service.to_reasoning_language(message,profile);interpretation=interpret_message(normalized);object.__setattr__(interpretation,'language_profile',profile);refs,details=_parse_chat_references(payload.get('references',[]));await _sync_chat_material(refs,details,message,task_id)
  if interpretation.intent in {"analyze","handoff","unknown","change_request","continue"}:
   task=analysis_tasks.get_task(str(task_id)) if task_id is not None else analysis_tasks.create_task(task=interpretation.normalized_text,data=payload.get('data') if isinstance(payload.get('data'),dict) else {},context=payload.get('context') if isinstance(payload.get('context'),dict) else {},source=AnalysisTaskSource.CHAT,references=refs,reference_details=details)
   _task_language_profiles[task.task_id]=profile
