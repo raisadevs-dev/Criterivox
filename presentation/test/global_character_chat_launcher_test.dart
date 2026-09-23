@@ -194,23 +194,11 @@ void main() {
         findsOneWidget,
       );
 
-      // Civilization exposes the dedicated canonical chat route.
-      await tester.tap(
+      // Civilization no longer owns a character-specific chat launcher.
+      // Global Chat is the single application-level chat surface.
+      expect(
         find.text('Syvax', findRichText: false),
-      );
-
-      await _pumpUntil(
-        tester,
-        () => find.byKey(const ValueKey('chat')),
-      );
-
-      expect(
-        find.byKey(const ValueKey('chat')),
-        findsOneWidget,
-      );
-      expect(
-        find.byKey(const ValueKey('global-character-chat')),
-        findsNothing,
+        findsWidgets,
       );
 
       // Return to the civilization surface and verify the application-level
