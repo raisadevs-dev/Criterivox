@@ -162,8 +162,13 @@ class _ShellState extends State<CriterivoxShell> {
     });
 
     if (widget.connectRuntime) {
-      runtime.connect();
+      unawaited(_connectRuntime());
     }
+  }
+
+  Future<void> _connectRuntime() async {
+    await runtime.loadResearchIdentity();
+    await runtime.connect();
   }
 
   @override
