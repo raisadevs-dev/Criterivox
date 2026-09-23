@@ -589,6 +589,7 @@ class _ShellState extends State<CriterivoxShell> {
           key: const ValueKey('level2'),
           homeId: civilizationHome ?? 'context',
           onBack: () => open('home-preview'),
+          onEnterRoom: _openReasoningRoom,
         );
 
       case 'human-residence-entry':
@@ -898,17 +899,3 @@ class _SidebarState extends State<_Sidebar> {
                         _ChildNav('Project Rooms', 'collaboration-room'),
                         _ChildNav('Shared Workspaces', 'collaboration-room'),
                       ], t),
-                      _subgroup('GUEST DISTRICT', Icons.travel_explore_rounded, [
-                        _ChildNav('Guest Camp', 'guest'),
-                        _ChildNav('Welcome Pavilion', 'guest'),
-                        _ChildNav('Goal Desk', 'guest'),
-                        _ChildNav('Context Table', 'guest'),
-                        _ChildNav('Temporary Decision Space', 'guest'),
-                      ], t),
-                    ],
-
-                    const SizedBox(height: 12),
-                    _group(
-                      'CRITERIVOX CIVILIZATION',
-                      Icons.location_city_rounded,
-                      civilizationOpen,
