@@ -163,11 +163,6 @@ class _CharacterChatPageState
       'Check transfer integrity.',
       'Retest this transfer.',
     ],
-    'syvax': [
-      'Clarify this task.',
-      'Route this work.',
-      'Summarize the current intent.',
-    ],
   };
 
   static Future<List<_CharacterInfo>>
