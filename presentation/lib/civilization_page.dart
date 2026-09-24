@@ -12,11 +12,13 @@ import 'presentation/presentation_state.dart';
 class CivilizationPage extends StatefulWidget {
   final PresentationState? state;
   final ValueChanged<String>? onOpenHome;
+  final ValueChanged<String>? onOpenCharacter;
 
   const CivilizationPage({
     super.key,
     this.state,
     this.onOpenHome,
+    this.onOpenCharacter,
   });
 
   /// Canonical civilization Homes exposed to presentation tests and
@@ -255,6 +257,10 @@ class _CivilizationPageState extends State<CivilizationPage> {
   }
 
   void _selectCharacter(String id) {
+    if (widget.onOpenCharacter != null) {
+      widget.onOpenCharacter!(id);
+      return;
+    }
     final home = CivilizationPage.canonicalHomes
         .where((home) => home.residents.contains(id))
         .firstOrNull;
