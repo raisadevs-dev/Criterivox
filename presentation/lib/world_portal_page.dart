@@ -336,8 +336,6 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
                   ],
                 ),
                 const SizedBox(height: 12),
-
-                ),
                 const SizedBox(height: 18),
                 if (mode == 'login') ...[
                   TextField(
@@ -467,7 +465,12 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
                   Row(children:[
                     CircleAvatar(
                       radius: 24,
-                      backgroundImage: MemoryImage(base64Decode(avatarDataUrl.split(',').last)),
+                      backgroundImage: avatarDataUrl.isEmpty
+                          ? null
+                          : MemoryImage(base64Decode(avatarDataUrl.split(',').last)),
+                      child: avatarDataUrl.isEmpty
+                          ? const Icon(Icons.person_outline_rounded)
+                          : null,
                     ),
                     const SizedBox(width: 10),
                     OutlinedButton.icon(
