@@ -434,8 +434,9 @@ class _CollaborationRoomPageState extends State<CollaborationRoomPage> {
               child: Text(
                   '${m['display_name']} • ${m['role']} • ${m['member_id']}',
                   style: TextStyle(color: t.mutedText, fontSize: 9))),
-        if (role == 'owner')
-          Row(children: [
+        if (role == 'owner') {
+            Row(children: [
+          }
             Expanded(
                 child: TextField(
                     controller: memberCtl,
@@ -445,13 +446,15 @@ class _CollaborationRoomPageState extends State<CollaborationRoomPage> {
             FilledButton(onPressed: _addMember, child: const Text('Add'))
           ]),
         const SizedBox(height: 8),
-        if (role == 'guest')
-          Text(
+        if (role == 'guest') {
+            Text(
+          }
               'Guest policy: read shared threads + masked options + comments only. Vote, execution, and authoritative-context mutation are denied by the backend.',
               style: TextStyle(
                   color: t.warning, fontSize: 9, fontWeight: FontWeight.w700)),
-        if (role == 'owner')
-          Wrap(spacing: 8, children: [
+        if (role == 'owner') {
+            Wrap(spacing: 8, children: [
+          }
             DropdownButton<String>(
                 value: riskLevel,
                 items: ['low', 'moderate', 'high', 'critical']
@@ -520,8 +523,9 @@ class _CollaborationRoomPageState extends State<CollaborationRoomPage> {
                       onPressed: role == 'guest' ? null : () => _vote(o),
                       child: Text('Vote $o')))
                   .toList()),
-          if (friction)
-            Padding(
+          if (friction) {
+              Padding(
+            }
                 padding: const EdgeInsets.only(top: 8),
                 child: Text('MANIS • TEAM FRICTION ALIGNMENT REQUIRED',
                     style: TextStyle(
@@ -564,8 +568,9 @@ class _CollaborationRoomPageState extends State<CollaborationRoomPage> {
               label: const Text('Ask Manis to challenge'))
         ]),
         const SizedBox(height: 10),
-        if (candidates.isEmpty)
-          Text('No candidate context variables.',
+        if (candidates.isEmpty) {
+            Text('No candidate context variables.',
+          }
               style: TextStyle(color: t.mutedText, fontSize: 9)),
         for (final c in candidates)
           if (c is Map) _candidateCard(t, c),
@@ -601,8 +606,9 @@ class _CollaborationRoomPageState extends State<CollaborationRoomPage> {
                 color: t.primary, fontWeight: FontWeight.w800, fontSize: 9)),
         const SizedBox(height: 4),
         Text('${c['raw_text']}', style: TextStyle(color: t.text, fontSize: 10)),
-        if ('${c['status']}' == 'candidate' && role != 'guest')
-          Wrap(spacing: 8, children: [
+        if ('${c['status']}' == 'candidate' && role != 'guest') {
+            Wrap(spacing: 8, children: [
+          }
             OutlinedButton(
                 onPressed: () => _confirmCandidate('${c['id']}', true),
                 child: const Text('Confirm → Dharen Diff')),
@@ -647,8 +653,9 @@ class _CollaborationRoomPageState extends State<CollaborationRoomPage> {
                 : null,
             icon: const Icon(Icons.lock_open_rounded),
             label: const Text('Dispatch approved action to Bodhex')),
-        if (dispatch['receipt_type'] != null)
-          Text('Receipt: ${dispatch['receipt_type']}',
+        if (dispatch['receipt_type'] != null) {
+            Text('Receipt: ${dispatch['receipt_type']}',
+          }
               style: TextStyle(color: t.mutedText, fontSize: 8))
       ]));
 
@@ -676,8 +683,9 @@ class _CollaborationRoomPageState extends State<CollaborationRoomPage> {
               label: const Text('Create learning proposal'))
         ]),
         const SizedBox(height: 8),
-        if (outcomes.isNotEmpty)
-          Text(
+        if (outcomes.isNotEmpty) {
+            Text(
+          }
               'Latest outcome: ${outcomes.last['selected_option']} • ${outcomes.last['result']}',
               style: TextStyle(color: t.mutedText, fontSize: 9)),
         if (learningProposal != null) ...[
