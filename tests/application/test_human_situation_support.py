@@ -79,7 +79,7 @@ class _FakeLanguage:
 
 def test_language_layer_is_used_when_available():
     result = HumanSituationOrchestrator(language=_FakeLanguage()).execute(
-        description="I need help deciding how to organize my project."
+        description="I need help deciding how to organize my project among three approaches."
     )
     assert result["status"] == "ready"
     assert result["ollama_used"] is True
