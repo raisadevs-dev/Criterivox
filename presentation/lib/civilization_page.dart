@@ -117,7 +117,9 @@ class _CivilizationPageState extends State<CivilizationPage> {
       subtitle: 'Gate 1 · Understand the system',
     );
 
-    return SingleChildScrollView(
+    return Material(
+      color: Colors.transparent,
+      child: SingleChildScrollView(
       child: CriterivoxResponsiveScene(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
