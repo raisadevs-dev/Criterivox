@@ -20,6 +20,7 @@ class _DecisionDeskPageState extends State<DecisionDeskPage> {
   bool running = false, external = false;
   String status = 'READY';
   int imageCount = 0;
+  String imageRole = 'other';
   List<String> imageNames = [], questions = [];
   Map<String, dynamic>? support, understanding;
   String humanReadable = '';
@@ -34,7 +35,7 @@ class _DecisionDeskPageState extends State<DecisionDeskPage> {
     final token=residence?.metadata['session_token']?.toString()??'';
     setState((){running=true;status='UNDERSTANDING_SITUATION';questions=[];support=null;humanReadable='';});
     try {
-      final response=await http.post(Uri.base.resolve('/api/human-situation/understand'),headers:const {'content-type':'application/json'},body:jsonEncode({'session_token':token,'residence_id':residence?.residenceId??'','description':description,'data':data.text.trim(),'context':contextCtl.text.trim(),'image_count':imageCount,'image_roles':List<String>.filled(imageCount,'photograph_of_people'),'allow_external_research':external})).timeout(const Duration(seconds:30));
+      final response=await http.post(Uri.base.resolve('/api/human-situation/understand'),headers:const {'content-type':'application/json'},body:jsonEncode({'session_token':token,'residence_id':residence?.residenceId??'','description':description,'data':data.text.trim(),'context':contextCtl.text.trim(),'image_count':imageCount,'image_roles':List<String>.filled(imageCount,imageRole),'allow_external_research':external})).timeout(const Duration(seconds:30));
       final decoded=jsonDecode(response.body);
       if(response.statusCode<200||response.statusCode>=300||decoded is! Map)throw Exception(decoded is Map?decoded['error']??'situation pipeline rejected':'situation pipeline rejected');
       final body=Map<String,dynamic>.from(decoded); if(!mounted)return;
@@ -56,6 +57,7 @@ class _DecisionDeskPageState extends State<DecisionDeskPage> {
         TextField(controller:situation,maxLines:5,decoration:const InputDecoration(labelText:'Describe the situation or question',hintText:'For example: My classmates keep excluding me. What should I do?')),
         const SizedBox(height:10),TextField(controller:contextCtl,maxLines:3,decoration:const InputDecoration(labelText:'Optional context, constraints or time pressure')),
         const SizedBox(height:10),TextField(controller:data,maxLines:3,decoration:const InputDecoration(labelText:'Optional facts, messages or supplied information')),
+        const SizedBox(height:10),DropdownButtonFormField<String>(value:imageRole,decoration:const InputDecoration(labelText:'What kind of images are these?'),items:const [DropdownMenuItem(value:'photograph_of_people',child:Text('Photographs of people')),DropdownMenuItem(value:'document_photo',child:Text('Document / photo of a document')),DropdownMenuItem(value:'screenshot',child:Text('Screenshot')),DropdownMenuItem(value:'diagram',child:Text('Diagram')),DropdownMenuItem(value:'other',child:Text('Other'))],onChanged:(v)=>setState(()=>imageRole=v??'other')),
         const SizedBox(height:10),Row(children:[OutlinedButton.icon(onPressed:running?null:_attachImages,icon:const Icon(Icons.photo_library_outlined),label:Text('Attach images ($imageCount)')),const SizedBox(width:10),if(imageNames.isNotEmpty)Expanded(child:Text(imageNames.join(', '),overflow:TextOverflow.ellipsis,style:TextStyle(color:t.mutedText,fontSize:9)))]),
         if(imageCount>0)Padding(padding:const EdgeInsets.only(top:8),child:Text('Photos of people are contextual input only. They are not evidence of identity, personality, intent, or behavior.',style:TextStyle(color:t.mutedText,fontSize:10))),
         SwitchListTile.adaptive(value:external,onChanged:running?null:(v)=>setState(()=>external=v),contentPadding:EdgeInsets.zero,title:const Text('Allow external research'),subtitle:const Text('Only relevant when evidence from outside sources is appropriate.')),
