@@ -586,11 +586,16 @@ class _ShellState extends State<CriterivoxShell> {
               ],
             ),
 
-            if (chatOverlayOpen && page != 'chat')
+            if (page != 'chat')
               Positioned.fill(
-                child: Material(
-                  color: t.page.withValues(alpha: .98),
-                  child: CharacterChatPage(
+                child: IgnorePointer(
+                  ignoring: !chatOverlayOpen,
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 160),
+                    opacity: chatOverlayOpen ? 1 : 0,
+                    child: Material(
+                      color: t.page.withValues(alpha: .98),
+                      child: CharacterChatPage(
                     key: const ValueKey(
                       'global-character-chat',
                     ),
@@ -624,6 +629,8 @@ class _ShellState extends State<CriterivoxShell> {
                         );
                       }
                     },
+                      ),
+                    ),
                   ),
                 ),
               ),
