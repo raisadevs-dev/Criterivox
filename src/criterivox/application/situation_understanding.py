@@ -21,7 +21,7 @@ class SituationUnderstandingService:
 
         if safety.level is not SafetyLevel.ORDINARY:
             intent = "interpersonal_guidance"
-        elif re.search(r"\b(?:choose|choice|decide|decision|options?)\b", lower):
+        elif re.search(r"\b(?:choose|choice|choices|decide|decision|option|options)\b", lower):
             intent = "decision_support"
         elif re.search(r"\b(?:plan|planning|organize|schedule)\b", lower):
             intent = "planning"
