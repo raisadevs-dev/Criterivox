@@ -37,7 +37,7 @@ void main() {
         matching: find.byType(TextField),
       );
 
-      expect(find.byTooltip('Open character chat'), findsOneWidget);
+      expect(find.byTooltip('Close character chat'), findsOneWidget);
       expect(globalChat, findsOneWidget);
       expect(chatInput, findsOneWidget);
 
@@ -49,7 +49,7 @@ void main() {
       closeButton.onPressed!();
       await tester.pump(const Duration(milliseconds: 300));
 
-      expect(find.byTooltip('Close character chat'), findsOneWidget);
+      expect(find.byTooltip('Open character chat'), findsOneWidget);
       expect(find.text('Preserve this draft.'), findsOneWidget);
 
       final reopenFinder = find.byKey(const ValueKey('global-character-chat-launcher'));
