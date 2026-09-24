@@ -30,10 +30,7 @@ class CriterivoxLanguage {
   static const urdu = CriterivoxLanguage._('ur', 'اردو', 'Urdu', script: 'Arabic');
   static const nepali = CriterivoxLanguage._('ne', 'नेपाली', 'Nepali', script: 'Devanagari');
 
-  static const supported = <CriterivoxLanguage>[
-    auto, english, hindi, marathi, bengali, gujarati, tamil, telugu,
-    kannada, malayalam, punjabi, urdu, nepali,
-  ];
+  static const supported = <CriterivoxLanguage>[auto, english, hindi, marathi];
 
   bool get isAutomatic => code == 'auto';
   bool get isHindi => code == 'hi';
