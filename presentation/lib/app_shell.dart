@@ -941,7 +941,7 @@ class _ShellState extends State<CriterivoxShell> {
           key: const ValueKey('world-portal'),
           state: state,
           onOpenCivilization: () => open('civilization'),
-          onOpenCapability: handleBloomActivation,
+          onOpenCapability: (value) => handleBloomActivation(value as BloomActivation),
           onStewardship: () => open('stewardship'),
           onHandoff: handoffFromBloom,
           onOpenAnalysis: () => open('workspace'),
