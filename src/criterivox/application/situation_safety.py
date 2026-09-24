@@ -1,0 +1,49 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+import re
+
+from .situation import SafetyLevel
+
+
+@dataclass(frozen=True)
+class SafetyAssessment:
+    level: SafetyLevel
+    reasons: tuple[str, ...]
+    questions: tuple[str, ...]
+
+
+class SituationSafetyRouter:
+    """Early safety routing. It does not diagnose or decide facts from images."""
+
+    IMMEDIATE = (
+        re.compile(r"\b(?:right now|currently|at this moment)\b.{0,80}\b(?:unsafe|danger|threatened|attacked|hurt)\b", re.I),
+        re.compile(r"\b(?:going to|will)\b.{0,50}\b(?:hurt|attack)\b", re.I),
+        re.compile(r"\b(?:help me|help)\b.{0,50}\b(?:danger|unsafe|threat)\b", re.I),
+    )
+    SENSITIVE = (
+        re.compile(r"\b(?:bully|bullying|harass|harassment|threaten|threatening|intimidat|exclude|excluded|coerc|blackmail)\w*\b", re.I),
+        re.compile(r"\b(?:hit|punch|push|hurt|follow|corner)\w*\b", re.I),
+    )
+
+    def assess(self, text: str) -> SafetyAssessment:
+        immediate = [p.pattern for p in self.IMMEDIATE if p.search(text)]
+        if immediate:
+            return SafetyAssessment(
+                SafetyLevel.IMMEDIATE,
+                ("The description contains a possible immediate-safety signal.",),
+                ("Are you safe right now?",),
+            )
+        sensitive = [p.pattern for p in self.SENSITIVE if p.search(text)]
+        if sensitive:
+            return SafetyAssessment(
+                SafetyLevel.SENSITIVE,
+                ("The description may involve interpersonal harm or coercion.",),
+                (
+                    "What happened?",
+                    "Has this happened more than once?",
+                    "Do you feel unsafe right now?",
+                    "Is there a trusted adult or supportive person who knows?",
+                ),
+            )
+        return SafetyAssessment(SafetyLevel.ORDINARY, (), ())
