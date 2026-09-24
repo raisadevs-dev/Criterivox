@@ -90,7 +90,7 @@ class _LiveAgentPanelState extends State<LiveAgentPanel> {
                   final visual = Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      CharacterRuntimeView(characterId: widget.characterId, state: widget.state, width: 190, height: 228),
+                      CharacterRuntimeView(characterId: widget.characterId, state: widget.state, width: 160, height: 188),
                       Text('LIVE PRESENTATION', style: TextStyle(color: theme.mutedText, fontSize: 8, fontWeight: FontWeight.w800, letterSpacing: 1.0)),
                     ],
                   );
@@ -107,7 +107,7 @@ class _LiveAgentPanelState extends State<LiveAgentPanel> {
                   );
                   return narrow
                       ? Column(children: [visual, const SizedBox(height: 10), Align(alignment: Alignment.centerLeft, child: details)])
-                      : Row(crossAxisAlignment: CrossAxisAlignment.center, children: [SizedBox(width: 220, child: visual), const SizedBox(width: 18), Expanded(child: details)]);
+                      : Row(crossAxisAlignment: CrossAxisAlignment.center, children: [SizedBox(width: 188, child: visual), const SizedBox(width: 18), Expanded(child: details)]);
                 },
               ),
             ),
