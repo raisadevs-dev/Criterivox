@@ -4,6 +4,10 @@ Criterivox is a research-driven, context-aware intelligence and decision-support
 
 It began as an application for analysing information with context and gradually evolved into a broader research prototype for traceable, inspectable and human-controlled decision support.
 
+## Managed Local Runtime
+
+For the Windows development/self-hosted runtime, use `start-criterivox.ps1` as the single startup entry point. It prepares the project runtime, provisions Ollama when needed, starts the local inference service, downloads the configured local model when it is missing, verifies model readiness, starts the Python backend and Flutter web presentation, and records diagnostics when startup or runtime fails. The local model runtime is therefore an infrastructure dependency managed by Criterivox rather than a manual character-chat setup step.
+
 ## Current Status
 
 **Sprints 1–10 have been crossed.**
