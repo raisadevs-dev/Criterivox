@@ -107,4 +107,87 @@ class GoogleResearchProvider:
         )
 
 
+
+class OpenAIResearchProvider:
+    """OpenAI Responses API web-search adapter.
+
+    This is separate from character conversation. It is used only when the
+    human authorizes external evidence acquisition.
+    """
+
+    endpoint = "https://api.openai.com/v1/responses"
+
+    def __init__(self, api_key: str | None = None, model: str | None = None) -> None:
+        self.api_key = api_key or os.getenv("OPENAI_API_KEY", "").strip()
+        self.model = model or os.getenv("CRITERIVOX_OPENAI_MODEL", "gpt-5.6-luna").strip()
+
+    @property
+    def configured(self) -> bool:
+        return bool(self.api_key and self.model)
+
+    def search(self, query: str, *, requested_by_email: str, limit: int = 8) -> ResearchRun:
+        query = " ".join(query.split())[:500]
+        if not query:
+            raise ExternalResearchError("External research requires a non-empty query.")
+        if not self.configured:
+            raise ExternalResearchError("OpenAI research is not configured. Set OPENAI_API_KEY.")
+        body = json.dumps({
+            "model": self.model,
+            "tools": [{"type": "web_search"}],
+            "input": f"Search the web for authoritative evidence relevant to: {query}. Return concise source-backed findings.",
+        }).encode()
+        request = urllib.request.Request(
+            self.endpoint,
+            data=body,
+            headers={
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            },
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+        except Exception as exc:
+            raise ExternalResearchError(f"OpenAI research request failed: {exc}") from exc
+
+        results: list[ResearchResult] = []
+        for item in payload.get("output") or []:
+            for content_item in item.get("content") or []:
+                for annotation in content_item.get("annotations") or []:
+                    url = str(annotation.get("url") or "").strip()
+                    if not url:
+                        continue
+                    results.append(ResearchResult(
+                        title=str(annotation.get("title") or url),
+                        url=url,
+                        snippet=str(content_item.get("text") or "")[:1000],
+                        display_url=url,
+                    ))
+                    if len(results) >= limit:
+                        break
+                if len(results) >= limit:
+                    break
+            if len(results) >= limit:
+                break
+
+        return ResearchRun(
+            run_id=f"research-{uuid.uuid4().hex[:16]}",
+            query=query,
+            requested_by_email=requested_by_email,
+            provider="openai-web-search",
+            results=tuple(results),
+            created_at=datetime.now(timezone.utc).isoformat(),
+        )
+
+
 google_research = GoogleResearchProvider()
+openai_research = OpenAIResearchProvider()
+
+
+def configured_research_providers() -> dict[str, bool]:
+    return {
+        "google": google_research.configured,
+        "openai": openai_research.configured,
+    }
