@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 
-from .situation import Situation, SituationUnderstanding
+from .situation import SafetyLevel, Situation, SituationUnderstanding
 from .situation_safety import SituationSafetyRouter
 
 
@@ -19,7 +19,7 @@ class SituationUnderstandingService:
         safety = self.safety_router.assess(text)
         lower = text.lower()
 
-        if safety.level.value != "ordinary":
+        if safety.level is not SafetyLevel.ORDINARY:
             intent = "interpersonal_guidance"
         elif re.search(r"\b(?:choose|choice|decide|decision|options?)\b", lower):
             intent = "decision_support"
@@ -32,7 +32,7 @@ class SituationUnderstandingService:
 
         people = ("other people",) if re.search(r"\b(?:classmates?|friends?|group|team|coworkers?|people|kids?)\b", lower) else ()
         kind = "general_decision"
-        if safety.level.value != "ordinary":
+        if safety.level is not SafetyLevel.ORDINARY:
             kind = "bullying_or_harassment" if re.search(r"\bbully\w*\b", lower) else "interpersonal"
         elif re.search(r"\b(?:school|exam|class|teacher|study)\b", lower):
             kind = "school_or_work"
@@ -49,7 +49,7 @@ class SituationUnderstandingService:
             safety=safety.level,
             image_count=image_count,
             image_roles=image_roles,
-            user_reported_behavior=text if safety.level != safety.level.ORDINARY else "",
+            user_reported_behavior=text if safety.level is not SafetyLevel.ORDINARY else "",
         )
         notes = (
             "Photographs of people are contextual input only; they do not establish behavior, identity, intent, personality, or safety.",
