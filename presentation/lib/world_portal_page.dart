@@ -7,7 +7,6 @@ import 'package:file_picker/file_picker.dart';
 import 'human_residence_store.dart';
 import 'interaction/bloom.dart';
 import 'presentation/criterivox_theme.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class HumanResidencePage extends StatefulWidget {
   final VoidCallback onGuest;
@@ -50,52 +49,8 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
   void initState() {
     super.initState();
     _restore();
-    _restoreGoogleSession();
   }
 
-  Future<void> _continueWithGoogle() async {
-    try {
-      final response = await http.get(Uri.base.resolve('/api/human-auth/google/start')).timeout(const Duration(seconds: 6));
-      final payload = jsonDecode(response.body) as Map<String, dynamic>;
-      if (response.statusCode < 200 || response.statusCode >= 300 || payload['accepted'] != true) {
-        throw Exception(payload['error']?.toString() ?? 'Google account connection is not configured.');
-      }
-      final url = payload['authorization_url']?.toString();
-      if (url == null || !await launchUrl(Uri.parse(url), webOnlyWindowName: '_self')) {
-        throw Exception('The browser could not open Google sign-in.');
-      }
-    } catch (error) {
-      if (mounted) setState(() => status = 'Google account connection unavailable: $error');
-    }
-  }
-
-  Future<void> _restoreGoogleSession() async {
-    final token = Uri.base.queryParameters['google_session'];
-    if (token == null || token.isEmpty) return;
-    try {
-      final response = await http.get(Uri.base.resolve('/api/human-auth/google/session?token=${Uri.encodeComponent(token)}')).timeout(const Duration(seconds: 6));
-      if (response.statusCode < 200 || response.statusCode >= 300) return;
-      final payload = jsonDecode(response.body) as Map<String, dynamic>;
-      final raw = payload['residence'];
-      if (raw is! Map) return;
-      final map = Map<String, dynamic>.from(raw);
-      map['metadata'] = {
-        ...Map<String, dynamic>.from(map['metadata'] is Map ? map['metadata'] : const {}),
-        'session_token': token,
-        'google_account': true,
-      };
-      final record = HumanResidenceRecord.fromJson(map);
-      await store.save(record);
-      if (!mounted) return;
-      setState(() {
-        residence = record;
-        mode = record.residenceType;
-        name.text = record.displayName;
-        email.text = record.email ?? '';
-        status = 'Google account connected. Your Human Residence is ready.';
-      });
-    } catch (_) {}
-  }
 
   @override
   void dispose() {
@@ -692,14 +647,6 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
             ),
           ),
           const SizedBox(height: 12),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: OutlinedButton.icon(
-              onPressed: _continueWithGoogle,
-              icon: const Icon(Icons.link_rounded, size: 16),
-              label: const Text('Connect Google account'),
-            ),
-          ),
           if (status.isNotEmpty) ...[
             const SizedBox(height: 10),
             Text(
