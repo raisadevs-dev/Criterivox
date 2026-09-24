@@ -13,6 +13,7 @@ class CivilizationHomePreviewPage extends StatelessWidget {
   final String homeId;
   final VoidCallback onBack;
   final ValueChanged<String>? onOpenOperationalHome;
+  final ValueChanged<String>? onOpenCharacter;
 
   const CivilizationHomePreviewPage({
     super.key,
@@ -215,7 +216,7 @@ class CivilizationHomePreviewPage extends StatelessWidget {
                             runSpacing: 16,
                             children: home.residents
                                 .map(
-                                  (id) => _ResidentCard(id: id),
+                                  (id) => _ResidentCard(id: id, onTap: onOpenCharacter == null ? null : () => onOpenCharacter!(id)),
                                 )
                                 .toList(),
                           ),
@@ -325,9 +326,11 @@ class _HomeInfo {
 
 class _ResidentCard extends StatelessWidget {
   final String id;
+  final VoidCallback? onTap;
 
   const _ResidentCard({
     required this.id,
+    this.onTap,
   });
 
   @override
@@ -335,7 +338,10 @@ class _ResidentCard extends StatelessWidget {
     final t = criterivox_theme.CriterivoxTheme.of(context);
     final p = CharacterIdentities.resolve(id);
 
-    return Container(
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
       width: 130,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -368,6 +374,7 @@ class _ResidentCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }
