@@ -34,13 +34,6 @@ async def human_auth_login(payload: dict):
     except ValueError as exc:
         return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=401)
 
-@router.get('/api/human-auth/google/start')
-async def human_auth_google_start():
-    try:
-        return {'accepted': True, 'provider': 'google', 'configured': google_oauth.configured(), 'authorization_url': google_oauth.authorization_url()}
-    except RuntimeError as exc:
-        return JSONResponse({'accepted': False, 'provider': 'google', 'configured': False, 'error': str(exc)}, status_code=503)
-
 @router.get('/api/human-auth/google/callback')
 async def human_auth_google_callback(code: str = '', state: str = ''):
     from fastapi.responses import RedirectResponse
@@ -245,16 +238,6 @@ async def human_residence_calendar_update(calendar_id: str, payload: dict):
         )}
     except ValueError as exc:
         return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=404)
-
-@router.get('/api/human-residence/google-search/status')
-async def google_search_status():
-    from ..application.external_research import google_research
-    return {
-        'provider': 'google-programmable-search',
-        'configured': google_research.configured,
-        'account_oauth_configured': google_oauth.configured(),
-        'note': 'Google account OAuth and Google Search API credentials are separate controls.',
-    }
 
 @router.get('/api/human-residence/research/status')
 async def human_residence_research_status():
