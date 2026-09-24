@@ -30,8 +30,7 @@ class OllamaLanguageLayer:
             "Do not invent evidence, people, facts, tool use, or outcomes. Distinguish reported facts from uncertainty. "
             "Do not identify or profile people from photographs. Return plain text with WHAT I UNDERSTAND, "
             "WHAT MATTERS, WHAT YOU CAN DO NEXT, WHY, and WHAT I'M NOT SURE ABOUT. "
-            f"SITUATION: {situation}
-STRUCTURED: {json.dumps(structured, ensure_ascii=False)}"
+            f"SITUATION: {situation}\nSTRUCTURED: {json.dumps(structured, ensure_ascii=False)}"
         )
         body = json.dumps({
             "model": self.model,
