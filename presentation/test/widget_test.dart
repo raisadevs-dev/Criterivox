@@ -134,7 +134,10 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.byType(ActionChip),
+        find.descendant(
+          of: find.byKey(const ValueKey('intro')),
+          matching: find.byType(ActionChip),
+        ),
         findsNWidgets(15),
       );
     },
