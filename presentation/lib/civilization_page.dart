@@ -11,12 +11,14 @@ import 'presentation/presentation_state.dart';
 
 class CivilizationPage extends StatefulWidget {
   final PresentationState? state;
+  final VoidCallback? onBackToBloom;
   final ValueChanged<String>? onOpenHome;
   final ValueChanged<String>? onOpenCharacter;
 
   const CivilizationPage({
     super.key,
     this.state,
+    this.onBackToBloom,
     this.onOpenHome,
     this.onOpenCharacter,
   });
@@ -136,13 +138,25 @@ class _CivilizationPageState extends State<CivilizationPage> {
                         ),
                       ),
                       const SizedBox(height: 5),
-                      Text(
-                        'Meet the people who make the decision',
-                        style: TextStyle(
-                          color: t.text,
-                          fontSize: r.isCompact ? 23 : 30,
-                          fontWeight: FontWeight.w800,
-                        ),
+                      Row(
+                        children: [
+                          if (widget.onBackToBloom != null)
+                            IconButton(
+                              tooltip: 'Return to Bloom',
+                              onPressed: widget.onBackToBloom,
+                              icon: const Icon(Icons.arrow_back_rounded),
+                            ),
+                          Expanded(
+                            child: Text(
+                              'Meet the people who make the decision',
+                              style: TextStyle(
+                                color: t.text,
+                                fontSize: r.isCompact ? 23 : 30,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 5),
                       Text(
