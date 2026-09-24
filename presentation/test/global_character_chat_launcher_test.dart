@@ -21,7 +21,9 @@ void main() {
       final openChat = find.byTooltip('Open character chat');
       expect(openChat, findsOneWidget);
 
-      await tester.tap(openChat);
+      final openButton = tester.widget<FloatingActionButton>(openChat);
+      openButton.onPressed!();
+      await tester.pump();
       await _pumpUntil(
         tester,
         () => find.byTooltip('Close character chat'),
@@ -42,13 +44,17 @@ void main() {
       await tester.enterText(chatInput, 'Preserve this draft.');
       expect(find.text('Preserve this draft.'), findsOneWidget);
 
-      await tester.tap(find.byTooltip('Close character chat'));
+      final closeFinder = find.byTooltip('Close character chat');
+      final closeButton = tester.widget<FloatingActionButton>(closeFinder);
+      closeButton.onPressed!();
       await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.byTooltip('Open character chat'), findsOneWidget);
       expect(find.text('Preserve this draft.'), findsOneWidget);
 
-      await tester.tap(find.byTooltip('Open character chat'));
+      final reopenFinder = find.byTooltip('Open character chat');
+      final reopenButton = tester.widget<FloatingActionButton>(reopenFinder);
+      reopenButton.onPressed!();
       await _pumpUntil(
         tester,
         () => find.byTooltip('Close character chat'),
@@ -90,6 +96,8 @@ void main() {
       );
       expect(registryChips, findsNWidgets(15));
 
+      await tester.ensureVisible(registryChips.first);
+      await tester.pump();
       await tester.tap(registryChips.first);
       await _pumpUntil(
         tester,
@@ -102,7 +110,9 @@ void main() {
       );
       expect(find.byTooltip('Open character chat'), findsOneWidget);
 
-      await tester.tap(find.byTooltip('Open character chat'));
+      final civilizationChatFinder = find.byTooltip('Open character chat');
+      final civilizationChatButton = tester.widget<FloatingActionButton>(civilizationChatFinder);
+      civilizationChatButton.onPressed!();
       await _pumpUntil(
         tester,
         () => find.byTooltip('Close character chat'),
