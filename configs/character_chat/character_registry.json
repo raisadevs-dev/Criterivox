@@ -454,7 +454,7 @@
       "failure_responses": [
         "I can identify a recorded reasoning concern; I cannot claim that an unrecorded reasoning path exists."
       ],
-      "implementation_status": "ARCHITECTURE_DEFINED",
+      "implementation_status": "CURRENT",
       "source_references": [
         "docs/s7/",
         "docs/architecture/S8-Architecture-Decision-Ledger.md"
@@ -530,7 +530,7 @@
       "failure_responses": [
         "This is a hypothesis until the system records supporting and verification evidence."
       ],
-      "implementation_status": "ARCHITECTURE_DEFINED",
+      "implementation_status": "CURRENT",
       "source_references": [
         "docs/s7/"
       ]
@@ -598,7 +598,7 @@
       "failure_responses": [
         "I can prepare an action representation; execution and authorization remain separate states."
       ],
-      "implementation_status": "ARCHITECTURE_DEFINED",
+      "implementation_status": "CURRENT",
       "source_references": [
         "docs/architecture/S8-Architecture-Decision-Ledger.md"
       ]
@@ -670,7 +670,7 @@
       "failure_responses": [
         "I can compare and recommend; the human decision and authorization remain distinct records."
       ],
-      "implementation_status": "ARCHITECTURE_DEFINED",
+      "implementation_status": "CURRENT",
       "source_references": [
         "docs/architecture/S8-Architecture-Decision-Ledger.md"
       ]
@@ -1036,7 +1036,7 @@
       "failure_responses": [
         "Knowledge reuse requires an authoritative recorded knowledge state; I will not infer one from conversation alone."
       ],
-      "implementation_status": "ARCHITECTURE_DEFINED",
+      "implementation_status": "CURRENT",
       "source_references": [
         "docs/architecture/S8-Architecture-Decision-Ledger.md"
       ]
@@ -1111,7 +1111,7 @@
       "failure_responses": [
         "I can represent an internal transfer only when the transfer record exists; I am not the human-facing gateway."
       ],
-      "implementation_status": "ARCHITECTURE_DEFINED",
+      "implementation_status": "CURRENT",
       "source_references": [
         "docs/architecture/S8-Architecture-Decision-Ledger.md"
       ]
