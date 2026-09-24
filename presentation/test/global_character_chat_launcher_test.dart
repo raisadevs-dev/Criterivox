@@ -26,7 +26,7 @@ void main() {
       await tester.pump();
       await _pumpUntil(
         tester,
-        () => find.byKey(const ValueKey('global-character-chat-launcher')),
+        () => find.byTooltip('Close character chat'),
       );
 
       final globalChat = find.byKey(
@@ -37,7 +37,7 @@ void main() {
         matching: find.byType(TextField),
       );
 
-      expect(find.byKey(const ValueKey('global-character-chat-launcher')), findsOneWidget);
+      expect(find.byTooltip('Open character chat'), findsOneWidget);
       expect(globalChat, findsOneWidget);
       expect(chatInput, findsOneWidget);
 
@@ -49,7 +49,7 @@ void main() {
       closeButton.onPressed!();
       await tester.pump(const Duration(milliseconds: 300));
 
-      expect(find.byKey(const ValueKey('global-character-chat-launcher')), findsOneWidget);
+      expect(find.byTooltip('Close character chat'), findsOneWidget);
       expect(find.text('Preserve this draft.'), findsOneWidget);
 
       final reopenFinder = find.byKey(const ValueKey('global-character-chat-launcher'));
@@ -57,7 +57,7 @@ void main() {
       reopenButton.onPressed!();
       await _pumpUntil(
         tester,
-        () => find.byKey(const ValueKey('global-character-chat-launcher')),
+        () => find.byTooltip('Close character chat'),
       );
 
       expect(find.byKey(const ValueKey('global-character-chat-launcher')), findsOneWidget);
@@ -115,7 +115,7 @@ void main() {
       civilizationChatButton.onPressed!();
       await _pumpUntil(
         tester,
-        () => find.byKey(const ValueKey('global-character-chat-launcher')),
+        () => find.byTooltip('Close character chat'),
       );
 
       expect(find.byKey(const ValueKey('global-character-chat-launcher')), findsOneWidget);
