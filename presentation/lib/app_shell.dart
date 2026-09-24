@@ -645,6 +645,7 @@ class _ShellState extends State<CriterivoxShell> {
                     ? 'Close character chat'
                     : 'Open character chat',
                 child: FloatingActionButton(
+                  key: const ValueKey('global-character-chat-launcher'),
                   tooltip: chatOverlayOpen
                       ? 'Close character chat'
                       : 'Open character chat',
