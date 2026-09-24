@@ -120,8 +120,53 @@ class _CharacterChatPageState
     ],
     'tarkis': [
       'Form a hypothesis.',
-      'List supporting evidence.',
-      'Identify what would falsify it.',
+      'Explore alternatives.',
+      'Compare reasoning branches.',
+    ],
+    'bodhex': [
+      'Compile the current insight.',
+      'Prepare an action.',
+      'Show execution readiness.',
+    ],
+    'pramon': [
+      'Build a plan.',
+      'Compare options.',
+      'Analyze the trade-offs.',
+    ],
+    'medrus': [
+      'Acquire evidence.',
+      'Compare evidence.',
+      'Investigate this claim.',
+    ],
+    'epistre': [
+      'Trace provenance.',
+      'Build the lineage.',
+      'Explain where this came from.',
+    ],
+    'veridat': [
+      'Verify this claim.',
+      'Check contradictions.',
+      'Check temporal validity.',
+    ],
+    'manis': [
+      'Challenge this decision.',
+      'Inspect the decision boundary.',
+      'Request human review.',
+    ],
+    'viveda': [
+      'Synthesize the knowledge.',
+      'Check whether it is ready for reuse.',
+      'Find reusable knowledge.',
+    ],
+    'anukor': [
+      'Transfer this artifact.',
+      'Check transfer integrity.',
+      'Retest this transfer.',
+    ],
+    'syvax': [
+      'Clarify this task.',
+      'Route this work.',
+      'Summarize the current intent.',
     ],
   };
 
