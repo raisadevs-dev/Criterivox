@@ -17,6 +17,10 @@ $BackendUrl = "http://127.0.0.1:$Port"
 $HealthUrl = "$BackendUrl/health"
 $PresentationUrl = "http://127.0.0.1:$WebPort"
 $PythonExecutable = Join-Path $Root '.venv\Scripts\python.exe'
+$OllamaModel = if ($env:CRITERIVOX_LOCAL_LLM_MODEL) { $env:CRITERIVOX_LOCAL_LLM_MODEL } else { 'llama3.2:3b' }
+$OllamaUrl = if ($env:CRITERIVOX_LOCAL_LLM_URL) { $env:CRITERIVOX_LOCAL_LLM_URL } else { 'http://127.0.0.1:11434/api/chat' }
+$OllamaTagsUrl = 'http://127.0.0.1:11434/api/tags'
+$OllamaInstallScript = 'https://ollama.com/install.ps1'
 
 New-Item -ItemType Directory -Force -Path $DiagnosticsRoot | Out-Null
 "[$(Get-Date -Format o)] Criterivox launcher starting." | Set-Content $RuntimeLog
@@ -40,6 +44,101 @@ function Test-PortAvailable([int]$PortNumber) {
     }
 }
 
+
+function Test-OllamaApi() {
+    try {
+        $response = Invoke-WebRequest -Uri $OllamaTagsUrl -UseBasicParsing -TimeoutSec 2
+        return ($response.StatusCode -eq 200)
+    } catch {
+        return $false
+    }
+}
+
+function Test-OllamaModel([string]$Model) {
+    try {
+        $response = Invoke-WebRequest -Uri $OllamaTagsUrl -UseBasicParsing -TimeoutSec 3
+        if ($response.StatusCode -ne 200) { return $false }
+        $payload = $response.Content | ConvertFrom-Json
+        foreach ($item in @($payload.models)) {
+            if ([string]$item.name -eq $Model) { return $true }
+        }
+        return $false
+    } catch {
+        return $false
+    }
+}
+
+function Ensure-OllamaRuntime() {
+    Write-LauncherLog "Checking local model runtime: Ollama."
+    $ollamaCommand = Get-Command ollama -ErrorAction SilentlyContinue
+
+    if (-not $ollamaCommand) {
+        Write-LauncherLog 'Ollama is not installed. Attempting automatic installation from the official Ollama installer.'
+        $winget = Get-Command winget -ErrorAction SilentlyContinue
+
+        if ($winget) {
+            & $winget.Source install --id Ollama.Ollama --exact --accept-package-agreements --accept-source-agreements
+            if ($LASTEXITCODE -ne 0) {
+                throw "Automatic Ollama installation through winget failed with exit code $LASTEXITCODE."
+            }
+        } else {
+            Write-LauncherLog 'winget is unavailable. Falling back to the official Ollama PowerShell installer.'
+            $install = Invoke-RestMethod -Uri $OllamaInstallScript -UseBasicParsing
+            if (-not $install) {
+                throw 'The official Ollama installer returned no content.'
+            }
+            & ([scriptblock]::Create($install))
+            if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+                throw "The official Ollama installer failed with exit code $LASTEXITCODE."
+            }
+        }
+
+        $env:Path = [System.Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [System.Environment]::GetEnvironmentVariable('Path', 'User')
+        $ollamaCommand = Get-Command ollama -ErrorAction SilentlyContinue
+        if (-not $ollamaCommand) {
+            throw 'Ollama installation completed but the ollama executable is not available on PATH yet.'
+        }
+
+        Write-LauncherLog "Ollama installed: $($ollamaCommand.Source)"
+    } else {
+        Write-LauncherLog "Ollama already installed: $($ollamaCommand.Source)"
+    }
+
+    if (-not (Test-OllamaApi)) {
+        Write-LauncherLog 'Ollama service is not ready. Starting the local Ollama service.'
+        $ollamaProcess = Start-Process -FilePath $ollamaCommand.Source -ArgumentList @('serve') -WorkingDirectory $Root -RedirectStandardOutput (Join-Path $DiagnosticsRoot 'ollama-runtime.log') -RedirectStandardError (Join-Path $DiagnosticsRoot 'ollama-runtime-error.log') -PassThru -WindowStyle Minimized
+
+        $ollamaDeadline = [DateTime]::UtcNow.AddSeconds(45)
+        while ([DateTime]::UtcNow -lt $ollamaDeadline) {
+            Start-Sleep -Milliseconds 500
+            if ($ollamaProcess.HasExited) {
+                throw "Ollama service exited during startup with code $($ollamaProcess.ExitCode)."
+            }
+            if (Test-OllamaApi) { break }
+        }
+
+        if (-not (Test-OllamaApi)) {
+            throw "Ollama did not become ready at $OllamaTagsUrl within 45 seconds."
+        }
+    }
+
+    Write-LauncherLog "Ollama service is ready. Checking model '$OllamaModel'."
+
+    if (-not (Test-OllamaModel $OllamaModel)) {
+        Write-LauncherLog "Model '$OllamaModel' is missing. Pulling it automatically. This may take a while on the first launch."
+        & $ollamaCommand.Source pull $OllamaModel 2>&1 | Tee-Object -FilePath (Join-Path $DiagnosticsRoot 'ollama-model-pull.log')
+        if ($LASTEXITCODE -ne 0) {
+            throw "Ollama model '$OllamaModel' could not be downloaded. See diagnostics/ollama-model-pull.log."
+        }
+    }
+
+    if (-not (Test-OllamaModel $OllamaModel)) {
+        throw "Ollama reported a successful model pull, but '$OllamaModel' is not available through $OllamaTagsUrl."
+    }
+
+    Write-LauncherLog "Local model '$OllamaModel' is ready."
+}
+ 
 function Write-ProcessDiagnostics([System.Diagnostics.Process]$Process) {
     if (-not $Process) { return }
 
@@ -161,6 +260,12 @@ try {
     if (-not (Get-Command flutter -ErrorAction SilentlyContinue)) {
         throw 'Flutter executable was not found on PATH.'
     }
+
+    Write-LauncherLog 'Preparing the local intelligence runtime before starting Criterivox.'
+    if (-not $env:CRITERIVOX_LLM_PROVIDER) { $env:CRITERIVOX_LLM_PROVIDER = 'local' }
+    if (-not $env:CRITERIVOX_LOCAL_LLM_URL) { $env:CRITERIVOX_LOCAL_LLM_URL = $OllamaUrl }
+    if (-not $env:CRITERIVOX_LOCAL_LLM_MODEL) { $env:CRITERIVOX_LOCAL_LLM_MODEL = $OllamaModel }
+    Ensure-OllamaRuntime
 
     Write-LauncherLog 'Running Python syntax preflight before starting the backend.'
     & $PythonExecutable -m compileall -q src
