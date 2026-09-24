@@ -88,7 +88,7 @@ class HumanSituationOrchestrator:
         support = self._support(understanding, strategy, trace, research)
         synthesis = self.language.synthesize(
             situation=description,
-            structured=asdict(situation),
+            structured={**asdict(situation), 'safety': situation.safety.value},
         )
         return {
             "status": "ready",
