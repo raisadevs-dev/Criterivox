@@ -126,7 +126,8 @@ async def human_decisions_list(session_token: str, query: str = ''):
     if owner_id is None:
         return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
     return {'accepted': True, 'decisions': human_residence_local.list_decisions(owner_id, query)}
-\n@router.post('/api/human-residence/decision')
+
+@router.post('/api/human-residence/decision')
 async def human_residence_decision(payload: dict):
     from ..application.decision_orchestrator import decision_orchestrator
     try:
