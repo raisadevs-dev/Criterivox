@@ -96,50 +96,25 @@ void main() {
   );
 
   testWidgets(
-    'App Introduction exposes the current introduction surface',
+    'App Introduction explains the current product model',
     (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: CriterivoxShell(
-            isDarkMode: true,
-            connectRuntime: false,
-          ),
+          home: CriterivoxShell(isDarkMode: true, connectRuntime: false),
         ),
       );
-
       await tester.pump();
-
       await tester.tap(find.text('App Introduction'));
       await tester.pump();
 
-      expect(
-        find.byKey(const ValueKey('intro')),
-        findsOneWidget,
-      );
-      expect(find.text('TOWN HALL'), findsOneWidget);
-      expect(find.text('CRITERIVOX'), findsOneWidget);
-      expect(
-        find.text('Different minds · One intelligence'),
-        findsOneWidget,
-      );
-      expect(
-        find.text('15 specialists · 15 perspectives · one mission'),
-        findsOneWidget,
-      );
-      expect(find.text('CIVILIZATION REGISTRY'), findsOneWidget);
-      expect(
-        find.text(
-          'Characters visualize runtime state through the same semantic animation contract used by the interaction layer.',
-        ),
-        findsOneWidget,
-      );
-      expect(
-        find.descendant(
-          of: find.byKey(const ValueKey('intro')),
-          matching: find.byType(ActionChip),
-        ),
-        findsNWidgets(15),
-      );
+      expect(find.byKey(const ValueKey('intro')), findsOneWidget);
+      expect(find.text('WHAT IS CRITERIVOX'), findsOneWidget);
+      expect(find.text('WHAT CAN I DO HERE'), findsOneWidget);
+      expect(find.text('HOW TO USE IT'), findsOneWidget);
+      expect(find.text('WHY DOES THE WORLD EXIST?'), findsOneWidget);
+      expect(find.text('WHO ARE THESE CHARACTERS?'), findsOneWidget);
+      expect(find.text('WHAT IS BLOOM?'), findsOneWidget);
+      expect(find.text('HUMAN TERRITORY'), findsOneWidget);
     },
   );
 
