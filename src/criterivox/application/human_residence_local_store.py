@@ -105,15 +105,6 @@ class HumanResidenceLocalStore:
                 );
                 CREATE INDEX IF NOT EXISTS idx_calendar_owner ON calendar_events(owner_id, starts_at ASC);
             """)
-            try:
-                db.execute("ALTER TABLE identities ADD COLUMN oauth_provider TEXT")
-            except sqlite3.OperationalError:
-                pass
-            try:
-                db.execute("ALTER TABLE identities ADD COLUMN oauth_subject TEXT")
-            except sqlite3.OperationalError:
-                pass
-
     def signup(self, *, email: str, password: str, display_name: str, residence_id: str,
                residence_type: str, avatar_data_url: str | None = None, role: str = "owner") -> dict[str, Any]:
         email = email.strip().lower()
@@ -139,71 +130,6 @@ class HumanResidenceLocalStore:
             except sqlite3.IntegrityError as exc:
                 raise ValueError("an account with that email already exists") from exc
         return self._identity(owner_id)
-
-    def oauth_identity(self, *, provider: str, subject: str, email: str, display_name: str,
-                       avatar_data_url: str = "") -> tuple[dict[str, Any], dict[str, Any]]:
-        provider = provider.strip().lower()
-        subject = subject.strip()
-        email = email.strip().lower()
-        if not provider or not subject or not email:
-            raise ValueError("OAuth identity is incomplete")
-        now = _now()
-        with self._connect() as db:
-            row = db.execute(
-                "SELECT owner_id FROM identities WHERE oauth_provider=? AND oauth_subject=?",
-                (provider, subject),
-            ).fetchone()
-            if row is None:
-                row = db.execute(
-                    "SELECT owner_id FROM identities WHERE email=?",
-                    (email,),
-                ).fetchone()
-            if row is None:
-                owner_id = f"human-{secrets.token_urlsafe(12)}"
-                residence_id = f"res-google-{secrets.token_urlsafe(8)}"
-                db.execute(
-                    """INSERT INTO identities
-                    (owner_id,email,display_name,password_hash,avatar_data_url,role,created_at,updated_at,oauth_provider,oauth_subject)
-                    VALUES (?,?,?,?,?,?,?,?,?,?)""",
-                    (owner_id, email, display_name, _password_hash(secrets.token_urlsafe(32)),
-                     avatar_data_url or None, "owner", now, now, provider, subject),
-                )
-                db.execute(
-                    """INSERT INTO residences
-                    (residence_id,owner_id,residence_type,display_name,created_at,updated_at,payload_json)
-                    VALUES (?,?,?,?,?,?,?)""",
-                    (residence_id, owner_id, "private", display_name, now, now, json.dumps({
-                        "oauth_provider": provider,
-                        "oauth_subject": subject,
-                        "google_account": True,
-                    }, sort_keys=True)),
-                )
-                owner_id_value = owner_id
-            else:
-                owner_id_value = row["owner_id"]
-                db.execute(
-                    "UPDATE identities SET display_name=?,avatar_data_url=?,oauth_provider=?,oauth_subject=?,updated_at=? WHERE owner_id=?",
-                    (display_name, avatar_data_url or None, provider, subject, now, owner_id_value),
-                )
-        identity = self._identity(owner_id_value)
-        with self._connect() as db:
-            residence_row = db.execute(
-                "SELECT * FROM residences WHERE owner_id=? ORDER BY created_at ASC LIMIT 1",
-                (owner_id_value,),
-            ).fetchone()
-        if residence_row is None:
-            raise ValueError("Google identity has no Human Residence")
-        residence = dict(residence_row)
-        return identity, {
-            "residence_id": residence["residence_id"],
-            "owner_id": residence["owner_id"],
-            "display_name": residence["display_name"],
-            "email": identity["email"],
-            "residence_type": residence["residence_type"],
-            "created_at": residence["created_at"],
-            "members": [{"role": "owner", "owner_id": owner_id_value}],
-            "metadata": json.loads(residence["payload_json"] or "{}"),
-        }
 
     def login(self, *, email: str, password: str) -> dict[str, Any]:
         with self._connect() as db:
