@@ -163,6 +163,15 @@ class _CivilizationPageState extends State<CivilizationPage> {
                       ),
                       const SizedBox(height: 5),
                       Text(
+                        'Criterivox Civilization',
+                        style: TextStyle(
+                          color: t.mutedText,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
                         'Explore responsibilities, Homes and meaningful system relationships.',
                         style: TextStyle(
                           color: t.mutedText,
