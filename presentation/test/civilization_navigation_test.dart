@@ -6,6 +6,7 @@ import '../lib/civilization_page.dart';
 import '../lib/civilization_home_preview_page.dart';
 import '../lib/bloom_companion.dart';
 import '../lib/character/character_identity.dart';
+import '../lib/level2_operational_page.dart';
 
 void main() {
   testWidgets('Civilization exposes canonical homes and Anukor network territory', (tester) async {
@@ -44,6 +45,22 @@ void main() {
     );
     expect(find.text('Vivren'), findsOneWidget);
     expect(find.textContaining('underlying system work'), findsOneWidget);
+  });
+
+  testWidgets('Civilization exposes semantic relationship and registry visuals', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: CivilizationPage()));
+    expect(find.text('Cross-home relationship network'), findsOneWidget);
+    expect(find.text('Civilization home registry'), findsOneWidget);
+    expect(find.text('Inspection path'), findsOneWidget);
+  });
+
+  testWidgets('Level 2 exposes semantic visual forms for each home', (tester) async {
+    await tester.pumpWidget(MaterialApp(home: Level2OperationalPage(homeId: 'evidence', onBack: () {})));
+    expect(find.text('Evidence chain'), findsOneWidget);
+    await tester.pumpWidget(MaterialApp(home: Level2OperationalPage(homeId: 'decision', onBack: () {})));
+    expect(find.text('Decision structure'), findsOneWidget);
+    await tester.pumpWidget(MaterialApp(home: Level2OperationalPage(homeId: 'context', onBack: () {})));
+    expect(find.text('Context inspection sequence'), findsOneWidget);
   });
 
   test('canonical identity registry resolves all civilization residents', () {
