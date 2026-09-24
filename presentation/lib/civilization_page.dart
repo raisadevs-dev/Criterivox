@@ -8,6 +8,7 @@ import 'foundation/criterivox_status.dart';
 import 'foundation/criterivox_visual_tokens.dart';
 import 'presentation/criterivox_theme.dart';
 import 'presentation/presentation_state.dart';
+import 'semantic_visualizations.dart';
 
 class CivilizationPage extends StatefulWidget {
   final PresentationState? state;
@@ -252,6 +253,46 @@ class _CivilizationPageState extends State<CivilizationPage> {
                 state: widget.state,
               ),
             ],
+            const SizedBox(height: 6),
+            CriterivoxSemanticVisuals.status(
+              context,
+              label: 'Civilization read-model',
+              detail: widget.state == null ? 'Ready' : 'Runtime state available',
+              active: true,
+            ),
+            CriterivoxSemanticVisuals.network(
+              context,
+              title: 'Cross-home relationship network',
+              relationships: [
+                for (final relation in CivilizationPage.relationships)
+                  SemanticRelationship(relation.from, relation.to, relation.meaning),
+              ],
+            ),
+            CriterivoxSemanticVisuals.table(
+              context,
+              title: 'Civilization home registry',
+              columns: const ['Home', 'District', 'Residents', 'Responsibility'],
+              rows: [
+                for (final home in CivilizationPage.canonicalHomes)
+                  [home.name, home.district, home.residents.length.toString(), home.responsibility],
+              ],
+            ),
+            CriterivoxSemanticVisuals.progress(
+              context,
+              label: 'Civilization homes represented in the world read-model',
+              completed: CivilizationPage.canonicalHomes.length,
+              total: CivilizationPage.canonicalHomes.length,
+            ),
+            CriterivoxSemanticVisuals.timeline(
+              context,
+              title: 'Inspection path',
+              items: const [
+                SemanticTimelineItem('World', 'Orient in the civilization map.'),
+                SemanticTimelineItem('Home', 'Choose the responsibility boundary.'),
+                SemanticTimelineItem('Character', 'Inspect a canonical resident identity.'),
+                SemanticTimelineItem('Responsibility', 'Open Level 2 operational meaning.'),
+              ],
+            ),
             _Relations(
               selected: selectedCharacter,
               onSelect: _selectCharacter,
