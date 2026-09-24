@@ -10,6 +10,7 @@ from ..application.home03_store import home03_store
 from ..application.home03_bridge import install as install_home03_bridge
 from ..application.human_residence_store import human_residences
 from ..application.human_residence_local_store import human_residence_local
+from ..application import google_oauth
 from ..human.guest_pass import GuestPassManager
 from ..human.collaboration_routes import router as collaboration_router
 from ..infrastructure.runtime import runtime_connections
@@ -32,6 +33,48 @@ async def human_auth_login(payload: dict):
         return {'accepted': True, 'identity': result, 'session_token': human_residence_local.issue_session(result['owner_id']), 'storage': 'local-sqlite'}
     except ValueError as exc:
         return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=401)
+
+@router.get('/api/human-auth/google/start')
+async def human_auth_google_start():
+    try:
+        return {'accepted': True, 'provider': 'google', 'configured': google_oauth.configured(), 'authorization_url': google_oauth.authorization_url()}
+    except RuntimeError as exc:
+        return JSONResponse({'accepted': False, 'provider': 'google', 'configured': False, 'error': str(exc)}, status_code=503)
+
+@router.get('/api/human-auth/google/callback')
+async def human_auth_google_callback(code: str = '', state: str = ''):
+    from fastapi.responses import RedirectResponse
+    try:
+        result = google_oauth.complete(code, state)
+        target = str(__import__('os').getenv('CRITERIVOX_GOOGLE_FRONTEND_REDIRECT', '/')).strip() or '/'
+        separator = '&' if '?' in target else '?'
+        return RedirectResponse(f"{target}{separator}google_session={result['session_token']}")
+    except Exception as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=400)
+
+@router.get('/api/human-auth/google/session')
+async def human_auth_google_session(token: str = ''):
+    owner_id = human_residence_local.owner_for_session(token)
+    if owner_id is None:
+        return JSONResponse({'accepted': False, 'error': 'invalid_google_session'}, status_code=401)
+    identity = human_residence_local._identity(owner_id)
+    with human_residence_local._connect() as db:
+        row = db.execute(
+            "SELECT * FROM residences WHERE owner_id=? ORDER BY created_at ASC LIMIT 1",
+            (owner_id,),
+        ).fetchone()
+    if row is None:
+        return JSONResponse({'accepted': False, 'error': 'residence_not_found'}, status_code=404)
+    return {'accepted': True, 'identity': identity, 'session_token': token, 'residence': {
+        'residence_id': row['residence_id'],
+        'owner_id': row['owner_id'],
+        'display_name': row['display_name'],
+        'email': identity['email'],
+        'residence_type': row['residence_type'],
+        'created_at': row['created_at'],
+        'members': [{'role': 'owner', 'owner_id': owner_id}],
+        'metadata': json.loads(row['payload_json'] or '{}'),
+    }}
 
 @router.post('/api/human-auth/profile')
 async def human_auth_profile(payload: dict):
@@ -202,6 +245,16 @@ async def human_residence_calendar_update(calendar_id: str, payload: dict):
         )}
     except ValueError as exc:
         return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=404)
+
+@router.get('/api/human-residence/google-search/status')
+async def google_search_status():
+    from ..application.external_research import google_research
+    return {
+        'provider': 'google-programmable-search',
+        'configured': google_research.configured,
+        'account_oauth_configured': google_oauth.configured(),
+        'note': 'Google account OAuth and Google Search API credentials are separate controls.',
+    }
 
 @router.get('/api/human-residence/research/status')
 async def human_residence_research_status():
