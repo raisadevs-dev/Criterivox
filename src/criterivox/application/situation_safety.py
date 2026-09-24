@@ -17,7 +17,9 @@ class SituationSafetyRouter:
     """Early safety routing. It does not diagnose or decide facts from images."""
 
     IMMEDIATE = (
-        re.compile(r"\b(?:right now|currently|at this moment)\b.{0,80}\b(?:unsafe|danger|threatened|attacked|hurt)\b", re.I),
+        re.compile(r"\b(?:unsafe|in danger|threatened|attacked|being hurt|being threatened)\b.{0,80}\b(?:right now|currently|at this moment)\b", re.I),
+        re.compile(r"\b(?:right now|currently|at this moment)\b.{0,80}\b(?:unsafe|in danger|threatened|attacked|being hurt|being threatened)\b", re.I),
+        re.compile(r"\b(?:someone|they|he|she)\b.{0,50}\b(?:is|are|was|were)\s+(?:threatening|attacking|hurting)\b", re.I),
         re.compile(r"\b(?:going to|will)\b.{0,50}\b(?:hurt|attack)\b", re.I),
         re.compile(r"\b(?:help me|help)\b.{0,50}\b(?:danger|unsafe|threat)\b", re.I),
     )
