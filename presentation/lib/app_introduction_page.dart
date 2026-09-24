@@ -8,7 +8,7 @@ class AppIntroductionPage extends StatelessWidget{
   const AppIntroductionPage({super.key,required this.onOpenWorkspace,required this.onOpenCivilization});
   @override Widget build(BuildContext context){
     final t=CriterivoxTheme.of(context);
-    return SingleChildScrollView(key:const ValueKey('intro'),padding:const EdgeInsets.fromLTRB(24,24,24,40),child:Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[
+    return SingleChildScrollView(padding:const EdgeInsets.fromLTRB(24,24,24,40),child:Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[
       _hero(t),const SizedBox(height:16),
       _section(t,'WHAT IS CRITERIVOX','Criterivox is a human decision-support system. It helps you organize a situation, work with context and evidence, examine alternatives, inspect explanations and keep the human in control of the final decision.'),
       const SizedBox(height:12),
