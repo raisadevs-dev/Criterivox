@@ -87,7 +87,9 @@ class _SessionCharacterAnimationViewState
     _controller = AnimationController(
         vsync: this,
         duration: Duration(milliseconds: (_motion.duration * 1000).round()));
-    if (!widget.reducedMotion) _controller.repeat();
+    if (!widget.reducedMotion) {
+      _controller.repeat();
+    }
   }
 
   @override
