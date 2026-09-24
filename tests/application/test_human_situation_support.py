@@ -70,3 +70,17 @@ def test_image_role_is_preserved_without_image_inference():
     )
     assert understanding.situation.image_roles == ("screenshot",)
     assert understanding.situation.image_count == 1
+
+
+class _FakeLanguage:
+    def synthesize(self, *, situation, structured):
+        return "WHAT I UNDERSTAND\nA human situation."
+
+
+def test_language_layer_is_used_when_available():
+    result = HumanSituationOrchestrator(language=_FakeLanguage()).execute(
+        description="I need help deciding how to organize my project."
+    )
+    assert result["status"] == "ready"
+    assert result["ollama_used"] is True
+    assert result["human_readable"].startswith("WHAT I UNDERSTAND")
