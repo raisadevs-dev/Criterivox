@@ -8,6 +8,7 @@ from pydantic import BaseModel,ConfigDict,Field,ValidationError,model_validator
 from criterivox.application.analysis_tasks import analysis_tasks
 from criterivox.application.contracts import ApplicationRequest
 from criterivox.application.conversation import interpret_message
+from criterivox.application.character_intelligence import reply as character_intelligence_reply
 from criterivox.application.language_intake import detect_language_profile, interpretation_summary
 from criterivox.application.language_service import language_service
 from criterivox.application.research_instrumentation import research_instrumentation
@@ -240,8 +241,27 @@ async def handle_chat_message(payload):
   await _queue_chat_confirmation(character=target,original=message,interpretation=interpretation,task=task,participant_id=participant_id)
   _record_instrumentation(event_type='interpretation_confirmation_requested',participant_id=participant_id,payload={'confirmation_status':'PENDING','task_id':task.task_id,'interpretation':interpretation.normalized_text,'confirmation_timeout_seconds':CHAT_CONFIRMATION_TIMEOUT_SECONDS})
   return
- if target not in {'syvax','dharen'}:
-  await _safe_character_chat(payload)
+ if interpretation.intent == 'unknown':
+  intelligence = character_intelligence_reply(
+   target,
+   message,
+   context={
+    'task_id': task_id,
+    'data': payload.get('data', {}),
+    'context': payload.get('context', {}),
+    'language_profile': profile.to_dict(),
+   },
+  )
+  await _publish_character(
+   target.title(),
+   CharacterState.COMMUNICATE,
+   message=intelligence.text,
+   event='CHARACTER_CHAT_RESPONSE',
+   task=analysis_tasks.get_task(str(task_id)) if task_id is not None and str(task_id) in analysis_tasks.store.tasks else None,
+   execution_engine=intelligence.provider,
+   execution_tier=intelligence.model,
+   fallback_used=intelligence.fallback,
+  )
   return
  if target=='syvax':
   if interpretation.intent in {'history','current','next','status'}:
