@@ -127,6 +127,26 @@ async def human_decisions_list(session_token: str, query: str = ''):
         return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
     return {'accepted': True, 'decisions': human_residence_local.list_decisions(owner_id, query)}
 
+@router.post('/api/human-situation/understand')
+async def human_situation_understand(payload: dict):
+    from ..application.human_situation_orchestrator import human_situation_orchestrator
+    try:
+        result = human_situation_orchestrator.execute(
+            description=str(payload.get('description', '')),
+            session_token=str(payload.get('session_token', '')),
+            residence_id=str(payload.get('residence_id', '')),
+            image_count=int(payload.get('image_count', 0) or 0),
+            image_roles=tuple(str(x) for x in payload.get('image_roles', []) if x),
+            supplied_data=str(payload.get('data', '')),
+            context=str(payload.get('context', '')),
+            allow_external_research=bool(payload.get('allow_external_research', False)),
+        )
+        return {'accepted': True, **result}
+    except ValueError as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=400)
+    except Exception as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=502)
+
 @router.post('/api/human-residence/decision')
 async def human_residence_decision(payload: dict):
     from ..application.decision_orchestrator import decision_orchestrator
