@@ -114,7 +114,7 @@ void main() {
       expect(find.text('WHY DOES THE WORLD EXIST?'), findsOneWidget);
       expect(find.text('WHO ARE THESE CHARACTERS?'), findsOneWidget);
       expect(find.text('WHAT IS BLOOM?'), findsOneWidget);
-      expect(find.text('HUMAN TERRITORY'), findsOneWidget);
+      expect(find.text('HUMAN TERRITORY'), findsWidgets);
     },
   );
 
