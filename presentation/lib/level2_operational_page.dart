@@ -1304,7 +1304,8 @@ class _Level2OperationalPageState extends State<Level2OperationalPage> {
       backgroundColor: theme.page,
       body: SafeArea(
         child: CriterivoxResponsiveScene(
-          child: Column(
+          child: SingleChildScrollView(
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(
