@@ -139,6 +139,8 @@ class HumanSituationOrchestrator:
                 "Keep relevant messages or records where doing so is safe and appropriate.",
                 "Avoid escalating the confrontation; stay near supportive people.",
             ]
+            if any(word in u.situation.description.lower() for word in ("school", "class", "teacher", "exam")):
+                next_steps.append("If this is happening at school, ask a teacher, counselor, parent/guardian, or appropriate school staff member to help.")
         elif options:
             next_steps = list(options[0].get("steps", []))
         result = DecisionSupportResult(
