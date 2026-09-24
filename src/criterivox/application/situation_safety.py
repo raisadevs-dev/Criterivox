@@ -27,6 +27,23 @@ class SituationSafetyRouter:
     )
 
     def assess(self, text: str) -> SafetyAssessment:
+        answer = re.search(r"User safety answer:\s*(yes|no|i'm not sure)\\b", text, re.I)
+        if answer and answer.group(1).lower() in {"no", "i'm not sure"}:
+            return SafetyAssessment(
+                SafetyLevel.SENSITIVE,
+                ("The user reports no confirmed immediate danger, but the situation remains safety-sensitive.",),
+                (
+                    "What happened?",
+                    "Has this happened more than once?",
+                    "Is there a trusted adult or supportive person who knows?",
+                ),
+            )
+        if answer and answer.group(1).lower() == "yes":
+            return SafetyAssessment(
+                SafetyLevel.IMMEDIATE,
+                ("The user reports that they are not safe right now.",),
+                ("Are you safe right now?",),
+            )
         immediate = [p.pattern for p in self.IMMEDIATE if p.search(text)]
         if immediate:
             return SafetyAssessment(
