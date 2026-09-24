@@ -25,7 +25,7 @@ def _now() -> str:
 def _password_hash(password: str, salt: bytes | None = None) -> str:
     salt = salt or secrets.token_bytes(16)
     digest = hashlib.scrypt(password.encode("utf-8"), salt=salt, n=2**14, r=8, p=1)
-    return f"scrypt\${salt.hex()}\${digest.hex()}"
+    return f"scrypt${salt.hex()}${digest.hex()}"
 
 def _password_matches(password: str, encoded: str) -> bool:
     try:
