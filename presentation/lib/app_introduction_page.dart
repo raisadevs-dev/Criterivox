@@ -6,7 +6,7 @@ class AppIntroductionPage extends StatelessWidget{
   final VoidCallback onOpenWorkspace;
   final VoidCallback onOpenCivilization;
   final ValueChanged<String>? onOpenCharacter;
-  const AppIntroductionPage({super.key,required this.onOpenWorkspace,required this.onOpenCivilization});
+  const AppIntroductionPage({super.key,required this.onOpenWorkspace,required this.onOpenCivilization,this.onOpenCharacter});
   @override Widget build(BuildContext context){
     final t=CriterivoxTheme.of(context);
     return SingleChildScrollView(padding:const EdgeInsets.fromLTRB(24,24,24,40),child:Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[
