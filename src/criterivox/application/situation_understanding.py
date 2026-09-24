@@ -38,7 +38,7 @@ class SituationUnderstandingService:
             kind = "school_or_work"
 
         questions = list(safety.questions)
-        if intent == "decision_support" and not re.search(r"\b(?:three|two|\d+)\b", lower):
+        if intent == "decision_support" and (not re.search(r"\b(?:three|two|\d+)\b", lower) or re.search(r"\b(?:several|multiple|a few)\s+(?:choices|options)\b", lower)):
             questions.append("What are the main options you are considering?")
         if kind == "bullying_or_harassment":
             questions = list(dict.fromkeys(questions))
