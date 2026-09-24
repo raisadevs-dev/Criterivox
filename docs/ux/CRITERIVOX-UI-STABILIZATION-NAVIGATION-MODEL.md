@@ -140,3 +140,24 @@ Civilization Level 1 establishes world/home/resident meaning. Level 2 exposes op
 ### Truth boundary
 
 The UI does not manufacture system activity, evidence, relationships or computational results to make the world appear alive. Runtime/domain work remains authoritative; the civilization and companion are presentation/inspection surfaces.
+
+
+## Semantic visualization implementation
+
+The semantic visual contract is now implemented as reusable presentation components in `presentation/lib/semantic_visualizations.dart` and is wired into Civilization and Level 2:
+
+| Information type | Rendered form | Source boundary |
+|---|---|---|
+| Current civilization/read-model state | Status indicator | Presentation/runtime availability |
+| Home resident quantities | Horizontal bar comparison | Canonical home resident lists |
+| Home/room records | Structured table | Canonical home and Level 2 catalogs |
+| Civilization relationships | Relationship network | `CivilizationPage.relationships` |
+| Inspection progression | Timeline | Canonical World → Home → Character → Responsibility path |
+| Evidence progression | Evidence chain | Evidence Home inspection surface |
+| Decision framing | Decision structure | Decision Home inspection surface |
+| Responsibility summary | Cards | Selected Level 2 room |
+| Documented responsibility coverage | Progress visualization | Level 2 room catalog |
+
+Bars are only used for a real quantitative value already present in the read-model, rather than fabricated telemetry. Relationship labels are the documented semantic relationships and do not imply social affinity. Evidence and decision surfaces expose structure, not private chain-of-thought.
+
+The Civilization navigation test suite now asserts the semantic network/registry surfaces and Level 2 tests assert the evidence, decision and contextual visual forms.
