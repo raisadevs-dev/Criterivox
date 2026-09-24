@@ -54,8 +54,53 @@ class CriterivoxSemanticVisuals {
     );
   }
   static Widget bars(BuildContext context,{required String title,required Map<String,int> values}) {
-    final t=CriterivoxTheme.of(context); final maxValue=values.values.fold<int>(0,(m,v)=>v>m?v:m);
-    return _Panel(title:title,child:Column(children:values.entries.map((e){final f=maxValue==0?0.0:e.value/maxValue;return Padding(padding:const EdgeInsets.only(bottom:9),child:Row(children:[SizedBox(width:86,child:Text(e.key,overflow:TextOverflow.ellipsis,style:TextStyle(color:t.mutedText,fontSize:9))),Expanded(child:ClipRRect(borderRadius:BorderRadius.circular(6),child:LinearProgressIndicator(value:f,minHeight:12))),const SizedBox(width:7),SizedBox(width:22,child:Text(e.value.toString(),textAlign:TextAlign.right,style:TextStyle(color:t.text,fontSize:9,fontWeight:FontWeight.w700)))]));}).toList()));
+    final t = CriterivoxTheme.of(context);
+    final maxValue = values.values.fold<int>(0, (m, v) => v > m ? v : m);
+    return _Panel(
+      title: title,
+      child: Column(
+        children: [
+          for (final entry in values.entries)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 9),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 86,
+                    child: Text(
+                      entry.key,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: t.mutedText, fontSize: 9),
+                    ),
+                  ),
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: LinearProgressIndicator(
+                        value: maxValue == 0 ? 0.0 : entry.value / maxValue,
+                        minHeight: 12,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 7),
+                  SizedBox(
+                    width: 22,
+                    child: Text(
+                      entry.value.toString(),
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        color: t.text,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
   }
   static Widget table(BuildContext context,{required String title,required List<String> columns,required List<List<String>> rows}) {
     final t=CriterivoxTheme.of(context); return _Panel(title:title,child:SingleChildScrollView(scrollDirection:Axis.horizontal,child:DataTable(columnSpacing:22,headingTextStyle:TextStyle(color:t.text,fontSize:10,fontWeight:FontWeight.w800),dataTextStyle:TextStyle(color:t.mutedText,fontSize:9.5),columns:columns.map((c)=>DataColumn(label:Text(c))).toList(),rows:rows.map((r)=>DataRow(cells:r.map((v)=>DataCell(Text(v))).toList())).toList()));
