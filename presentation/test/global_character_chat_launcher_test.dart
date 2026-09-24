@@ -90,7 +90,7 @@ void main() {
       final intro = find.byKey(const ValueKey('intro'));
       expect(intro, findsOneWidget);
 
-      final civilizationLink = find.text('Criterivox Civilization');
+      final civilizationLink = find.text('Explore Civilization');
       expect(civilizationLink, findsOneWidget);
       await tester.ensureVisible(civilizationLink);
       await tester.pump();
