@@ -16,7 +16,42 @@ class CriterivoxSemanticVisuals {
     return _Panel(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Row(children:[Expanded(child:Text(label,style:TextStyle(color:t.text,fontWeight:FontWeight.w700,fontSize:11))),Text(completed.toString()+' / '+total.toString(),style:TextStyle(color:t.mutedText,fontSize:10))]),const SizedBox(height:8),ClipRRect(borderRadius:BorderRadius.circular(8),child:LinearProgressIndicator(value:value,minHeight:8))]));
   }
   static Widget timeline(BuildContext context,{required String title,required List<SemanticTimelineItem> items}) {
-    final t=CriterivoxTheme.of(context); return _Panel(title:title,child:Column(children:[for(var i=0;i<items.length;i++) Row(crossAxisAlignment:CrossAxisAlignment.start,children:[SizedBox(width:24,child:Column(children:[Container(width:10,height:10,decoration:BoxDecoration(color:t.primary,shape:BoxShape.circle)),if(i<items.length-1)Container(width:2,height:38,color:t.border)])),Expanded(child:Padding(padding:const EdgeInsets.only(bottom:14),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(items[i].title,style:TextStyle(color:t.text,fontWeight:FontWeight.w700,fontSize:11)),const SizedBox(height:2),Text(items[i].detail,style:TextStyle(color:t.mutedText,fontSize:9.5,height:1.35))])))]));
+    final t=CriterivoxTheme.of(context);
+    return _Panel(
+      title: title,
+      child: Column(
+        children: [
+          for (var i=0; i<items.length; i++)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 24,
+                  child: Column(
+                    children: [
+                      Container(width: 10,height: 10,decoration: BoxDecoration(color: t.primary,shape: BoxShape.circle)),
+                      if (i < items.length - 1) Container(width: 2,height: 38,color: t.border),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(items[i].title,style: TextStyle(color:t.text,fontWeight:FontWeight.w700,fontSize:11)),
+                        const SizedBox(height:2),
+                        Text(items[i].detail,style: TextStyle(color:t.mutedText,fontSize:9.5,height:1.35)),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
   }
   static Widget bars(BuildContext context,{required String title,required Map<String,int> values}) {
     final t=CriterivoxTheme.of(context); final maxValue=values.values.fold<int>(0,(m,v)=>v>m?v:m);
