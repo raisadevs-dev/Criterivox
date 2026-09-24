@@ -1304,6 +1304,37 @@ class _SidebarState extends State<_Sidebar> {
                       expanded, t,
                     ),
                     const SizedBox(height: 12),
+                    _group(
+                      'CIVILIZATION TERRITORY',
+                      Icons.account_tree_rounded,
+                      civilizationOpen,
+                      widget.page == 'civilization' ||
+                          widget.page == 'home-preview' ||
+                          widget.page == 'level2' ||
+                          widget.page == 'reasoning-room' ||
+                          widget.page == 'decision-action' ||
+                          widget.page == 'evidence-experiment',
+                      () => setState(() {
+                        civilizationOpen = !civilizationOpen;
+                      }),
+                      expanded, t,
+                    ),
+                    if (expanded && civilizationOpen) ...[
+                      _nav(
+                        'Civilization Workers',
+                        Icons.account_tree_rounded,
+                        widget.page == 'civilization',
+                        () => widget.onOpen('civilization'),
+                        true, t, indent: true,
+                      ),
+                      _nav(
+                        'Character Network / Chat',
+                        Icons.forum_rounded,
+                        widget.page == 'chat',
+                        () => widget.onOpen('chat'),
+                        true, t, indent: true,
+                      ),
+                    ],
 
                     _group(
                       strings.humanTerritory,
