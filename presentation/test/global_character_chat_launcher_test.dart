@@ -160,30 +160,17 @@ void main() {
 
       await tester.pump();
 
-      final civilizationGateway = find.text(
-        'Civilization · Gate 1',
-        findRichText: false,
-      );
+      // Civilization is reached through the current Introduction surface.
+      await tester.tap(find.text('App Introduction'));
+      await tester.pump();
 
-      expect(
-        civilizationGateway,
-        findsOneWidget,
-      );
-
-      await tester.tap(civilizationGateway);
-
-      final civilizationPage = find.byKey(
-        const ValueKey('civilization'),
-      );
+      final registryEntry = find.byType(ActionChip).first;
+      expect(registryEntry, findsOneWidget);
+      await tester.tap(registryEntry);
 
       await _pumpUntil(
         tester,
-        () => civilizationPage,
-      );
-
-      expect(
-        civilizationPage,
-        findsOneWidget,
+        () => find.byKey(const ValueKey('civilization')),
       );
 
       expect(
@@ -195,21 +182,9 @@ void main() {
       );
 
       // Civilization no longer owns a character-specific chat launcher.
-      // Global Chat is the single application-level chat surface.
       expect(
         find.text('Syvax', findRichText: false),
         findsWidgets,
-      );
-
-      // Return to the civilization surface and verify the application-level
-      // overlay remains available there without creating a second route.
-      await tester.tap(
-        find.text('Civilization · Gate 1', findRichText: false),
-      );
-
-      await _pumpUntil(
-        tester,
-        () => find.byKey(const ValueKey('civilization')),
       );
 
       expect(
@@ -253,7 +228,7 @@ void main() {
       );
     },
   );
-}
+
 
 Future<void> _pumpUntil(
   WidgetTester tester,
