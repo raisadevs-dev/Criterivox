@@ -124,5 +124,5 @@ def interpretation_summary(intent: str, route_target: str | None) -> str:
     }
     result = summaries.get(intent, "Criterivox will interpret this human input before acting.")
     if route_target:
-        result += f" The interpreted route is {route_target}."
+        result += f" The interpreted route is {route_target[:1].upper() + route_target[1:]}."
     return result
