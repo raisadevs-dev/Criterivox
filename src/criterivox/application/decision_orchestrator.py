@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
+import os
 
 from .data_foundation_store import data_foundations
-from .external_research import google_research
+from .external_research import google_research, openai_research
 from .human_residence_local_store import human_residence_local
 from .syvax import syvax_engine
 
@@ -73,11 +74,13 @@ class DecisionOrchestrator:
         research_run = None
         if allow_external_research:
             query = self._research_query(goal, context)
-            research_run = google_research.search(query, requested_by_email=email)
+            provider = os.getenv("CRITERIVOX_EXTERNAL_RESEARCH_PROVIDER", "google").strip().lower()
+            research_provider = openai_research if provider == "openai" else google_research
+            research_run = research_provider.search(query, requested_by_email=email)
             event(
-                "google-research",
+                research_run.provider,
                 "external evidence",
-                f"Searched Google for: {query}",
+                f"Searched outside Criterivox using {research_run.provider}: {query}",
                 run_id=research_run.run_id,
                 result_count=len(research_run.results),
             )
