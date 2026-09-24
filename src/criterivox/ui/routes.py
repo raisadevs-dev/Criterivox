@@ -10,7 +10,6 @@ from ..application.home03_store import home03_store
 from ..application.home03_bridge import install as install_home03_bridge
 from ..application.human_residence_store import human_residences
 from ..application.human_residence_local_store import human_residence_local
-from ..application import google_oauth
 from ..human.guest_pass import GuestPassManager
 from ..human.collaboration_routes import router as collaboration_router
 from ..infrastructure.runtime import runtime_connections
