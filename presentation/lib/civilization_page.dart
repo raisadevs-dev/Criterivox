@@ -268,6 +268,14 @@ class _CivilizationPageState extends State<CivilizationPage> {
                   SemanticRelationship(relation.from, relation.to, relation.meaning),
               ],
             ),
+            CriterivoxSemanticVisuals.bars(
+              context,
+              title: 'Residents by Home',
+              values: {
+                for (final home in CivilizationPage.canonicalHomes)
+                  home.name: home.residents.length,
+              },
+            ),
             CriterivoxSemanticVisuals.table(
               context,
               title: 'Civilization home registry',
