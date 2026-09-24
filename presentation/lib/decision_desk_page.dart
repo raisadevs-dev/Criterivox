@@ -49,7 +49,9 @@ class _DecisionDeskPageState extends State<DecisionDeskPage> {
     final safety=understanding?['situation'] is Map?(understanding!['situation'] as Map)['safety']?.toString():null;
     final sensitive=safety=='sensitive'||safety=='immediate';
     final next=support?['suggested_next_steps'], matters=support?['what_matters'], uncertain=support?['uncertainties'];
-    return SingleChildScrollView(key:const ValueKey('decision-desk'),padding:const EdgeInsets.all(24),child:Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[
+    return Material(
+      color: Colors.transparent,
+      child: SingleChildScrollView(key:const ValueKey('decision-desk'),padding:const EdgeInsets.all(24),child:Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[
       Text('DECISION DESK',style:TextStyle(color:t.primary,fontSize:11,fontWeight:FontWeight.w900,letterSpacing:1.8)),
       const SizedBox(height:6),Text('Bring the messy situation. Keep the architecture hidden.',style:TextStyle(color:t.text,fontSize:28,fontWeight:FontWeight.w800)),
       const SizedBox(height:6),Text('Describe what is happening in ordinary language. Criterivox separates what you reported, what matters, what is uncertain, and what you can do next.',style:TextStyle(color:t.mutedText,fontSize:12,height:1.45)),
