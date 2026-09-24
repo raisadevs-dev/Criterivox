@@ -61,27 +61,30 @@ class CriterivoxSemanticVisuals {
     final t=CriterivoxTheme.of(context); return _Panel(title:title,child:SingleChildScrollView(scrollDirection:Axis.horizontal,child:DataTable(columnSpacing:22,headingTextStyle:TextStyle(color:t.text,fontSize:10,fontWeight:FontWeight.w800),dataTextStyle:TextStyle(color:t.mutedText,fontSize:9.5),columns:columns.map((c)=>DataColumn(label:Text(c))).toList(),rows:rows.map((r)=>DataRow(cells:r.map((v)=>DataCell(Text(v))).toList())).toList()));
   }
   static Widget network(BuildContext context,{required String title,required List<SemanticRelationship> relationships}) {
-    final t=CriterivoxTheme.of(context);
+    final t = CriterivoxTheme.of(context);
     return _Panel(
       title: title,
       child: Column(
-        children: relationships.map((r) => Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: Row(
-            children: [
-              _Node(text: _name(r.from), theme: t),
-              Expanded(
-                child: Column(
-                  children: [
-                    Icon(Icons.arrow_forward_rounded, color: t.primary, size: 15),
-                    Text(r.label, textAlign: TextAlign.center, style: TextStyle(color:t.mutedText,fontSize:8)),
-                  ],
-                ),
+        children: [
+          for (final r in relationships)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  _Node(text: _name(r.from), theme: t),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Icon(Icons.arrow_forward_rounded, color: t.primary, size: 15),
+                        Text(r.label, textAlign: TextAlign.center, style: TextStyle(color: t.mutedText, fontSize: 8)),
+                      ],
+                    ),
+                  ),
+                  _Node(text: _name(r.to), theme: t),
+                ],
               ),
-              _Node(text: _name(r.to), theme: t),
-            ],
-          ),
-        )).toList(),
+            ),
+        ],
       ),
     );
   }
