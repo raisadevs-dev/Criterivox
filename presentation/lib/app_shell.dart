@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import 'app_introduction_page.dart';
 import 'bloom_page.dart';
+import 'bloom_companion.dart';
+import 'civilization_world_portal_page.dart';
 import 'civilization_page.dart';
 import 'civilization_home_preview_page.dart';
 import 'level2_operational_page.dart';
@@ -216,6 +218,28 @@ class _ShellState extends State<CriterivoxShell> {
   void openCharacterFocus(String id) {
     setState(() => focusedCharacter = id);
     open('character-focus');
+  }
+
+  String? _characterHome(String id) {
+    const homes = <String, String>{
+      'syvax': 'gateway', 'sandre': 'data', 'kaelen': 'data',
+      'dharen': 'context', 'anuka': 'context',
+      'vivren': 'reasoning', 'tarkis': 'reasoning',
+      'pramon': 'decision', 'bodhex': 'decision', 'manis': 'decision',
+      'medrus': 'evidence', 'epistre': 'evidence', 'veridat': 'evidence',
+      'viveda': 'knowledge',
+    };
+    return homes[id.toLowerCase()];
+  }
+
+  void openCharacterHome(String id) {
+    final home = _characterHome(id);
+    if (home == null) {
+      open('civilization');
+      return;
+    }
+    setState(() => civilizationHome = home);
+    open('home-preview');
   }
 
   void handoffFromBloom() {
@@ -596,6 +620,18 @@ class _ShellState extends State<CriterivoxShell> {
               ],
             ),
 
+            if (_isCivilizationExperience)
+              Positioned(
+                left: 16,
+                bottom: 18,
+                child: BloomCompanion(
+                  location: _companionLocation,
+                  characterId: focusedCharacter,
+                  onReturnToBloom: () => open('bloom'),
+                  compact: MediaQuery.sizeOf(context).width < 900,
+                ),
+              ),
+
             if (page != 'chat')
               Positioned.fill(
                 child: IgnorePointer(
@@ -675,6 +711,22 @@ class _ShellState extends State<CriterivoxShell> {
     );
   }
 
+  bool get _isCivilizationExperience => const {
+        'bloom', 'civilization', 'home-preview', 'level2',
+        'reasoning-room', 'character-focus', 'decision-action',
+        'evidence-experiment',
+      }.contains(page);
+
+  String get _companionLocation {
+    if (page == 'bloom') return 'bloom';
+    if (page == 'civilization') return 'civilization';
+    if (page == 'home-preview') return 'home';
+    if (page == 'level2') return 'level2';
+    if (page == 'reasoning-room') return 'reasoning-room';
+    if (page == 'character-focus') return 'character-focus';
+    return 'home';
+  }
+
   Widget _buildPage(
     PresentationState? workspaceState,
   ) {
@@ -690,6 +742,9 @@ class _ShellState extends State<CriterivoxShell> {
           key: ValueKey('character-focus-${focusedCharacter ?? 'unknown'}'),
           characterId: focusedCharacter ?? 'dharen',
           onBack: () => open('civilization'),
+          onOpenHome: focusedCharacter == null
+              ? null
+              : () => openCharacterHome(focusedCharacter!),
         );
 
       case 'decision-desk':
@@ -727,6 +782,7 @@ class _ShellState extends State<CriterivoxShell> {
           homeId: civilizationHome ?? 'context',
           onBack: () => open('civilization'),
           onOpenOperationalHome: _openLevel2,
+          onOpenCharacter: openCharacterFocus,
         );
 
       case 'level2':
@@ -783,6 +839,7 @@ class _ShellState extends State<CriterivoxShell> {
         return CivilizationPage(
           key: const ValueKey('civilization'),
           state: state,
+          onBackToBloom: () => open('bloom'),
           onOpenHome: _openHome,
           onOpenCharacter: openCharacterFocus,
         );
@@ -880,6 +937,17 @@ class _ShellState extends State<CriterivoxShell> {
         );
 
       case 'bloom':
+        return CivilizationWorldPortalPage(
+          key: const ValueKey('world-portal'),
+          state: state,
+          onOpenCivilization: () => open('civilization'),
+          onOpenCapability: handleBloomActivation,
+          onStewardship: () => open('stewardship'),
+          onHandoff: handoffFromBloom,
+          onOpenAnalysis: () => open('workspace'),
+          busy: busy,
+        );
+
       default:
         return BloomPage(
           key: const ValueKey('bloom'),
