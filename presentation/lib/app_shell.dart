@@ -850,6 +850,7 @@ class _ShellState extends State<CriterivoxShell> {
           onOpenWorkspace: () => open('decision-desk'),
           onOpenCivilization: () =>
               open('civilization'),
+          onOpenCharacter: openCharacterFocus,
         );
 
       case 'chat':
