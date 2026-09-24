@@ -132,7 +132,7 @@ class HumanSituationOrchestrator:
     @staticmethod
     def _support(u: SituationUnderstanding, strategy: dict[str, Any], trace: list[dict[str, Any]], research: Any) -> dict[str, Any]:
         options = strategy.get("options") or []
-        next_steps = []
+        next_steps: list[str] = []
         if u.situation.safety is SafetyLevel.SENSITIVE:
             next_steps = [
                 "Tell a trusted adult or supportive person what happened.",
@@ -141,21 +141,26 @@ class HumanSituationOrchestrator:
             ]
         elif options:
             next_steps = list(options[0].get("steps", []))
-        return {
-            "situation_summary": u.situation.description,
-            "what_matters": ["What the user reported", "What remains uncertain", "Which next step is safe and reversible"],
-            "options": options,
-            "relevant_evidence": [
-                f"{len(research.get('results', []))} external research results attached." if isinstance(research, dict) else "No external evidence was requested."
-            ],
-            "uncertainties": list(u.situation.uncertainties) or ["Some context may still be missing."],
-            "suggested_next_steps": next_steps,
-            "safety_guidance": [
-                "The photos do not establish identity, intent, personality, or bullying behavior."
-            ] if u.situation.image_count else [],
-            "reasoning_summary": "Criterivox separated the reported situation from uncertain interpretation and routed it through existing decision capabilities.",
-            "deeper_inspection": {"trace": trace},
-        }
+        result = DecisionSupportResult(
+            situation_summary=u.situation.description,
+            what_matters=("What the user reported", "What remains uncertain", "Which next step is safe and reversible"),
+            options=tuple(options),
+            relevant_evidence=(
+                (f"{len(research.get('results', []))} external research results attached.",)
+                if isinstance(research, dict)
+                else ("No external evidence was requested.",)
+            ),
+            uncertainties=tuple(u.situation.uncertainties) or ("Some context may still be missing.",),
+            suggested_next_steps=tuple(next_steps),
+            safety_guidance=(
+                ("The photos do not establish identity, intent, personality, or bullying behavior.",)
+                if u.situation.image_count
+                else ()
+            ),
+            reasoning_summary="Criterivox separated the reported situation from uncertain interpretation and routed it through existing decision capabilities.",
+            deeper_inspection={"trace": trace},
+        )
+        return asdict(result)
 
     @staticmethod
     def _fallback_text(support: dict[str, Any]) -> str:
