@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'character/character_identity.dart';
-import 'character/session_character_animation.dart';
 import 'presentation/criterivox_theme.dart';
 
 class AppIntroductionPage extends StatelessWidget{
