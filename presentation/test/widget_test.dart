@@ -148,7 +148,7 @@ void main() {
           home: CriterivoxShell(
             isDarkMode: true,
             connectRuntime: false,
-            language: CriterivoxLanguage.hi,
+            language: CriterivoxLanguage.hindi,
           ),
         ),
       );
