@@ -84,7 +84,11 @@ class AgentFlowCoordinator:
 
         mapping = self._integration.event_to_agents(event)
 
-        if character_id not in mapping.character_ids:
-            return ()
+        if character_id in mapping.character_ids:
+            return self._LIFECYCLE
 
-        return self._LIFECYCLE
+        normalized = character_id.casefold()
+        if any(mapped.casefold() == normalized for mapped in mapping.character_ids):
+            return self._LIFECYCLE
+
+        return ()
