@@ -120,7 +120,7 @@ class _CivilizationPageState extends State<CivilizationPage> {
     return Material(
       color: Colors.transparent,
       child: SingleChildScrollView(
-      child: CriterivoxResponsiveScene(
+        child: CriterivoxResponsiveScene(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
