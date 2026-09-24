@@ -336,13 +336,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: saving ? null : _continueWithGoogle,
-                    icon: const Icon(Icons.account_circle_rounded),
-                    label: const Text('Continue with Google'),
-                  ),
+
                 ),
                 const SizedBox(height: 18),
                 if (mode == 'login') ...[
