@@ -90,15 +90,11 @@ void main() {
       final intro = find.byKey(const ValueKey('intro'));
       expect(intro, findsOneWidget);
 
-      final registryChips = find.descendant(
-        of: intro,
-        matching: find.byType(ActionChip),
-      );
-      expect(registryChips, findsNWidgets(15));
-
-      await tester.ensureVisible(registryChips.first);
+      final civilizationLink = find.text('Criterivox Civilization');
+      expect(civilizationLink, findsOneWidget);
+      await tester.ensureVisible(civilizationLink);
       await tester.pump();
-      await tester.tap(registryChips.first);
+      await tester.tap(civilizationLink);
       await _pumpUntil(
         tester,
         () => find.byKey(const ValueKey('civilization')),
