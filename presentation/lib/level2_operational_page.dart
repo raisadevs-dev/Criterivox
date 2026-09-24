@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'foundation/criterivox_responsive_scene.dart';
 import 'foundation/criterivox_status.dart';
+import 'semantic_visualizations.dart';
 
 class CriterivoxTheme {
   final Color page;
@@ -1352,6 +1353,80 @@ class _Level2OperationalPageState extends State<Level2OperationalPage> {
                   ),
                 ],
               ),
+              const SizedBox(height: 14),
+              CriterivoxSemanticVisuals.status(
+                context,
+                label: 'Operational home state',
+                detail: rooms.isEmpty ? 'Unavailable' : 'Documented',
+                active: rooms.isNotEmpty,
+              ),
+              CriterivoxSemanticVisuals.progress(
+                context,
+                label: 'Documented responsibilities',
+                completed: rooms.length,
+                total: rooms.length,
+              ),
+              CriterivoxSemanticVisuals.table(
+                context,
+                title: 'Room responsibility register',
+                columns: const ['Room', 'Owner', 'Input', 'Output'],
+                rows: [
+                  for (final room in rooms)
+                    [room.name, room.owner, room.input, room.output],
+                ],
+              ),
+              if (selected != null) ...[
+                CriterivoxSemanticVisuals.cards(
+                  context,
+                  title: 'Responsibility inspection',
+                  items: [
+                    MapEntry('Purpose', selected.purpose),
+                    MapEntry('Interaction', selected.interaction),
+                    MapEntry('Truth boundary', selected.truth.name),
+                  ],
+                ),
+              ],
+              if (widget.homeId == 'evidence')
+                CriterivoxSemanticVisuals.evidenceChain(context),
+              if (widget.homeId == 'decision')
+                CriterivoxSemanticVisuals.decisionStructure(context),
+              if (widget.homeId == 'knowledge')
+                CriterivoxSemanticVisuals.network(
+                  context,
+                  title: 'Knowledge relationship surface',
+                  relationships: const [
+                    SemanticRelationship('viveda', 'medrus', 'knowledge ← retained evidence'),
+                  ],
+                ),
+              if (widget.homeId == 'context')
+                CriterivoxSemanticVisuals.timeline(
+                  context,
+                  title: 'Context inspection sequence',
+                  items: const [
+                    SemanticTimelineItem('Context', 'Current situation and scope.'),
+                    SemanticTimelineItem('Adaptation', 'Context shifts are inspected explicitly.'),
+                    SemanticTimelineItem('Boundary', 'Conflicts and scope limits remain visible.'),
+                  ],
+                ),
+              if (widget.homeId == 'reasoning')
+                CriterivoxSemanticVisuals.network(
+                  context,
+                  title: 'Reasoning dependency surface',
+                  relationships: const [
+                    SemanticRelationship('dharen', 'vivren', 'context → reasoning'),
+                    SemanticRelationship('tarkis', 'medrus', 'hypothesis → evidence'),
+                  ],
+                ),
+              if (widget.homeId == 'gateway')
+                CriterivoxSemanticVisuals.timeline(
+                  context,
+                  title: 'Interaction flow',
+                  items: const [
+                    SemanticTimelineItem('Intent', 'Human intent enters the interaction boundary.'),
+                    SemanticTimelineItem('Routing', 'Supported routing/read-model state is inspected.'),
+                    SemanticTimelineItem('Output', 'The resulting presentation surface is returned.'),
+                  ],
+                ),
             ],
           ),
         ),
