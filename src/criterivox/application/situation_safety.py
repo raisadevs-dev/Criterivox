@@ -27,7 +27,7 @@ class SituationSafetyRouter:
     )
 
     def assess(self, text: str) -> SafetyAssessment:
-        answer = re.search(r"User safety answer:\s*(yes|no|i'm not sure)\\b", text, re.I)
+        answer = re.search(r"User safety answer:\s*(yes|no|i'm not sure)\b", text, re.I)
         if answer and answer.group(1).lower() in {"no", "i'm not sure"}:
             return SafetyAssessment(
                 SafetyLevel.SENSITIVE,
