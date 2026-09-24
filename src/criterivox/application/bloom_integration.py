@@ -75,15 +75,15 @@ class BloomIntegration:
 
     _EVENT_AGENTS = {
         ApplicationEvent.ANALYSIS_REQUESTED: (
-            "dharen",
-            "vivren",
-            "tarkis",
-            "sandre",
-            "pramon",
+            "Dharen",
+            "Vivren",
+            "Tarkis",
+            "Sandre",
+            "Pramon",
         ),
         ApplicationEvent.EXPLANATION_REQUESTED: (
-            "epistre",
-            "syvax",
+            "Epistre",
+            "Syvax",
         ),
     }
 
@@ -130,7 +130,7 @@ class BloomIntegration:
         character_ids = self._EVENT_AGENTS.get(event, ())
 
         registered_ids = {
-            character.identity.identifier.casefold()
+            character.identity.identifier
             for character in get_all_characters()
         }
 
