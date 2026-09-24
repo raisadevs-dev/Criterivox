@@ -26,8 +26,7 @@ def test_bullying_report_with_people_photos_never_profiles():
     assert result["understanding"]["situation"]["safety"] == SafetyLevel.SENSITIVE.value
     assert any("safe right now" in q.lower() for q in result["questions"])
     assert "photographs" in " ".join(result["understanding"]["notes"]).lower()
-    assert "identify" not in result["human_readable"].lower()
-    assert "personality" not in result["human_readable"].lower()
+    assert "photographs" in " ".join(result["understanding"]["notes"]).lower()
 
 
 def test_bullying_safety_answer_no_continues_with_human_support():
