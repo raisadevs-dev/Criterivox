@@ -86,3 +86,57 @@ Bloom remains the existing interaction surface and activation boundary. World Po
 ## Truth boundary
 
 The UI must not imply that an animation is computation. Runtime-backed activity is authoritative. Static/read-model relationships are presented as such. Missing production infrastructure remains a boundary rather than a fabricated success state.
+
+
+## Civilization / Bloom Integration Update
+
+The current stabilization branch treats **Criterivox Workers / Bloom** as the civilization-facing middle door of the application.
+
+### Canonical flow
+
+```
+Workers / Bloom
+  → World Portal
+  → Bloom orientation
+  → Civilization overview
+  → District / Home
+  → Character Focus
+  → Responsibility / Level 2 inspection
+```
+
+Bloom remains an orientation and visualization surface. It does not own orchestration or computation.
+
+### Persistent Bloom Companion
+
+The branch now provides a shell-level `BloomCompanion` presentation layer for the civilization experience. It remains visible across supported Bloom, Civilization, Home, Level 2, reasoning-room and Character Focus navigation. Its context changes with the current destination, but it owns no computational state and does not become a dependency of runtime/domain services.
+
+The companion deliberately presents contextual orientation rather than invented agent intelligence. Character identity is read from the existing `CharacterIdentities` registry.
+
+### Character navigation
+
+Character selection continues to use the canonical identity registry. Character Focus now exposes a route into the mapped Home for all conventional residents. The mapping is kept in the shell as presentation navigation only and does not duplicate the domain character registry.
+
+Anukor is intentionally excluded from the conventional character-to-home mapping because the current civilization model defines Anukor as a network/cross-home presence.
+
+### Current home mapping
+
+| Home | Residents |
+|---|---|
+| Gateway | Syvax |
+| Data Stewardship | Sandre, Kaelen |
+| Context | Dharen, Anuka |
+| Intelligence / Reasoning | Vivren, Tarkis |
+| Decision | Pramon, Bodhex, Manis |
+| Evidence | Medrus, Epistre, Veridat |
+| Knowledge | Viveda |
+| Network territory | Anukor |
+
+These assignments follow the current presentation civilization model and existing character-society documentation. They are not a new computational registry.
+
+### Progressive disclosure
+
+Civilization Level 1 establishes world/home/resident meaning. Level 2 exposes operational meaning through the existing `Level2OperationalPage` catalog. Deeper evidence/reasoning/technical information remains behind explicit inspection surfaces.
+
+### Truth boundary
+
+The UI does not manufacture system activity, evidence, relationships or computational results to make the world appear alive. Runtime/domain work remains authoritative; the civilization and companion are presentation/inspection surfaces.
