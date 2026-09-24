@@ -1,0 +1,35 @@
+name: Character chat model and UI repair validation
+
+on:
+  push:
+    branches: [character-chat-model-menu-repair]
+  workflow_dispatch:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: character-chat-model-menu-repair
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r requirements.txt
+      - run: PYTHONPATH=src pytest -q tests
+
+  flutter:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: presentation
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: character-chat-model-menu-repair
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.5'
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
