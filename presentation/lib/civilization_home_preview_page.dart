@@ -20,6 +20,7 @@ class CivilizationHomePreviewPage extends StatelessWidget {
     required this.homeId,
     required this.onBack,
     this.onOpenOperationalHome,
+    this.onOpenCharacter,
   });
 
   static const homes = <String, _HomeInfo>{
