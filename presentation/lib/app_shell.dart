@@ -790,7 +790,7 @@ class _ShellState extends State<CriterivoxShell> {
       case 'intro':
         return AppIntroductionPage(
           key: const ValueKey('intro'),
-          onOpenWorkspace: () => open('workspace'),
+          onOpenWorkspace: () => open('decision-desk'),
           onOpenCivilization: () =>
               open('civilization'),
         );
@@ -1354,11 +1354,7 @@ class _SidebarState extends State<_Sidebar> {
                     ),
                     if (expanded && humanTerritoryOpen) ...[
                       _section(strings.loginSignup, true, t),
-                      _nav(strings.humanResidence, Icons.home_work_rounded,
-                          widget.page == 'human-residence',
-                          () => widget.onOpen('human-residence'),
-                          true, t, indent: true),
-                      _nav(strings.signUpLogin, Icons.person_rounded,
+                                            _nav(strings.signUpLogin, Icons.person_rounded,
                           widget.page == 'human-residence-entry',
                           () => widget.onOpen('human-residence-entry'),
                           true, t, indent: true),
