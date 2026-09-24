@@ -13,6 +13,10 @@ import 'guest_pass_experience_page.dart';
 import 'private_room_page.dart';
 import 'collaboration_room_page.dart';
 import 'decision_history_page.dart';
+import 'decision_desk_page.dart';
+import 'results_journal_page.dart';
+import 'collaboration_commons_page.dart';
+import 'character_focus_page.dart';
 import 'chat/character_chat_page.dart';
 import 'context/context_intelligence_page.dart';
 import 'interaction/bloom.dart';
@@ -73,6 +77,7 @@ class _ShellState extends State<CriterivoxShell> {
 
   String page = 'bloom';
   String chatTarget = 'dharen';
+  String? focusedCharacter;
 
   bool busy = false;
   bool railOpen = true;
@@ -206,6 +211,11 @@ class _ShellState extends State<CriterivoxShell> {
 
   void handleBloomActivation(BloomActivation activation) {
     open(activation.route);
+  }
+
+  void openCharacterFocus(String id) {
+    setState(() => focusedCharacter = id);
+    open('character-focus');
   }
 
   void handoffFromBloom() {
@@ -675,6 +685,28 @@ class _ShellState extends State<CriterivoxShell> {
     }
 
     switch (page) {
+      case 'character-focus':
+        return CharacterFocusPage(
+          key: ValueKey('character-focus-${focusedCharacter ?? 'unknown'}'),
+          characterId: focusedCharacter ?? 'dharen',
+          onBack: () => open('civilization'),
+        );
+
+      case 'decision-desk':
+        return DecisionDeskPage(onResults: () => open('results-journal'));
+
+      case 'results-journal':
+        return ResultsJournalPage(onDecisionDesk: () => open('decision-desk'));
+
+      case 'meeting-hall':
+        return CollaborationCommonsPage(destination: CollaborationDestination.meetingHall, onDecisionDesk: () => open('decision-desk'));
+
+      case 'project-rooms':
+        return CollaborationCommonsPage(destination: CollaborationDestination.projectRooms, onDecisionDesk: () => open('decision-desk'));
+
+      case 'shared-workspaces':
+        return CollaborationCommonsPage(destination: CollaborationDestination.sharedWorkspaces, onDecisionDesk: () => open('decision-desk'));
+
       case 'decision-action':
         return DecisionActionQuarterPage(
           key: const ValueKey('decision-action'),
@@ -752,6 +784,7 @@ class _ShellState extends State<CriterivoxShell> {
           key: const ValueKey('civilization'),
           state: state,
           onOpenHome: _openHome,
+          onOpenCharacter: openCharacterFocus,
         );
 
       case 'intro':
@@ -1342,17 +1375,17 @@ class _SidebarState extends State<_Sidebar> {
                           () => widget.onOpen('collaboration-room'),
                           true, t, indent: true),
                       _nav(strings.decisionDesk, Icons.fact_check_outlined,
-                          widget.page == 'private-room',
-                          () => widget.onOpen('private-room'),
+                          widget.page == 'decision-desk',
+                          () => widget.onOpen('decision-desk'),
                           true, t, indent: true),
-                      _nav(strings.previousDecisions, Icons.history_rounded,
-                          widget.page == 'decision-history',
-                          () => widget.onOpen('decision-history'),
+                      _nav('Results Journal', Icons.menu_book_outlined,
+                          widget.page == 'results-journal',
+                          () => widget.onOpen('results-journal'),
                           true, t, indent: true),
                       _subgroup(strings.collaborationCommons, Icons.forum_outlined, [
-                        _ChildNav(strings.meetingHall, 'collaboration-room'),
-                        _ChildNav(strings.projectRooms, 'collaboration-room'),
-                        _ChildNav(strings.sharedWorkspaces, 'collaboration-room'),
+                        _ChildNav(strings.meetingHall, 'meeting-hall'),
+                        _ChildNav(strings.projectRooms, 'project-rooms'),
+                        _ChildNav(strings.sharedWorkspaces, 'shared-workspaces'),
                       ], t),
                     ],
                   ],
