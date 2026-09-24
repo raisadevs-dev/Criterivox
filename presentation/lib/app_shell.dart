@@ -1345,7 +1345,11 @@ class _SidebarState extends State<_Sidebar> {
                       widget.page == 'human-residence' ||
                           widget.page == 'human-residence-entry' ||
                           widget.page == 'private-room' ||
-                          widget.page == 'collaboration-room' ||
+                          widget.page == 'decision-desk' ||
+                          widget.page == 'results-journal' ||
+                          widget.page == 'meeting-hall' ||
+                          widget.page == 'project-rooms' ||
+                          widget.page == 'shared-workspaces' ||
                           widget.page == 'guest',
                       () => setState(() {
                         humanTerritoryOpen = !humanTerritoryOpen;
@@ -1365,10 +1369,6 @@ class _SidebarState extends State<_Sidebar> {
                       _nav(strings.privateRoom, Icons.lock_outline_rounded,
                           widget.page == 'private-room',
                           () => widget.onOpen('private-room'),
-                          true, t, indent: true),
-                      _nav(strings.collaborationRoom, Icons.groups_rounded,
-                          widget.page == 'collaboration-room',
-                          () => widget.onOpen('collaboration-room'),
                           true, t, indent: true),
                       _nav(strings.decisionDesk, Icons.fact_check_outlined,
                           widget.page == 'decision-desk',
