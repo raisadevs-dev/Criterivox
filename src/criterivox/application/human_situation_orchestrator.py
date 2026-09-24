@@ -166,3 +166,6 @@ class HumanSituationOrchestrator:
         lines += ["", "WHY", support["reasoning_summary"], "", "WHAT I'M NOT SURE ABOUT"]
         lines.extend(f"• {x}" for x in support["uncertainties"])
         return "\n".join(lines)
+
+
+human_situation_orchestrator = HumanSituationOrchestrator()
