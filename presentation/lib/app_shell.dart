@@ -1405,6 +1405,14 @@ class _SidebarState extends State<_Sidebar> {
                       expanded, t,
                     ),
                     const SizedBox(height: 12),
+                    _nav(
+                      'Criterivox Workers / Bloom',
+                      Icons.auto_awesome_rounded,
+                      const {'bloom','civilization','home-preview','level2','character-focus','reasoning-room'}.contains(widget.page),
+                      () => widget.onOpen('bloom'),
+                      expanded, t,
+                    ),
+                    const SizedBox(height: 12),
 
                     _group(
                       strings.humanTerritory,
