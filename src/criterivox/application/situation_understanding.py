@@ -38,8 +38,12 @@ class SituationUnderstandingService:
             kind = "school_or_work"
 
         questions = list(safety.questions)
-        if intent == "decision_support" and (not re.search(r"\b(?:three|two|\d+)\b", lower) or re.search(r"\b(?:several|multiple|a few)\s+(?:choices|options)\b", lower)):
-            questions.append("What are the main options you are considering?")
+        if intent == "decision_support":
+            has_explicit_count = bool(re.search(r"\b(?:two|three|\d+)\b", lower))
+            has_unspecified_count = bool(re.search(r"\b(?:several|multiple|a few|some|various)\b", lower))
+            has_choice_word = bool(re.search(r"\b(?:choices?|options?)\b", lower))
+            if not has_explicit_count or (has_unspecified_count and has_choice_word):
+                questions.append("What are the main options you are considering?")
         if kind == "bullying_or_harassment":
             questions = list(dict.fromkeys(questions))
         situation = Situation(
