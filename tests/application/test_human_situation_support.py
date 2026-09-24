@@ -9,7 +9,7 @@ from criterivox.application.situation_understanding import SituationUnderstandin
 
 def test_general_decision_support_can_clarify():
     result = HumanSituationOrchestrator(language=OllamaLanguageLayer(base_url="http://127.0.0.1:9")).execute(
-        description="I have three choices and don't know what to do."
+        description="I have several choices and don't know what to do."
     )
     assert result["status"] == "clarification_required"
     assert result["understanding"]["intent"] == "decision_support"
