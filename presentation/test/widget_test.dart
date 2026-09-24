@@ -22,7 +22,7 @@ void main() {
       expect(find.text('Living Interaction'), findsOneWidget);
       expect(find.text('Lifecycle'), findsOneWidget);
       expect(find.text('START HERE'), findsOneWidget);
-      expect(find.text('HUMAN TERRITORY'), findsOneWidget);
+      expect(find.text('HUMAN TERRITORY'), findsWidgets);
       expect(find.text('App Introduction'), findsOneWidget);
       expect(find.byTooltip(RegExp('Language')), findsOneWidget);
     },
