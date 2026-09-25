@@ -2,7 +2,7 @@
 
 Branch: ui-stabilization-system-behavior
 Phase: UI stabilization and human situation decision support
-Status: implementation closed on this branch, pending normal repository verification/merge
+Status: implementation closed and merged into main
 
 ## Problems closed
 
