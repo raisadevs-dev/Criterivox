@@ -12,7 +12,7 @@ class SituationUnderstandingService:
     def __init__(self, safety_router: SituationSafetyRouter | None = None) -> None:
         self.safety_router = safety_router or SituationSafetyRouter()
 
-    def understand(self, description: str, *, image_count: int = 0, image_roles: tuple[str, ...] = ()) -> SituationUnderstanding:
+    def understand(self, description: str, *, context: str = '', supplied_data: str = '', image_count: int = 0, image_roles: tuple[str, ...] = ()) -> SituationUnderstanding:
         text = description.strip()
         if not text:
             raise ValueError("situation description is required")
@@ -47,10 +47,15 @@ class SituationUnderstandingService:
                 questions.append("What are the main options you are considering?")
         if kind == "bullying_or_harassment":
             questions = list(dict.fromkeys(questions))
+        evidence = tuple(line.strip() for line in supplied_data.splitlines() if line.strip())[:20]
+        constraints = tuple(line.strip() for line in context.splitlines() if line.strip())[:20]
         situation = Situation(
             description=text,
             goal=text,
+            context=context.strip(),
             people=people,
+            constraints=constraints,
+            evidence=evidence,
             safety=safety.level,
             image_count=image_count,
             image_roles=image_roles,
