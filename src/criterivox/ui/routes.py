@@ -127,6 +127,53 @@ async def human_decisions_list(session_token: str, query: str = ''):
         return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
     return {'accepted': True, 'decisions': human_residence_local.list_decisions(owner_id, query)}
 
+@router.post('/api/service-layer/execute')
+async def service_layer_execute(payload: dict):
+    from ..service_layer import ServiceRequest, service_composer
+    import uuid
+    goal = str(payload.get('goal', '')).strip()
+    if not goal:
+        return JSONResponse({'accepted': False, 'error': 'goal is required'}, status_code=400)
+    request = ServiceRequest(
+        request_id=str(payload.get('request_id') or f'SVC-{uuid.uuid4()}'),
+        goal=goal,
+        supplied_data=str(payload.get('data', '')),
+        context=str(payload.get('context', '')),
+        session_id=str(payload.get('session_id', '')) or None,
+        actor_id=str(payload.get('actor_id', 'human')),
+        authorization=str(payload.get('authorization', 'human-review')),
+    )
+    try:
+        plan, results = service_composer.execute(request)
+        return {
+            'accepted': True,
+            'request': request.request_id,
+            'plan': {'services': list(plan.services), 'rationale': list(plan.rationale)},
+            'results': {
+                name: {
+                    'service_type': result.service_type,
+                    'status': result.status,
+                    'purpose': result.purpose,
+                    'content': dict(result.content),
+                    'structured_data': dict(result.structured_data),
+                    'evidence_refs': list(result.evidence_refs),
+                    'provenance_refs': list(result.provenance_refs),
+                    'uncertainty': list(result.uncertainty),
+                    'limitations': list(result.limitations),
+                    'alternatives': list(result.alternatives),
+                    'artifact_refs': list(result.artifact_refs),
+                    'execution_ref': result.execution_ref,
+                    'authorization_state': result.authorization_state,
+                    'failure_reason': result.failure_reason,
+                }
+                for name, result in results.items()
+            },
+        }
+    except ValueError as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=400)
+    except Exception as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=502)
+
 @router.post('/api/human-situation/understand')
 async def human_situation_understand(request: Request):
     from ..application.hybrid_input import normalize_human_situation
