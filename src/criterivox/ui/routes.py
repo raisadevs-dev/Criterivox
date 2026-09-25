@@ -1,6 +1,6 @@
 
 """Browser-facing UI routes and Home 03 interaction APIs."""
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 import base64,binascii,hashlib,json,time
 from ..application.syvax import syvax_engine
@@ -21,7 +21,7 @@ def _plan_payload(plan):return {'task_id':plan.task_id,'intent':{'goal':plan.int
 async def human_auth_signup(payload: dict):
     try:
         result = human_residence_local.signup(email=str(payload.get('email','')), password=str(payload.get('password','')), display_name=str(payload.get('display_name','')), residence_id=str(payload.get('residence_id','')), residence_type=str(payload.get('residence_type','private')), avatar_data_url=payload.get('avatar_data_url'))
-        return {'accepted': True, 'identity': result, 'session_token': human_residence_local.issue_session(result['owner_id']), 'storage': 'local-sqlite'}
+        return {'accepted': True, 'identity': result, 'session_token': human_residence_local.issue_session(result['owner_id']), 'residences': human_residence_local.residences_for_owner(result['owner_id']), 'storage': 'local-sqlite'}
     except ValueError as exc:
         return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=400)
 
@@ -128,17 +128,56 @@ async def human_decisions_list(session_token: str, query: str = ''):
     return {'accepted': True, 'decisions': human_residence_local.list_decisions(owner_id, query)}
 
 @router.post('/api/human-situation/understand')
-async def human_situation_understand(payload: dict):
-    from ..application.human_situation_orchestrator import human_situation_orchestrator
+async def human_situation_understand(request: Request):
+    from ..application.hybrid_input import normalize_human_situation
+
+    content_type = request.headers.get('content-type', '').lower()
+    payload: dict[str, object] = {}
+    if 'application/json' in content_type:
+        raw = await request.json()
+        payload = raw if isinstance(raw, dict) else {'description': raw}
+    elif 'multipart/form-data' in content_type or 'application/x-www-form-urlencoded' in content_type:
+        form = await request.form()
+        for key, value in form.multi_items():
+            if hasattr(value, 'filename'):
+                payload.setdefault('files', []).append({
+                    'name': getattr(value, 'filename', ''),
+                    'content_type': getattr(value, 'content_type', ''),
+                    'size': len(await value.read()),
+                })
+            elif key in payload:
+                existing = payload[key]
+                payload[key] = [existing, value]
+            else:
+                payload[key] = value
+    else:
+        payload = {'description': (await request.body()).decode('utf-8', errors='replace')}
+
+    description, supplied_data, context = normalize_human_situation(
+        description=payload.get('description', ''),
+        data=payload.get('data', ''),
+        context=payload.get('context', ''),
+    )
+    if payload.get('files'):
+        supplied_data = f"{supplied_data}\nAttached material: {payload['files']}".strip()
+
     try:
+        from ..application.human_situation_orchestrator import human_situation_orchestrator
+        image_roles = payload.get('image_roles', ())
+        if isinstance(image_roles, str):
+            image_roles = tuple(x.strip() for x in image_roles.split(',') if x.strip())
+        elif isinstance(image_roles, (list, tuple)):
+            image_roles = tuple(str(x) for x in image_roles if x)
+        else:
+            image_roles = ()
         result = human_situation_orchestrator.execute(
-            description=str(payload.get('description', '')),
+            description=description,
             session_token=str(payload.get('session_token', '')),
             residence_id=str(payload.get('residence_id', '')),
             image_count=int(payload.get('image_count', 0) or 0),
-            image_roles=tuple(str(x) for x in payload.get('image_roles', []) if x),
-            supplied_data=str(payload.get('data', '')),
-            context=str(payload.get('context', '')),
+            image_roles=image_roles,
+            supplied_data=supplied_data,
+            context=context,
             allow_external_research=bool(payload.get('allow_external_research', False)),
         )
         return {'accepted': True, **result}
