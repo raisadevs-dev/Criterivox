@@ -1,3 +1,4 @@
+import 'presentation/api_client.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -67,7 +68,7 @@ class _GuestPassExperiencePageState extends State<GuestPassExperiencePage> {
     try {
       final response = await http
           .post(
-            Uri.base.resolve('/api/guest-pass/session'),
+            CriterivoxApi.uri('/api/guest-pass/session'),
           )
           .timeout(const Duration(seconds: 5));
 
@@ -161,7 +162,7 @@ class _GuestPassExperiencePageState extends State<GuestPassExperiencePage> {
 
     try {
       final inputResponse = await http.post(
-        Uri.base.resolve('/api/guest-pass/session/$id/input'),
+        CriterivoxApi.uri('/api/guest-pass/session/$id/input'),
         headers: {
           'content-type': 'application/json',
         },
@@ -173,7 +174,7 @@ class _GuestPassExperiencePageState extends State<GuestPassExperiencePage> {
       }
 
       final planResponse = await http.post(
-        Uri.base.resolve('/api/syvax/plan'),
+        CriterivoxApi.uri('/api/syvax/plan'),
         headers: {
           'content-type': 'application/json',
         },
@@ -260,7 +261,7 @@ class _GuestPassExperiencePageState extends State<GuestPassExperiencePage> {
 
     if (id != null) {
       http.post(
-        Uri.base.resolve('/api/guest-pass/session/$id/trace'),
+        CriterivoxApi.uri('/api/guest-pass/session/$id/trace'),
         headers: {
           'content-type': 'application/json',
         },
@@ -288,7 +289,7 @@ class _GuestPassExperiencePageState extends State<GuestPassExperiencePage> {
     try {
       await http
           .delete(
-            Uri.base.resolve('/api/guest-pass/session/$id'),
+            CriterivoxApi.uri('/api/guest-pass/session/$id'),
           )
           .timeout(const Duration(seconds: 2));
     } catch (_) {}
@@ -316,7 +317,7 @@ class _GuestPassExperiencePageState extends State<GuestPassExperiencePage> {
     try {
       final response = await http
           .post(
-            Uri.base.resolve('/api/guest-pass/session/$id/claim'),
+            CriterivoxApi.uri('/api/guest-pass/session/$id/claim'),
           )
           .timeout(const Duration(seconds: 5));
 
@@ -366,7 +367,7 @@ class _GuestPassExperiencePageState extends State<GuestPassExperiencePage> {
       try {
         await http
             .post(
-              Uri.base.resolve('/api/human-residence'),
+              CriterivoxApi.uri('/api/human-residence'),
               headers: {
                 'content-type': 'application/json',
               },
