@@ -62,3 +62,6 @@ class ServiceComposer:
         return self.outcomes.record(req,expected,actual)
 
 service_composer=ServiceComposer()
+
+
+# Service composition remains character-independent; presentation adapters consume ServiceResult.
