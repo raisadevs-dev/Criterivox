@@ -157,6 +157,21 @@ class HumanResidenceLocalStore:
     def owner_for_session(self, token: str) -> str | None:
         return self._sessions.get(token)
 
+    def residences_for_owner(self, owner_id: str) -> list[dict[str, Any]]:
+        with self._connect() as db:
+            rows = db.execute("SELECT * FROM residences WHERE owner_id=? ORDER BY created_at ASC", (owner_id,)).fetchall()
+        return [
+            {
+                "residence_id": row["residence_id"],
+                "owner_id": row["owner_id"],
+                "residence_type": row["residence_type"],
+                "display_name": row["display_name"],
+                "created_at": row["created_at"],
+                **(json.loads(row["payload_json"]) if row["payload_json"] else {}),
+            }
+            for row in rows
+        ]
+
     def update_profile(self, *, owner_id: str, display_name: str | None = None,
                        avatar_data_url: str | None = None, role: str | None = None) -> dict[str, Any]:
         current = self._identity(owner_id)
