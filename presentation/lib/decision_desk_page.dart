@@ -24,6 +24,8 @@ class _DecisionDeskPageState extends State<DecisionDeskPage> {
   List<String> imageNames = [], questions = [];
   Map<String, dynamic>? support, understanding;
   String humanReadable = '';
+  String? decisionId;
+  Map<String, dynamic>? strategy;
   @override void initState(){super.initState();_restore();}
   @override void dispose(){situation.dispose();data.dispose();contextCtl.dispose();super.dispose();}
   Future<void> _restore() async { final r=await store.load(); if(!mounted)return; setState((){residence=r;if(r!=null){situation.text=r.metadata['goal']?.toString()??'';data.text=r.metadata['data']?.toString()??'';contextCtl.text=r.metadata['context']?.toString()??'';}}); }
@@ -33,13 +35,13 @@ class _DecisionDeskPageState extends State<DecisionDeskPage> {
     if(safetyAnswer!=null&&safetyAnswer.isNotEmpty){description='$description\nUser safety answer: $safetyAnswer';situation.text=description;}
     if(description.isEmpty){setState(()=>status='SITUATION_REQUIRED');return;}
     final token=residence?.metadata['session_token']?.toString()??'';
-    setState((){running=true;status='UNDERSTANDING_SITUATION';questions=[];support=null;humanReadable='';});
+    setState((){running=true;status='UNDERSTANDING_SITUATION';questions=[];support=null;humanReadable='';decisionId=null;strategy=null;});
     try {
       final response=await http.post(Uri.base.resolve('/api/human-situation/understand'),headers:const {'content-type':'application/json'},body:jsonEncode({'session_token':token,'residence_id':residence?.residenceId??'','description':description,'data':data.text.trim(),'context':contextCtl.text.trim(),'image_count':imageCount,'image_roles':List<String>.filled(imageCount,imageRole),'allow_external_research':external})).timeout(const Duration(seconds:30));
       final decoded=jsonDecode(response.body);
       if(response.statusCode<200||response.statusCode>=300||decoded is! Map)throw Exception(decoded is Map?decoded['error']??'situation pipeline rejected':'situation pipeline rejected');
       final body=Map<String,dynamic>.from(decoded); if(!mounted)return;
-      setState((){understanding=body['understanding'] is Map?Map<String,dynamic>.from(body['understanding']):null;questions=body['questions'] is List?body['questions'].map((x)=>x.toString()).toList():[];support=body['support'] is Map?Map<String,dynamic>.from(body['support']):null;humanReadable=body['human_readable']?.toString()??'';running=false;status=body['status']?.toString().toUpperCase()??'READY';});
+      setState((){understanding=body['understanding'] is Map?Map<String,dynamic>.from(body['understanding']):null;questions=body['questions'] is List?body['questions'].map((x)=>x.toString()).toList():[];support=body['support'] is Map?Map<String,dynamic>.from(body['support']):null;strategy=body['strategy'] is Map?Map<String,dynamic>.from(body['strategy']):null;decisionId=body['decision_id']?.toString();humanReadable=body['human_readable']?.toString()??'';running=false;status=body['status']?.toString().toUpperCase()??'READY';});
       if(body['status']=='ready'&&residence!=null)await _persistSituation();
     } catch(e) { if(mounted)setState((){running=false;status='SITUATION_PIPELINE_FAILED • $e';}); }
   }
@@ -69,10 +71,27 @@ class _DecisionDeskPageState extends State<DecisionDeskPage> {
       if(sensitive)_panel(t,'SAFETY FIRST',Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('The situation may involve interpersonal harm or an immediate safety concern. Safety takes priority over ordinary analysis.',style:TextStyle(color:t.text,fontSize:12,height:1.45)),const SizedBox(height:10),for(final q in questions.where((q)=>q.toLowerCase().contains('safe right now'))) ...[Text(q,style:TextStyle(color:t.text,fontWeight:FontWeight.w800,fontSize:12)),const SizedBox(height:8),Wrap(spacing:8,children:[OutlinedButton(onPressed:running?null:()=>_run('Yes'),child:const Text('Yes')),OutlinedButton(onPressed:running?null:()=>_run('No'),child:const Text('No')),OutlinedButton(onPressed:running?null:()=>_run("I'm not sure"),child:const Text("I'm not sure"))])]])),
       if(questions.isNotEmpty)_panel(t,'A LITTLE MORE CONTEXT',Column(crossAxisAlignment:CrossAxisAlignment.start,children:[for(final q in questions.where((q)=>!q.toLowerCase().contains('safe right now')))Padding(padding:const EdgeInsets.only(bottom:7),child:Text('• $q',style:TextStyle(color:t.mutedText,fontSize:11))),Text('Add the answer in the situation box, then run it again.',style:TextStyle(color:t.mutedText,fontSize:10))])),
       if(humanReadable.isNotEmpty)_panel(t,'WHAT I UNDERSTAND',Text(humanReadable,style:TextStyle(color:t.text,fontSize:12,height:1.5))),
+      if(humanReadable.isNotEmpty)_panel(t,'RESULT • YOUR DECISION SUPPORT',Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[
+        Text('Criterivox has finished the first decision-support pass.',style:TextStyle(color:t.text,fontWeight:FontWeight.w800,fontSize:13)),
+        const SizedBox(height:8),
+        Text(humanReadable,style:TextStyle(color:t.mutedText,fontSize:11,height:1.5)),
+        if(decisionId!=null)...[const SizedBox(height:10),Text('Saved decision: $decisionId',style:TextStyle(color:t.mutedText,fontSize:9))],
+        const SizedBox(height:12),
+        Wrap(spacing:8,runSpacing:8,children:[
+          if(widget.onResults!=null)OutlinedButton.icon(onPressed:widget.onResults,icon:const Icon(Icons.menu_book_outlined),label:const Text('Open Results Journal')),
+          OutlinedButton.icon(onPressed:()=>setState((){status='READY_FOR_HUMAN_REVIEW';}),icon:const Icon(Icons.edit_note_rounded),label:const Text('Correct the situation')),
+        ]),
+      ])),
       if(matters is List&&matters.isNotEmpty)_panel(t,'WHAT MATTERS',Column(children:[for(final x in matters)_item(t,x.toString())])),
       if(next is List&&next.isNotEmpty)_panel(t,'WHAT YOU CAN DO NEXT',Column(children:[for(var i=0;i<next.length;i++)_item(t,'${i+1}. ${next[i]}')])),
       if(uncertain is List&&uncertain.isNotEmpty)_panel(t,"WHAT I'M NOT SURE ABOUT",Column(children:[for(final x in uncertain)_item(t,x.toString())])),
-      if(support?['options'] is List&&(support!['options'] as List).isNotEmpty)CriterivoxSemanticVisuals.cards(context,title:'OPTIONS TO EXPLORE',items:[for(final x in (support!['options'] as List).whereType<Map>())MapEntry(x['label']?.toString()??'Option',x['approach']?.toString()??'')]),
+      if(strategy?['options'] is List&&(strategy!['options'] as List).isNotEmpty)_panel(t,'STRATEGY OPTIONS',Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[
+        for(final x in (strategy!['options'] as List).whereType<Map>())Container(margin:const EdgeInsets.only(bottom:8),padding:const EdgeInsets.all(12),decoration:BoxDecoration(color:t.surfaceStrong,borderRadius:BorderRadius.circular(14),border:Border.all(color:t.border)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+          Text(x['label']?.toString()??'Option',style:TextStyle(color:t.text,fontWeight:FontWeight.w800,fontSize:12)),
+          const SizedBox(height:4),Text(x['approach']?.toString()??'',style:TextStyle(color:t.mutedText,fontSize:10,height:1.4)),
+          const SizedBox(height:6),Text('Risk: ${x['risk']??'Not specified'}',style:TextStyle(color:t.mutedText,fontSize:9)),
+        ])),
+      ])),
       _panel(t,'HUMAN AUTHORITY',Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('Criterivox supports the decision. You remain able to correct the situation description, reject a suggestion, inspect evidence, explore another option, or decide what happens next.',style:TextStyle(color:t.text,fontSize:12,height:1.45)),const SizedBox(height:8),Text(status,style:TextStyle(color:t.mutedText,fontSize:10,fontWeight:FontWeight.w800)),if(widget.onResults!=null)Padding(padding:const EdgeInsets.only(top:10),child:OutlinedButton.icon(onPressed:widget.onResults,icon:const Icon(Icons.menu_book_outlined),label:const Text('Open Results Journal')))])),
     ])));
   }
