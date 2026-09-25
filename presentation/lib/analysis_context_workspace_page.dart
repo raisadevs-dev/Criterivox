@@ -179,16 +179,14 @@ class AnalysisContextWorkspacePage extends StatelessWidget {
                 responsibility: 'Context Architecture',
                 workDescription:
                     'Structures the contextual representation and prepares the context boundary used by downstream analysis.',
-                state: _agentState('dharen'),
-                onChat: () => onChatCharacter?.call('dharen')),
+                state: _agentState('dharen')),
             const SizedBox(height: 10),
             LiveAgentPanel(
                 characterId: 'anuka',
                 responsibility: 'Adaptive Context',
                 workDescription:
                     'Monitors context change, uncertainty and requirement shifts. She becomes active when the current context needs adaptation or recovery.',
-                state: _agentState('anuka'),
-                onChat: () => onChatCharacter?.call('anuka')),
+                state: _agentState('anuka')),
           ] else
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Expanded(
@@ -197,8 +195,7 @@ class AnalysisContextWorkspacePage extends StatelessWidget {
                       responsibility: 'Context Architecture',
                       workDescription:
                           'Structures the contextual representation and prepares the context boundary used by downstream analysis.',
-                      state: _agentState('dharen'),
-                      onChat: () => onChatCharacter?.call('dharen'))),
+                      state: _agentState('dharen'))),
               const SizedBox(width: 12),
               Expanded(
                   child: LiveAgentPanel(
@@ -206,8 +203,7 @@ class AnalysisContextWorkspacePage extends StatelessWidget {
                       responsibility: 'Adaptive Context',
                       workDescription:
                           'Monitors context change, uncertainty and requirement shifts. She becomes active when the current context needs adaptation or recovery.',
-                      state: _agentState('anuka'),
-                      onChat: () => onChatCharacter?.call('anuka'))),
+                      state: _agentState('anuka'))),
             ]),
         ],
       ]),

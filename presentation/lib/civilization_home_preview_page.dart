@@ -12,15 +12,15 @@ import 'presentation/criterivox_theme.dart' as criterivox_theme;
 class CivilizationHomePreviewPage extends StatelessWidget {
   final String homeId;
   final VoidCallback onBack;
-  final VoidCallback? onChat;
   final ValueChanged<String>? onOpenOperationalHome;
+  final ValueChanged<String>? onOpenCharacter;
 
   const CivilizationHomePreviewPage({
     super.key,
     required this.homeId,
     required this.onBack,
-    this.onChat,
     this.onOpenOperationalHome,
+    this.onOpenCharacter,
   });
 
   static const homes = <String, _HomeInfo>{
@@ -78,10 +78,10 @@ class CivilizationHomePreviewPage extends StatelessWidget {
       ],
     ),
     'decision': _HomeInfo(
-      'Decision House',
-      'Decision & Insight District',
-      ['pramon', 'bodhex', 'manis'],
-      'Evidence, insight, alternatives and deliberation',
+      'Decision & Action Chamber',
+      'Decision District',
+      ['pramon', 'bodhex'],
+      'Planning, review, action contracts, calendar and controlled execution',
       [
         'Evidence Desk',
         'Insight Room',
@@ -217,7 +217,7 @@ class CivilizationHomePreviewPage extends StatelessWidget {
                             runSpacing: 16,
                             children: home.residents
                                 .map(
-                                  (id) => _ResidentCard(id: id),
+                                  (id) => _ResidentCard(id: id, onTap: onOpenCharacter == null ? null : () => onOpenCharacter!(id)),
                                 )
                                 .toList(),
                           ),
@@ -233,12 +233,12 @@ class CivilizationHomePreviewPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            'This is the Level 1 '
-                            'Home-entry/read-model '
-                            'boundary. Room operations '
-                            'are intentionally deferred '
-                            'to the deeper Level 2 '
-                            'implementation.',
+                            homeId == 'decision'
+                                ? 'Home 05 is one operational chamber. '
+                                  'Its Level 2 responsibilities are openable panels '
+                                  'inside this chamber, not separate rooms or navigation doors.'
+                                : 'This is the Level 1 Home-entry/read-model boundary. '
+                                  'Operational details remain behind the home boundary.',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: t.mutedText,
@@ -294,14 +294,6 @@ class CivilizationHomePreviewPage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (onChat != null)
-                    FilledButton.icon(
-                      onPressed: onChat,
-                      icon: const Icon(Icons.forum_outlined),
-                      label: const Text('Talk to Syvax'),
-                    ),
-                  if (onChat != null)
-                    const SizedBox(width: 10),
                   OutlinedButton.icon(
                     onPressed: onBack,
                     icon: const Icon(Icons.map_outlined),
@@ -335,9 +327,11 @@ class _HomeInfo {
 
 class _ResidentCard extends StatelessWidget {
   final String id;
+  final VoidCallback? onTap;
 
   const _ResidentCard({
     required this.id,
+    this.onTap,
   });
 
   @override
@@ -345,7 +339,10 @@ class _ResidentCard extends StatelessWidget {
     final t = criterivox_theme.CriterivoxTheme.of(context);
     final p = CharacterIdentities.resolve(id);
 
-    return Container(
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
       width: 130,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -378,6 +375,7 @@ class _ResidentCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }
@@ -450,8 +448,8 @@ class _Rooms extends StatelessWidget {
           ),
           const SizedBox(height: 5),
           Text(
-            'Named spatial responsibilities are visible now; '
-            'operational behavior belongs to later Level 2 work.',
+            'Named spatial responsibilities stay visible here; '
+            'operational work opens as a closable inspection layer over this home.',
             style: TextStyle(
               color: t.mutedText,
               fontSize: 9,
@@ -481,8 +479,10 @@ class _Rooms extends StatelessWidget {
               Icons.meeting_room_outlined,
               size: 16,
             ),
-            label: const Text(
-              'Enter Level 2 operational spaces',
+            label: Text(
+              home.name.contains('Decision')
+                  ? 'Open Human Challenge & Review'
+                  : 'Open Level 2 inspection',
             ),
           ),
         ],

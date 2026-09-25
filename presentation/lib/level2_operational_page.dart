@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'foundation/criterivox_responsive_scene.dart';
-import 'foundation/criterivox_scene.dart';
 import 'foundation/criterivox_status.dart';
-import 'foundation/criterivox_visual_tokens.dart';
-import 's7/s7_environment_page.dart';
-import 's8_evidence_bureau_page.dart';
+import 'semantic_visualizations.dart';
 
 class CriterivoxTheme {
   final Color page;
@@ -51,28 +48,6 @@ enum Level2Truth {
   planned,
   researchPrototype,
   unavailable,
-}
-
-extension _TruthLabel on Level2Truth {
-  String get label => switch (this) {
-        Level2Truth.live => 'LIVE',
-        Level2Truth.functionallyImplemented => 'FUNCTIONALLY IMPLEMENTED',
-        Level2Truth.simulated => 'SIMULATED',
-        Level2Truth.staticPresentation => 'STATIC PRESENTATION',
-        Level2Truth.planned => 'PLANNED',
-        Level2Truth.researchPrototype => 'RESEARCH PROTOTYPE',
-        Level2Truth.unavailable => 'UNAVAILABLE',
-      };
-
-  CriterivoxStatus get status => switch (this) {
-        Level2Truth.live => CriterivoxStatus.active,
-        Level2Truth.functionallyImplemented => CriterivoxStatus.complete,
-        Level2Truth.simulated => CriterivoxStatus.simulated,
-        Level2Truth.staticPresentation => CriterivoxStatus.ready,
-        Level2Truth.planned => CriterivoxStatus.planned,
-        Level2Truth.researchPrototype => CriterivoxStatus.researchPrototype,
-        Level2Truth.unavailable => CriterivoxStatus.unavailable,
-      };
 }
 
 class Level2RoomSpec {
@@ -1267,12 +1242,14 @@ class Level2OperationalPage extends StatefulWidget {
   final String homeId;
   final String? initialRoom;
   final VoidCallback onBack;
+  final ValueChanged<String>? onEnterRoom;
 
   const Level2OperationalPage({
     super.key,
     required this.homeId,
     required this.onBack,
     this.initialRoom,
+    this.onEnterRoom,
   });
 
   @override
@@ -1314,32 +1291,9 @@ class _Level2OperationalPageState extends State<Level2OperationalPage> {
       });
     }
 
-    if (selected != null &&
-        selected.truth == Level2Truth.researchPrototype &&
-        widget.homeId == 'reasoning') {
-      return _EmbeddedResearch(
-        title: selected.name,
-        subtitle:
-            'S7 boundary · authoritative reasoning artifacts remain outside the presentation layer',
-        child: const S7EnvironmentPage(),
-        onBack: () => setState(() => selectedRoomId = null),
-      );
-    }
 
-    if (selected != null &&
-        selected.truth == Level2Truth.researchPrototype &&
-        widget.homeId == 'evidence') {
-      return _EmbeddedResearch(
-        title: selected.name,
-        subtitle:
-            'S8 boundary · synthetic standalone evidence bureau; no live claim is implied',
-        child: const S8EvidenceBureauPage(),
-        onBack: () => setState(() => selectedRoomId = null),
-      );
-    }
 
     final theme = CriterivoxTheme.of(context);
-    final visual = CriterivoxVisualTokens.of(context);
     final responsive =
         CriterivoxResponsive(MediaQuery.sizeOf(context).width);
 
@@ -1350,7 +1304,8 @@ class _Level2OperationalPageState extends State<Level2OperationalPage> {
       backgroundColor: theme.page,
       body: SafeArea(
         child: CriterivoxResponsiveScene(
-          child: Column(
+          child: SingleChildScrollView(
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(
@@ -1399,527 +1354,84 @@ class _Level2OperationalPageState extends State<Level2OperationalPage> {
                   ),
                 ],
               ),
-              SizedBox(height: visual.space3),
-              const _TruthNotice(),
-              SizedBox(height: visual.space3),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  if (constraints.maxWidth < 900) {
-                    return Column(
-                      children: [
-                        _RoomList(
-                          rooms: rooms,
-                          selectedId: selectedRoomId,
-                          onSelect: _selectRoom,
-                        ),
-                        const SizedBox(height: 12),
-                        _RoomInspector(room: selected),
-                      ],
-                    );
-                  }
-
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 330,
-                        child: _RoomList(
-                          rooms: rooms,
-                          selectedId: selectedRoomId,
-                          onSelect: _selectRoom,
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: _RoomInspector(room: selected),
-                      ),
-                    ],
-                  );
-                },
+              const SizedBox(height: 14),
+              CriterivoxSemanticVisuals.status(
+                context,
+                label: 'Operational home state',
+                detail: rooms.isEmpty ? 'Unavailable' : 'Documented',
+                active: rooms.isNotEmpty,
               ),
+              CriterivoxSemanticVisuals.progress(
+                context,
+                label: 'Documented responsibilities',
+                completed: rooms.length,
+                total: rooms.length,
+              ),
+              CriterivoxSemanticVisuals.table(
+                context,
+                title: 'Room responsibility register',
+                columns: const ['Room', 'Owner', 'Input', 'Output'],
+                rows: [
+                  for (final room in rooms)
+                    [room.name, room.owner, room.input, room.output],
+                ],
+              ),
+              if (selected != null) ...[
+                CriterivoxSemanticVisuals.cards(
+                  context,
+                  title: 'Responsibility inspection',
+                  items: [
+                    MapEntry('Purpose', selected.purpose),
+                    MapEntry('Interaction', selected.interaction),
+                    MapEntry('Truth boundary', selected.truth.name),
+                  ],
+                ),
+              ],
+              if (widget.homeId == 'evidence')
+                CriterivoxSemanticVisuals.evidenceChain(context),
+              if (widget.homeId == 'decision')
+                CriterivoxSemanticVisuals.decisionStructure(context),
+              if (widget.homeId == 'knowledge')
+                CriterivoxSemanticVisuals.network(
+                  context,
+                  title: 'Knowledge relationship surface',
+                  relationships: const [
+                    SemanticRelationship('viveda', 'medrus', 'knowledge ← retained evidence'),
+                  ],
+                ),
+              if (widget.homeId == 'context')
+                CriterivoxSemanticVisuals.timeline(
+                  context,
+                  title: 'Context inspection sequence',
+                  items: const [
+                    SemanticTimelineItem('Context', 'Current situation and scope.'),
+                    SemanticTimelineItem('Adaptation', 'Context shifts are inspected explicitly.'),
+                    SemanticTimelineItem('Boundary', 'Conflicts and scope limits remain visible.'),
+                  ],
+                ),
+              if (widget.homeId == 'reasoning')
+                CriterivoxSemanticVisuals.network(
+                  context,
+                  title: 'Reasoning dependency surface',
+                  relationships: const [
+                    SemanticRelationship('dharen', 'vivren', 'context → reasoning'),
+                    SemanticRelationship('tarkis', 'medrus', 'hypothesis → evidence'),
+                  ],
+                ),
+              if (widget.homeId == 'gateway')
+                CriterivoxSemanticVisuals.timeline(
+                  context,
+                  title: 'Interaction flow',
+                  items: const [
+                    SemanticTimelineItem('Intent', 'Human intent enters the interaction boundary.'),
+                    SemanticTimelineItem('Routing', 'Supported routing/read-model state is inspected.'),
+                    SemanticTimelineItem('Output', 'The resulting presentation surface is returned.'),
+                  ],
+                ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  void _selectRoom(String id) {
-    setState(() {
-      selectedRoomId = id;
-    });
-  }
-}
-
-class _TruthNotice extends StatelessWidget {
-  const _TruthNotice();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = CriterivoxTheme.of(context);
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: theme.surface.withValues(alpha: .76),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: theme.border),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.fact_check_outlined,
-            color: theme.primary,
-          ),
-          const SizedBox(width: 9),
-          Expanded(
-            child: Text(
-              'Level 2 is data-driven: documented rooms are visible, but a specification is not treated as runtime evidence. Research prototypes link to their existing S7/S8 boundaries.',
-              style: TextStyle(
-                color: theme.mutedText,
-                fontSize: 9.5,
-                height: 1.4,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RoomList extends StatelessWidget {
-  final List<Level2RoomSpec> rooms;
-  final String? selectedId;
-  final ValueChanged<String> onSelect;
-
-  const _RoomList({
-    required this.rooms,
-    required this.selectedId,
-    required this.onSelect,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = CriterivoxTheme.of(context);
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: theme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'ROOM DIRECTORY',
-            style: TextStyle(
-              color: theme.text,
-              fontWeight: FontWeight.w800,
-              fontSize: 11,
-              letterSpacing: 1,
-            ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            'Select a documented operational surface.',
-            style: TextStyle(
-              color: theme.mutedText,
-              fontSize: 8.5,
-            ),
-          ),
-          const SizedBox(height: 9),
-          for (final room in rooms)
-            Semantics(
-              button: true,
-              label:
-                  '${room.name}, ${room.owner}, ${room.truth.label}',
-              child: ListTile(
-                dense: true,
-                selected: selectedId == room.id,
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 7),
-                leading: Icon(
-                  _icon(room.id),
-                  size: 18,
-                  color: theme.primary,
-                ),
-                title: Text(
-                  room.name,
-                  style: TextStyle(
-                    color: theme.text,
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                subtitle: Text(
-                  room.owner,
-                  style: TextStyle(
-                    color: theme.mutedText,
-                    fontSize: 8,
-                  ),
-                ),
-                trailing: Icon(
-                  Icons.chevron_right_rounded,
-                  size: 16,
-                  color: theme.mutedText,
-                ),
-                onTap: () => onSelect(room.id),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  IconData _icon(String id) {
-    if (id.contains('evidence') || id.contains('provenance')) {
-      return Icons.fact_check_outlined;
-    }
-
-    if (id.contains('reasoning') || id.contains('hypothesis')) {
-      return Icons.account_tree_outlined;
-    }
-
-    if (id.contains('context')) {
-      return Icons.hub_outlined;
-    }
-
-    if (id.contains('decision') || id.contains('challenge')) {
-      return Icons.gavel_outlined;
-    }
-
-    if (id.contains('knowledge')) {
-      return Icons.menu_book_outlined;
-    }
-
-    return Icons.meeting_room_outlined;
-  }
-}
-
-class _RoomInspector extends StatelessWidget {
-  final Level2RoomSpec? room;
-
-  const _RoomInspector({
-    required this.room,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = CriterivoxTheme.of(context);
-
-    if (room == null) {
-      return Container(
-        constraints: const BoxConstraints(minHeight: 340),
-        padding: const EdgeInsets.all(22),
-        decoration: BoxDecoration(
-          color: theme.surfaceStrong,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: theme.border),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.meeting_room_outlined,
-              size: 48,
-              color: theme.primary,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Select a room to inspect its responsibility and runtime boundary.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: theme.text,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Inputs and outputs are shown as architecture/read-model contracts. Only explicitly implemented integrations are labeled accordingly.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: theme.mutedText,
-                fontSize: 10,
-                height: 1.4,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    final visual = CriterivoxVisualTokens.of(context);
-
-    return CriterivoxScene(
-      descriptor: CriterivoxSceneDescriptor(
-        world: CriterivoxWorld.civilization,
-        level: CriterivoxSceneLevel.room,
-        id: room!.id,
-        title: room!.name,
-        subtitle: room!.owner,
-      ),
-      environment: [
-        Container(
-          decoration: BoxDecoration(
-            gradient: RadialGradient(
-              colors: [
-                theme.primary.withValues(alpha: .13),
-                theme.surfaceStrong,
-              ],
-            ),
-            borderRadius: BorderRadius.circular(
-              visual.radiusLarge,
-            ),
-            border: Border.all(
-              color: theme.border,
-            ),
-          ),
-        ),
-      ],
-      character: [
-        Positioned(
-          left: 20,
-          top: 20,
-          child: CircleAvatar(
-            radius: 26,
-            backgroundColor:
-                theme.primary.withValues(alpha: .16),
-            child: Text(
-              room!.owner
-                  .split(' ')
-                  .first
-                  .characters
-                  .first
-                  .toUpperCase(),
-              style: TextStyle(
-                color: theme.primary,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-        ),
-      ],
-      information: [
-        Positioned.fill(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              92,
-              22,
-              22,
-              22,
-            ),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          room!.name,
-                          style: visual.roomTitle.copyWith(
-                            color: theme.text,
-                          ),
-                        ),
-                      ),
-                      CriterivoxStatusBadge(
-                        status: room!.truth.status,
-                        detail: room!.truth.label,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    'Responsible: ${room!.owner}',
-                    style: TextStyle(
-                      color: theme.primary,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  _Field(
-                    title: 'RESPONSIBILITY',
-                    value: room!.purpose,
-                  ),
-                  _Field(
-                    title: 'INPUT',
-                    value: room!.input,
-                  ),
-                  _Field(
-                    title: 'OUTPUT / ARTIFACT',
-                    value: room!.output,
-                  ),
-                  _Field(
-                    title: 'HUMAN INSPECTION',
-                    value: room!.interaction,
-                  ),
-                  const SizedBox(height: 8),
-                  _TruthBoundary(
-                    truth: room!.truth,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Field extends StatelessWidget {
-  final String title;
-  final String value;
-
-  const _Field({
-    required this.title,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = CriterivoxTheme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 9),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: theme.surface.withValues(alpha: .68),
-          borderRadius: BorderRadius.circular(11),
-          border: Border.all(
-            color: theme.border,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                color: theme.mutedText,
-                fontSize: 7.5,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1,
-              ),
-            ),
-            const SizedBox(height: 3),
-            Text(
-              value,
-              style: TextStyle(
-                color: theme.text,
-                fontSize: 9.5,
-                height: 1.35,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _TruthBoundary extends StatelessWidget {
-  final Level2Truth truth;
-
-  const _TruthBoundary({
-    required this.truth,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = CriterivoxTheme.of(context);
-
-    final message = switch (truth) {
-      Level2Truth.live =>
-        'Backed by an existing runtime pathway. Visuals must continue to follow authoritative state.',
-      Level2Truth.functionallyImplemented =>
-        'Existing implementation can support this surface; deeper Level 2 spatial integration may still be bounded.',
-      Level2Truth.simulated =>
-        'Demonstration only. It must not be presented as production execution.',
-      Level2Truth.staticPresentation =>
-        'Static/read-model presentation. No live computation is implied.',
-      Level2Truth.planned =>
-        'Documented architecture with no proven live implementation in this surface.',
-      Level2Truth.researchPrototype =>
-        'Research implementation exists behind an explicit S7/S8 boundary; this is not a claim of production intelligence.',
-      Level2Truth.unavailable =>
-        'The required service or data source is unavailable.',
-    };
-
-    return Container(
-      padding: const EdgeInsets.all(11),
-      decoration: BoxDecoration(
-        color: theme.page.withValues(alpha: .55),
-        borderRadius: BorderRadius.circular(11),
-        border: Border.all(
-          color: theme.warning.withValues(alpha: .45),
-        ),
-      ),
-      child: Text(
-        message,
-        style: TextStyle(
-          color: theme.mutedText,
-          fontSize: 8.5,
-          height: 1.35,
-        ),
-      ),
-    );
-  }
-}
-
-class _EmbeddedResearch extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final Widget child;
-  final VoidCallback onBack;
-
-  const _EmbeddedResearch({
-    required this.title,
-    required this.subtitle,
-    required this.child,
-    required this.onBack,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: CriterivoxTheme.of(context).page,
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 15,
-              ),
-            ),
-            Text(
-              subtitle,
-              style: const TextStyle(
-                fontSize: 9,
-              ),
-            ),
-          ],
-        ),
-        leading: IconButton(
-          tooltip:
-              'Return to Level 2 room directory',
-          onPressed: onBack,
-          icon: const Icon(Icons.arrow_back),
-        ),
-      ),
-      body: child,
     );
   }
 }

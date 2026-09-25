@@ -1,10 +1,22 @@
 """HTTP boundary for the Gate 2 collaboration runtime."""
+import asyncio
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from .collaboration_engine import collaboration_engine
 from ..application.syvax import syvax_engine
+from ..application.language_intake import detect_language_profile
+from ..application.language_service import language_service
 
 router=APIRouter(prefix="/api/collaboration",tags=["collaboration"])
+async def _expire_context_candidate(session_id: str, candidate_id: str) -> None:
+    await asyncio.sleep(60)
+    try:
+        result = collaboration_engine.timeout_context(session_id, candidate_id)
+        if result.get("continued"):
+            return
+    except Exception:
+        return
+
 def _error(e):
     if isinstance(e,KeyError):return JSONResponse({"accepted":False,"error":str(e)},status_code=404)
     if isinstance(e,PermissionError):return JSONResponse({"accepted":False,"error":str(e)},status_code=403)
@@ -42,7 +54,7 @@ async def comment(session_id:str,payload:dict):
 @router.post("/session/{session_id}/classify")
 async def classify(session_id:str,payload:dict):
     try:
-        text=str(payload.get("text",""));plan=syvax_engine.compile_plan(text);candidate=collaboration_engine.classify_context(session_id,str(payload.get("actor","")),text,confirm=False,variable_type=str(payload.get("variable_type","constraint")));candidate["syvax"]["plan"]={"task_id":plan.task_id,"intent_type":plan.intent.intent_type,"goal":plan.intent.goal,"confidence":plan.intent.confidence,"entities":plan.intent.entities};return {"accepted":True,"candidate":candidate}
+        text=str(payload.get("text",""));profile=detect_language_profile(text);normalized=await language_service.to_reasoning_language(text,profile);plan=syvax_engine.compile_plan(normalized);candidate=collaboration_engine.classify_context(session_id,str(payload.get("actor","")),normalized,confirm=False,variable_type=str(payload.get("variable_type","constraint")));candidate["original_text"]=text;candidate["language_profile"]=profile.to_dict();candidate["normalized_text"]=normalized;candidate["syvax"]["plan"]={"task_id":plan.task_id,"intent_type":plan.intent.intent_type,"goal":plan.intent.goal,"confidence":plan.intent.confidence,"entities":plan.intent.entities};asyncio.create_task(_expire_context_candidate(session_id,candidate["id"]));return {"accepted":True,"candidate":candidate}
     except Exception as e:return _error(e)
 @router.post("/session/{session_id}/context/{candidate_id}/confirm")
 async def confirm_context(session_id:str,candidate_id:str,payload:dict):

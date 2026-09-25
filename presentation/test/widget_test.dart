@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:presentation/app_shell.dart';
+import 'package:presentation/presentation/language_mode.dart';
 
 void main() {
   testWidgets(
@@ -17,40 +18,20 @@ void main() {
 
       await tester.pump();
 
-      expect(
-        find.text('Criterivox'),
-        findsWidgets,
-      );
-
-      expect(
-        find.text('Bloom'),
-        findsOneWidget,
-      );
-
-      expect(
-        find.text('Analysis Workspace'),
-        findsOneWidget,
-      );
-
-      expect(
-        find.text('Civilization · Gate 1'),
-        findsOneWidget,
-      );
-
-      expect(
-        find.text('App Introduction'),
-        findsOneWidget,
-      );
+      expect(find.text('Criterivox'), findsWidgets);
+      expect(find.text('Living Interaction'), findsOneWidget);
+      expect(find.text('Lifecycle'), findsOneWidget);
+      expect(find.text('START HERE'), findsOneWidget);
+      expect(find.text('HUMAN TERRITORY'), findsWidgets);
+      expect(find.text('App Introduction'), findsOneWidget);
+      expect(find.byTooltip(RegExp('Language')), findsOneWidget);
     },
   );
 
   testWidgets(
-    'navigation moves to the workspace and global character chat surface',
+    'global character chat is available from the current application shell',
     (WidgetTester tester) async {
-      await tester.binding.setSurfaceSize(
-        const Size(1280, 900),
-      );
-
+      await tester.binding.setSurfaceSize(const Size(1280, 900));
       addTearDown(() async {
         await tester.binding.setSurfaceSize(null);
       });
@@ -66,70 +47,32 @@ void main() {
 
       await tester.pump();
 
-      await tester.tap(
-        find.text('Analysis Workspace'),
-      );
-
-      await tester.pump(
-        const Duration(milliseconds: 300),
-      );
-
-      expect(
-        find.text('Analysis Workspace'),
-        findsWidgets,
-      );
-
-      expect(
-        find.text('Start Analysis'),
-        findsOneWidget,
-      );
-
-      final openChat = find.byTooltip(
-        'Open character chat',
-      );
-
-      expect(
-        openChat,
-        findsOneWidget,
-      );
+      final openChat = find.byTooltip('Open character chat');
+      expect(openChat, findsOneWidget);
 
       await tester.tap(openChat);
-
       await _pumpUntil(
         tester,
-        () => find.byTooltip(
-          'Close character chat',
+        () => find.byTooltip('Close character chat'),
+      );
+
+      expect(find.byTooltip('Close character chat'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('global-character-chat')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('global-character-chat')),
+          matching: find.byType(TextField),
         ),
-      );
-
-      expect(
-        find.byTooltip('Close character chat'),
-        findsOneWidget,
-      );
-
-      final globalChat = find.byKey(
-        const ValueKey('global-character-chat'),
-      );
-
-      expect(
-        globalChat,
-        findsOneWidget,
-      );
-
-      final chatInput = find.descendant(
-        of: globalChat,
-        matching: find.byType(TextField),
-      );
-
-      expect(
-        chatInput,
         findsOneWidget,
       );
     },
   );
 
   testWidgets(
-    'Bloom Analyze expands only its currently implemented paths',
+    'Bloom exposes its current living interaction surface',
     (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
@@ -142,101 +85,57 @@ void main() {
 
       await tester.pump();
 
-      await tester.tap(
-        find.text('Analyze').first,
-      );
-
-      await tester.pump();
-
+      expect(find.text('Living Interaction'), findsOneWidget);
       expect(
-        find.text('Workspace'),
+        find.text('Choose a capability and follow its contextual path.'),
         findsOneWidget,
       );
-
-      expect(
-        find.bySemanticsLabel(
-          RegExp(
-            r'Analyze capability, Vivren responsible for Discernment',
-          ),
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('Lifecycle'), findsOneWidget);
+      expect(find.text('IDLE'), findsOneWidget);
     },
   );
 
   testWidgets(
-    'App Introduction exposes the current introduction content',
+    'App Introduction explains the current product model',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: CriterivoxShell(isDarkMode: true, connectRuntime: false),
+        ),
+      );
+      await tester.pump();
+      await tester.tap(find.text('App Introduction'));
+      await tester.pump();
+
+      expect(find.byKey(const ValueKey('intro')), findsOneWidget);
+      expect(find.text('WHAT IS CRITERIVOX'), findsOneWidget);
+      expect(find.text('WHAT CAN I DO HERE'), findsOneWidget);
+      expect(find.text('HOW TO USE IT'), findsOneWidget);
+      expect(find.text('WHY DOES THE WORLD EXIST?'), findsOneWidget);
+      expect(find.text('WHO ARE THESE CHARACTERS?'), findsOneWidget);
+      expect(find.text('WHAT IS BLOOM?'), findsOneWidget);
+      expect(find.text('HUMAN TERRITORY'), findsWidgets);
+    },
+  );
+
+  testWidgets(
+    'application navigation localizes the sidebar labels',
     (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: CriterivoxShell(
             isDarkMode: true,
             connectRuntime: false,
+            language: CriterivoxLanguage.hindi,
           ),
         ),
       );
 
       await tester.pump();
 
-      await tester.tap(
-        find.text('App Introduction'),
-      );
-
-      await tester.pump();
-
-      expect(
-        find.byKey(
-          const ValueKey('intro'),
-        ),
-        findsOneWidget,
-      );
-
-      expect(
-        find.text('ONE SYSTEM. MANY MINDS.'),
-        findsOneWidget,
-      );
-
-      expect(
-        find.text('MEET THE MINDS'),
-        findsOneWidget,
-      );
-
-      expect(
-        find.text('SYVAX'),
-        findsWidgets,
-      );
-
-      expect(
-        find.text('DHAREN'),
-        findsWidgets,
-      );
-
-      expect(
-        find.text('THE WORKFLOW'),
-        findsOneWidget,
-      );
-
-      expect(
-        find.text(
-          'RECEIVE → CONTEXT → REASON → PLAN → VERIFY → DELIVER',
-        ),
-        findsOneWidget,
-      );
-
-      expect(
-        find.text('Enter Civilization'),
-        findsOneWidget,
-      );
-
-      expect(
-        find.text('Enter workspace'),
-        findsOneWidget,
-      );
-
-      expect(
-        find.text('Meet Syvax'),
-        findsOneWidget,
-      );
+      expect(find.text('यहाँ से शुरू करें'), findsOneWidget);
+      expect(find.text('ऐप परिचय'), findsOneWidget);
+      expect(find.text('मानव क्षेत्र'), findsOneWidget);
     },
   );
 }
@@ -252,14 +151,8 @@ Future<void> _pumpUntil(
     if (finder().evaluate().isNotEmpty) {
       return;
     }
-
-    await tester.pump(
-      const Duration(milliseconds: 50),
-    );
+    await tester.pump(const Duration(milliseconds: 50));
   }
 
-  expect(
-    finder(),
-    findsOneWidget,
-  );
+  expect(finder(), findsOneWidget);
 }

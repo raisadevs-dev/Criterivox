@@ -1,15 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'interaction/bloom.dart';
-import 'interaction/syvax.dart';
 import 'presentation/presentation_state.dart';
 import 'presentation/criterivox_theme.dart';
 
 class BloomPage extends StatefulWidget {
   final PresentationState? state;
-  final ValueChanged<BloomSuboption> onSub;
-  final ValueChanged<String> onSyvax;
   final ValueChanged<BloomCapability>? onCapability;
+  final ValueChanged<BloomActivation>? onOpenCapability;
   final VoidCallback onStewardship;
   final VoidCallback onHandoff;
   final VoidCallback onOpenAnalysis;
@@ -17,9 +15,8 @@ class BloomPage extends StatefulWidget {
   const BloomPage(
       {super.key,
       required this.state,
-      required this.onSub,
-      required this.onSyvax,
       this.onCapability,
+      this.onOpenCapability,
       required this.onStewardship,
       required this.onHandoff,
       required this.onOpenAnalysis,
@@ -96,12 +93,10 @@ class _BloomPageState extends State<BloomPage> {
                     state: widget.state,
                     selected: selected,
                     onCapability: _select,
-                    onSub: _handleSub,
+                    onOpenCapability: widget.onOpenCapability,
                     height: 560),
                 const SizedBox(height: 14),
-                Syvax(onSubmit: widget.onSyvax, busy: widget.busy),
                 const SizedBox(height: 14),
-                _ActivityPanel(state: widget.state)
               ])
             else
               Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -110,15 +105,12 @@ class _BloomPageState extends State<BloomPage> {
                         state: widget.state,
                         selected: selected,
                         onCapability: _select,
-                        onSub: _handleSub,
+                        onOpenCapability: widget.onOpenCapability,
                         height: 600)),
                 const SizedBox(width: 16),
-                SizedBox(
+                const SizedBox(
                     width: 320,
                     child: Column(children: [
-                      Syvax(onSubmit: widget.onSyvax, busy: widget.busy),
-                      const SizedBox(height: 14),
-                      _ActivityPanel(state: widget.state)
                     ]))
               ]),
             const SizedBox(height: 14),
@@ -137,19 +129,47 @@ class _BloomPageState extends State<BloomPage> {
     widget.onCapability?.call(value);
   }
 
-  void _handleSub(BloomSuboption value) {
-    if (value == BloomSuboption.stewardshipHome) {
-      widget.onStewardship();
-      return;
-    }
-    widget.onSub(value);
+}
+
+class _Lifecycle extends StatelessWidget {
+  final PresentationState? state;
+
+  const _Lifecycle({required this.state});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+    final status = state?.taskState ?? 'IDLE';
+    return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+        decoration: BoxDecoration(
+            color: t.surfaceStrong,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: t.border)),
+        child: Row(children: [
+          Icon(Icons.timeline_rounded, color: t.primary, size: 18),
+          const SizedBox(width: 9),
+          Expanded(
+              child: Text('Lifecycle',
+                  style: TextStyle(
+                      color: t.text,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700))),
+          Text(status,
+              style: TextStyle(
+                  color: t.mutedText,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700))
+        ]));
   }
 }
 
 class _ProactiveDoorway extends StatelessWidget {
   final String taskId;
   final VoidCallback onOpen;
+
   const _ProactiveDoorway({required this.taskId, required this.onOpen});
+
   @override
   Widget build(BuildContext context) {
     final t = CriterivoxTheme.of(context);
@@ -225,13 +245,13 @@ class _BloomCard extends StatelessWidget {
   final PresentationState? state;
   final BloomCapability? selected;
   final ValueChanged<BloomCapability> onCapability;
-  final ValueChanged<BloomSuboption> onSub;
+  final ValueChanged<BloomActivation>? onOpenCapability;
   final double height;
   const _BloomCard(
       {required this.state,
       required this.selected,
       required this.onCapability,
-      required this.onSub,
+      required this.onOpenCapability,
       required this.height});
   @override
   Widget build(BuildContext context) {
@@ -265,137 +285,7 @@ class _BloomCard extends StatelessWidget {
                   child: Bloom(
                       onSelected: onCapability,
                       selected: selected,
-                      onSuboption: onSub)))
-        ]));
-  }
-}
-
-class _ActivityPanel extends StatelessWidget {
-  final PresentationState? state;
-  const _ActivityPanel({required this.state});
-  @override
-  Widget build(BuildContext context) {
-    final t = CriterivoxTheme.of(context);
-    final items = <String>[
-      if (state?.message != null) state!.message!,
-      ...?state?.activity.take(3),
-      'Analysis workspace is available from the same task.',
-      'Syvax can route a request to Dharen.'
-    ];
-    return Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-            color: t.surface,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: t.border)),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            Expanded(
-                child: Text('Recent Activity',
-                    style: TextStyle(
-                        color: t.text,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700))),
-            Text(state?.error == null ? 'LIVE' : 'WARNING',
-                style: TextStyle(
-                    color: state?.error == null ? t.success : t.warning,
-                    fontSize: 9,
-                    fontWeight: FontWeight.w800))
-          ]),
-          const SizedBox(height: 14),
-          for (final item in items.take(6))
-            Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.circle, size: 6, color: t.primary),
-                      const SizedBox(width: 10),
-                      Expanded(
-                          child: Text(item,
-                              style: TextStyle(
-                                  color: t.mutedText,
-                                  fontSize: 10.5,
-                                  height: 1.4)))
-                    ]))
-        ]));
-  }
-}
-
-class _Lifecycle extends StatelessWidget {
-  final PresentationState? state;
-  const _Lifecycle({required this.state});
-  @override
-  Widget build(BuildContext context) {
-    final t = CriterivoxTheme.of(context);
-    final active = state?.taskState ?? 'READY';
-    final stages = [
-      'CREATED',
-      'RECEIVED',
-      'VALIDATING',
-      'PROCESSING',
-      'ANALYZING',
-      'RESULT_READY',
-      'COMPLETED'
-    ];
-    final activeIndex = stages.indexOf(active.toUpperCase());
-    return Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-            color: t.surface,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: t.border)),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('TASK LIFECYCLE',
-              style: TextStyle(
-                  color: t.mutedText,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.1)),
-          const SizedBox(height: 18),
-          SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(mainAxisSize: MainAxisSize.min, children: [
-                for (var i = 0; i < stages.length; i++)
-                  Row(children: [
-                    Column(mainAxisSize: MainAxisSize.min, children: [
-                      Container(
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: i <= activeIndex
-                                  ? t.primary.withValues(alpha: .15)
-                                  : t.surfaceStrong,
-                              border: Border.all(
-                                  color:
-                                      i <= activeIndex ? t.primary : t.border)),
-                          child: Icon(
-                              i == 6
-                                  ? Icons.check_rounded
-                                  : Icons.auto_awesome_rounded,
-                              size: 14,
-                              color:
-                                  i <= activeIndex ? t.primary : t.mutedText)),
-                      const SizedBox(height: 6),
-                      Text(stages[i].replaceAll('_', ' '),
-                          style: TextStyle(
-                              color: i == activeIndex ? t.text : t.mutedText,
-                              fontSize: 8.5,
-                              fontWeight: FontWeight.w600))
-                    ]),
-                    if (i < stages.length - 1)
-                      Container(
-                          width: 42,
-                          height: 1,
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 15),
-                          color: t.border)
-                  ])
-              ])),
-          const SizedBox(height: 10),
-          Text('Current state: $active',
-              style: TextStyle(color: t.mutedText, fontSize: 10))
+                      onOpenCapability: onOpenCapability)))
         ]));
   }
 }

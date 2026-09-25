@@ -4,6 +4,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
+from .language_intake import LanguageProfile, detect_language_profile, interpretation_summary
+
 
 Intent = Literal[
     "status",
@@ -30,6 +32,18 @@ class ConversationInterpretation:
     reply_hint: str | None = None
     route_target: str | None = None
     route_reason: str | None = None
+    language_profile: LanguageProfile | None = None
+    semantic_summary: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.language_profile is None:
+            object.__setattr__(self, "language_profile", detect_language_profile(self.normalized_text))
+        if not self.semantic_summary:
+            object.__setattr__(
+                self,
+                "semantic_summary",
+                interpretation_summary(self.intent, self.route_target),
+            )
 
 
 _HISTORY_PHRASES = (

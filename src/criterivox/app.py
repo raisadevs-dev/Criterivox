@@ -17,10 +17,11 @@ from .application.analysis_tasks import analysis_tasks
 from .application.character_chat import PROFILES, handle_character_chat, sign_off_task_scratchpad
 from .application.context_engine import ContextEngine
 from .application.data_foundation_store import data_foundations
+from .application.research_instrumentation import research_instrumentation
 from .application.sandre_stewardship import SandreStewardship
 from .application.s5_feature_runtime import S5FeatureRuntime
 from .application import foundation_runtime_bridge  # noqa: F401
-from .infrastructure.runtime import dharen_runtime, handle_application_request, handle_chat_message, parse_analysis_request, runtime_connections
+from .infrastructure.runtime import dharen_runtime, handle_application_request, handle_chat_message, handle_chat_interpretation_confirmation, parse_analysis_request, runtime_connections
 from .logging_config import configure_logging
 from .presentation.contract import PresentationContract
 from .ui.routes import router
@@ -34,6 +35,55 @@ stewardship = SandreStewardship()
 context_engine = ContextEngine()
 observability = ObservabilityTimeline()
 _context_snapshots: dict[str, dict[str, object]] = {}
+
+@app.post("/api/research/register")
+def register_research_participant(payload: dict) -> JSONResponse:
+    participant = research_instrumentation.register_participant(
+        display_name=str(payload.get("display_name", "")),
+        email=str(payload.get("email", "")),
+    )
+    return JSONResponse({
+        "participant_id": participant.participant_id,
+        "display_name": participant.display_name,
+        "email": participant.email,
+    })
+
+
+@app.post("/api/research/consent")
+def record_research_consent(payload: dict) -> JSONResponse:
+    consent = research_instrumentation.record_consent(
+        participant_id=str(payload.get("participant_id", "")),
+        consent_version=str(payload.get("consent_version", "v1")),
+        research_data=bool(payload.get("research_data", False)),
+        identifiable_data=bool(payload.get("identifiable_data", False)),
+        raw_text=bool(payload.get("raw_text", False)),
+        outcome_follow_up=bool(payload.get("outcome_follow_up", False)),
+    )
+    return JSONResponse({
+        "participant_id": consent.participant_id,
+        "research_data": consent.research_data,
+        "identifiable_data": consent.identifiable_data,
+        "raw_text": consent.raw_text,
+        "outcome_follow_up": consent.outcome_follow_up,
+        "granted_at": consent.granted_at,
+    })
+
+
+@app.post("/api/research/outcome")
+def record_research_outcome(payload: dict) -> JSONResponse:
+    session_id = str(payload.get("session_id", "")).strip() or research_instrumentation.latest_session_id(str(payload.get("participant_id", "")))
+    if not session_id:
+        return JSONResponse({"error": "no research session exists for this participant"}, status_code=400)
+    outcome_id = research_instrumentation.record_outcome(
+        session_id=session_id,
+        participant_id=str(payload.get("participant_id", "")),
+        success_state=str(payload.get("success_state", "")),
+        helped_score=float(payload["helped_score"]) if payload.get("helped_score") is not None else None,
+        improvement_request=str(payload["improvement_request"]) if payload.get("improvement_request") is not None else None,
+        outcome_summary=str(payload["outcome_summary"]) if payload.get("outcome_summary") is not None else None,
+    )
+    return JSONResponse({"outcome_id": outcome_id})
+
 
 @app.get("/health")
 def health() -> JSONResponse:
@@ -181,7 +231,48 @@ async def _safe_data_action(payload: dict) -> None:
             merged, resolutions = stewardship.merge_conflicts(home, chat, {str(k): str(v) for k, v in winners.items()})
             foundation = data_foundations.get(foundation_id); await _publish_foundation_state("sandre", CharacterState.WORK, "Conflict merge recorded with explicit per-field winners.", "CONFLICT_MERGED", foundation, conflict_fields=tuple(resolutions.keys())); return
         if action == "s5_feature":
-            feature = str(payload.get("feature", "")).strip(); request = dict(payload); request.pop("type", None); request.pop("action", None); request.pop("feature", None); foundation = data_foundations.get(foundation_id); result = await s5_features.run(feature, request); stewardship.record(foundation, event="S5_FEATURE_EXECUTED", detail=f"Executed feature {feature}."); await _publish_foundation_state("sandre", CharacterState.COMPLETE, f"S5 feature {feature} completed.", "S5_FEATURE_COMPLETED", foundation, feature_payload=result); return
+            feature = str(payload.get("feature", "")).strip().lower()
+            foundation = data_foundations.get(foundation_id)
+            feature_values = payload.get("values")
+            feature_values = feature_values if isinstance(feature_values, dict) else {}
+
+            feature_methods = {
+                "readiness": s5_features.readiness,
+                "provenance": s5_features.provenance,
+                "synthetic_preview": s5_features.synthetic_preview,
+                "semantic": s5_features.semantic,
+                "schema_patch": s5_features.schema_patch,
+                "pipeline": s5_features.pipeline_result,
+                "vector_readiness": s5_features.vector_readiness,
+                "edd_gate": s5_features.edd_gate,
+                "ml_anomaly": s5_features.ml_train_and_score,
+            }
+
+            if feature not in feature_methods:
+                raise ValueError(f"Unsupported S5 feature: {feature}")
+
+            method = feature_methods[feature]
+            if feature == "provenance":
+                result = method(foundation, feature_values.get("revision"))
+            elif feature == "synthetic_preview":
+                result = method(foundation, int(feature_values.get("seed", 17)))
+            else:
+                result = method(foundation)
+
+            stewardship.record(
+                foundation,
+                event="S5_FEATURE_EXECUTED",
+                detail=f"Executed feature {feature}.",
+            )
+            await _publish_foundation_state(
+                "sandre",
+                CharacterState.COMPLETE,
+                f"S5 feature {feature} completed.",
+                "S5_FEATURE_COMPLETED",
+                foundation,
+                feature_payload=result,
+            )
+            return
         raise ValueError(f"Unsupported data action: {action}")
     except Exception as exc:
         logger.exception("S5 data action failed.")
@@ -249,6 +340,8 @@ async def character_runtime(websocket: WebSocket) -> None:
                     await websocket.send_json({"message_type":"operation_state","command":result.__dict__,"classification":"DENIED"})
                 except Exception as exc:
                     await websocket.send_json({"message_type":"operation_state","classification":"ERROR","error":str(exc)})
+            elif isinstance(payload, dict) and payload.get("type") == "chat_interpretation_confirmation":
+                asyncio.create_task(_safe_request(handle_chat_interpretation_confirmation, payload))
             elif isinstance(payload, dict) and payload.get("type") == "chat_message":
                 asyncio.create_task(_safe_request(handle_chat_message, payload))
             elif isinstance(payload, dict) and payload.get("type") in {"data_intake", "data_folder"}: asyncio.create_task(_safe_data_intake(payload))

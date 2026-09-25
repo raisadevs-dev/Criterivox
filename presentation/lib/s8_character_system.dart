@@ -26,7 +26,7 @@ class S8CharacterView extends StatelessWidget {
 
     return Semantics(
       button: onTap != null,
-      label: '${identity.displayName}, ${identity.role}',
+      label: '${identity.nameFor(Localizations.localeOf(context).languageCode)}, ${identity.role}',
       value: state.activityLabel,
       child: GestureDetector(
         onTap: onTap,
@@ -41,7 +41,7 @@ class S8CharacterView extends StatelessWidget {
               height: 228,
             ),
             Text(
-              identity.displayName,
+              identity.nameFor(Localizations.localeOf(context).languageCode),
               style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.white),
             ),
             const SizedBox(height: 3),
@@ -83,15 +83,15 @@ class S8CharacterProfileOverlay extends StatelessWidget {
       left: initialPosition.dx,
       top: initialPosition.dy,
       child: Draggable<Offset>(
-        feedback: Material(color: Colors.transparent, child: _card(identity)),
+        feedback: Material(color: Colors.transparent, child: _card(context, identity)),
         childWhenDragging: const SizedBox.shrink(),
         onDragEnd: (details) => onPositionChanged?.call(details.offset),
-        child: _card(identity),
+        child: _card(context, identity),
       ),
     );
   }
 
-  Widget _card(CharacterIdentity identity) => Material(
+  Widget _card(BuildContext context, CharacterIdentity identity) => Material(
         color: Colors.transparent,
         child: Container(
           width: 330,
@@ -106,7 +106,7 @@ class S8CharacterProfileOverlay extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(children: [
-                Expanded(child: Text(identity.displayName, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900))),
+                Expanded(child: Text(identity.nameFor(Localizations.localeOf(context).languageCode), style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900))),
                 IconButton(onPressed: onClose, icon: const Icon(Icons.close, color: Colors.white70)),
               ]),
               Text(identity.role, style: TextStyle(color: character.accent, fontWeight: FontWeight.w700)),

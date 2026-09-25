@@ -1,10 +1,7 @@
 import 'dart:convert';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import 'interaction/home03_bloom.dart';
 import 'interaction/syvax.dart';
 import 'presentation/criterivox_theme.dart';
 
@@ -25,7 +22,6 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
   final correction = TextEditingController();
 
   Map<String, dynamic>? plan;
-  Map<String, dynamic>? bloom;
   Map<String, dynamic>? rendered;
 
   String mode = 'HITL';
@@ -73,28 +69,6 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
     return data;
   }
 
-  Future<void> loadBloom() async {
-    try {
-      final response = await http.get(
-        base.replace(
-          path: '${base.path}/api/bloom/state',
-        ),
-      );
-
-      if (response.statusCode < 300 && mounted) {
-        final decoded = jsonDecode(response.body);
-
-        if (decoded is Map) {
-          setState(() {
-            bloom = Map<String, dynamic>.from(decoded);
-          });
-        }
-      }
-    } catch (_) {
-      // Bloom state is supplementary. The main Syvax workflow
-      // should remain usable when the Bloom endpoint is unavailable.
-    }
-  }
 
   Future<void> dispatch(String text) async {
     if (text.trim().isEmpty || busy) {
@@ -147,7 +121,6 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
         rendered = renderResult;
       });
 
-      await loadBloom();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -165,68 +138,10 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
     }
   }
 
-  Future<void> attach() async {
-    final result = await FilePicker.platform.pickFiles(
-      withData: true,
-      allowMultiple: false,
-    );
-
-    if (result == null || result.files.isEmpty) {
-      return;
-    }
-
-    final file = result.files.single;
-    final bytes = file.bytes;
-
-    if (bytes == null || bytes.length > 8 * 1024 * 1024) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Universal Dropzone accepts files up to 8 MB.',
-            ),
-          ),
-        );
-      }
-      return;
-    }
-
-    try {
-      final response = await post(
-        '/api/home03/ingest',
-        {
-          'filename': file.name,
-          'content_type': file.extension,
-          'content_base64': base64Encode(bytes),
-        },
-      );
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Sent to Sandre · foundation ${response['foundation_id']}',
-            ),
-          ),
-        );
-      }
-
-      await loadBloom();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$e'),
-          ),
-        );
-      }
-    }
-  }
 
   @override
   void initState() {
     super.initState();
-    loadBloom();
   }
 
   @override
@@ -292,7 +207,7 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
                                 ),
                               ),
                               Text(
-                                'Dialogue · routing · safety · steering · output translation',
+                                'Receive · Route · Control · Output',
                                 style: TextStyle(
                                   color: theme.mutedText,
                                   fontSize: 11,
@@ -317,7 +232,6 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
                                 busy: busy,
                               ),
                               const SizedBox(height: 14),
-                              _bloom(theme),
                             ],
                           );
                         }
@@ -339,7 +253,6 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
                                     busy: busy,
                                   ),
                                   const SizedBox(height: 14),
-                                  _bloom(theme),
                                 ],
                               ),
                             ),
@@ -347,8 +260,6 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
                         );
                       },
                     ),
-                    const SizedBox(height: 14),
-                    _dropzone(theme),
                     const SizedBox(height: 14),
                     _workbench(theme, rawPlan),
                     const SizedBox(height: 14),
@@ -387,13 +298,6 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
                         },
                       );
 
-                      await post(
-                        '/api/bloom/mode',
-                        {
-                          'mode': currentMode,
-                        },
-                      );
-
                       if (!mounted) {
                         return;
                       }
@@ -402,7 +306,6 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
                         mode = currentMode;
                       });
 
-                      await loadBloom();
                     },
               style: TextButton.styleFrom(
                 backgroundColor: mode == currentMode
@@ -553,61 +456,6 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
     );
   }
 
-  Widget _dropzone(CriterivoxTheme theme) {
-    return InkWell(
-      onTap: attach,
-      borderRadius: BorderRadius.circular(22),
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: theme.surface,
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(
-            color: theme.primary.withValues(alpha: .55),
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.upload_file_rounded,
-              color: theme.primary,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'UNIVERSAL DROPZONE',
-                    style: TextStyle(
-                      color: theme.text,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 11,
-                    ),
-                  ),
-                  Text(
-                    'Voice/image/document/code payload → normalize → Sandre / Data Foundation',
-                    style: TextStyle(
-                      color: theme.mutedText,
-                      fontSize: 9,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              'ATTACH',
-              style: TextStyle(
-                color: theme.primary,
-                fontSize: 9,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _workbench(
     CriterivoxTheme theme,
@@ -618,17 +466,8 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
     if (view == 'json') {
       content = const JsonEncoder.withIndent('  ').convert(
         {
-          'plan': null,
-          'rendered': null,
-          'bloom': null,
-        },
-      );
-
-      content = const JsonEncoder.withIndent('  ').convert(
-        {
           'plan': plan,
           'rendered': rendered,
-          'bloom': bloom,
         },
       );
     } else if (view == 'reasoning') {
@@ -804,82 +643,4 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
     );
   }
 
-  Widget _bloom(CriterivoxTheme theme) {
-    final activeHomes = bloom?['active_homes'];
-    final traces = bloom?['traces'];
-    final checkpoints = bloom?['checkpoints'];
-
-    final activeHomeCount = activeHomes is List ? activeHomes.length : 0;
-
-    final traceCount = traces is List ? traces.length : 0;
-
-    final checkpointCount = checkpoints is List ? checkpoints.length : 0;
-
-    final bloomMode = bloom?['mode'] ?? mode;
-
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: theme.surface,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: theme.border,
-        ),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  '🌸 THE BLOOM · 8 HOMES',
-                  style: TextStyle(
-                    color: theme.text,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              Text(
-                '$activeHomeCount ACTIVE',
-                style: TextStyle(
-                  color: theme.primary,
-                  fontSize: 9,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Home03Bloom(
-            onOpen: widget.onOpen,
-            state: bloom,
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Mode: $bloomMode · traces $traceCount · checkpoints $checkpointCount',
-                  style: TextStyle(
-                    color: theme.mutedText,
-                    fontSize: 9,
-                  ),
-                ),
-              ),
-              IconButton(
-                onPressed: () {
-                  widget.onOpen('stewardship');
-                },
-                icon: const Icon(
-                  Icons.inventory_2_rounded,
-                ),
-                tooltip: 'Open Data Stewardship',
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 }

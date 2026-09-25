@@ -38,6 +38,22 @@ void main() {
     );
   });
 
+  test('normalizes canonical runtime character identity casing', () {
+    const raw = '''{
+      "contract_version": 1,
+      "character_id": "Dharen",
+      "character_state": "work",
+      "animation": "work",
+      "active": true,
+      "prominence": 0.75,
+      "reduced_motion": false
+    }''';
+
+    final state = PresentationState.fromJson(raw);
+
+    expect(state.agentId, 'dharen');
+  });
+
   test('rejects an unsupported character state', () {
     expect(
       () => PresentationState.fromJson('''{

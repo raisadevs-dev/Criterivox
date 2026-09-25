@@ -2,29 +2,43 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import 'analysis_context_workspace_page.dart';
 import 'app_introduction_page.dart';
 import 'bloom_page.dart';
+import 'bloom_companion.dart';
+import 'civilization_world_portal_page.dart';
 import 'civilization_page.dart';
 import 'civilization_home_preview_page.dart';
 import 'level2_operational_page.dart';
-import 'world_portal_page.dart' hide CivilizationPage;
+import 'world_portal_page.dart';
 import 'human_residence_entry_page.dart';
+import 'guest_pass_experience_page.dart';
 import 'private_room_page.dart';
 import 'collaboration_room_page.dart';
+import 'decision_history_page.dart';
+import 'decision_desk_page.dart';
+import 'results_journal_page.dart';
+import 'collaboration_commons_page.dart';
+import 'character_focus_page.dart';
 import 'chat/character_chat_page.dart';
-import 'context/home02_context_console.dart';
+import 'context/context_intelligence_page.dart';
 import 'interaction/bloom.dart';
 import 'presentation/criterivox_theme.dart' as criterivox_theme;
+import 'presentation/language_mode.dart';
 import 'presentation/presentation_state.dart';
 import 'presentation/runtime_client.dart';
-import 'stewardship_live_workspace_page.dart';
+import 'data_stewardship_page.dart';
+import 'home03_syvax_page.dart';
+import 's7/s7_environment_page.dart';
+import 'decision_action_quarter_page.dart';
+import 'evidence_experiment_quarter_page.dart';
 
 class CriterivoxShell extends StatefulWidget {
   final bool isDarkMode;
   final VoidCallback onToggleTheme;
   final bool connectRuntime;
   final CharacterRuntimeClient? runtimeClient;
+  final CriterivoxLanguage language;
+  final ValueChanged<CriterivoxLanguage>? onLanguageChanged;
 
   const CriterivoxShell({
     super.key,
@@ -32,6 +46,8 @@ class CriterivoxShell extends StatefulWidget {
     this.onToggleTheme = _noop,
     this.connectRuntime = true,
     this.runtimeClient,
+    this.language = CriterivoxLanguage.auto,
+    this.onLanguageChanged,
   });
 
   static void _noop() {}
@@ -63,6 +79,7 @@ class _ShellState extends State<CriterivoxShell> {
 
   String page = 'bloom';
   String chatTarget = 'dharen';
+  String? focusedCharacter;
 
   bool busy = false;
   bool railOpen = true;
@@ -84,6 +101,7 @@ class _ShellState extends State<CriterivoxShell> {
 
     runtime =
         widget.runtimeClient ?? CharacterRuntimeClient();
+    runtime.setLanguageMode(widget.language.code);
 
     _stateSubscription = runtime.states.listen((value) {
       if (!mounted) {
@@ -151,7 +169,20 @@ class _ShellState extends State<CriterivoxShell> {
     });
 
     if (widget.connectRuntime) {
-      runtime.connect();
+      unawaited(_connectRuntime());
+    }
+  }
+
+  Future<void> _connectRuntime() async {
+    await runtime.loadResearchIdentity();
+    await runtime.connect();
+  }
+
+  @override
+  void didUpdateWidget(covariant CriterivoxShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.language.code != widget.language.code) {
+      runtime.setLanguageMode(widget.language.code);
     }
   }
 
@@ -180,31 +211,35 @@ class _ShellState extends State<CriterivoxShell> {
     });
   }
 
-  void showReserved(String capability) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(
-            '$capability is reserved for a future capability sprint.',
-          ),
-        ),
-      );
+  void handleBloomActivation(BloomActivation activation) {
+    open(activation.route);
   }
 
-  void handleBloomCapability(
-    BloomCapability capability,
-  ) {
-    if (capability == BloomCapability.stewardship) {
-      open('stewardship');
+  void openCharacterFocus(String id) {
+    setState(() => focusedCharacter = id);
+    open('character-focus');
+  }
+
+  String? _characterHome(String id) {
+    const homes = <String, String>{
+      'syvax': 'gateway', 'sandre': 'data', 'kaelen': 'data',
+      'dharen': 'context', 'anuka': 'context',
+      'vivren': 'reasoning', 'tarkis': 'reasoning',
+      'pramon': 'decision', 'bodhex': 'decision', 'manis': 'decision',
+      'medrus': 'evidence', 'epistre': 'evidence', 'veridat': 'evidence',
+      'viveda': 'knowledge',
+    };
+    return homes[id.toLowerCase()];
+  }
+
+  void openCharacterHome(String id) {
+    final home = _characterHome(id);
+    if (home == null) {
+      open('civilization');
       return;
     }
-
-    if (capability != BloomCapability.analyze) {
-      showReserved(
-        Bloom.labels[capability] ?? capability.name,
-      );
-    }
+    setState(() => civilizationHome = home);
+    open('home-preview');
   }
 
   void handoffFromBloom() {
@@ -400,19 +435,79 @@ class _ShellState extends State<CriterivoxShell> {
   }
 
   void _openHome(String home) {
-    setState(() {
-      civilizationHome = home;
-    });
-
+    if (home == 'data') {
+      open('stewardship');
+      return;
+    }
+    setState(() => civilizationHome = home);
     open('home-preview');
   }
 
-  void _openLevel2(String home) {
+  void _openReasoningRoom(String roomId) {
     setState(() {
-      civilizationHome = home;
+      civilizationHome = 'reasoning';
+      page = 'reasoning-room';
     });
+  }
+
+  void _openLevel2(String home) {
+    if (home == 'data') {
+      open('stewardship');
+      return;
+    }
+
+    setState(() => civilizationHome = home);
+
+    if (home == 'decision') {
+      _openHome07Inspection();
+      return;
+    }
+
+    if (home == 'knowledge') {
+      _openHome08Inspection();
+      return;
+    }
+
+    if (home == 'evidence') {
+      open('evidence-experiment');
+      return;
+    }
 
     open('level2');
+  }
+
+  Future<void> _openHome07Inspection() async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return Dialog.fullscreen(
+          child: SafeArea(
+            child: Level2OperationalPage(
+              homeId: 'decision',
+              onBack: () => Navigator.of(dialogContext).pop(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _openHome08Inspection() async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return Dialog.fullscreen(
+          child: SafeArea(
+            child: Level2OperationalPage(
+              homeId: 'knowledge',
+              onBack: () => Navigator.of(dialogContext).pop(),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void toggleGlobalChat() {
@@ -442,8 +537,11 @@ class _ShellState extends State<CriterivoxShell> {
             ? null
             : dharenStates.first);
 
-    return Scaffold(
-      backgroundColor: t.page,
+    return CriterivoxLanguageScope(
+      language: widget.language,
+      onChanged: widget.onLanguageChanged ?? (_) {},
+      child: Scaffold(
+        backgroundColor: t.page,
       body: SafeArea(
         child: Stack(
           children: [
@@ -455,16 +553,23 @@ class _ShellState extends State<CriterivoxShell> {
                   scrollController:
                       _sidebarScrollController,
                   onOpen: open,
-                  onReserved: showReserved,
                   onToggle: () {
                     setState(() {
                       railOpen = !railOpen;
                     });
                   },
+                  language: widget.language,
                 ),
                 Expanded(
                   child: Column(
                     children: [
+                      const Align(
+                        alignment: Alignment.topRight,
+                        child: Padding(
+                          padding: EdgeInsets.only(right: 12, top: 4),
+                          child: CriterivoxLanguageSelector(),
+                        ),
+                      ),
                       _TopBar(
                         isDarkMode: widget.isDarkMode,
                         onToggleTheme:
@@ -515,48 +620,66 @@ class _ShellState extends State<CriterivoxShell> {
               ],
             ),
 
-            Positioned.fill(
-              child: IgnorePointer(
-                ignoring: !chatOverlayOpen,
-                child: AnimatedOpacity(
-                  opacity: chatOverlayOpen ? 1 : 0,
-                  duration: const Duration(
-                    milliseconds: 220,
-                  ),
-                  child: Material(
-                    color: t.page.withValues(alpha: .98),
-                    child: CharacterChatPage(
-                      key: const ValueKey(
-                        'global-character-chat',
-                      ),
-                      state: state,
-                      busy: busy,
-                      selectedAgent: chatTarget,
-                      onSelectAgent: (agent) {
-                        setState(() {
-                          chatTarget = agent;
-                        });
-                      },
-                      onSend:
-                          (message, agent, references) {
-                        send(
-                          message,
-                          target: agent,
-                          references: references,
-                        );
-                      },
-                      onOpenTask: () {
-                        setState(() {
-                          chatOverlayOpen = false;
-                        });
+            if (_isCivilizationExperience)
+              Positioned(
+                left: 16,
+                bottom: 18,
+                child: BloomCompanion(
+                  location: _companionLocation,
+                  characterId: focusedCharacter,
+                  onReturnToBloom: () => open('bloom'),
+                  compact: MediaQuery.sizeOf(context).width < 900,
+                ),
+              ),
 
-                        open('workspace');
-                      },
+            if (page != 'chat')
+              Positioned.fill(
+                child: IgnorePointer(
+                  ignoring: !chatOverlayOpen,
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 160),
+                    opacity: chatOverlayOpen ? 1 : 0,
+                    child: Material(
+                      color: t.page.withValues(alpha: .98),
+                      child: CharacterChatPage(
+                    key: const ValueKey(
+                      'global-character-chat',
+                    ),
+                    state: state,
+                    busy: busy,
+                    selectedAgent: chatTarget,
+                    onSelectAgent: (agent) {
+                      setState(() {
+                        chatTarget = agent;
+                      });
+                    },
+                    onSend: (message, agent, references) {
+                      send(
+                        message,
+                        target: agent,
+                        references: references,
+                      );
+                    },
+                    onOpenTask: () {
+                      setState(() {
+                        chatOverlayOpen = false;
+                      });
+                      open('workspace');
+                    },
+                    onConfirmInterpretation: (accepted) {
+                      final id = state?.inputConfirmationId;
+                      if (id != null) {
+                        runtime.confirmChatInterpretation(
+                          confirmationId: id,
+                          accepted: accepted,
+                        );
+                      }
+                    },
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
 
             Positioned(
               right: 18,
@@ -568,6 +691,7 @@ class _ShellState extends State<CriterivoxShell> {
                     ? 'Close character chat'
                     : 'Open character chat',
                 child: FloatingActionButton(
+                  key: const ValueKey('global-character-chat-launcher'),
                   tooltip: chatOverlayOpen
                       ? 'Close character chat'
                       : 'Open character chat',
@@ -582,21 +706,83 @@ class _ShellState extends State<CriterivoxShell> {
             ),
           ],
         ),
+        ),
       ),
     );
+  }
+
+  bool get _isCivilizationExperience => const {
+        'bloom', 'civilization', 'home-preview', 'level2',
+        'reasoning-room', 'character-focus', 'decision-action',
+        'evidence-experiment',
+      }.contains(page);
+
+  String get _companionLocation {
+    if (page == 'bloom') return 'bloom';
+    if (page == 'civilization') return 'civilization';
+    if (page == 'home-preview') return 'home';
+    if (page == 'level2') return 'level2';
+    if (page == 'reasoning-room') return 'reasoning-room';
+    if (page == 'character-focus') return 'character-focus';
+    return 'home';
   }
 
   Widget _buildPage(
     PresentationState? workspaceState,
   ) {
+    if (page == 'reasoning-room') {
+      return const S7EnvironmentPage(
+        key: ValueKey('reasoning-room'),
+      );
+    }
+
     switch (page) {
+      case 'character-focus':
+        return CharacterFocusPage(
+          key: ValueKey('character-focus-${focusedCharacter ?? 'unknown'}'),
+          characterId: focusedCharacter ?? 'dharen',
+          onBack: () => open('civilization'),
+          onOpenHome: focusedCharacter == null
+              ? null
+              : () => openCharacterHome(focusedCharacter!),
+        );
+
+      case 'decision-desk':
+        return DecisionDeskPage(onResults: () => open('results-journal'));
+
+      case 'results-journal':
+        return ResultsJournalPage(onDecisionDesk: () => open('decision-desk'));
+
+      case 'meeting-hall':
+        return CollaborationCommonsPage(destination: CollaborationDestination.meetingHall, onDecisionDesk: () => open('decision-desk'));
+
+      case 'project-rooms':
+        return CollaborationCommonsPage(destination: CollaborationDestination.projectRooms, onDecisionDesk: () => open('decision-desk'));
+
+      case 'shared-workspaces':
+        return CollaborationCommonsPage(destination: CollaborationDestination.sharedWorkspaces, onDecisionDesk: () => open('decision-desk'));
+
+      case 'decision-action':
+        return DecisionActionQuarterPage(
+          key: const ValueKey('decision-action'),
+          onBack: () => open('home-preview'),
+          onOpenHumanDecisionWorkspace: () => open('private-room'),
+        );
+
+      case 'evidence-experiment':
+        return EvidenceExperimentQuarterPage(
+          key: const ValueKey('evidence-experiment'),
+          onBack: () => open('home-preview'),
+          onOpenHumanDecisionWorkspace: () => open('private-room'),
+        );
+
       case 'home-preview':
         return CivilizationHomePreviewPage(
           key: const ValueKey('home-preview'),
           homeId: civilizationHome ?? 'context',
           onBack: () => open('civilization'),
-          onChat: () => open('chat'),
           onOpenOperationalHome: _openLevel2,
+          onOpenCharacter: openCharacterFocus,
         );
 
       case 'level2':
@@ -604,46 +790,61 @@ class _ShellState extends State<CriterivoxShell> {
           key: const ValueKey('level2'),
           homeId: civilizationHome ?? 'context',
           onBack: () => open('home-preview'),
+          onEnterRoom: civilizationHome == 'reasoning'
+              ? _openReasoningRoom
+              : null,
         );
 
       case 'human-residence-entry':
         return HumanResidenceEntryPage(
-          onCreateHouse: () =>
-              open('human-residence'),
-          onCreateClub: () =>
-              open('human-residence'),
+          onOpenResidence: () => open('private-room'),
           onGuest: () => open('guest'),
         );
 
       case 'human-residence':
-        return HumanResidencePage(
-          onGuest: () => open('guest'),
-          onWorkspace: () => open('private-room'),
+        return PrivateRoomPage(
+          onWorkspace: () => open('decision-desk'),
+          onCollaborationRoom: () => open('collaboration-room'),
         );
+
+      case 'decision-history':
+        return DecisionHistoryPage(onBack: () => open('private-room'));
 
       case 'private-room':
         return PrivateRoomPage(
           onWorkspace: () => open('workspace'),
+          onCollaborationRoom: () => open('collaboration-room'),
         );
 
       case 'collaboration-room':
         return const CollaborationRoomPage();
 
+      case 'guest':
+        return GuestPassPage(
+          onWorkspace: () => open('guest-experience'),
+        );
+
+      case 'guest-experience':
+        return GuestPassExperiencePage(
+          onWorkspace: () => open('workspace'),
+        );
+
       case 'civilization':
         return CivilizationPage(
           key: const ValueKey('civilization'),
           state: state,
-          onOpenChat: () => open('chat'),
+          onBackToBloom: () => open('bloom'),
           onOpenHome: _openHome,
+          onOpenCharacter: openCharacterFocus,
         );
 
       case 'intro':
         return AppIntroductionPage(
           key: const ValueKey('intro'),
-          onOpenWorkspace: () => open('workspace'),
+          onOpenWorkspace: () => open('decision-desk'),
           onOpenCivilization: () =>
               open('civilization'),
-          onOpenChat: () => open('chat'),
+          onOpenCharacter: openCharacterFocus,
         );
 
       case 'chat':
@@ -666,25 +867,37 @@ class _ShellState extends State<CriterivoxShell> {
             );
           },
           onOpenTask: () => open('workspace'),
+          onConfirmInterpretation: (accepted) {
+            final id = state?.inputConfirmationId;
+            if (id != null) {
+              runtime.confirmChatInterpretation(confirmationId: id, accepted: accepted);
+            }
+          },
         );
 
       case 'home02':
-        return Home02ContextConsole(
+        return ContextIntelligencePage(
           key: const ValueKey('home02'),
           state: workspaceState,
+          busy: busy,
+          task: task,
+          data: data,
+          contextText: ctx,
+          onStart: start,
           onBuildContext: buildContext,
           onManualAdapt: adaptContext,
-          onOpenChat: () => open('chat'),
+          onChatCharacter: null,
           onCreateSandbox: createSandbox,
           onRunSandbox: runSandbox,
           onInspectSandbox: inspectSandbox,
           onPromoteSandbox: promoteSandbox,
           onDiscardSandbox: discardSandbox,
           sandboxReady: sandboxId != null,
+          initialLayer: 0,
         );
 
       case 'workspace':
-        return AnalysisContextWorkspacePage(
+        return ContextIntelligencePage(
           key: const ValueKey('workspace'),
           state: workspaceState,
           busy: busy,
@@ -693,448 +906,60 @@ class _ShellState extends State<CriterivoxShell> {
           contextText: ctx,
           onStart: start,
           onBuildContext: buildContext,
-          onOpenChat: () => open('chat'),
-          onChatCharacter: chatWith,
+          onManualAdapt: adaptContext,
+          onChatCharacter: null,
+          onCreateSandbox: createSandbox,
+          onRunSandbox: runSandbox,
+          onInspectSandbox: inspectSandbox,
+          onPromoteSandbox: promoteSandbox,
+          onDiscardSandbox: discardSandbox,
+          sandboxReady: sandboxId != null,
+          initialLayer: 2,
+        );
+
+      case 'gateway':
+        return Home03SyvaxPage(
+          key: const ValueKey('gateway'),
+          onOpen: open,
         );
 
       case 'stewardship':
-        return StewardshipLiveWorkspacePage(
+        return DataStewardshipPage(
           key: const ValueKey('stewardship'),
           state: state,
           runtime: runtime,
-          onChatCharacter: chatWith,
+          onChatCharacter: null,
         );
 
       case 'bloom':
+        return CivilizationWorldPortalPage(
+          key: const ValueKey('world-portal'),
+          state: state,
+          onOpenCivilization: () => open('civilization'),
+          onOpenCapability: (value) => handleBloomActivation(value as BloomActivation),
+          onStewardship: () => open('stewardship'),
+          onHandoff: handoffFromBloom,
+          onOpenAnalysis: () => open('workspace'),
+          busy: busy,
+        );
+
       default:
         return BloomPage(
           key: const ValueKey('bloom'),
           state: state,
-          onCapability: handleBloomCapability,
-          onSub: (value) {
-            switch (value) {
-              case BloomSuboption.workspace:
-                open('workspace');
-                break;
-
-              case BloomSuboption.chat:
-                open('chat');
-                break;
-
-              case BloomSuboption.stewardshipHome:
-                open('stewardship');
-                break;
-
-              case BloomSuboption.stewardshipChat:
-                chatWith('sandre');
-                break;
-            }
-          },
-          onSyvax: (message) {
-            send(
-              message,
-              target: 'syvax',
-            );
-          },
-          onStewardship: () =>
-              open('stewardship'),
+          onCapability: (_) {},
+          onOpenCapability: handleBloomActivation,
+          onStewardship: () => open('stewardship'),
           onHandoff: handoffFromBloom,
-          onOpenAnalysis: () =>
-              open('workspace'),
+          onOpenAnalysis: () => open('workspace'),
           busy: busy,
         );
     }
   }
 }
 
-class _Sidebar extends StatelessWidget {
-  final String page;
-  final bool expanded;
-  final ScrollController scrollController;
-  final ValueChanged<String> onOpen;
-  final ValueChanged<String> onReserved;
-  final VoidCallback onToggle;
 
-  const _Sidebar({
-    required this.page,
-    required this.expanded,
-    required this.scrollController,
-    required this.onOpen,
-    required this.onReserved,
-    required this.onToggle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final t = criterivox_theme.CriterivoxTheme.of(context);
-    final width = expanded ? 244.0 : 76.0;
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 240),
-      width: width,
-      decoration: BoxDecoration(
-        color: t.surface.withValues(alpha: .96),
-        border: Border(
-          right: BorderSide(
-            color: t.border,
-          ),
-        ),
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              expanded ? 18 : 10,
-              18,
-              10,
-              14,
-            ),
-            child: Row(
-              children: [
-                const _BrandMark(size: 34),
-                if (expanded) ...[
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'Criterivox',
-                      style: TextStyle(
-                        color: t.text,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-                IconButton(
-                  tooltip: expanded
-                      ? 'Collapse sidebar'
-                      : 'Open sidebar',
-                  onPressed: onToggle,
-                  icon: Icon(
-                    expanded
-                        ? Icons.chevron_left_rounded
-                        : Icons.chevron_right_rounded,
-                    color: t.mutedText,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Scrollbar(
-              controller: scrollController,
-              thumbVisibility: expanded,
-              child: SingleChildScrollView(
-                controller: scrollController,
-                primary: false,
-                padding: EdgeInsets.symmetric(
-                  horizontal: expanded ? 12 : 8,
-                ),
-                child: Column(
-                  children: [
-                    _StatusCard(
-                      expanded: expanded,
-                    ),
-                    const SizedBox(height: 18),
-                    _section(
-                      'START HERE',
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'App Introduction',
-                      Icons.auto_awesome_rounded,
-                      page == 'intro',
-                      () => onOpen('intro'),
-                      expanded,
-                      t,
-                    ),
-                    const SizedBox(height: 8),
-                    _section(
-                      'NAVIGATION',
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Civilization · Gate 1',
-                      Icons.location_city_rounded,
-                      page == 'civilization',
-                      () => onOpen('civilization'),
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Bloom',
-                      Icons.spa_rounded,
-                      page == 'bloom',
-                      () => onOpen('bloom'),
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Data Stewardship',
-                      Icons.inventory_2_rounded,
-                      page == 'stewardship',
-                      () => onOpen('stewardship'),
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Analysis Workspace',
-                      Icons.account_tree_rounded,
-                      page == 'workspace',
-                      () => onOpen('workspace'),
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Home 02 • Context Intelligence',
-                      Icons.hub_rounded,
-                      page == 'home02',
-                      () => onOpen('home02'),
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Human Residence',
-                      Icons.home_work_rounded,
-                      page == 'human-residence' ||
-                          page == 'human-residence-entry',
-                      () => onOpen(
-                        'human-residence-entry',
-                      ),
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Private Room',
-                      Icons.lock_outline_rounded,
-                      page == 'private-room',
-                      () => onOpen('private-room'),
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Collaboration Room',
-                      Icons.groups_rounded,
-                      page == 'collaboration-room',
-                      () => onOpen(
-                        'collaboration-room',
-                      ),
-                      expanded,
-                      t,
-                    ),
-                    const SizedBox(height: 16),
-                    _section(
-                      'FUTURE CAPABILITIES',
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Compare',
-                      Icons.balance_rounded,
-                      false,
-                      () => onReserved('Compare'),
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Explore',
-                      Icons.search_rounded,
-                      false,
-                      () => onReserved('Explore'),
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Plan',
-                      Icons.calendar_month_rounded,
-                      false,
-                      () => onReserved('Plan'),
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Insights',
-                      Icons.lightbulb_outline_rounded,
-                      false,
-                      () => onReserved('Insights'),
-                      expanded,
-                      t,
-                    ),
-                    _nav(
-                      'Explain',
-                      Icons.chat_bubble_outline_rounded,
-                      false,
-                      () => onReserved('Explain'),
-                      expanded,
-                      t,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _section(
-    String text,
-    bool visible,
-    criterivox_theme.CriterivoxTheme t,
-  ) {
-    if (!visible) {
-      return const SizedBox(height: 8);
-    }
-
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          10,
-          4,
-          10,
-          6,
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: t.mutedText,
-            fontSize: 9,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.1,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _nav(
-    String label,
-    IconData icon,
-    bool active,
-    VoidCallback onTap,
-    bool visible,
-    criterivox_theme.CriterivoxTheme t,
-  ) {
-    return Material(
-      color: t.surface,
-      child: Tooltip(
-        message: visible ? '' : label,
-        child: ListTile(
-          onTap: onTap,
-          selected: active,
-          dense: true,
-          horizontalTitleGap: 12,
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: visible ? 10 : 13,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          selectedTileColor:
-              t.primary.withValues(alpha: .13),
-          leading: Icon(
-            icon,
-            size: 19,
-            color:
-                active ? t.primary : t.mutedText,
-          ),
-          title: visible
-              ? Text(
-                  label,
-                  style: TextStyle(
-                    color: active
-                        ? t.text
-                        : t.mutedText,
-                    fontSize: 12,
-                    fontWeight: active
-                        ? FontWeight.w700
-                        : FontWeight.w500,
-                  ),
-                )
-              : null,
-        ),
-      ),
-    );
-  }
-}
-
-class _StatusCard extends StatelessWidget {
-  final bool expanded;
-
-  const _StatusCard({
-    required this.expanded,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final t = criterivox_theme.CriterivoxTheme.of(context);
-
-    return Container(
-      padding: EdgeInsets.all(
-        expanded ? 14 : 10,
-      ),
-      decoration: BoxDecoration(
-        color: t.surfaceStrong,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: t.border,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.auto_awesome_rounded,
-            color: t.primary,
-            size: 19,
-          ),
-          if (expanded) ...[
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'RUNTIME',
-                    style: TextStyle(
-                      color: t.mutedText,
-                      fontSize: 8,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    'Living system',
-                    style: TextStyle(
-                      color: t.text,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-          Container(
-            width: 7,
-            height: 7,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: t.primary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TopBar extends StatelessWidget {
+class _TopBar extends StatefulWidget {
   final bool isDarkMode;
   final VoidCallback onToggleTheme;
   final bool connectionLive;
@@ -1148,83 +973,66 @@ class _TopBar extends StatelessWidget {
   });
 
   @override
+  State<_TopBar> createState() => _TopBarState();
+}
+
+class _TopBarState extends State<_TopBar> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final t = criterivox_theme.CriterivoxTheme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        18,
-        14,
-        18,
-        10,
-      ),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
       child: Row(
         children: [
           Expanded(
-            child: SizedBox(
-              height: 42,
-              child: TextField(
-                onSubmitted: onSearch,
-                decoration: InputDecoration(
-                  prefixIcon: Icon(
-                    Icons.search_rounded,
-                    color: t.mutedText,
-                    size: 19,
-                  ),
-                  hintText:
-                      'Search analyses by name or ID...',
+            child: TextField(
+              controller: _searchController,
+              onSubmitted: widget.onSearch,
+              style: TextStyle(color: t.text),
+              decoration: InputDecoration(
+                hintText: 'Search research history',
+                hintStyle: TextStyle(color: t.mutedText),
+                prefixIcon: Icon(Icons.search_rounded, color: t.mutedText),
+                filled: true,
+                fillColor: t.surface,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: t.border),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: t.border),
                 ),
               ),
             ),
           ),
           const SizedBox(width: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 8,
-            ),
-            decoration: BoxDecoration(
-              color: t.surface,
-              borderRadius:
-                  BorderRadius.circular(12),
-              border: Border.all(
-                color: t.border,
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.circle,
-                  size: 7,
-                  color: connectionLive
-                      ? t.primary
-                      : t.warning,
-                ),
-                const SizedBox(width: 7),
-                Text(
-                  connectionLive
-                      ? 'LIVE'
-                      : 'CONNECTING',
-                  style: TextStyle(
-                    color: t.mutedText,
-                    fontSize: 9,
-                    fontWeight:
-                        FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
+          Icon(
+            Icons.circle,
+            size: 10,
+            color: widget.connectionLive ? Colors.green : t.mutedText,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
+          Text(
+            widget.connectionLive ? 'Connected' : 'Offline',
+            style: TextStyle(color: t.mutedText, fontSize: 12),
+          ),
           IconButton(
-            tooltip: isDarkMode
-                ? 'Switch to day mode'
-                : 'Switch to night mode',
-            onPressed: onToggleTheme,
+            tooltip: widget.isDarkMode ? 'Use light theme' : 'Use dark theme',
+            onPressed: widget.onToggleTheme,
             icon: Icon(
-              isDarkMode
-                  ? Icons.light_mode_rounded
-                  : Icons.dark_mode_rounded,
+              widget.isDarkMode
+                  ? Icons.light_mode_outlined
+                  : Icons.dark_mode_outlined,
               color: t.mutedText,
             ),
           ),
@@ -1237,56 +1045,419 @@ class _TopBar extends StatelessWidget {
 class _BrandMark extends StatelessWidget {
   final double size;
 
-  const _BrandMark({
-    required this.size,
-  });
+  const _BrandMark({required this.size});
 
   @override
   Widget build(BuildContext context) {
-    return _BloomMark(size: size);
+    final theme = criterivox_theme.CriterivoxTheme.of(context);
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: theme.primary,
+        borderRadius: BorderRadius.circular(size * 0.28),
+      ),
+      child: Icon(
+        Icons.auto_awesome_rounded,
+        color: Colors.white,
+        size: size * 0.58,
+      ),
+    );
   }
 }
 
-class _BloomMark extends StatelessWidget {
-  final double size;
+class _StatusCard extends StatelessWidget {
+  final bool expanded;
 
-  const _BloomMark({
-    required this.size,
-  });
+  const _StatusCard({required this.expanded});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: size,
-      height: size,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          for (var i = 0; i < 8; i++)
-            Transform.rotate(
-              angle: i * 3.1415926535 / 4,
-              child: Container(
-                width: size * .22,
-                height: size * .48,
-                decoration: BoxDecoration(
-                  borderRadius:
-                      BorderRadius.circular(20),
-                  gradient:
-                      const LinearGradient(
-                    colors: [
-                      Color(0xFF9A7BFF),
-                      Color(0xFF6654E8),
-                    ],
+    final t = criterivox_theme.CriterivoxTheme.of(context);
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(expanded ? 12 : 8),
+      decoration: BoxDecoration(
+        color: t.primary.withValues(alpha: .10),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: t.border),
+      ),
+      child: expanded
+          ? Row(
+              children: [
+                Icon(Icons.circle, size: 10, color: t.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Research workspace ready',
+                    style: TextStyle(
+                      color: t.text,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
+              ],
+            )
+          : Icon(Icons.circle, size: 10, color: t.primary),
+    );
+  }
+}
+
+class _Sidebar extends StatefulWidget {
+  final String page;
+  final bool expanded;
+  final ScrollController scrollController;
+  final ValueChanged<String> onOpen;
+  final VoidCallback onToggle;
+  final CriterivoxLanguage language;
+
+  const _Sidebar({
+    required this.page,
+    required this.expanded,
+    required this.scrollController,
+    required this.onOpen,
+    required this.onToggle,
+    required this.language,
+  });
+
+  @override
+  State<_Sidebar> createState() => _SidebarState();
+}
+
+class _ChildNav {
+  final String label;
+  final String page;
+
+  const _ChildNav(this.label, this.page);
+}
+
+class _SidebarState extends State<_Sidebar> {
+  bool humanTerritoryOpen = true;
+  bool civilizationOpen = true;
+
+  Widget _section(
+    String label,
+    bool expanded,
+    dynamic t,
+  ) {
+    if (!expanded) {
+      return const SizedBox(height: 12);
+    }
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+        child: Text(
+          label.toUpperCase(),
+          style: TextStyle(
+            color: t.mutedText,
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            letterSpacing: .8,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _nav(
+    String label,
+    IconData icon,
+    bool selected,
+    VoidCallback onTap,
+    bool expanded,
+    dynamic t, {
+    bool indent = false,
+  }) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: indent && expanded ? 12 : 0,
+        bottom: 4,
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(
+            horizontal: expanded ? 10 : 8,
+            vertical: 10,
+          ),
+          decoration: BoxDecoration(
+            color: selected ? t.primary.withValues(alpha: .14) : null,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisAlignment: expanded
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: selected ? t.primary : t.mutedText,
+                size: 20,
               ),
+              if (expanded) ...[
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: selected ? t.text : t.mutedText,
+                      fontSize: 13,
+                      fontWeight: selected
+                          ? FontWeight.w600
+                          : FontWeight.w400,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _group(
+    String label,
+    IconData icon,
+    bool open,
+    bool selected,
+    VoidCallback onTap,
+    bool expanded,
+    dynamic t,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(
+            horizontal: expanded ? 10 : 8,
+            vertical: 10,
+          ),
+          decoration: BoxDecoration(
+            color: selected ? t.primary.withValues(alpha: .14) : null,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisAlignment: expanded
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: selected ? t.primary : t.mutedText,
+                size: 20,
+              ),
+              if (expanded) ...[
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: selected ? t.text : t.mutedText,
+                      fontSize: 13,
+                      fontWeight: selected
+                          ? FontWeight.w600
+                          : FontWeight.w400,
+                    ),
+                  ),
+                ),
+                Icon(
+                  open
+                      ? Icons.expand_less_rounded
+                      : Icons.expand_more_rounded,
+                  color: t.mutedText,
+                  size: 18,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _subgroup(
+    String label,
+    IconData icon,
+    List<_ChildNav> children,
+    dynamic t,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _group(
+          label,
+          icon,
+          true,
+          children.any((child) => child.page == widget.page),
+          () {},
+          true,
+          t,
+        ),
+        ...children.map(
+          (child) => _nav(
+            child.label,
+            Icons.chevron_right_rounded,
+            child.page == widget.page,
+            () => widget.onOpen(child.page),
+            true,
+            t,
+            indent: true,
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = criterivox_theme.CriterivoxTheme.of(context);
+    final expanded = widget.expanded;
+    final strings = CriterivoxStrings(widget.language);
+    final width = expanded ? 244.0 : 76.0;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 240),
+      width: width,
+      decoration: BoxDecoration(
+        color: t.surface.withValues(alpha: .96),
+        border: Border(right: BorderSide(color: t.border)),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              expanded ? 18 : 4, 18, expanded ? 10 : 4, 14,
             ),
-          Container(
-            width: size * .24,
-            height: size * .24,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xFF7D68F7),
+            child: Row(
+              mainAxisAlignment: expanded
+                  ? MainAxisAlignment.start
+                  : MainAxisAlignment.center,
+              children: [
+                _BrandMark(size: expanded ? 34 : 28),
+                if (expanded) ...[
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Criterivox',
+                      style: TextStyle(
+                        color: t.text,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+                SizedBox(
+                  width: expanded ? null : 32,
+                  height: expanded ? null : 32,
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    tooltip: expanded
+                        ? 'Collapse sidebar'
+                        : 'Open sidebar',
+                    onPressed: widget.onToggle,
+                    icon: Icon(
+                      expanded
+                          ? Icons.chevron_left_rounded
+                          : Icons.chevron_right_rounded,
+                      color: t.mutedText,
+                      size: expanded ? 24 : 20,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Scrollbar(
+              controller: widget.scrollController,
+              thumbVisibility: expanded,
+              child: SingleChildScrollView(
+                controller: widget.scrollController,
+                primary: false,
+                padding: EdgeInsets.symmetric(horizontal: expanded ? 12 : 8),
+                child: Column(
+                  children: [
+                    _StatusCard(expanded: expanded),
+                    const SizedBox(height: 18),
+                    _section(strings.startHere, expanded, t),
+                    _nav(
+                      strings.appIntroduction,
+                      Icons.auto_awesome_rounded,
+                      widget.page == 'intro',
+                      () => widget.onOpen('intro'),
+                      expanded, t,
+                    ),
+                    const SizedBox(height: 12),
+                    _nav(
+                      'Criterivox Workers / Bloom',
+                      Icons.auto_awesome_rounded,
+                      const {'bloom','civilization','home-preview','level2','character-focus','reasoning-room'}.contains(widget.page),
+                      () => widget.onOpen('bloom'),
+                      expanded, t,
+                    ),
+                    const SizedBox(height: 12),
+
+                    _group(
+                      strings.humanTerritory,
+                      Icons.home_work_rounded,
+                      humanTerritoryOpen,
+                      widget.page == 'human-residence' ||
+                          widget.page == 'human-residence-entry' ||
+                          widget.page == 'private-room' ||
+                          widget.page == 'decision-desk' ||
+                          widget.page == 'results-journal' ||
+                          widget.page == 'meeting-hall' ||
+                          widget.page == 'project-rooms' ||
+                          widget.page == 'shared-workspaces' ||
+                          widget.page == 'guest',
+                      () => setState(() {
+                        humanTerritoryOpen = !humanTerritoryOpen;
+                      }),
+                      expanded, t,
+                    ),
+                    if (expanded && humanTerritoryOpen) ...[
+                      _section(strings.loginSignup, true, t),
+                                            _nav(strings.signUpLogin, Icons.person_rounded,
+                          widget.page == 'human-residence-entry',
+                          () => widget.onOpen('human-residence-entry'),
+                          true, t, indent: true),
+                      _nav(strings.guestPass, Icons.confirmation_number_rounded,
+                          widget.page == 'guest',
+                          () => widget.onOpen('guest'),
+                          true, t, indent: true),
+                      _nav(strings.privateRoom, Icons.lock_outline_rounded,
+                          widget.page == 'private-room',
+                          () => widget.onOpen('private-room'),
+                          true, t, indent: true),
+                      _nav(strings.decisionDesk, Icons.fact_check_outlined,
+                          widget.page == 'decision-desk',
+                          () => widget.onOpen('decision-desk'),
+                          true, t, indent: true),
+                      _nav('Results Journal', Icons.menu_book_outlined,
+                          widget.page == 'results-journal',
+                          () => widget.onOpen('results-journal'),
+                          true, t, indent: true),
+                      _subgroup(strings.collaborationCommons, Icons.forum_outlined, [
+                        _ChildNav(strings.meetingHall, 'meeting-hall'),
+                        _ChildNav(strings.projectRooms, 'project-rooms'),
+                        _ChildNav(strings.sharedWorkspaces, 'shared-workspaces'),
+                      ], t),
+                    ],
+                  ],
+                ),
+              ),
             ),
           ),
         ],

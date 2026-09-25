@@ -11,23 +11,39 @@ import 'generated_vector_animation.dart';
 class SessionCharacterAnimation {
   static final int sessionSeed =
       DateTime.now().microsecondsSinceEpoch ^ math.Random().nextInt(0x7fffffff);
+  /// All 15 specialists share the same animation engine; visual identity is
+  /// supplied by the canonical profile registry.
   static final activeCharacters = CharacterVisualProfile.registry.keys.toSet();
   static bool supports(String id) =>
       CharacterVisualProfile.forId(id) != null &&
       activeCharacters.contains(id.trim().toLowerCase());
   static SessionCharacterMotion profileFor(String id) {
     var hash = sessionSeed;
-    for (final unit in id.trim().toLowerCase().codeUnits) {
+    final normalized = id.trim().toLowerCase();
+    for (final unit in normalized.codeUnits) {
       hash = ((hash * 31) ^ unit) & 0x7fffffff;
     }
-    final r = math.Random(hash);
+
+    final random = math.Random(hash);
+    final profile = CharacterVisualProfile.forId(normalized);
+    final motion = profile?.workMotion ?? CharacterMotion.subtle;
+
+    final motionScale = switch (motion) {
+      CharacterMotion.subtle => (duration: 3.35, sway: .38, lift: .65, emphasis: .72),
+      CharacterMotion.attentive => (duration: 3.05, sway: .55, lift: .85, emphasis: .9),
+      CharacterMotion.analytical => (duration: 3.55, sway: .30, lift: .58, emphasis: 1.0),
+      CharacterMotion.adaptive => (duration: 2.75, sway: .82, lift: 1.15, emphasis: 1.05),
+      CharacterMotion.energetic => (duration: 2.35, sway: 1.05, lift: 1.45, emphasis: 1.18),
+    };
+
     return SessionCharacterMotion(
-        duration: 2.55 + r.nextDouble() * 1.15,
-        phase: r.nextDouble() * math.pi * 2,
-        sway: .45 + r.nextDouble() * .85,
-        lift: .7 + r.nextDouble() * 1.4,
-        emphasis: .75 + r.nextDouble() * .5,
-        direction: r.nextBool() ? 1 : -1);
+      duration: motionScale.duration + random.nextDouble() * .45,
+      phase: random.nextDouble() * math.pi * 2,
+      sway: motionScale.sway + random.nextDouble() * .35,
+      lift: motionScale.lift + random.nextDouble() * .45,
+      emphasis: motionScale.emphasis + random.nextDouble() * .18,
+      direction: random.nextBool() ? 1 : -1,
+    );
   }
 }
 
@@ -88,7 +104,9 @@ class _SessionCharacterAnimationViewState
   void _updateTicker(bool oldReduced) {
     if (widget.reducedMotion) {
       _controller.stop();
-    } else if (oldReduced) _controller.repeat();
+    } else if (oldReduced) {
+      _controller.repeat();
+    }
   }
 
   @override

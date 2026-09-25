@@ -1,8 +1,24 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import '../presentation/criterivox_theme.dart';
+
+class BloomActivation {
+  final BloomCapability capability;
+  final String route;
+  final String action;
+  final List<String> destinations;
+
+  const BloomActivation({
+    required this.capability,
+    required this.route,
+    required this.action,
+    required this.destinations,
+  });
+}
 
 enum BloomCapability {
   analyze,
@@ -12,13 +28,6 @@ enum BloomCapability {
   plan,
   insights,
   explain,
-}
-
-enum BloomSuboption {
-  workspace,
-  chat,
-  stewardshipHome,
-  stewardshipChat,
 }
 
 class BloomOwner {
@@ -37,16 +46,18 @@ class BloomOwner {
 
 class Bloom extends StatefulWidget {
   final ValueChanged<BloomCapability> onSelected;
-  final ValueChanged<BloomSuboption>? onSuboption;
-  final ValueChanged<BloomCapability>? onOwnerChat;
+  final ValueChanged<BloomActivation>? onOpenCapability;
   final BloomCapability? selected;
+  final String? taskId;
+  final Future<BloomActivation?> Function(BloomCapability capability)? activateCapability;
 
   const Bloom({
     super.key,
     required this.onSelected,
-    this.onSuboption,
-    this.onOwnerChat,
+    this.onOpenCapability,
     this.selected,
+    this.taskId,
+    this.activateCapability,
   });
 
   static const labels = <BloomCapability, String>{
@@ -170,6 +181,8 @@ class _BloomState extends State<Bloom>
       )..repeat(reverse: true);
 
   BloomCapability? expanded;
+  bool _opening = false;
+  String? _backendError;
 
   @override
   void dispose() {
@@ -181,9 +194,86 @@ class _BloomState extends State<Bloom>
     setState(() {
       expanded =
           expanded == capability ? null : capability;
+      _backendError = null;
     });
 
     widget.onSelected(capability);
+  }
+
+  Future<void> _open(BloomCapability capability) async {
+    final callback = widget.onOpenCapability;
+    if (callback == null || _opening) return;
+
+    setState(() {
+      _opening = true;
+      _backendError = null;
+    });
+
+    try {
+      final activation = widget.activateCapability != null
+          ? await widget.activateCapability!(capability)
+          : await _activateThroughPython(capability);
+
+      if (activation == null) {
+        throw Exception('Bloom activation was rejected by the Python backend.');
+      }
+
+      callback(activation);
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _backendError =
+            'Bloom could not activate this capability: $error';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _opening = false;
+        });
+      }
+    }
+  }
+
+
+  Future<BloomActivation?> _activateThroughPython(
+    BloomCapability capability,
+  ) async {
+    final response = await http
+        .post(
+          Uri.base.resolve('/api/bloom/activate'),
+          headers: const {
+            'content-type': 'application/json',
+          },
+          body: jsonEncode({
+            'capability': capability.name,
+            'source': 'flutter-bloom',
+            if (widget.taskId != null) 'task_id': widget.taskId,
+          }),
+        )
+        .timeout(const Duration(seconds: 3));
+
+    final decoded = response.body.isEmpty
+        ? <String, dynamic>{}
+        : jsonDecode(response.body) as Map<String, dynamic>;
+
+    if (response.statusCode < 200 ||
+        response.statusCode >= 300 ||
+        decoded['accepted'] == false) {
+      throw Exception(
+        decoded['error']?.toString() ?? 'Bloom activation was rejected.',
+      );
+    }
+
+    final destinations = (decoded['destinations'] as List<dynamic>? ?? const [])
+        .map((value) => value.toString())
+        .toList(growable: false);
+
+    return BloomActivation(
+      capability: capability,
+      route: decoded['route']?.toString() ?? 'workspace',
+      action: decoded['action']?.toString() ?? '',
+      destinations: destinations,
+    );
   }
 
   @override
@@ -252,6 +342,31 @@ class _BloomState extends State<Bloom>
                   size,
                   compact,
                   expanded!,
+                ),
+              if (_backendError != null)
+                Positioned(
+                  left: 12,
+                  right: 12,
+                  bottom: 0,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: t.surfaceStrong,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: t.warning),
+                      ),
+                      child: Text(
+                        _backendError!,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: t.warning,
+                          fontSize: 9,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
             ],
           ),
@@ -404,88 +519,38 @@ class _BloomState extends State<Bloom>
     bool compact,
     BloomCapability capability,
   ) {
-    final radius =
-        compact ? size * .34 : size * .32;
-
-    final cy =
-        compact ? size * .49 : size * .44;
-
-    final d =
-        compact ? 94.0 : 138.0;
-
-    final count =
-        BloomCapability.values.length;
-
-    final index =
-        BloomCapability.values
-            .indexOf(capability);
-
-    final angle =
-        -math.pi / 2 +
-            index *
-                2 *
-                math.pi /
-                count;
+    final radius = compact ? size * .34 : size * .32;
+    final cy = compact ? size * .49 : size * .44;
+    final d = compact ? 94.0 : 138.0;
+    final count = BloomCapability.values.length;
+    final index = BloomCapability.values.indexOf(capability);
+    final angle = -math.pi / 2 + index * 2 * math.pi / count;
 
     final nodeCenter = Offset(
-      size / 2 +
-          math.cos(angle) * radius,
-      cy +
-          math.sin(angle) * radius,
+      size / 2 + math.cos(angle) * radius,
+      cy + math.sin(angle) * radius,
     );
-
-    final owner =
-        Bloom.owners[capability]!;
-
-    final workspaceAction =
-        capability ==
-                BloomCapability.stewardship
-            ? BloomSuboption.stewardshipHome
-            : BloomSuboption.workspace;
 
     final chipY = math.max(
       4.0,
-      nodeCenter.dy -
-          d / 2 -
-          (compact ? 44.0 : 50.0),
+      nodeCenter.dy - d / 2 - (compact ? 44.0 : 50.0),
     );
 
     return Positioned(
       left: math.max(
         4.0,
-        nodeCenter.dx -
-            (compact ? 126.0 : 148.0),
+        nodeCenter.dx - (compact ? 58.0 : 70.0),
       ),
       top: chipY,
-      child: Row(
-        mainAxisSize:
-            MainAxisSize.min,
-        children: [
-          _ActionChip(
-            icon:
-                Icons.dashboard_customize_rounded,
-            label: 'Workspace',
-            accent:
-                Bloom.accents[capability]!,
-            onTap: () => widget.onSuboption
-                ?.call(workspaceAction),
-          ),
-          const SizedBox(width: 7),
-          _ActionChip(
-            icon: owner.icon,
-            label: owner.name,
-            accent:
-                Bloom.accents[capability]!,
-            onTap: () => widget.onOwnerChat
-                ?.call(capability),
-            avatar: true,
-          ),
-        ],
+      child: _ActionChip(
+        icon: _opening ? Icons.hourglass_top_rounded : Icons.open_in_new_rounded,
+        label: _opening ? 'Opening…' : 'Open',
+        accent: Bloom.accents[capability]!,
+        onTap: () => _open(capability),
       ),
     );
   }
 }
-
 class _Node extends StatelessWidget {
   final BloomCapability capability;
   final bool compact;
@@ -510,12 +575,6 @@ class _Node extends StatelessWidget {
     final owner =
         Bloom.owners[capability]!;
 
-    final reserved =
-        capability !=
-                BloomCapability.analyze &&
-            capability !=
-                BloomCapability.stewardship;
-
     final diameter =
         compact ? 94.0 : 138.0;
 
@@ -526,8 +585,7 @@ class _Node extends StatelessWidget {
         label:
             '${Bloom.labels[capability]} capability, '
             '${owner.name} responsible for '
-            '${owner.responsibility}'
-            '${reserved ? ', reserved' : ''}',
+            '${owner.responsibility}',
         child: InkWell(
           onTap: onTap,
           borderRadius:
@@ -685,8 +743,7 @@ class _ActionChip extends StatelessWidget {
     required this.label,
     required this.accent,
     required this.onTap,
-    this.avatar = false,
-  });
+  }) : avatar = false;
 
   @override
   Widget build(BuildContext context) {

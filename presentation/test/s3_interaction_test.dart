@@ -5,7 +5,7 @@ import 'package:presentation/interaction/syvax.dart';
 
 void main() {
   testWidgets(
-    'Bloom exposes capability gateway and activates Analyze',
+    'Bloom exposes capability gateway and selects Analyze',
     (WidgetTester tester) async {
       BloomCapability? selected;
 
@@ -24,11 +24,7 @@ void main() {
       await tester.pump();
 
       expect(selected, BloomCapability.analyze);
-      expect(find.text('Workspace'), findsOneWidget);
 
-      // Verify the responsible character through the expanded owner's
-      // semantic identity rather than requiring the name to be unique
-      // across the entire Bloom widget tree.
       expect(
         find.bySemanticsLabel(
           RegExp(r'Analyze capability, Vivren responsible for Discernment'),
@@ -39,24 +35,44 @@ void main() {
   );
 
   testWidgets(
-    'Bloom keeps future capabilities visibly reserved',
+    'Bloom opens every capability without character chat or future-sprint reservation',
     (WidgetTester tester) async {
+      BloomActivation? opened;
+
       await tester.pumpWidget(
         MaterialApp(
           home: Bloom(
             onSelected: (_) {},
+            onOpenCapability: (value) => opened = value,
+            activateCapability: (capability) async => BloomActivation(
+              capability: capability,
+              route: capability == BloomCapability.stewardship
+                  ? 'stewardship'
+                  : 'workspace',
+              action: 'test',
+              destinations: const ['Home 01'],
+            ),
           ),
         ),
       );
 
+      for (final capability in BloomCapability.values) {
+        final label = Bloom.labels[capability]!;
+        await tester.tap(find.text(label));
+        await tester.pump();
+        expect(find.text('Open'), findsOneWidget);
+        await tester.tap(find.text('Open'));
+        await tester.pump();
+        expect(opened?.capability, capability);
+      }
+
       expect(
         find.bySemanticsLabel(
-          RegExp(
-            r'Compare capability, Dharen responsible for Context structure, reserved',
-          ),
+          RegExp(r'Compare capability, Dharen responsible for Context structure'),
         ),
         findsOneWidget,
       );
+      expect(find.text('reserved'), findsNothing);
     },
   );
 

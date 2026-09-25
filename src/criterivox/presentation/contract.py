@@ -85,6 +85,13 @@ class PresentationContract:
     evidence: tuple[dict[str, str], ...] = ()
     activity: tuple[str, ...] = ()
     error: str | None = None
+    input_original: str | None = None
+    input_language_profile: dict[str, Any] | None = None
+    input_interpretation: str | None = None
+    input_semantic_summary: str | None = None
+    input_confirmation_status: str | None = None
+    input_confirmation_deadline: str | None = None
+    input_confirmation_id: str | None = None
 
     @classmethod
     def from_visual_presentation(

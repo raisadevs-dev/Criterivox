@@ -1,112 +1,292 @@
 00:00 +0: loading F:/Rsearch Project/Criterivox-S4/presentation/test/activity_presentation_test.dart
-00:00 +0: F:/Rsearch Project/Criterivox-S4/presentation/test/agent_activation_test.dart: activation marks an agent as active
+00:00 +0: F:/Rsearch Project/Criterivox-S4/presentation/test/activity_presentation_test.dart: quiet state becomes inactive and idle
 00:00 +1: F:/Rsearch Project/Criterivox-S4/presentation/test/agent_activation_test.dart: activation marks an agent as active
-00:00 +2: F:/Rsearch Project/Criterivox-S4/presentation/test/activity_presentation_test.dart: active state is recognized
-00:00 +3: F:/Rsearch Project/Criterivox-S4/presentation/test/agent_activation_test.dart: deactivation marks an agent as inactive
+00:00 +2: F:/Rsearch Project/Criterivox-S4/presentation/test/agent_activation_test.dart: deactivation marks an agent as inactive
+00:00 +3: F:/Rsearch Project/Criterivox-S4/presentation/test/activity_presentation_test.dart: active state is recognized
 00:00 +4: loading F:/Rsearch Project/Criterivox-S4/presentation/test/attention_presentation_test.dart
-00:01 +4: F:/Rsearch Project/Criterivox-S4/presentation/test/attention_presentation_test.dart: inactive agent has no visual prominence
-00:02 +5: F:/Rsearch Project/Criterivox-S4/presentation/test/attention_presentation_test.dart: active working agent has moderate prominence
-00:02 +6: F:/Rsearch Project/Criterivox-S4/presentation/test/attention_presentation_test.dart: warning has highest prominence
-00:02 +7: F:/Rsearch Project/Criterivox-S4/presentation/test/bloom_presentation_test.dart: opening Bloom activates presentation
-00:02 +8: F:/Rsearch Project/Criterivox-S4/presentation/test/bloom_presentation_test.dart: closing Bloom deactivates presentation
-00:06 +9: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
-00:07 +10: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
-00:07 +11: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
-00:07 +12: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
-00:15 +13: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
-00:15 +14: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: character presentation renders Vivren identity
-00:16 +15: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: COMMUNICATE state renders correctly
-00:16 +16: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: inactive character still renders
-00:16 +17: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: HANDOFF state renders correctly
-00:16 +18: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: reduced motion still renders character without animation dependency
-00:16 +19: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: COMPLETE state renders correctly
-00:16 +20: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WARNING state renders correctly
-00:26 +21: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: all behavioral states remain renderable
-00:28 +22: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: pure Flutter runtime renders all semantic states
-00:29 +23: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: pure Flutter runtime renders all semantic states
-00:29 +24: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: pure Flutter runtime renders all semantic states
-00:29 +25: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: pure Flutter runtime renders all semantic states
-00:30 +26: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: reduced motion renders a deterministic frame
-00:30 +27: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:31 +28: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:31 +29: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:31 +30: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:31 +31: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:31 +32: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:31 +33: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:31 +34: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:31 +35: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:31 +36: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:31 +37: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:31 +38: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:31 +39: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
-00:32 +40: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders receive state
-00:32 +41: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: inactive character remains rendered
-00:38 +42: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Criterivox responsive civilization 480px viewport is classified as compact
-00:38 +43: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Criterivox responsive civilization 768px viewport is classified as tablet
-00:38 +44: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Criterivox responsive civilization 1280px viewport is classified as desktop
-00:38 +45: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Criterivox responsive civilization responsive civilization keeps information available on compact view
-00:43 +46: F:/Rsearch Project/Criterivox-S4/presentation/test/communication_presentation_test.dart: communication changes character presentation state
-00:43 +47: F:/Rsearch Project/Criterivox-S4/presentation/test/communication_presentation_test.dart: communication activates an inactive agent
-00:44 +48: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-00:44 +49: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-00:44 +50: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-00:46 +51: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-00:46 +52: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-00:46 +53: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-00:50 +54: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-00:50 +55: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-00:54 +56: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-00:54 +57: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-00:54 +58: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-00:58 +59: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-00:58 +60: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-00:58 +61: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-00:58 +62: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-01:05 +63: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-01:06 +64: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-01:06 +65: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-01:19 +66: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
-01:19 +67: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat launcher remains available from the civilization surface
-01:26 +68: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat launcher remains available from the civilization surface
-01:28 +69: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat launcher remains available from the civilization surface
-01:30 +70: loading F:/Rsearch Project/Criterivox-S4/presentation/test/s7_environment_contract_test.dart
-01:33 +70: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_environment_contract_test.dart: S7 exposes exactly three workspaces and no S7 Home
-01:33 +71: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_environment_contract_test.dart: S7 exposes exactly three workspaces and no S7 Home
-01:33 +72: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_environment_contract_test.dart: S7 exposes exactly three workspaces and no S7 Home
-01:37 +73: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_authoritative_state_test.dart: authoritative state preserves the upstream snapshot
-01:37 +74: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_authoritative_state_test.dart: artifact invariants reject duplicate ids and self lineage
-01:37 +75: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_authoritative_state_test.dart: human decision vocabulary contains only explicit human actions
-01:37 +76: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_authoritative_state_test.dart: artifact validator requires core trust fields
-01:37 +77: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_authoritative_state_test.dart: character state is data consumed from the authoritative snapshot
-01:40 +78: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_evidence_verification_test.dart: records evidence as an explicit artifact
-01:40 +79: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_evidence_verification_test.dart: insufficient evidence never becomes a positive verification
-01:40 +80: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_evidence_verification_test.dart: contradictions remain explicit and affect verification
-01:40 +81: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_evidence_verification_test.dart: verification preserves evidence lineage
-01:40 +82: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_evidence_verification_test.dart: verification rejects unknown or non-evidence artifacts
-01:42 +83: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_human_authority_test.dart: records human decisions without changing artifact truth
-01:42 +84: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_human_authority_test.dart: human action model is derived from authoritative state
-01:43 +85: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_set_h_test.dart: repository validates and persists artifacts through memory adapter
-01:43 +86: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_set_h_test.dart: temporal sequencer produces ordered UTC stamps
-01:43 +87: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_set_h_test.dart: Python boundary preserves protocol, operation and trace id
-01:43 +88: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_set_h_test.dart: language boundary fails closed when no local model is configured
-01:43 +89: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_set_h_test.dart: SQLite implementation is selected only on non-web platforms
-01:45 +90: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_set_i_test.dart: SHA-256 receipt detects artifact mutation
-01:45 +91: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_set_i_test.dart: authorization grants and revokes capabilities explicitly
-01:45 +92: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_set_i_test.dart: security audit is append-only to consumers
-01:45 +93: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_set_i_test.dart: human authority remains separate from verification
-01:48 +94: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_xai_pipeline_test.dart: explanation preserves verification lineage, uncertainty and contradictions
-01:48 +95: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_xai_pipeline_test.dart: XAI panels are projections of snapshot facts
-01:48 +96: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_xai_pipeline_test.dart: explanation rejects unknown artifacts
-01:54 +97: F:/Rsearch Project/Criterivox-S4/presentation/test/session_character_animation_test.dart: current sprint characters are registered
-01:54 +98: F:/Rsearch Project/Criterivox-S4/presentation/test/session_character_animation_test.dart: profiles are deterministic within a session and character-specific
-01:55 +99: F:/Rsearch Project/Criterivox-S4/presentation/test/set2_foundation_test.dart: responsive foundation preserves spatial hierarchy across widths
-01:55 +100: F:/Rsearch Project/Criterivox-S4/presentation/test/set2_foundation_test.dart: scene composes the seven layers in architectural order
-01:56 +101: F:/Rsearch Project/Criterivox-S4/presentation/test/set2_foundation_test.dart: scene composes the seven layers in architectural order
-01:56 +102: F:/Rsearch Project/Criterivox-S4/presentation/test/set2_foundation_test.dart: planned and simulated states remain explicit
-01:57 +103: F:/Rsearch Project/Criterivox-S4/presentation/test/set2_foundation_test.dart: artifact model stays domain-neutral
-01:57 +104: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: Criterivox opens on Bloom and exposes current navigation
-02:01 +105: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: navigation moves to the workspace and global character chat surface
-02:02 +106: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: Bloom Analyze expands only its currently implemented paths
-02:03 +107: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: App Introduction exposes the current introduction content
-02:05 +108: All tests passed!
+00:05 +4: F:/Rsearch Project/Criterivox-S4/presentation/test/attention_presentation_test.dart: inactive agent has no visual prominence
+00:08 +5: F:/Rsearch Project/Criterivox-S4/presentation/test/attention_presentation_test.dart: active working agent has moderate prominence
+00:08 +6: F:/Rsearch Project/Criterivox-S4/presentation/test/attention_presentation_test.dart: warning has highest prominence
+00:11 +7: F:/Rsearch Project/Criterivox-S4/presentation/test/bloom_presentation_test.dart: opening Bloom activates presentation
+00:11 +8: F:/Rsearch Project/Criterivox-S4/presentation/test/bloom_presentation_test.dart: closing Bloom deactivates presentation
+00:13 +9: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
+00:14 +10: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
+00:14 +11: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
+00:17 +12: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
+00:17 +13: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
+00:17 +14: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WORK state renders correctly
+00:18 +15: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: COMMUNICATE state renders correctly
+00:18 +16: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: HANDOFF state renders correctly
+00:19 +17: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: COMPLETE state renders correctly
+00:19 +18: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: WARNING state renders correctly
+00:19 +19: F:/Rsearch Project/Criterivox-S4/presentation/test/character_behavior_visual_states_test.dart: all behavioral states remain renderable
+00:20 +20: F:/Rsearch Project/Criterivox-S4/presentation/test/character_presentation_test.dart: character presentation renders identity and idle state
+00:22 +21: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: pure Flutter runtime renders all semantic states
+00:23 +22: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: pure Flutter runtime renders all semantic states
+00:23 +23: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: pure Flutter runtime renders all semantic states
+00:23 +24: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: pure Flutter runtime renders all semantic states
+00:24 +25: F:/Rsearch Project/Criterivox-S4/presentation/test/character_runtime_flutter_test.dart: reduced motion renders a deterministic frame
+00:25 +26: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_animation_system_test.dart: all fifteen specialists have complete visual profiles
+00:25 +27: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_animation_system_test.dart: specialists do not fall back to one shared visual signature
+00:25 +28: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_animation_system_test.dart: session animation is character-specific and session stable
+00:25 +29: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_animation_system_test.dart: vector generator emits valid SVG frames for every current character
+00:26 +30: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:27 +31: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:27 +32: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:27 +33: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:27 +34: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:27 +35: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:27 +36: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:27 +37: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:27 +38: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:27 +39: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:27 +40: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:27 +41: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:27 +42: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders identity and idle state
+00:28 +43: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: character foundation renders receive state
+00:28 +44: F:/Rsearch Project/Criterivox-S4/presentation/test/character_visual_foundation_test.dart: inactive character remains rendered
+00:29 +45: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Criterivox responsive civilization 480px viewport is classified as compact
+00:29 +46: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Criterivox responsive civilization 768px viewport is classified as tablet
+00:29 +47: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Criterivox responsive civilization 1280px viewport is classified as desktop
+00:29 +48: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Criterivox responsive civilization responsive civilization keeps information available on compact view
+00:30 +49: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Criterivox responsive civilization responsive civilization keeps information available on compact view
+00:30 +50: F:/Rsearch Project/Criterivox-S4/presentation/test/civilization_page_test.dart: Criterivox responsive civilization responsive civilization keeps information available on compact view
+00:32 +51: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:32 +52: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:32 +53: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:34 +54: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:34 +55: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:35 +56: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:35 +57: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:35 +58: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:37 +59: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:37 +60: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:39 +61: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:39 +62: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+00:39 +63: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Preserve this draft.": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart:95:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart line 95
+The test description was:
+  global character chat uses one toggle and preserves chat page state
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:39 +63 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state [E]
+  Test failed. See exception logs above.
+  The test description was: global character chat uses one toggle and preserves chat page state
+  
+00:39 +63 -1: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat launcher remains available from the civilization surface
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Civilization · Gate 1": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart:168:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart line 168
+The test description was:
+  global character chat launcher remains available from the civilization surface
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:40 +63 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat launcher remains available from the civilization surface [E]
+  Test failed. See exception logs above.
+  The test description was: global character chat launcher remains available from the civilization surface
+  
+00:40 +63 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/responsive_presentation_test.dart: small screens use compact scale
+00:40 +64 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/responsive_presentation_test.dart: medium screens use standard scale
+00:40 +65 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/responsive_presentation_test.dart: large screens use expanded scale
+00:40 +66 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/responsive_presentation_test.dart: responsive adaptation preserves presentation state
+00:42 +67 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/runtime_presentation_state_test.dart: decodes a Python presentation contract
+00:42 +68 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/runtime_presentation_state_test.dart: rejects an unsupported contract version
+00:42 +69 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/runtime_presentation_state_test.dart: normalizes canonical runtime character identity casing
+00:42 +70 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/runtime_presentation_state_test.dart: rejects an unsupported character state
+00:43 +71 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s3_interaction_test.dart: Bloom exposes capability gateway and selects Analyze
+00:45 +72 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_environment_contract_test.dart: S7 exposes exactly three workspaces and no S7 Home
+00:46 +73 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_environment_contract_test.dart: S7 exposes exactly three workspaces and no S7 Home
+00:46 +74 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s3_interaction_test.dart: Syvax accepts suggested input and submits it
+00:48 +75 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_functional_layer_test.dart: Vivren and Tarkis retain distinct state-machine semantics
+00:48 +76 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s7_functional_layer_test.dart: visualization factory maps room semantics without losing source identity
+00:49 +77 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_authoritative_state_test.dart: authoritative state preserves the upstream snapshot
+00:49 +78 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_authoritative_state_test.dart: artifact invariants reject duplicate ids and self lineage
+00:49 +79 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_authoritative_state_test.dart: human decision vocabulary contains only explicit human actions
+00:49 +80 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_authoritative_state_test.dart: artifact validator requires core trust fields
+00:49 +81 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_authoritative_state_test.dart: character state is data consumed from the authoritative snapshot
+00:50 +82 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_evidence_verification_test.dart: records evidence as an explicit artifact
+00:50 +83 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_evidence_verification_test.dart: insufficient evidence never becomes a positive verification
+00:50 +84 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_evidence_verification_test.dart: contradictions remain explicit and affect verification
+00:50 +85 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_evidence_verification_test.dart: verification preserves evidence lineage
+00:50 +86 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_evidence_verification_test.dart: verification rejects unknown or non-evidence artifacts
+00:50 +87 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_human_authority_test.dart: records human decisions without changing artifact truth
+00:50 +88 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_human_authority_test.dart: human action model is derived from authoritative state
+00:52 +89 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_set_h_test.dart: repository validates and persists artifacts through memory adapter
+00:52 +90 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_set_h_test.dart: temporal sequencer produces ordered UTC stamps
+00:52 +91 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_set_h_test.dart: Python boundary preserves protocol, operation and trace id
+00:52 +92 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_set_h_test.dart: language boundary fails closed when no local model is configured
+00:52 +93 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_set_h_test.dart: SQLite implementation is selected only on non-web platforms
+00:52 +94 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_set_i_test.dart: SHA-256 receipt detects artifact mutation
+00:52 +95 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_set_i_test.dart: authorization grants and revokes capabilities explicitly
+00:52 +96 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_set_i_test.dart: security audit is append-only to consumers
+00:52 +97 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_set_i_test.dart: human authority remains separate from verification
+00:55 +98 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_xai_pipeline_test.dart: explanation preserves verification lineage, uncertainty and contradictions
+00:55 +99 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_xai_pipeline_test.dart: XAI panels are projections of snapshot facts
+00:55 +100 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/s8_xai_pipeline_test.dart: explanation rejects unknown artifacts
+00:59 +101 -2: F:/Rsearch Project/Criterivox-S4/presentation/test/session_character_animation_test.dart: current sprint characters are registered
+00:59 +101 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/session_character_animation_test.dart: current sprint characters are registered [E]
+  Expected: false
+    Actual: <true>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\session_character_animation_test.dart 11:5     main.<fn>
+  
+00:59 +101 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/session_character_animation_test.dart: profiles are deterministic within a session and character-specific
+01:03 +102 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/set2_foundation_test.dart: responsive foundation preserves spatial hierarchy across widths
+01:03 +103 -3: F:/Rsearch Project/Criterivox-S4/presentation/test/set2_foundation_test.dart: scene composes the seven layers in architectural order
+01:04 +103 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/set2_foundation_test.dart: scene composes the seven layers in architectural order
+01:04 +103 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/set4_character_chat_test.dart: Set 4 exposes all 15 registry-grounded characters [E]
+  Unable to load asset: "assets/character_chat/character_registry.json".
+  The asset does not exist or has empty data.
+  package:flutter/src/services/asset_bundle.dart 340:7   PlatformAssetBundle.load
+  package:flutter/src/services/asset_bundle.dart 92:33   AssetBundle.loadString
+  package:flutter/src/services/asset_bundle.dart 193:56  CachingAssetBundle.loadString.<fn>
+  dart:_compact_hash                                     _LinkedHashMapMixin.putIfAbsent
+  package:flutter/src/services/asset_bundle.dart 193:27  CachingAssetBundle.loadString
+  test\set4_character_chat_test.dart 8:34                main.<fn>
+  
+01:05 +104 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/set2_foundation_test.dart: planned and simulated states remain explicit
+01:05 +105 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/set2_foundation_test.dart: artifact model stays domain-neutral
+01:06 +106 -4: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: Criterivox opens on Bloom and exposes current navigation
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Bloom": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/widget_test.dart:25:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/widget_test.dart line 25
+The test description was:
+  Criterivox opens on Bloom and exposes current navigation
+════════════════════════════════════════════════════════════════════════════════════════════════════
+01:09 +106 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: Criterivox opens on Bloom and exposes current navigation [E]
+  Test failed. See exception logs above.
+  The test description was: Criterivox opens on Bloom and exposes current navigation
+  
+01:09 +106 -5: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: navigation moves to the workspace and global character chat surface
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+The finder "Found 0 widgets with text "Analysis Workspace": []" (used in a call to "tap()") could
+not find any matching widgets.
+
+When the exception was thrown, this was the stack:
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2095:7)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1947:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1080:7)
+#3      main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/widget_test.dart:67:20)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  navigation moves to the workspace and global character chat surface
+════════════════════════════════════════════════════════════════════════════════════════════════════
+01:10 +106 -6: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: navigation moves to the workspace and global character chat surface [E]
+  Test failed. See exception logs above.
+  The test description was: navigation moves to the workspace and global character chat surface
+  
+01:10 +106 -6: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: Bloom Analyze expands only its currently implemented paths
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Workspace": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/widget_test.dart:149:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/widget_test.dart line 149
+The test description was:
+  Bloom Analyze expands only its currently implemented paths
+════════════════════════════════════════════════════════════════════════════════════════════════════
+01:12 +106 -7: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: Bloom Analyze expands only its currently implemented paths [E]
+  Test failed. See exception logs above.
+  The test description was: Bloom Analyze expands only its currently implemented paths
+  
+01:12 +106 -7: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: App Introduction exposes the current introduction content
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "ONE SYSTEM. MANY MINDS.": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/widget_test.dart:192:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///F:/Rsearch%20Project/Criterivox-S4/presentation/test/widget_test.dart line 192
+The test description was:
+  App Introduction exposes the current introduction content
+════════════════════════════════════════════════════════════════════════════════════════════════════
+01:13 +106 -8: F:/Rsearch Project/Criterivox-S4/presentation/test/widget_test.dart: App Introduction exposes the current introduction content [E]
+  Test failed. See exception logs above.
+  The test description was: App Introduction exposes the current introduction content
+  
+01:14 +106 -8: Some tests failed.
+
+Failing tests:
+  F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat launcher remains available from the civilization surface
+  F:/Rsearch Project/Criterivox-S4/presentation/test/global_character_chat_launcher_test.dart: global character chat uses one toggle and preserves chat page state
+  F:/Rsearch Project/Criterivox-S4/presentation/test/session_character_animation_test.dart: current sprint characters are registered
+  F:/Rsearch Project/Criterivox-S4/presentation/test/set4_character_chat_test.dart: Set 4 exposes all 15 registry-grounded characters
+  ... and 4 more

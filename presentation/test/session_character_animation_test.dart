@@ -1,14 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:presentation/character/session_character_animation.dart';
+import 'package:presentation/character/character_visual_profile.dart';
 
 void main() {
-  test('current sprint characters are registered', () {
-    expect(SessionCharacterAnimation.supports('anuka'), isTrue);
-    expect(SessionCharacterAnimation.supports('dharen'), isTrue);
-    expect(SessionCharacterAnimation.supports('kaelen'), isTrue);
-    expect(SessionCharacterAnimation.supports('sandre'), isTrue);
-    expect(SessionCharacterAnimation.supports('syvax'), isTrue);
-    expect(SessionCharacterAnimation.supports('vivren'), isFalse);
+  test('all canonical character profiles are animation-capable', () {
+    for (final id in CharacterVisualProfile.registry.keys) {
+      expect(SessionCharacterAnimation.supports(id), isTrue);
+    }
   });
 
   test('profiles are deterministic within a session and character-specific',

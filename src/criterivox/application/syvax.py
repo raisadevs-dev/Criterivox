@@ -143,6 +143,28 @@ class SyvaxEngine:
             "policy": "syvax-preflight-v2",
         }
 
+    def prepare(
+        self,
+        message: str,
+        task_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Single gateway entry point: preflight, classify and plan."""
+        safety = self.safety_check(message)
+        if safety["status"] == "blocked":
+            return {"safety": safety, "plan": None, "candidate": None}
+        plan = self.compile_plan(message, task_id)
+        candidate = self.candidate_route(plan)
+        return {
+            "safety": safety,
+            "plan": {
+                "task_id": plan.task_id,
+                "intent": asdict(plan.intent),
+                "steps": [asdict(step) for step in plan.steps],
+                "created_at": plan.created_at,
+            },
+            "candidate": candidate,
+        }
+
     def extract_intent(self, message: str) -> Intent:
         try:
             prediction = adaptive_intent_model.predict({"text": message})

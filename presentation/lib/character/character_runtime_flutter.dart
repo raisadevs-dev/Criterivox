@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:presentation/character/character_identity.dart';
+import 'package:presentation/character/character_visual_profile.dart';
 
 /// Flutter-side visual runtime for a Criterivox character.
 ///
@@ -76,7 +77,7 @@ class _CharacterRuntimeViewState extends State<CharacterRuntimeView>
       height: widget.height,
       child: Semantics(
         container: true,
-        label: '${identity.displayName} character',
+        label: '${identity.nameFor('en')} character',
         value: normalizedState,
         child: AnimatedBuilder(
           animation: _controller,
@@ -606,29 +607,94 @@ class _CharacterPainter extends CustomPainter {
         break;
 
       case 'messy':
-        final path = Path()
-          ..moveTo(-42.0, -92.0);
-
+        final path = Path()..moveTo(-42.0, -92.0);
         for (int i = 0; i < 9; i++) {
           final double x = -42.0 + i * 10.5;
-
           path.lineTo(
             x,
             -112.0 -
-                math.sin(
-                  i + time * 0.18,
-                ) *
-                    7.0 -
+                math.sin(i + time * 0.18) * 7.0 -
                 attention.abs(),
           );
         }
-
         path
           ..lineTo(42.0, -86.0)
           ..lineTo(-42.0, -86.0)
           ..close();
-
         canvas.drawPath(path, paint);
+        break;
+
+      case 'cropped':
+        canvas.drawOval(
+          Rect.fromCenter(
+            center: const Offset(0.0, -106.0),
+            width: 79.0,
+            height: 34.0,
+          ),
+          paint,
+        );
+        break;
+
+      case 'swept':
+        final swept = Path()
+          ..moveTo(-42.0, -88.0)
+          ..quadraticBezierTo(-8.0, -126.0, 42.0, -105.0)
+          ..lineTo(31.0, -89.0)
+          ..quadraticBezierTo(-5.0, -104.0, -42.0, -88.0)
+          ..close();
+        canvas.drawPath(swept, paint);
+        break;
+
+      case 'braided':
+        canvas.drawOval(
+          Rect.fromCenter(
+            center: const Offset(0.0, -105.0),
+            width: 79.0,
+            height: 40.0,
+          ),
+          paint,
+        );
+        for (final side in const [-1.0, 1.0]) {
+          for (int i = 0; i < 4; i++) {
+            canvas.drawCircle(
+              Offset(side * 37.0, -92.0 + i * 12.0 + sway),
+              5.0,
+              paint,
+            );
+          }
+        }
+        break;
+
+      case 'wavy':
+        final wave = Path()..moveTo(-42.0, -91.0);
+        for (int i = 0; i < 9; i++) {
+          final x = -42.0 + i * 10.5;
+          wave.lineTo(
+            x,
+            -109.0 - math.sin(i * 1.25 + time * 0.15) * 8.0,
+          );
+        }
+        wave
+          ..lineTo(42.0, -87.0)
+          ..lineTo(-42.0, -87.0)
+          ..close();
+        canvas.drawPath(wave, paint);
+        break;
+
+      case 'tied':
+        canvas.drawOval(
+          Rect.fromCenter(
+            center: const Offset(0.0, -105.0),
+            width: 80.0,
+            height: 41.0,
+          ),
+          paint,
+        );
+        canvas.drawCircle(
+          Offset(38.0 + sway, -103.0),
+          10.0,
+          paint,
+        );
         break;
 
       default:
@@ -882,32 +948,82 @@ class _CharacterPainter extends CustomPainter {
           ..color = character.accent
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2.0;
+        canvas.drawOval(const Rect.fromLTWH(-27.0, -88.0, 22.0, 14.0), glasses);
+        canvas.drawOval(const Rect.fromLTWH(5.0, -88.0, 22.0, 14.0), glasses);
+        canvas.drawLine(const Offset(-5.0, -81.0), const Offset(5.0, -81.0), glasses);
+        break;
 
-        canvas.drawOval(
-          const Rect.fromLTWH(
-            -27.0,
-            -88.0,
-            22.0,
-            14.0,
+      case 'slate':
+      case 'book':
+        final panel = Paint()..color = character.accent;
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromLTWH(39.0, -2.0 + bob, 27.0, 34.0),
+            const Radius.circular(4.0),
           ),
-          glasses,
+          panel,
         );
+        final panelLine = Paint()
+          ..color = character.dark
+          ..strokeWidth = 1.4;
+        canvas.drawLine(Offset(44.0, 7.0 + bob), Offset(61.0, 7.0 + bob), panelLine);
+        canvas.drawLine(Offset(44.0, 13.0 + bob), Offset(58.0, 13.0 + bob), panelLine);
+        canvas.drawLine(Offset(44.0, 19.0 + bob), Offset(61.0, 19.0 + bob), panelLine);
+        break;
 
-        canvas.drawOval(
-          const Rect.fromLTWH(
-            5.0,
-            -88.0,
-            22.0,
-            14.0,
+      case 'tool':
+      case 'scanner':
+        final tool = Paint()
+          ..color = character.accent
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3.0;
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromLTWH(42.0, -1.0 + bob, 22.0, 30.0),
+            const Radius.circular(5.0),
           ),
-          glasses,
+          tool,
         );
+        canvas.drawCircle(Offset(53.0, 8.0 + bob), 4.0, tool);
+        canvas.drawLine(Offset(53.0, 13.0 + bob), Offset(53.0, 24.0 + bob), tool);
+        break;
 
-        canvas.drawLine(
-          const Offset(-5.0, -81.0),
-          const Offset(5.0, -81.0),
-          glasses,
+      case 'question':
+        final q = Paint()
+          ..color = character.accent
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3.0
+          ..strokeCap = StrokeCap.round;
+        canvas.drawArc(
+          Rect.fromLTWH(44.0, -6.0 + bob, 18.0, 16.0),
+          math.pi * 1.1,
+          math.pi * 1.55,
+          false,
+          q,
         );
+        canvas.drawCircle(Offset(53.0, 18.0 + bob), 2.0, q);
+        break;
+
+      case 'link':
+        final link = Paint()
+          ..color = character.accent
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3.0;
+        canvas.drawOval(const Rect.fromLTWH(40.0, 0.0, 20.0, 12.0), link);
+        canvas.drawOval(const Rect.fromLTWH(49.0, 7.0, 20.0, 12.0), link);
+        break;
+
+      case 'compass':
+        final compass = Paint()
+          ..color = character.accent
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.5;
+        canvas.drawCircle(Offset(52.0, 8.0 + bob), 11.0, compass);
+        canvas.drawLine(Offset(52.0, -2.0 + bob), Offset(52.0, 18.0 + bob), compass);
+        canvas.drawLine(Offset(42.0, 8.0 + bob), Offset(62.0, 8.0 + bob), compass);
+        break;
+
+      case 'none':
         break;
     }
 
@@ -1046,11 +1162,11 @@ class _CharacterPainter extends CustomPainter {
   }
 }
 
-/// Visual style definition for each Criterivox character.
+/// Renderer adapter for the canonical CharacterVisualProfile registry.
 ///
-/// This is deliberately separate from [CharacterIdentities]:
-/// identity answers "who is this?", while style answers "how is this
-/// character rendered in Flutter?"
+/// The renderer keeps one drawing engine, while every character gets its own
+/// profile. This prevents a missing profile from silently becoming a duplicate
+/// generic avatar.
 class _CharacterStyle {
   final Color skin;
   final Color face;
@@ -1059,7 +1175,6 @@ class _CharacterStyle {
   final Color hair;
   final Color accent;
   final Color dark;
-
   final String hairStyle;
   final String accessory;
   final String clothing;
@@ -1078,118 +1193,92 @@ class _CharacterStyle {
   });
 
   static _CharacterStyle forId(String id) {
-    switch (id.trim().toLowerCase()) {
-      case 'dharen':
-        return const _CharacterStyle(
-          skin: Color(0xffc98964),
-          face: Color(0xffffd7bc),
-          body: Color(0xff8b5e3c),
-          trousers: Color(0xff403d46),
-          hair: Color(0xff34251f),
-          accent: Color(0xffd98b43),
-          dark: Color(0xff201b1a),
-          hairStyle: 'messy',
-          accessory: 'notebook',
-          clothing: 'jacket',
-        );
+    final profile = CharacterVisualProfile.forId(id);
+    if (profile == null) {
+      throw ArgumentError('No canonical visual profile for character: $id');
+    }
+    return _CharacterStyle(
+      skin: profile.skin,
+      face: profile.face,
+      body: profile.body,
+      trousers: profile.trousers,
+      hair: profile.hair,
+      accent: profile.accent,
+      dark: profile.dark,
+      hairStyle: _hairStyle(profile.hairStyle),
+      accessory: _accessory(profile.accessory),
+      clothing: _clothing(profile.clothing),
+    );
+  }
 
-      case 'syvax':
-        return const _CharacterStyle(
-          skin: Color(0xffb87c63),
-          face: Color(0xffffd4bd),
-          body: Color(0xff344d63),
-          trousers: Color(0xff252d36),
-          hair: Color(0xff17232e),
-          accent: Color(0xff62d8f5),
-          dark: Color(0xff14202a),
-          hairStyle: 'visor',
-          accessory: 'headphones',
-          clothing: 'hoodie',
-        );
+  static String _hairStyle(CharacterHairStyle value) {
+    switch (value) {
+      case CharacterHairStyle.messy:
+        return 'messy';
+      case CharacterHairStyle.visor:
+        return 'visor';
+      case CharacterHairStyle.longHair:
+        return 'long';
+      case CharacterHairStyle.bun:
+        return 'bun';
+      case CharacterHairStyle.cropped:
+        return 'cropped';
+      case CharacterHairStyle.swept:
+        return 'swept';
+      case CharacterHairStyle.braided:
+        return 'braided';
+      case CharacterHairStyle.wavy:
+        return 'wavy';
+      case CharacterHairStyle.tied:
+        return 'tied';
+    }
+  }
 
-      case 'sandre':
-        return const _CharacterStyle(
-          skin: Color(0xffa96f58),
-          face: Color(0xffffcbb5),
-          body: Color(0xff496d6d),
-          trousers: Color(0xff343f43),
-          hair: Color(0xff2d2522),
-          accent: Color(0xff63b9a8),
-          dark: Color(0xff1d2527),
-          hairStyle: 'long',
-          accessory: 'badge',
-          clothing: 'collar',
-        );
+  static String _accessory(CharacterAccessory value) {
+    switch (value) {
+      case CharacterAccessory.headphones:
+        return 'headphones';
+      case CharacterAccessory.orb:
+        return 'orb';
+      case CharacterAccessory.badge:
+        return 'badge';
+      case CharacterAccessory.notebook:
+        return 'notebook';
+      case CharacterAccessory.glasses:
+        return 'glasses';
+      case CharacterAccessory.star:
+        return 'star';
+      case CharacterAccessory.slate:
+        return 'slate';
+      case CharacterAccessory.tool:
+        return 'tool';
+      case CharacterAccessory.question:
+        return 'question';
+      case CharacterAccessory.book:
+        return 'book';
+      case CharacterAccessory.link:
+        return 'link';
+      case CharacterAccessory.compass:
+        return 'compass';
+      case CharacterAccessory.scanner:
+        return 'scanner';
+      case CharacterAccessory.none:
+        return 'none';
+    }
+  }
 
-      case 'kaelen':
-        return const _CharacterStyle(
-          skin: Color(0xffbd805e),
-          face: Color(0xffffd1b8),
-          body: Color(0xff50575f),
-          trousers: Color(0xff20252a),
-          hair: Color(0xff1d1b1b),
-          accent: Color(0xfff19a3e),
-          dark: Color(0xff17191c),
-          hairStyle: 'messy',
-          accessory: 'headphones',
-          clothing: 'jacket',
-        );
-
-      case 'anuka':
-        return const _CharacterStyle(
-          skin: Color(0xffd69a79),
-          face: Color(0xffffdfcf),
-          body: Color(0xfff0b9c8),
-          trousers: Color(0xff343044),
-          hair: Color(0xff2a2025),
-          accent: Color(0xffbd7fe4),
-          dark: Color(0xff221b27),
-          hairStyle: 'bun',
-          accessory: 'orb',
-          clothing: 'hoodie',
-        );
-
-      case 'vivren':
-        return const _CharacterStyle(
-          skin: Color(0xffc7957e),
-          face: Color(0xffffd8c7),
-          body: Color(0xffd5d0dc),
-          trousers: Color(0xff36333e),
-          hair: Color(0xffc8bdd9),
-          accent: Color(0xffa68ad7),
-          dark: Color(0xff26222d),
-          hairStyle: 'long',
-          accessory: 'glasses',
-          clothing: 'scarf',
-        );
-
-      case 'tarkis':
-        return const _CharacterStyle(
-          skin: Color(0xffa96f56),
-          face: Color(0xffffcdb6),
-          body: Color(0xff34383f),
-          trousers: Color(0xff171a1e),
-          hair: Color(0xff171719),
-          accent: Color(0xffee8b31),
-          dark: Color(0xff111214),
-          hairStyle: 'messy',
-          accessory: 'star',
-          clothing: 'hoodie',
-        );
-
-      default:
-        return const _CharacterStyle(
-          skin: Color(0xffb98068),
-          face: Color(0xffffd5c0),
-          body: Color(0xff59636d),
-          trousers: Color(0xff30343a),
-          hair: Color(0xff24272b),
-          accent: Color(0xff7aa9d8),
-          dark: Color(0xff17191c),
-          hairStyle: 'messy',
-          accessory: 'notebook',
-          clothing: 'jacket',
-        );
+  static String _clothing(CharacterClothing value) {
+    switch (value) {
+      case CharacterClothing.jacket:
+        return 'jacket';
+      case CharacterClothing.hoodie:
+        return 'hoodie';
+      case CharacterClothing.collar:
+        return 'collar';
+      case CharacterClothing.utility:
+        return 'utility';
+      case CharacterClothing.layered:
+        return 'layered';
     }
   }
 }

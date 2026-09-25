@@ -6,15 +6,18 @@ import 'package:flutter/material.dart';
 import 'presentation/criterivox_theme.dart';
 import 'presentation/presentation_state.dart';
 import 'presentation/runtime_client.dart';
+import 'character/live_agent_panel.dart';
 
 class DataStewardshipPage extends StatefulWidget {
   final PresentationState? state;
   final CharacterRuntimeClient runtime;
+  final ValueChanged<String>? onChatCharacter;
 
   const DataStewardshipPage({
     super.key,
     required this.state,
     required this.runtime,
+    this.onChatCharacter,
   });
 
   @override
@@ -26,14 +29,6 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
   final _what = TextEditingController();
   final _why = TextEditingController();
   final _logQuery = TextEditingController();
-
-  final _homeJson = TextEditingController(
-    text: '{"purpose":"analysis","platform":"Instagram"}',
-  );
-
-  final _chatJson = TextEditingController(
-    text: '{"purpose":"research evidence","platform":"Instagram"}',
-  );
 
   final List<Map<String, dynamic>> _sources = [];
 
@@ -47,8 +42,6 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
     'transformation_history': false,
   };
 
-  final Map<String, String> _winner = {};
-
   @override
   void dispose() {
     for (final controller in [
@@ -56,8 +49,6 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
       _what,
       _why,
       _logQuery,
-      _homeJson,
-      _chatJson,
     ]) {
       controller.dispose();
     }
@@ -96,36 +87,6 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
     }
 
     setState(() => _sources.addAll(staged));
-  }
-
-  Future<void> _folder() async {
-    try {
-      final path = await FilePicker.platform.getDirectoryPath();
-
-      if (path == null) {
-        return;
-      }
-
-      widget.runtime.ingestFolder(
-        folderPath: path,
-        suppliedContext: {
-          'entered_through': 'Data Stewardship',
-          'collection_mode': 'python_folder_loader',
-        },
-        recentTaskIds: _recentTaskIds,
-      );
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Folder selection is unavailable on this browser target. '
-              'Use Upload Files so selected contents are sent safely to Python.',
-            ),
-          ),
-        );
-      }
-    }
   }
 
   void _textSource() {
@@ -204,70 +165,6 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
     );
   }
 
-  void _merge() {
-    try {
-      final home = jsonDecode(_homeJson.text);
-      final chat = jsonDecode(_chatJson.text);
-
-      if (home is! Map || chat is! Map) {
-        throw const FormatException();
-      }
-
-      final conflicts = <String>[];
-
-      for (final field in {...home.keys, ...chat.keys}) {
-        if (home[field] != chat[field]) {
-          conflicts.add(field.toString());
-        }
-      }
-
-      final unresolved = conflicts
-          .where((field) => !_winner.containsKey(field))
-          .toList();
-
-      if (conflicts.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No conflicting fields were found.'),
-          ),
-        );
-        return;
-      }
-
-      if (unresolved.isNotEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Choose Home or Chat for every conflict before merging: '
-              '${unresolved.join(', ')}',
-            ),
-          ),
-        );
-        return;
-      }
-
-      final winners = {
-        for (final field in conflicts) field: _winner[field]!,
-      };
-
-      _action(
-        'merge_conflicts',
-        values: {
-          'home': Map<String, dynamic>.from(home),
-          'chat': Map<String, dynamic>.from(chat),
-          'winners': winners,
-        },
-      );
-    } catch (_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Conflict inputs must be valid JSON objects.',
-          ),
-        ),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -329,7 +226,18 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
                     ),
                 ],
               ),
-              const SizedBox(height: 16),
+              _LiveMembers(
+                state: s,
+                onChat: widget.onChatCharacter,
+                t: t,
+              ),
+              const SizedBox(height: 14),
+              _FeatureGrid(
+                state: s,
+                onAction: _action,
+                t: t,
+              ),
+              const SizedBox(height: 14),
               _Pipeline(
                 state: s,
                 t: t,
@@ -339,7 +247,6 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
                 _Intake(
                   sources: _sources,
                   onFiles: _files,
-                  onFolder: _folder,
                   onText: _textSource,
                   text: _text,
                   onIngest: _ingest,
@@ -371,7 +278,6 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
                       child: _Intake(
                         sources: _sources,
                         onFiles: _files,
-                        onFolder: _folder,
                         onText: _textSource,
                         text: _text,
                         onIngest: _ingest,
@@ -425,29 +331,106 @@ class _DataStewardshipPageState extends State<DataStewardshipPage> {
                 t: t,
               ),
               const SizedBox(height: 14),
-              _ConflictPanel(
-                home: _homeJson,
-                chat: _chatJson,
-                winner: _winner,
-                onWinner: (k, v) =>
-                    setState(() => _winner[k] = v),
-                onMerge: _merge,
-                t: t,
-              ),
               const SizedBox(height: 14),
               _Quality(
                 s: s,
                 t: t,
               ),
               const SizedBox(height: 14),
-              _Sandre(
-                s: s,
-                t: t,
-              ),
             ],
           ),
         );
       },
+    );
+  }
+}
+
+class _LiveMembers extends StatelessWidget {
+  final PresentationState? state;
+  final ValueChanged<String>? onChat;
+  final CriterivoxTheme t;
+  const _LiveMembers({required this.state, required this.onChat, required this.t});
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, c) {
+      final narrow = c.maxWidth < 900;
+      final panels = [
+        LiveAgentPanel(
+          characterId: 'sandre',
+          responsibility: 'Data Stewardship',
+          workDescription: 'Owns intake, inspection, confirmation, provenance, quality and safe handoff.',
+          state: state?.agentId == 'sandre' ? state?.characterState ?? 'IDLE' : 'IDLE',
+        ),
+        LiveAgentPanel(
+          characterId: 'kaelen',
+          responsibility: 'Build + Experimentation',
+          workDescription: 'Builds from Sandre-confirmed material through transformation and preparation.',
+          state: state?.agentId == 'kaelen' ? state?.characterState ?? 'WORK' : 'WORK',
+        ),
+      ];
+      return _Panel(
+        'LIVE HOUSE MEMBERS',
+        t,
+        narrow ? Column(children: [panels[0], const SizedBox(height: 10), panels[1]]) :
+          Row(children: [Expanded(child: panels[0]), const SizedBox(width: 10), Expanded(child: panels[1])]),
+      );
+    },
+  );
+}
+
+class _FeatureGrid extends StatelessWidget {
+  final PresentationState? state;
+  final void Function(String, {String? recipient, Map<String,dynamic> values}) onAction;
+  final CriterivoxTheme t;
+  const _FeatureGrid({required this.state, required this.onAction, required this.t});
+
+  @override
+  Widget build(BuildContext context) {
+    final features = [
+      ('01  DATA READINESS', Icons.monitor_heart_outlined, 'Profile, completeness, anomalies and readiness.', 'readiness'),
+      ('02  KAELEN PIPELINE', Icons.account_tree_outlined, 'Validate, normalize, patch and handoff.', 'pipeline'),
+      ('03  EPISTEMIC LINEAGE', Icons.timeline_outlined, 'Source, transformation and revision history.', 'provenance'),
+      ('04  SYNTHETIC LAB', Icons.science_outlined, 'Local seeded synthetic preview.', 'synthetic_preview'),
+      ('05  SEMANTIC INSPECTOR', Icons.label_outline, 'Machine-readable metadata and relationships.', 'semantic'),
+      ('06  SCHEMA DRIFT', Icons.schema_outlined, 'Detect and preview schema changes.', 'schema_patch'),
+      ('07  VECTOR READINESS', Icons.hub_outlined, 'Prepare the foundation for vector representation.', 'vector_readiness'),
+      ('08  EDD GATE', Icons.verified_user_outlined, 'Confirmation, provenance and evaluation gate.', 'edd_gate'),
+    ];
+    return _Panel(
+      'HOUSE CAPABILITIES',
+      t,
+      GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: MediaQuery.sizeOf(context).width > 1250 ? 4 : MediaQuery.sizeOf(context).width > 780 ? 2 : 1,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 2.25,
+        ),
+        itemCount: features.length,
+        itemBuilder: (_, i) {
+          final f = features[i];
+          return Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(color: t.surfaceStrong, borderRadius: BorderRadius.circular(10), border: Border.all(color: t.border)),
+            child: Row(children: [
+              Icon(f.$2, color: t.primary, size: 20),
+              const SizedBox(width: 8),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(f.$1, style: TextStyle(color: t.text, fontSize: 8, fontWeight: FontWeight.w800)),
+                const SizedBox(height: 3),
+                Expanded(child: Text(f.$3, style: TextStyle(color: t.mutedText, fontSize: 8, height: 1.2))),
+                SizedBox(height: 25, child: OutlinedButton(
+                  onPressed: state?.foundationId == null ? null : () => onAction(f.$4),
+                  child: const Text('Run', style: TextStyle(fontSize: 8)),
+                )),
+              ])),
+            ]),
+          );
+        },
+      ),
     );
   }
 }
@@ -535,7 +518,6 @@ class _Pipeline extends StatelessWidget {
 class _Intake extends StatelessWidget {
   final List<Map<String, dynamic>> sources;
   final VoidCallback onFiles;
-  final VoidCallback onFolder;
   final VoidCallback onText;
   final VoidCallback onIngest;
   final TextEditingController text;
@@ -544,7 +526,6 @@ class _Intake extends StatelessWidget {
   const _Intake({
     required this.sources,
     required this.onFiles,
-    required this.onFolder,
     required this.onText,
     required this.text,
     required this.onIngest,
@@ -566,12 +547,6 @@ class _Intake extends StatelessWidget {
                   'Upload Files',
                   Icons.upload_file,
                   onFiles,
-                  t,
-                ),
-                _Button(
-                  'Add Folder to Python',
-                  Icons.folder_open,
-                  onFolder,
                   t,
                 ),
               ],
@@ -1062,163 +1037,6 @@ class _LogPanel extends StatelessWidget {
       );
 }
 
-class _ConflictPanel extends StatelessWidget {
-  final TextEditingController home;
-  final TextEditingController chat;
-  final Map<String, String> winner;
-  final void Function(String, String) onWinner;
-  final VoidCallback onMerge;
-  final CriterivoxTheme t;
-
-  const _ConflictPanel({
-    required this.home,
-    required this.chat,
-    required this.winner,
-    required this.onWinner,
-    required this.onMerge,
-    required this.t,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    Map<String, dynamic> h = {};
-    Map<String, dynamic> c = {};
-
-    try {
-      h = Map<String, dynamic>.from(
-        jsonDecode(home.text),
-      );
-      c = Map<String, dynamic>.from(
-        jsonDecode(chat.text),
-      );
-    } catch (_) {}
-
-    final fields = (<String>{
-      ...h.keys,
-      ...c.keys,
-    }).toList()
-      ..sort();
-
-    final conflicts = fields
-        .where((f) => h[f] != c[f])
-        .toList();
-
-    final unresolved = conflicts
-        .where((f) => !winner.containsKey(f))
-        .toList();
-
-    return _Panel(
-      'Home ↔ Chat Conflict Merge',
-      t,
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'No hard overwrite. Every conflicting field requires an explicit '
-            'user winner before the merge can be committed.',
-            style: TextStyle(
-              color: t.mutedText,
-              fontSize: 10,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: home,
-            maxLines: 4,
-            decoration: const InputDecoration(
-              labelText: 'Home representation (JSON)',
-            ),
-          ),
-          const SizedBox(height: 7),
-          TextField(
-            controller: chat,
-            maxLines: 4,
-            decoration: const InputDecoration(
-              labelText: 'Chat representation (JSON)',
-            ),
-          ),
-          if (conflicts.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            for (final f in conflicts)
-              Container(
-                margin: const EdgeInsets.only(bottom: 7),
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: t.surfaceStrong,
-                  borderRadius: BorderRadius.circular(9),
-                  border: Border.all(color: t.border),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      f,
-                      style: TextStyle(
-                        color: t.text,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      'Home: ${h[f]}',
-                      style: TextStyle(
-                        color: t.mutedText,
-                        fontSize: 9,
-                      ),
-                    ),
-                    Text(
-                      'Chat: ${c[f]}',
-                      style: TextStyle(
-                        color: t.mutedText,
-                        fontSize: 9,
-                      ),
-                    ),
-                    DropdownButton<String>(
-                      hint: const Text('Choose winner'),
-                      value: winner[f],
-                      items: const [
-                        DropdownMenuItem(
-                          value: 'home',
-                          child: Text('Keep Home'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'chat',
-                          child: Text('Keep Chat'),
-                        ),
-                      ],
-                      onChanged: (v) {
-                        if (v != null) {
-                          onWinner(f, v);
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            const SizedBox(height: 5),
-            FilledButton.icon(
-              onPressed:
-                  conflicts.isEmpty || unresolved.isNotEmpty
-                      ? null
-                      : onMerge,
-              icon: const Icon(
-                Icons.merge_type,
-                size: 15,
-              ),
-              label: Text(
-                unresolved.isEmpty
-                    ? 'Commit explicit merge'
-                    : 'Choose ${unresolved.length} remaining winner(s)',
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
 class _Quality extends StatelessWidget {
   final PresentationState? s;
   final CriterivoxTheme t;
@@ -1254,74 +1072,6 @@ class _Quality extends StatelessWidget {
                   fontSize: 10,
                   height: 1.4,
                 ),
-              ),
-            ),
-          ],
-        ),
-      );
-}
-
-class _Sandre extends StatelessWidget {
-  final PresentationState? s;
-  final CriterivoxTheme t;
-
-  const _Sandre({
-    required this.s,
-    required this.t,
-  });
-
-  @override
-  Widget build(BuildContext context) => _Panel(
-        'Sandre',
-        t,
-        Row(
-          children: [
-            Container(
-              width: 90,
-              height: 90,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: t.border),
-              ),
-              child: Icon(
-                Icons.person_outline_rounded,
-                size: 45,
-                color: t.primary,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'SANDRE',
-                    style: TextStyle(
-                      color: t.text,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  Text(
-                    'Data Stewardship • House Owner',
-                    style: TextStyle(
-                      color: t.primary,
-                      fontSize: 10,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    s?.agentId.toLowerCase() == 'sandre'
-                        ? (s?.message ??
-                            'Safeguarding the foundation.')
-                        : 'Sandre is ready to receive foundational material.',
-                    style: TextStyle(
-                      color: t.mutedText,
-                      fontSize: 10,
-                      height: 1.4,
-                    ),
-                  ),
-                ],
               ),
             ),
           ],

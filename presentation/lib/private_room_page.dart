@@ -1,6 +1,8 @@
+import 'presentation/api_client.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 
 import 'human_residence_store.dart';
@@ -8,10 +10,12 @@ import 'presentation/criterivox_theme.dart';
 
 class PrivateRoomPage extends StatefulWidget {
   final VoidCallback onWorkspace;
+  final VoidCallback? onCollaborationRoom;
 
   const PrivateRoomPage({
     super.key,
     required this.onWorkspace,
+    this.onCollaborationRoom,
   });
 
   @override
@@ -25,6 +29,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
   final TextEditingController data = TextEditingController();
   final TextEditingController contextCtl = TextEditingController();
   final TextEditingController resultCtl = TextEditingController();
+  final List<Map<String, dynamic>> materials = <Map<String, dynamic>>[];
 
   HumanResidenceRecord? residence;
 
@@ -199,7 +204,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     try {
       final response = await http
           .post(
-            Uri.base.resolve('/api/human-residence'),
+            CriterivoxApi.uri('/api/human-residence'),
             headers: const <String, String>{
               'content-type': 'application/json',
             },
@@ -236,134 +241,121 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     }
   }
 
-  Future<void> _generateOptions() async {
-    if (goal.text.trim().isEmpty || running) {
-      return;
-    }
-
-    final currentResidence = residence;
-
-    if (currentResidence == null) {
-      if (mounted) {
-        setState(() {
-          status = 'NO_HOUSE_FOUND';
-        });
+  Future<void> _pickFolder() async {
+    try {
+      final path = await FilePicker.platform.getDirectoryPath();
+      if (path == null) return;
+      final response = await http.post(
+        CriterivoxApi.uri('/api/human-residence/intake-folder'),
+        headers: const {'content-type': 'application/json'},
+        body: jsonEncode({
+          'collection_id': residence?.residenceId,
+          'folder_path': path,
+          'supplied_context': {
+            'entered_through': 'Human Residence',
+            'goal': goal.text.trim(),
+            'context': contextCtl.text.trim(),
+          },
+        }),
+      ).timeout(const Duration(seconds: 20));
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw Exception('folder intake rejected');
       }
+      if (!mounted) return;
+      setState(() => status = 'FOLDER_INTAKE_RECEIVED • Python Data Foundation processing');
+      await _persist('folder_intake_received');
+    } catch (_) {
+      if (mounted) {
+        setState(() => status = 'FOLDER_INTAKE_UNAVAILABLE • use Add files on this browser target');
+      }
+    }
+  }
 
+  Future<void> _pickMaterial() async {
+    final result = await FilePicker.platform.pickFiles(withData: true, allowMultiple: true);
+    if (result == null) return;
+    final encoded = result.files.where((file) => file.bytes != null).map((file) => <String, dynamic>{
+      'name': file.name,
+      'source_type': const {'png','jpg','jpeg','webp','gif'}.contains((file.extension ?? '').toLowerCase()) ? 'image' : 'file',
+      'channel': 'human-residence',
+      'content_base64': base64Encode(file.bytes!),
+      'processing_status': 'received',
+    }).toList();
+    try {
+      final response = await http.post(
+        CriterivoxApi.uri('/api/human-residence/intake'),
+        headers: const {'content-type': 'application/json'},
+        body: jsonEncode({'collection_id': residence?.residenceId, 'sources': encoded, 'supplied_context': {'goal': goal.text.trim(), 'context': contextCtl.text.trim()}}),
+      ).timeout(const Duration(seconds: 12));
+      if (response.statusCode < 200 || response.statusCode >= 300) throw Exception('intake rejected');
+      setState(() {
+        materials.addAll(result.files.map((file) => <String, dynamic>{'name': file.name, 'size': file.size, 'extension': file.extension, 'source': 'human-residence'}));
+        status = 'MATERIALS_RECEIVED • Python Data Foundation created';
+      });
+      await _persist('materials_received');
+    } catch (_) {
+      if (mounted) setState(() => status = 'MATERIAL_INTAKE_PAUSED • Python runtime rejected or unavailable');
+    }
+  }
+
+  bool allowExternalResearch = false;
+  Map<String, dynamic>? research;
+  List<Map<String, dynamic>> trace = <Map<String, dynamic>>[];
+  String? decisionId;
+  String? acceptedStrategyId;
+  String? calendarId;
+  List<Map<String, dynamic>> calendarEvents = <Map<String, dynamic>>[];
+  DateTime? plannedStart;
+
+  Future<void> _generateOptions() async {
+    if (goal.text.trim().isEmpty || running || residence == null) return;
+    final token = residence!.metadata['session_token']?.toString();
+    if (token == null || token.isEmpty) {
+      setState(() => status = 'AUTHENTICATED_SESSION_REQUIRED');
       return;
     }
-
     setState(() {
       running = true;
-      status = 'DHAREN + TARKIS + PRAMON • framing and option sparring';
+      status = allowExternalResearch ? 'RESEARCH_AUTHORIZED • Criterivox is gathering external evidence' : 'Criterivox is reasoning from supplied material';
       options = <String>[];
       challenges = <String>[];
-      challengedIndexes.clear();
+      trace = <Map<String, dynamic>>[];
+      research = null;
     });
-
     try {
-      final response = await http
-          .post(
-            Uri.base.resolve('/api/syvax/plan'),
-            headers: const <String, String>{
-              'content-type': 'application/json',
-            },
-            body: jsonEncode(
-              <String, dynamic>{
-                'message': goal.text.trim(),
-                'task_id': 'private-${currentResidence.residenceId}',
-              },
-            ),
-          )
-          .timeout(
-            const Duration(seconds: 6),
-          );
-
-      if (response.statusCode >= 400) {
-        throw Exception(
-          'planning request rejected (${response.statusCode})',
-        );
+      final response = await http.post(
+        CriterivoxApi.uri('/api/human-residence/decision'),
+        headers: const {'content-type': 'application/json'},
+        body: jsonEncode({
+          'session_token': token,
+          'residence_id': residence!.residenceId,
+          'goal': goal.text.trim(),
+          'data': data.text.trim(),
+          'context': contextCtl.text.trim(),
+          'allow_external_research': allowExternalResearch,
+        }),
+      ).timeout(const Duration(seconds: 30));
+      final body = jsonDecode(response.body);
+      if (response.statusCode < 200 || response.statusCode >= 300 || body is! Map) {
+        throw Exception(body is Map ? body['error'] ?? 'decision pipeline rejected' : 'decision pipeline rejected');
       }
-
-      final decoded = jsonDecode(response.body);
-
-      if (decoded is! Map) {
-        throw Exception(
-          'planning response was not a JSON object',
-        );
-      }
-
-      final json = Map<String, dynamic>.from(
-        decoded.map(
-          (key, value) => MapEntry(
-            key.toString(),
-            value,
-          ),
-        ),
-      );
-
-      final plan = json['plan'];
-
-      final steps = plan is Map && plan['steps'] is List
-          ? plan['steps'] as List
-          : const <dynamic>[];
-
-      final executionTrace = steps.take(6).map(
-        (step) {
-          if (step is Map) {
-            final character =
-                step['character_id'] ?? step['agent_id'] ?? 'Agent';
-
-            final action =
-                step['action'] ?? step['purpose'] ?? 'inspectable contribution';
-
-            return '$character: $action';
-          }
-
-          return '$step';
-        },
-      ).toList();
-
-      final generated = <String>[
-        'Option A • High Speed / Higher Risk • '
-            'prioritize rapid execution and accept tighter rollback margin.',
-        'Option B • Balanced • '
-            'trade speed, cost and reliability around your current preference vector.',
-        'Option C • Maximum Rigor / Slower Execution • '
-            'add validation, evidence checks and larger rollback margin.',
-      ];
-
-      if (!mounted) {
-        return;
-      }
-
+      final decoded = Map<String, dynamic>.from(body);
+      final strategy = decoded['strategy'] is Map ? Map<String, dynamic>.from(decoded['strategy'] as Map) : <String, dynamic>{};
+      final rawOptions = strategy['options'];
+      final rawChallenges = strategy['challenges'];
+      if (!mounted) return;
       setState(() {
-        options = <String>[
-          ...generated,
-          if (executionTrace.isNotEmpty)
-            'Execution trace: ${executionTrace.join(' → ')}',
-        ];
-
-        challenges = <String>[
-          'What assumption would break this option first?',
-          'What happens if a key constraint changes after execution?',
-          'Which evidence would make you reject this path?',
-        ];
-
+        options = rawOptions is List ? rawOptions.whereType<Map>().map((item) => '${item['id'] ?? ''}|${item['label'] ?? ''}: ${item['approach'] ?? ''} • Risk: ${item['risk'] ?? 'review'}').toList() : <String>[];
+        challenges = rawChallenges is List ? rawChallenges.map((item) => '$item').toList() : <String>[];
+        trace = decoded['trace'] is List ? decoded['trace'].whereType<Map>().map((item) => Map<String, dynamic>.from(item)).toList() : <Map<String, dynamic>>[];
+        research = decoded['research'] is Map ? Map<String, dynamic>.from(decoded['research'] as Map) : null;
+        decisionId = decoded['decision_id']?.toString();
         running = false;
-        status = 'PARETO_READY • challenge before acceptance';
+        status = research != null ? 'RESEARCH_COMPLETE • evidence attached to decision trace' : 'DECISION_READY • challenge before acceptance';
       });
-
-      await _persist('options_generated');
+      await _persist('decision_pipeline_complete');
     } catch (e) {
-      if (!mounted) {
-        return;
-      }
-
-      setState(() {
-        running = false;
-        status = 'OPTION_GENERATION_PAUSED • $e';
-      });
+      if (mounted) setState(() { running = false; status = 'DECISION_PIPELINE_FAILED • $e'; });
     }
   }
 
@@ -388,6 +380,31 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     );
 
     await _persist('decision_saved');
+    final token = residence?.metadata['session_token']?.toString();
+    if (token != null) {
+      try {
+        await http.post(
+          CriterivoxApi.uri('/api/human-decisions'),
+          headers: const {'content-type': 'application/json'},
+          body: jsonEncode({
+            'session_token': token,
+            'residence_id': residence!.residenceId,
+            'title': goal.text.trim().isEmpty ? 'Criterivox Strategy' : goal.text.trim(),
+            'goal': goal.text.trim(),
+            'strategy': {
+              'options': options,
+              'speed': speed.round(),
+              'cost': cost.round(),
+              'reliability': reliability.round(),
+              'challenges': challenges,
+            },
+            'trace': options.where((x) => x.startsWith('Execution trace:')).toList(),
+          }),
+        ).timeout(const Duration(seconds: 8));
+      } catch (_) {
+        // IndexedDB remains the active session authority if the runtime is unavailable.
+      }
+    }
 
     if (mounted) {
       setState(() {});
@@ -414,13 +431,19 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     first['learning'] = 'Outcome recorded for Medrus + Viveda review; '
         'no unsupported numeric calibration is invented.';
 
-    resultCtl.clear();
-
-    await _persist('result_logged');
-
-    if (mounted) {
-      setState(() {});
+    final token = residence!.metadata['session_token']?.toString();
+    if (token != null && decisionId != null) {
+      try {
+        await http.post(
+          CriterivoxApi.uri('/api/human-residence/decision/$decisionId/outcome'),
+          headers: const {'content-type': 'application/json'},
+          body: jsonEncode({'session_token': token, 'result': first['real_result']}),
+        ).timeout(const Duration(seconds: 8));
+      } catch (_) {}
     }
+    resultCtl.clear();
+    await _persist('result_logged');
+    if (mounted) setState(() {});
   }
 
   Future<void> _challenge(int index) async {
@@ -442,20 +465,94 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
 
     if (residence != null) {
       await _persist('challenge_recorded');
+      final token = residence!.metadata['session_token']?.toString();
+      if (token != null && decisionId != null) {
+        try {
+          await http.post(
+            CriterivoxApi.uri('/api/human-residence/decision/$decisionId/challenge'),
+            headers: const {'content-type': 'application/json'},
+            body: jsonEncode({'session_token': token, 'text': challenges[index]}),
+          ).timeout(const Duration(seconds: 8));
+        } catch (_) {}
+      }
+    }
+  }
+
+  Future<void> _loadCalendar() async {
+    final token = residence?.metadata['session_token']?.toString();
+    if (token == null) return;
+    try {
+      final response = await http.get(CriterivoxApi.uri('/api/human-residence/calendar?session_token=${Uri.encodeQueryComponent(token)}')).timeout(const Duration(seconds: 8));
+      if (response.statusCode < 200 || response.statusCode >= 300) return;
+      final body = jsonDecode(response.body);
+      if (body is Map && body['events'] is List && mounted) {
+        setState(() => calendarEvents = (body['events'] as List).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList());
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _acceptStrategy() async {
+    if (residence == null || decisionId == null || options.isEmpty) return;
+    final token = residence!.metadata['session_token']?.toString();
+    if (token == null) return;
+    final start = plannedStart ?? DateTime.now().add(const Duration(days: 1));
+    try {
+      final response = await http.post(
+        CriterivoxApi.uri('/api/human-residence/decision/$decisionId/accept'),
+        headers: const {'content-type': 'application/json'},
+        body: jsonEncode({'session_token': token, 'action': 'execute', 'calendar_at': start.toIso8601String()}),
+      ).timeout(const Duration(seconds: 8));
+      if (response.statusCode < 200 || response.statusCode >= 300) throw Exception('strategy acceptance rejected');
+      final calendarResponse = await http.post(
+        CriterivoxApi.uri('/api/human-residence/calendar'),
+        headers: const {'content-type': 'application/json'},
+        body: jsonEncode({
+          'session_token': token,
+          'residence_id': residence!.residenceId,
+          'decision_id': decisionId,
+          'title': goal.text.trim().isEmpty ? 'Criterivox strategy execution' : goal.text.trim(),
+          'starts_at': start.toIso8601String(),
+          'strategy_id': acceptedStrategyId ?? 'B',
+          'notes': options.join('\\n'),
+        }),
+      ).timeout(const Duration(seconds: 8));
+      if (calendarResponse.statusCode < 200 || calendarResponse.statusCode >= 300) throw Exception('calendar creation rejected');
+      final calendarBody = jsonDecode(calendarResponse.body);
+      calendarId = calendarBody is Map && calendarBody['event'] is Map
+          ? (calendarBody['event']['calendar_id']?.toString())
+          : null;
+      if (!mounted) return;
+      setState(() {
+        actApproved = true;
+        secondFactor = true;
+        status = 'STRATEGY ACCEPTED • CALENDAR EVENT CREATED • BODHEX READY';
+      });
+      await _loadCalendar();
+      await _persist('strategy_accepted_and_scheduled');
+    } catch (e) {
+      if (mounted) setState(() => status = 'ACCEPTANCE_OR_CALENDAR_FAILED • $e');
     }
   }
 
   Future<void> _dispatch() async {
-    if (!actApproved || !secondFactor) {
-      return;
+    if (!actApproved || !secondFactor || residence == null || decisionId == null || calendarId == null) return;
+    final token = residence!.metadata['session_token']?.toString();
+    if (token == null) return;
+    try {
+      final response = await http.patch(
+        CriterivoxApi.uri('/api/human-residence/calendar/$calendarId'),
+        headers: const {'content-type': 'application/json'},
+        body: jsonEncode({
+          'session_token': token,
+          'status': 'execution_authorized',
+        }),
+      ).timeout(const Duration(seconds: 8));
+      if (response.statusCode < 200 || response.statusCode >= 300) throw Exception('calendar execution authorization rejected');
+      setState(() => status = 'EXECUTION AUTHORIZED • BODHEX HANDLER • CALENDAR EVENT READY');
+      await _persist('action_approved');
+    } catch (e) {
+      setState(() => status = 'ACTION_AUTHORIZATION_FAILED • $e');
     }
-
-    setState(() {
-      status = 'BODHEX DISPATCH GATE UNLOCKED • '
-          'awaiting explicit tool execution boundary';
-    });
-
-    await _persist('action_approved');
   }
 
   @override
@@ -487,6 +584,10 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
           _challengeBench(theme),
           const SizedBox(height: 14),
           _actGate(theme),
+          const SizedBox(height: 14),
+          _calendar(theme),
+          const SizedBox(height: 14),
+          _researchTrace(theme),
           const SizedBox(height: 14),
           _journal(theme),
         ],
@@ -574,6 +675,44 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
             'Dynamic Context',
             'Timing, constraints, stakeholders, assumptions '
                 'and changing conditions.',
+          ),
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: _pickMaterial,
+                  icon: const Icon(Icons.attach_file_rounded),
+                  label: const Text('Add files / images'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: _pickFolder,
+                  icon: const Icon(Icons.folder_open_rounded),
+                  label: const Text('Add folder'),
+                ),
+              ],
+            ),
+          ),
+          if (materials.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            ...materials.take(8).map((item) => ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.insert_drive_file_outlined, size: 18),
+              title: Text(item['name'].toString(), style: const TextStyle(fontSize: 10)),
+              subtitle: Text('${item['size']} bytes • Human Residence intake', style: const TextStyle(fontSize: 9)),
+            )),
+          ],
+          const SizedBox(height: 10),
+          SwitchListTile.adaptive(
+            value: allowExternalResearch,
+            onChanged: running ? null : (value) => setState(() => allowExternalResearch = value),
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Allow Google external research'),
+            subtitle: const Text('If enabled, Criterivox searches Google and attaches returned sources to this decision trace.'),
           ),
           const SizedBox(height: 10),
           Wrap(
@@ -841,6 +980,35 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     );
   }
 
+  Widget _calendar(CriterivoxTheme theme) {
+    return _panel(
+      theme,
+      '5 • CRITERIVOX CALENDAR',
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Accepted strategies become scheduled work here. No external calendar API is required.', style: TextStyle(color: theme.mutedText, fontSize: 10)),
+          const SizedBox(height: 8),
+          Row(children: [
+            Expanded(child: Text('Start: ${plannedStart ?? DateTime.now().add(const Duration(days: 1))}', style: TextStyle(color: theme.text, fontSize: 10))),
+            OutlinedButton(onPressed: () async {
+              final picked = await showDatePicker(context: context, firstDate: DateTime.now(), lastDate: DateTime.now().add(const Duration(days: 3650)), initialDate: plannedStart ?? DateTime.now().add(const Duration(days: 1)));
+              if (picked != null) setState(() => plannedStart = DateTime(picked.year, picked.month, picked.day, 9));
+            }, child: const Text('Schedule')),
+          ]),
+          const SizedBox(height: 8),
+          ...calendarEvents.take(12).map((event) => ListTile(
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            title: Text((event['title'] ?? '').toString(), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700)),
+            subtitle: Text('${event['starts_at'] ?? ''} • ${event['status'] ?? ''}', style: TextStyle(color: theme.mutedText, fontSize: 9)),
+          )),
+          FilledButton.icon(onPressed: decisionId == null ? null : _acceptStrategy, icon: const Icon(Icons.event_available), label: const Text('Accept strategy & put it on calendar')),
+        ],
+      ),
+    );
+  }
+
   Widget _actGate(CriterivoxTheme theme) {
     return _panel(
       theme,
@@ -892,14 +1060,65 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
             contentPadding: EdgeInsets.zero,
           ),
           FilledButton.icon(
-            onPressed: actApproved && secondFactor ? _dispatch : null,
-            icon: const Icon(
-              Icons.lock_open_rounded,
-            ),
-            label: const Text(
-              'Unlock Bodhex action dispatch',
-            ),
+            onPressed: decisionId == null ? null : _acceptStrategy,
+            icon: const Icon(Icons.check_circle_outline),
+            label: const Text('Accept selected strategy'),
           ),
+          const SizedBox(height: 8),
+          FilledButton.icon(
+            onPressed: actApproved && secondFactor ? _dispatch : null,
+            icon: const Icon(Icons.lock_open_rounded),
+            label: const Text('Unlock Bodhex action dispatch'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _downloadStrategy() async {
+    final lines = <String>[
+      '# Criterivox Strategy', '', 'Goal: ${goal.text.trim()}', '',
+      'Options', ...options.map((x) => '- $x'), '',
+      'Trade-offs', 'Speed: ${speed.round()}', 'Cost: ${cost.round()}',
+      'Reliability: ${reliability.round()}', '', 'Challenges', ...challenges.map((x) => '- $x'),
+    ];
+    await FilePicker.platform.saveFile(fileName: 'criterivox-strategy.md', bytes: utf8.encode(lines.join('\n')));
+  }
+
+  Widget _researchTrace(CriterivoxTheme theme) {
+    if (research == null && trace.isEmpty) return const SizedBox.shrink();
+    final results = research?['results'];
+    return _panel(
+      theme,
+      '6 • DECISION TRACE + EXTERNAL EVIDENCE',
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (research != null)
+            Text(
+              'Google research: ${research?['query'] ?? ''} • ${results is List ? results.length : 0} results',
+              style: TextStyle(color: theme.text, fontWeight: FontWeight.w700, fontSize: 10),
+            ),
+          if (results is List)
+            ...results.take(8).map((item) => item is Map
+                ? ListTile(
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    title: Text((item['title'] ?? '').toString(), style: const TextStyle(fontSize: 10)),
+                    subtitle: Text(
+                      '${item['snippet'] ?? ''}\n${item['url'] ?? ''}',
+                      style: TextStyle(color: theme.mutedText, fontSize: 9),
+                    ),
+                  )
+                : const SizedBox.shrink()),
+          if (trace.isNotEmpty)
+            ...trace.map((event) => Padding(
+              padding: const EdgeInsets.only(top: 5),
+              child: Text(
+                '${event['actor'] ?? ''} • ${event['responsibility'] ?? ''} • ${event['detail'] ?? ''}',
+                style: TextStyle(color: theme.mutedText, fontSize: 9, height: 1.4),
+              ),
+            )),
         ],
       ),
     );
@@ -955,6 +1174,12 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
                     ),
                   ),
                 ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: _downloadStrategy,
+            icon: const Icon(Icons.download_rounded),
+            label: const Text('Download current strategy'),
+          ),
           const SizedBox(height: 8),
           TextField(
             controller: resultCtl,

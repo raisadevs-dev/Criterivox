@@ -66,12 +66,13 @@ class _CollaborationRoomPageState extends State<CollaborationRoomPage> {
         response = await http
             .get(uri, headers: headers)
             .timeout(const Duration(seconds: 6));
-      } else if (method == 'POST')
+      } else if (method == 'POST') {
         response = await http
             .post(uri, headers: headers, body: jsonEncode(body ?? {}))
             .timeout(const Duration(seconds: 6));
-      else
+      } else {
         throw StateError('Unsupported HTTP method');
+      }
       final decoded = response.body.isEmpty
           ? <String, dynamic>{}
           : jsonDecode(response.body);

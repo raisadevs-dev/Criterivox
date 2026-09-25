@@ -55,24 +55,6 @@ class S8ExplanationService implements S8ExplanationPort {
     final contradictions = List<String>.unmodifiable(verification.contradictions);
     final uncertainty = List<String>.unmodifiable(verification.uncertainty);
 
-    final conclusion = switch (verification.status) {
-      'provisionally_supported' => 'The available evidence provisionally supports the verified subject.',
-      'contradicted' => 'The verification state is contradicted by unresolved conflicting evidence.',
-      _ => 'The available evidence is insufficient to support a stronger conclusion.',
-    };
-
-    final steps = <String>[
-      if (evidenceIds.isNotEmpty)
-        '1. Considered ${evidenceIds.length} linked evidence artifact(s).'
-      else
-        '1. No direct evidence artifact is linked in the verification lineage.',
-      '2. Used the recorded verification status as the conclusion boundary.',
-      if (contradictions.isNotEmpty)
-        '3. Preserved ${contradictions.length} contradiction reference(s) rather than resolving them silently.',
-      if (uncertainty.isNotEmpty)
-        '4. Preserved the recorded uncertainty as an explicit limitation.',
-    ];
-
     final explanation = S8ArtifactSummary(
       id: 'explanation-$artifactId',
       kind: 'explanation',

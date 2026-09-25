@@ -485,6 +485,26 @@ class CollaborationEngine:
 
             return candidate
 
+    def timeout_context(self, sid: str, candidate_id: str) -> dict[str, Any]:
+        with self._lock:
+            session = self.sessions[sid]
+            candidate = next(
+                (item for item in session.candidate_context if item["id"] == candidate_id),
+                None,
+            )
+            if candidate is None:
+                raise KeyError("candidate context not found")
+            if candidate.get("status") != "candidate":
+                return {"candidate": candidate, "continued": False, "reason": "candidate_already_resolved"}
+            candidate["status"] = "unconfirmed_timeout"
+            candidate["continuation"] = {
+                "mode": "autonomous_non_authoritative",
+                "reason": "No human confirmation arrived within 1 minute.",
+                "authoritative_context_mutation": False,
+            }
+            self._save()
+            return {"candidate": candidate, "continued": True, "reason": "unconfirmed_timeout"}
+
     def confirm_context(
         self,
         sid: str,

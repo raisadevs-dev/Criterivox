@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../presentation/criterivox_theme.dart';
 import 'character_identity.dart';
 import 'character_runtime_flutter.dart';
@@ -8,7 +7,6 @@ class LiveAgentPanel extends StatefulWidget {
   final String responsibility;
   final String workDescription;
   final String state;
-  final VoidCallback? onChat;
   final bool initiallyExpanded;
 
   const LiveAgentPanel({
@@ -17,7 +15,6 @@ class LiveAgentPanel extends StatefulWidget {
     required this.responsibility,
     required this.workDescription,
     required this.state,
-    this.onChat,
     this.initiallyExpanded = false,
   });
 
@@ -46,7 +43,7 @@ class _LiveAgentPanelState extends State<LiveAgentPanel> {
         children: [
           Semantics(
             button: true,
-            label: '${identity.displayName} work panel',
+            label: '${identity.nameFor('en')} work panel',
             value: expanded ? 'expanded' : 'collapsed',
             child: InkWell(
               onTap: () => setState(() => expanded = !expanded),
@@ -70,7 +67,7 @@ class _LiveAgentPanelState extends State<LiveAgentPanel> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(identity.displayName, style: TextStyle(color: theme.text, fontSize: 13, fontWeight: FontWeight.w800)),
+                          Text(identity.nameFor('en'), style: TextStyle(color: theme.text, fontSize: 13, fontWeight: FontWeight.w800)),
                           const SizedBox(height: 2),
                           Text(widget.responsibility, style: TextStyle(color: theme.mutedText, fontSize: 9.5)),
                         ],
@@ -106,14 +103,6 @@ class _LiveAgentPanelState extends State<LiveAgentPanel> {
                       Text(identity.role, style: TextStyle(color: theme.text, fontSize: 14, fontWeight: FontWeight.w800)),
                       const SizedBox(height: 10),
                       Text(widget.workDescription, style: TextStyle(color: theme.mutedText, fontSize: 10.5, height: 1.45)),
-                      if (widget.onChat != null) ...[
-                        const SizedBox(height: 12),
-                        OutlinedButton.icon(
-                          onPressed: widget.onChat,
-                          icon: const Icon(Icons.forum_outlined, size: 15),
-                          label: Text('Open ${identity.displayName} chat'),
-                        ),
-                      ],
                     ],
                   );
                   return narrow

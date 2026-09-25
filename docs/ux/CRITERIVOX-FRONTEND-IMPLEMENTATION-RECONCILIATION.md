@@ -1,3 +1,7 @@
+> **Historical record.** This document is retained for project history. It is not the current implementation authority. See `docs/FINAL-INTEGRATED-RESEARCH-PROTOTYPE.md`.
+
+---
+
 # CRITERIVOX — Frontend Implementation Reconciliation
 
 **Set:** 1 of 6  
@@ -1150,3 +1154,27 @@ The principal Set 6 chat hardening avoids repeated construction/destruction of t
 The six-set frontend now has a single continuous presentation branch with preserved world, Level-2, Human Residence and global Character Chat architecture. Future work can connect authoritative production services to the existing presentation boundaries without introducing a second frontend architecture.
 
 The remaining work is primarily service/asset/infrastructure integration where the repository truth still identifies a boundary, not a missing cosmetic widget.
+
+
+## UI Stabilization Integration — Current Branch Update
+
+The stabilization work on `ui-stabilization-system-behavior` supersedes the earlier route-compression behavior described above where the current implementation differs.
+
+### Canonical human destinations now exposed
+
+- Decision Desk: dedicated destination connected to the existing `/api/human-residence/decision` capability.
+- Results Journal: dedicated read/review destination backed by the existing `results_journal` residence metadata.
+- Meeting Hall, Project Rooms and Shared Workspaces: distinct presentation destinations rather than aliases to one page.
+- Character Focus: dedicated character-facing destination using the existing `CharacterIdentities` registry.
+
+### Introduction reconciliation
+
+The Introduction is now a product orientation surface rather than a 15-character gallery. It explains Criterivox, supported user-facing capabilities, workflow, world structure, Bloom, Human Territory and the character/computation boundary.
+
+### Navigation compatibility
+
+Historical routes are retained where existing runtime compatibility requires them. They are not treated as canonical sidebar destinations when they duplicate a newer destination. No existing decision runtime was replaced by placeholder logic.
+
+### Progressive disclosure
+
+Level 1 remains world orientation. Level 2 provides human-readable operational meaning. Deeper inspection remains the place for evidence, reasoning, provenance and technical state. The current branch does not promote internal IDs or raw telemetry to the primary user presentation.

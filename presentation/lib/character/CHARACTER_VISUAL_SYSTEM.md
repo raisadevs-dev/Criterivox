@@ -13,7 +13,13 @@ The current character system is an animation subsystem, not an image-file depend
 
 ## Current characters
 
-Anuka, Dharen, Kaelen, Sandre and Syvax are registered for session generation. Future sprint characters can be added to the profile registry and active session set without changing the rendering contract.
+All 15 specialists are registered for session generation:
+
+Dharen, Vivren, Tarkis, Sandre, Pramon, Syvax, Bodhex, Manis, Anuka, Viveda, Kaelen, Anukor, Medrus, Epistre and Veridat.
+
+Each specialist has an explicit procedural visual profile with a distinct palette, hair treatment, clothing treatment, signature object and motion emphasis. The animation engine remains shared. A missing profile is now an error rather than a silent generic-avatar fallback.
+
+The supplied roster reference is used as visual direction for refinement: dark layered expedition clothing, specialist-specific accents, readable silhouettes and role-linked objects. It is not stored as artwork.
 
 ## Runtime semantics
 

@@ -100,6 +100,14 @@ class PresentationState {
 
   final String? error;
 
+  final String? inputOriginal;
+  final Map<String, dynamic>? inputLanguageProfile;
+  final String? inputInterpretation;
+  final String? inputSemanticSummary;
+  final String? inputConfirmationStatus;
+  final String? inputConfirmationDeadline;
+  final String? inputConfirmationId;
+
   const PresentationState({
     required this.agentId,
     required this.characterState,
@@ -174,6 +182,13 @@ class PresentationState {
     this.evidence = const [],
     this.activity = const [],
     this.error,
+    this.inputOriginal,
+    this.inputLanguageProfile,
+    this.inputInterpretation,
+    this.inputSemanticSummary,
+    this.inputConfirmationStatus,
+    this.inputConfirmationDeadline,
+    this.inputConfirmationId,
   });
 
   /// Creates a new state while preserving every existing value unless
@@ -252,6 +267,13 @@ class PresentationState {
     List<Map<String, dynamic>>? evidence,
     List<String>? activity,
     String? error,
+    String? inputOriginal,
+    Map<String, dynamic>? inputLanguageProfile,
+    String? inputInterpretation,
+    String? inputSemanticSummary,
+    String? inputConfirmationStatus,
+    String? inputConfirmationDeadline,
+    String? inputConfirmationId,
   }) {
     return PresentationState(
       agentId: agentId ?? this.agentId,
@@ -400,13 +422,16 @@ class PresentationState {
       );
     }
 
-    final agentId = decoded['character_id'];
+    final rawAgentId = decoded['character_id'];
+    final agentId = rawAgentId is String
+        ? rawAgentId.trim().toLowerCase()
+        : rawAgentId;
     final stateValue = decoded['character_state'];
     final active = decoded['active'];
     final prominence = decoded['prominence'];
 
     if (agentId is! String ||
-        agentId.trim().isEmpty ||
+        agentId.isEmpty ||
         !CharacterIdentities.all.containsKey(agentId)) {
       throw const FormatException(
         'Runtime message has an unknown character.',
@@ -635,6 +660,13 @@ class PresentationState {
           strings(decoded['activity']),
       error:
           optionalString(decoded['error']),
+      inputOriginal: optionalString(decoded['input_original']),
+      inputLanguageProfile: map(decoded['input_language_profile']),
+      inputInterpretation: optionalString(decoded['input_interpretation']),
+      inputSemanticSummary: optionalString(decoded['input_semantic_summary']),
+      inputConfirmationStatus: optionalString(decoded['input_confirmation_status']),
+      inputConfirmationDeadline: optionalString(decoded['input_confirmation_deadline']),
+      inputConfirmationId: optionalString(decoded['input_confirmation_id']),
     );
   }
 
@@ -727,6 +759,13 @@ class PresentationState {
       'evidence': evidence,
       'activity': activity,
       'error': error,
+      'input_original': inputOriginal,
+      'input_language_profile': inputLanguageProfile,
+      'input_interpretation': inputInterpretation,
+      'input_semantic_summary': inputSemanticSummary,
+      'input_confirmation_status': inputConfirmationStatus,
+      'input_confirmation_deadline': inputConfirmationDeadline,
+      'input_confirmation_id': inputConfirmationId,
     };
   }
 }

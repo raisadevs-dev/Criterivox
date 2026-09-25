@@ -4,12 +4,50 @@ import 'package:presentation/character/generated_vector_animation.dart';
 import 'package:presentation/character/session_character_animation.dart';
 
 void main() {
-  test('current sprint characters have complete visual profiles', () {
-    for (final id in SessionCharacterAnimation.activeCharacters) {
+  test('all fifteen specialists have complete visual profiles', () {
+    const expected = <String>{
+      'dharen',
+      'vivren',
+      'tarkis',
+      'sandre',
+      'pramon',
+      'syvax',
+      'bodhex',
+      'manis',
+      'anuka',
+      'viveda',
+      'kaelen',
+      'anukor',
+      'medrus',
+      'epistre',
+      'veridat',
+    };
+
+    expect(SessionCharacterAnimation.activeCharacters, expected);
+    for (final id in expected) {
       final profile = CharacterVisualProfile.forId(id);
       expect(profile, isNotNull);
-      expect(profile!.accent.value, isNot(0));
+      expect(profile!.accent.toARGB32(), isNot(0));
     }
+  });
+
+  test('specialists do not fall back to one shared visual signature', () {
+    final profiles = SessionCharacterAnimation.activeCharacters
+        .map((id) => CharacterVisualProfile.forId(id)!)
+        .toList();
+
+    final signatures = profiles
+        .map((p) => [
+              p.body.toARGB32(),
+              p.hair.toARGB32(),
+              p.accent.toARGB32(),
+              p.hairStyle.name,
+              p.clothing.name,
+              p.accessory.name,
+            ].join(':'))
+        .toSet();
+
+    expect(signatures.length, 15);
   });
 
   test('session animation is character-specific and session stable', () {

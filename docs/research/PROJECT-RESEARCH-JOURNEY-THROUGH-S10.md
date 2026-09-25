@@ -281,7 +281,9 @@ The application now launches after clearing stale Flutter build state with `flut
 
 ---
 
-## 7. Next Phase: UI Stabilization
+## 7. Historical Next Phase: UI Stabilization
+
+The UI-stabilization work described below is now historical. The project subsequently integrated multilingual presentation, natural-language interpretation confirmation, the one-minute unattended continuation rule, and consent-aware research instrumentation.
 
 The next phase is deliberately **UI stabilization**, not another architectural expansion.
 
@@ -325,7 +327,7 @@ Architecture, tests, fixtures and contracts are implementation evidence. They ar
 
 ---
 
-## 9. Current Position
+## 9. Historical S10 Position
 
 Criterivox has crossed from an early application prototype into an integrated research prototype containing:
 
@@ -336,3 +338,36 @@ The project has now crossed ten development checkpoints/sprints in its working h
 The next work is not to invent another intelligence layer.
 
 **The next work is to make the existing system coherent, balanced, understandable and visually faithful to the architecture it already contains.**
+
+
+---
+
+## 10. Final Integration Beyond S10
+
+The final integrated prototype added a research-instrumentation boundary rather than another intelligence layer.
+
+The final research path is:
+
+    Human Residence
+          ↓
+    Natural Human Input
+          ↓
+    Language + Meaning Intake
+          ↓
+    Criterivox work
+          ↓
+    Human confirmation / correction
+          ↓
+    Decision / action / result
+          ↓
+    Research instrumentation
+          ↓
+    SQLite V1 research dataset
+
+Research participation is optional. Participant name and email are stored separately from event payloads. Raw human messages require a separate raw-text choice. Outcome follow-up separately captures reported success, helpfulness and improvement requests.
+
+The runtime records the existing interpretation lifecycle, including the one-minute unattended timeout. When no confirmation arrives within that period, work continues with the recorded interpretation and the event is marked UNCONFIRMED_TIMEOUT.
+
+This final instrumentation is designed to derive descriptive evidence for the research questions from actual interaction traces. It does not by itself establish causal improvement in human decision-making.
+
+The current implementation authority is docs/FINAL-INTEGRATED-RESEARCH-PROTOTYPE.md.
