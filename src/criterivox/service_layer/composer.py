@@ -26,7 +26,7 @@ class ServiceComposer:
         elif intent=="planning":
             services=("situation_understanding","strategy_construction","tradeoff_analysis","planning")
         elif intent=="strategy":
-            services=("situation_understanding","evidence_data_analysis","analytical_reporting","strategy_construction","tradeoff_analysis","decision_support","verification_explanation")
+            services=("situation_understanding","evidence_data_analysis","analytical_reporting","reasoning_hypothesis","strategy_construction","tradeoff_analysis","decision_support","verification_explanation")
         else:
             services=("situation_understanding","evidence_data_analysis","analytical_reporting","verification_explanation")
         return ServicePlan(req.request_id,services,("Selected from request/context semantics; no character determines routing.",))
