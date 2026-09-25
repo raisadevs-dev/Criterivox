@@ -1,3 +1,4 @@
+import 'presentation/api_client.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -203,7 +204,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     try {
       final response = await http
           .post(
-            Uri.base.resolve('/api/human-residence'),
+            CriterivoxApi.uri('/api/human-residence'),
             headers: const <String, String>{
               'content-type': 'application/json',
             },
@@ -245,7 +246,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
       final path = await FilePicker.platform.getDirectoryPath();
       if (path == null) return;
       final response = await http.post(
-        Uri.base.resolve('/api/human-residence/intake-folder'),
+        CriterivoxApi.uri('/api/human-residence/intake-folder'),
         headers: const {'content-type': 'application/json'},
         body: jsonEncode({
           'collection_id': residence?.residenceId,
@@ -282,7 +283,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     }).toList();
     try {
       final response = await http.post(
-        Uri.base.resolve('/api/human-residence/intake'),
+        CriterivoxApi.uri('/api/human-residence/intake'),
         headers: const {'content-type': 'application/json'},
         body: jsonEncode({'collection_id': residence?.residenceId, 'sources': encoded, 'supplied_context': {'goal': goal.text.trim(), 'context': contextCtl.text.trim()}}),
       ).timeout(const Duration(seconds: 12));
@@ -323,7 +324,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     });
     try {
       final response = await http.post(
-        Uri.base.resolve('/api/human-residence/decision'),
+        CriterivoxApi.uri('/api/human-residence/decision'),
         headers: const {'content-type': 'application/json'},
         body: jsonEncode({
           'session_token': token,
@@ -383,7 +384,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     if (token != null) {
       try {
         await http.post(
-          Uri.base.resolve('/api/human-decisions'),
+          CriterivoxApi.uri('/api/human-decisions'),
           headers: const {'content-type': 'application/json'},
           body: jsonEncode({
             'session_token': token,
@@ -434,7 +435,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     if (token != null && decisionId != null) {
       try {
         await http.post(
-          Uri.base.resolve('/api/human-residence/decision/$decisionId/outcome'),
+          CriterivoxApi.uri('/api/human-residence/decision/$decisionId/outcome'),
           headers: const {'content-type': 'application/json'},
           body: jsonEncode({'session_token': token, 'result': first['real_result']}),
         ).timeout(const Duration(seconds: 8));
@@ -468,7 +469,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
       if (token != null && decisionId != null) {
         try {
           await http.post(
-            Uri.base.resolve('/api/human-residence/decision/$decisionId/challenge'),
+            CriterivoxApi.uri('/api/human-residence/decision/$decisionId/challenge'),
             headers: const {'content-type': 'application/json'},
             body: jsonEncode({'session_token': token, 'text': challenges[index]}),
           ).timeout(const Duration(seconds: 8));
@@ -481,7 +482,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     final token = residence?.metadata['session_token']?.toString();
     if (token == null) return;
     try {
-      final response = await http.get(Uri.base.resolve('/api/human-residence/calendar?session_token=${Uri.encodeQueryComponent(token)}')).timeout(const Duration(seconds: 8));
+      final response = await http.get(CriterivoxApi.uri('/api/human-residence/calendar?session_token=${Uri.encodeQueryComponent(token)}')).timeout(const Duration(seconds: 8));
       if (response.statusCode < 200 || response.statusCode >= 300) return;
       final body = jsonDecode(response.body);
       if (body is Map && body['events'] is List && mounted) {
@@ -497,13 +498,13 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     final start = plannedStart ?? DateTime.now().add(const Duration(days: 1));
     try {
       final response = await http.post(
-        Uri.base.resolve('/api/human-residence/decision/$decisionId/accept'),
+        CriterivoxApi.uri('/api/human-residence/decision/$decisionId/accept'),
         headers: const {'content-type': 'application/json'},
         body: jsonEncode({'session_token': token, 'action': 'execute', 'calendar_at': start.toIso8601String()}),
       ).timeout(const Duration(seconds: 8));
       if (response.statusCode < 200 || response.statusCode >= 300) throw Exception('strategy acceptance rejected');
       final calendarResponse = await http.post(
-        Uri.base.resolve('/api/human-residence/calendar'),
+        CriterivoxApi.uri('/api/human-residence/calendar'),
         headers: const {'content-type': 'application/json'},
         body: jsonEncode({
           'session_token': token,
@@ -539,7 +540,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     if (token == null) return;
     try {
       final response = await http.patch(
-        Uri.base.resolve('/api/human-residence/calendar/$calendarId'),
+        CriterivoxApi.uri('/api/human-residence/calendar/$calendarId'),
         headers: const {'content-type': 'application/json'},
         body: jsonEncode({
           'session_token': token,
