@@ -167,3 +167,29 @@ The architectural foundation is now substantial enough that the next job is not 
 Criterivox includes a consent-aware research instrumentation boundary. It records structured interaction events, optional participant identity, language/interpretation traces and optional outcome reports in a local SQLite research store. Raw human messages require a separate raw-text consent. The instrumentation boundary is designed so the SQLite implementation can later be replaced by a server-backed research repository.
 
 See `docs/FINAL-INTEGRATED-RESEARCH-PROTOTYPE.md` for the current architecture and data boundaries.
+
+
+## UI Stabilization Phase Closure
+
+The UI stabilization phase closed the critical human-flow gaps identified during direct runtime inspection:
+
+- Human Territory now exposes functional local-first sign-up/sign-in and session restoration.
+- Decision Desk has an explicit action that runs the human-situation pipeline and presents the returned strategy/result in a dedicated human-readable result panel.
+- Results Journal reads persisted decision records from the Human Residence decision store.
+- Browser API calls use an explicit Python-backend origin because the managed launcher separates Flutter presentation (8080) from Python runtime (8000).
+- Human situation intake accepts hybrid forms including ordinary text, structured objects/lists, pasted material, form fields, multipart material metadata and plain-text request bodies.
+- JSON is treated as a transport/representation format, not as the required shape of human input.
+- People photos remain contextual only and do not become appearance-based behavioral or identity evidence.
+- Prototype/decorative UI pieces are intentionally retained for a later visual-design pass.
+
+### Phase learning
+
+The key engineering lesson is to keep human input, transport formats, computational normalization and internal capability contracts as separate layers. A human should be able to describe a problem naturally and attach heterogeneous material without learning Criterivox's internal schemas.
+
+A second lesson is that a capability is not complete merely because a route or service exists. The human flow must expose the action, return a comprehensible result, preserve authority, and connect to the next authoritative surface.
+
+A third lesson is that split local runtimes require an explicit browser-to-backend API boundary. Relative browser API paths are not safe when presentation and backend intentionally use different ports.
+
+Closure details are recorded in docs/PHASE-UI-STABILIZATION-CLOSURE.md.
+
+**Verification discipline:** implementation and tests are committed separately from claims of fresh local runtime execution. No passing Flutter/Python run is claimed unless execution evidence exists.
