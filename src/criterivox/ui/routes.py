@@ -29,7 +29,7 @@ async def human_auth_signup(payload: dict):
 async def human_auth_login(payload: dict):
     try:
         result = human_residence_local.login(email=str(payload.get('email','')), password=str(payload.get('password','')))
-        return {'accepted': True, 'identity': result, 'session_token': human_residence_local.issue_session(result['owner_id']), 'storage': 'local-sqlite'}
+        return {'accepted': True, 'identity': result, 'session_token': human_residence_local.issue_session(result['owner_id']), 'residences': human_residence_local.residences_for_owner(result['owner_id']), 'storage': 'local-sqlite'}
     except ValueError as exc:
         return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=401)
 
