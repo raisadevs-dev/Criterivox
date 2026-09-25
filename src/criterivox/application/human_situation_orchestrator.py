@@ -34,6 +34,8 @@ class HumanSituationOrchestrator:
     ) -> dict[str, Any]:
         understanding = self.understanding.understand(
             description,
+            context=context,
+            supplied_data=supplied_data,
             image_count=image_count,
             image_roles=image_roles,
         )
