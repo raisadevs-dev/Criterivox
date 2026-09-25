@@ -158,9 +158,9 @@ docs/research/PROJECT-RESEARCH-JOURNEY-THROUGH-S10.md
 
 **Current baseline: integrated main.**
 
-**Next phase: UI Stabilization.**
+**UI Stabilization: closed.**
 
-The architectural foundation is now substantial enough that the next job is not to keep adding layers. The next job is to make the system we already built coherent, balanced, understandable and faithful to its actual runtime behavior.
+The next work should be a deliberate visual-design pass for the remaining prototype/decorative surfaces, followed by fresh runtime verification before any release claim.
 
 ## Research Instrumentation
 
