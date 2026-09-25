@@ -1,3 +1,4 @@
+import 'presentation/api_client.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -136,7 +137,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
 
     try {
       final authResponse = await http.post(
-        Uri.base.resolve('/api/human-auth/signup'),
+        CriterivoxApi.uri('/api/human-auth/signup'),
         headers: const {'content-type': 'application/json'},
         body: jsonEncode({'email': email.text.trim(), 'password': password.text, 'display_name': name.text.trim(), 'residence_id': id, 'residence_type': type, 'avatar_data_url': avatarDataUrl}),
       ).timeout(const Duration(seconds: 6));
@@ -148,7 +149,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
       if (researchConsent) {
         try {
           final researchResponse = await http.post(
-            Uri.base.resolve('/api/research/register'),
+            CriterivoxApi.uri('/api/research/register'),
             headers: const {'content-type': 'application/json'},
             body: jsonEncode({
               'display_name': name.text.trim(),
@@ -160,7 +161,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
             researchParticipantId = research['participant_id']?.toString();
             if (researchParticipantId != null) {
               final consentResponse = await http.post(
-                Uri.base.resolve('/api/research/consent'),
+                CriterivoxApi.uri('/api/research/consent'),
                 headers: const {'content-type': 'application/json'},
                 body: jsonEncode({
                   'participant_id': researchParticipantId,
@@ -204,7 +205,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
     try {
       final response = await http
           .post(
-            Uri.base.resolve('/api/human-residence'),
+            CriterivoxApi.uri('/api/human-residence'),
             headers: {
               'content-type': 'application/json',
             },
@@ -518,7 +519,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
     }
     try {
       final response = await http.post(
-        Uri.base.resolve('/api/human-auth/login'),
+        CriterivoxApi.uri('/api/human-auth/login'),
         headers: const {'content-type': 'application/json'},
         body: jsonEncode({'email': email.text.trim(), 'password': password.text}),
       ).timeout(const Duration(seconds: 6));
@@ -833,7 +834,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
 
     try {
       final response = await http.post(
-        Uri.base.resolve('/api/research/outcome'),
+        CriterivoxApi.uri('/api/research/outcome'),
         headers: const {'content-type': 'application/json'},
         body: jsonEncode({
           'participant_id': participantId,
