@@ -797,20 +797,14 @@ class _ShellState extends State<CriterivoxShell> {
 
       case 'human-residence-entry':
         return HumanResidenceEntryPage(
-          onCreateHouse: () =>
-              open('human-residence'),
-          onCreateClub: () =>
-              open('human-residence'),
+          onOpenResidence: () => open('private-room'),
           onGuest: () => open('guest'),
         );
 
       case 'human-residence':
-        return HumanResidencePage(
-          onGuest: () => open('guest'),
-          onWorkspace: () => open('private-room'),
-          onPrivateRoom: () => open('private-room'),
+        return PrivateRoomPage(
+          onWorkspace: () => open('decision-desk'),
           onCollaborationRoom: () => open('collaboration-room'),
-          onBloomCapability: handleBloomActivation,
         );
 
       case 'decision-history':
