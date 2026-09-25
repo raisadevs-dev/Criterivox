@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'human_residence_store.dart';
 import 'presentation/criterivox_theme.dart';
+import 'presentation/api_client.dart';
 import 'semantic_visualizations.dart';
 
 class DecisionDeskPage extends StatefulWidget {
@@ -37,7 +38,7 @@ class _DecisionDeskPageState extends State<DecisionDeskPage> {
     final token=residence?.metadata['session_token']?.toString()??'';
     setState((){running=true;status='UNDERSTANDING_SITUATION';questions=[];support=null;humanReadable='';decisionId=null;strategy=null;});
     try {
-      final response=await http.post(Uri.base.resolve('/api/human-situation/understand'),headers:const {'content-type':'application/json'},body:jsonEncode({'session_token':token,'residence_id':residence?.residenceId??'','description':description,'data':data.text.trim(),'context':contextCtl.text.trim(),'image_count':imageCount,'image_roles':List<String>.filled(imageCount,imageRole),'allow_external_research':external})).timeout(const Duration(seconds:30));
+      final response=await http.post(CriterivoxApi.uri('/api/human-situation/understand'),headers:const {'content-type':'application/json'},body:jsonEncode({'session_token':token,'residence_id':residence?.residenceId??'','description':description,'data':data.text.trim(),'context':contextCtl.text.trim(),'image_count':imageCount,'image_roles':List<String>.filled(imageCount,imageRole),'allow_external_research':external})).timeout(const Duration(seconds:30));
       final decoded=jsonDecode(response.body);
       if(response.statusCode<200||response.statusCode>=300||decoded is! Map)throw Exception(decoded is Map?decoded['error']??'situation pipeline rejected':'situation pipeline rejected');
       final body=Map<String,dynamic>.from(decoded); if(!mounted)return;
