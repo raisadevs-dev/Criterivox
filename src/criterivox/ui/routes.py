@@ -12,9 +12,10 @@ from ..application.human_residence_store import human_residences
 from ..application.human_residence_local_store import human_residence_local
 from ..human.guest_pass import GuestPassManager
 from ..human.collaboration_routes import router as collaboration_router
+from .level2_part1_routes import router as level2_part1_router
 from ..infrastructure.runtime import runtime_connections
 install_home03_bridge(runtime_connections)
-router=APIRouter();router.include_router(collaboration_router);guest_passes=GuestPassManager()
+router=APIRouter();router.include_router(collaboration_router);router.include_router(level2_part1_router);guest_passes=GuestPassManager()
 def _plan_payload(plan):return {'task_id':plan.task_id,'intent':{'goal':plan.intent.goal,'intent_type':plan.intent.intent_type,'confidence':plan.intent.confidence,'entities':plan.intent.entities},'steps':[step.__dict__ for step in plan.steps],'created_at':plan.created_at}
 
 @router.post('/api/human-auth/signup')
