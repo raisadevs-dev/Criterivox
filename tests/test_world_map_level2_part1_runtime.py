@@ -66,3 +66,35 @@ def test_planned_network_capabilities_are_not_reported_as_live():
     assert capabilities["protocol_bridge"] == "PLANNED"
     assert capabilities["parallel_routing"] == "PLANNED"
     assert capabilities["event_dispatch"] == "PLANNED"
+
+
+def test_loop_interceptor_trips_on_repeated_transition():
+    result = level2_runtime.inspect_loop(["syvax", "anukor", "dharen", "anukor"])
+    assert result["status"] == "CIRCUIT_TRIPPED"
+    assert result["repeated_transition"] is True
+
+
+def test_dynamic_edge_weighting_uses_runtime_metrics():
+    edge = level2_runtime.update_edge_metric("anukor", "dharen", latency_ms=25, success=True, active_workload=1)
+    assert edge["handoffs"] == 1
+    assert edge["success_rate"] == 1.0
+    assert edge["weight"] > 0
+
+
+def test_protocol_bridge_returns_validated_translation():
+    bridge = level2_runtime.translate_protocol("json", "criterivox-envelope", {"intent": "inspect"})
+    assert bridge["validation"] == "VALID"
+    assert bridge["translated_payload"]["intent"] == "inspect"
+
+
+def test_parallel_route_is_explicitly_simulated():
+    result = level2_runtime.parallel_route("anukor", ["dharen", "veridat"], "compare evidence")
+    assert result["truth"] == "SIMULATED"
+    assert len(result["branches"]) == 2
+
+
+def test_event_dispatch_records_subscriber_delivery():
+    level2_runtime.subscribe("FACT_VERIFIED", "veridat")
+    event = level2_runtime.dispatch_event("FACT_VERIFIED", "medrus", {"fact_id": "f1"})
+    assert event["delivery_state"] == "DELIVERED"
+    assert "veridat" in event["subscribers"]
