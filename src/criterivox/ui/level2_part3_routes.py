@@ -14,6 +14,15 @@ async def home(home:str):
     if home=="knowledge": return part3_runtime.home_state()["knowledge"]
     if home in {"challenge","decision"}: return part3_runtime.home_state()["challenge"]
     return JSONResponse({"error":"unknown_part3_home"},status_code=404)
+@router.get("/room/{room}")
+async def room(room: str):
+    if room in KNOWLEDGE_ROOMS:
+        return {"room": room, "resident": "Viveda", "truth": "LIVE", "boundary": "knowledge-challenge-integration", "action": "inspect"}
+    try:
+        return part3_runtime.challenge_room_state(room)
+    except ValueError:
+        return JSONResponse({"error": "unknown_part3_room"}, status_code=404)
+
 @router.post("/trajectory")
 async def trajectory(payload:dict): return {"proposal":part3_runtime.ingest_trajectory(payload).__dict__}
 @router.post("/ontology/node")
