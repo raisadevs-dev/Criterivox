@@ -994,7 +994,7 @@ Set 5 integrates the existing Gate 2 Human Residence implementation into the app
 
 ### Gate 2
 
-Existing `HumanResidenceEntryPage`, `HumanResidencePage`, `PrivateRoomPage`, `CollaborationRoomPage`, and `HumanResidenceStore` are reused. The shell now exposes explicit entry routes for Human Residence, Private Room and Collaboration Room. The existing Private Room persists goal/data/context, trade-off vectors, challenges, action-gate state and results journal through the established local-first residence boundary. The existing Collaboration Room remains the A–G runtime client, including RBAC/differential visibility, Syvax/Dharen context confirmation, adaptive consensus, Manis challenge, Owner + Resident signing, outcome attribution and governed learning proposal.
+Existing `HumanResidenceEntryPage`, `HumanResidencePage`, `PrivateRoomPage`, `CollaborationRoomPage`, and `HumanResidenceStore` are reused. The shell now exposes explicit entry routes for Human Residence, Private Room and Collaboration Room. The existing Private Room persists goal/data/context, trade-off vectors, challenges, action-gate state and results journal through the established local-first residence boundary. The existing Collaboration Room remains the A–G runtime client, including RBAC/differential visibility, Syvax/Dharen context confirmation, adaptive consensus, Manis challenge, Owner + Resident signing, outcome attribution and governed learning proposal. Pass 3 additionally exposes explicit Private Room readiness/stage state and a persisted Decision Timeline.
 
 ### Global Character Chat
 
