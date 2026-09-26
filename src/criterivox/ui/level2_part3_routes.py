@@ -46,6 +46,13 @@ async def schema_translate(payload:dict):
 async def knowledge_version(payload:dict): return part3_runtime.version_knowledge(str(payload.get("knowledge_id","")),str(payload.get("version","1")),[str(x) for x in payload.get("parents",[])],str(payload.get("schema_version","1")),str(payload.get("status","proposed")))
 @router.post("/knowledge/sync")
 async def knowledge_sync(payload:dict): return part3_runtime.sync_knowledge(str(payload.get("knowledge_id","")),dict(payload.get("incoming") or {}),payload.get("base_version"))
+@router.post("/knowledge/transfer")
+async def knowledge_transfer(payload: dict):
+    try:
+        return part3_runtime.transfer_structure(str(payload.get("proposal_id","")), str(payload.get("target_context","")), payload.get("reuse_conditions"))
+    except KeyError as exc:
+        return JSONResponse({"error": str(exc)}, status_code=404)
+
 @router.post("/knowledge/utility")
 async def knowledge_utility(payload:dict): return part3_runtime.record_utility(str(payload.get("knowledge_id","")),str(payload.get("outcome","")),payload.get("evidence_refs"))
 @router.post("/knowledge/reflection")
