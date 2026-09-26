@@ -747,7 +747,7 @@ class _ShellState extends State<CriterivoxShell> {
         );
 
       case 'decision-desk':
-        return DecisionDeskPage(onResults: () => open('results-journal'));
+        return DecisionDeskPage(onResults: () => open('results-journal'), onWorkMaterials: () => open('work-materials'));
 
       case 'results-journal':
         return ResultsJournalPage(onDecisionDesk: () => open('decision-desk'));
