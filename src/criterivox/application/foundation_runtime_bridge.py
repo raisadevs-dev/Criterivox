@@ -64,7 +64,7 @@ async def _publish_with_foundation_residency(
         return
 
     try:
-        from criterivox.application.data_foundation_store import data_foundations
+        from criterivox.Sandre.store import data_foundations
 
         foundation = data_foundations.get(str(foundation_id))
         await _publish_raw(
@@ -514,7 +514,7 @@ DharenRuntime.publish_task = _publish_task_with_foundation
 
 
 try:
-    from criterivox.application.data_foundation_store import data_foundations
+    from criterivox.Sandre.store import data_foundations
 
     replay_service = ContextReplayService(
         context_runtime,
