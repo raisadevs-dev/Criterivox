@@ -929,3 +929,26 @@ Pass 2 makes the four Part V cross-quarter relationships use one canonical evide
 ### Stale-test/documentation rule
 
 Pass 2 tests assert the canonical handoff contract and rejection of unknown evidence. Older Part III/IV handoff behavior remains documented as compatibility behavior where present; no legacy engine is deleted merely because the canonical adapter now exists.
+
+
+## Pass 3 implementation status — Gate 2 Private Room
+
+Pass 3 completes the Private Room integration around the existing Human Residence and decision pipeline. No second decision engine or authorization engine is introduced.
+
+### Canonical lifecycle
+
+`GOAL → DATA + CONTEXT → OPTIONS → CHALLENGE → DECISION → APPROVAL → ACTION → RESULT → JOURNAL`
+
+Implemented/refined:
+- explicit context readiness state: `CONTEXT_SLOT_MISSING`, `DATA_COMPLETE`, `AMBIGUOUS_BOUNDS`, `READY_FOR_ANALYSIS`;
+- explicit decision stage tracking;
+- Decision Options Observatory presentation over existing strategy vectors;
+- Human Challenge Bench backed by the existing challenge endpoint;
+- Action Safety Gate briefing with evidence/uncertainty/challenge state and existing authorization controls;
+- persisted Decision Timeline using the existing Human Residence metadata boundary;
+- Results Journal remains outcome-based and does not manufacture success;
+- Evidence → Private Room uses the canonical Part V `EvidenceHandoff` destination `private_room`.
+
+### Acceptance reconciliation
+
+The Private Room acceptance criteria in §47 are now represented by the existing runtime: separated goal/context inputs, surfaced missing variables, inspectable alternatives, explicit challenge, approval boundary, and actual outcome recording. Richer timeline/event inspection is now exposed directly in the Private Room rather than requiring a separate decision backend.
