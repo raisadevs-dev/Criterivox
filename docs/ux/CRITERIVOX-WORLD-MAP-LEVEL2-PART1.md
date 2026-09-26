@@ -1162,7 +1162,7 @@ The backend source of truth is `src/criterivox/world/level2_part1.py`. It owns:
 The Level-2 Part-I phases are implemented as one connected surface rather than 27 unrelated screens.
 
 - **1–11: Roster, briefing, state, relationships and handshake:** implemented through the canonical registry, operational briefing surface, semantic state model, relationship graph, and explicit simulation handshake.
-- **12–21: Anukor network layer:** the canonical route/envelope/trace model and inspection APIs are implemented. Intent routing and distributed trace are live in this development runtime. Loop interception, dynamic edge weighting, protocol translation, parallel routing and event-mesh dispatch are explicitly reported as **PLANNED** until their real mechanisms are added. The UI does not fake these capabilities.
+- **12–21: Anukor network layer:** the canonical route/envelope/trace model and inspection APIs are implemented. Intent routing and distributed trace are live in this development runtime. Loop interception, dynamic edge weighting, protocol translation, distributed trace, event dispatch and controlled parallel routing are implemented in the development runtime. Parallel routing is truthfully labelled `LIVE_SIMULATION`; it does not claim production concurrency.
 - **22–29: Guest Pass:** the existing `GuestPassManager` and Guest Pass experience remain the single implementation for ephemeral sessions, isolation, X-Ray, trade-off exploration and claim/leave. The Level-2 control plane does not duplicate that subsystem.
 
 ## Truth and presentation rules
@@ -1173,6 +1173,6 @@ The Level-2 presentation may expose structured decision lineage, provenance, rou
 
 ## Test coverage
 
-`tests/test_world_map_level2_part1_runtime.py` covers the canonical 15-character/7-Home registry, Anukor's network residency, semantic state, simulated route + trace continuity, Context Envelope exclusion, and PLANNED capability boundaries.
+`tests/test_world_map_level2_part1_runtime.py` covers the canonical 15-character/7-Home registry, Anukor's network residency, semantic state, simulated route + trace continuity, Context Envelope exclusion, and implemented mechanism and remaining truth boundaries.
 
 The older `CivilizationPage` is retained only as a compatibility surface. New Level-2 work must use the canonical Part-I runtime and page rather than adding parallel registries or fabricated telemetry.
