@@ -1447,3 +1447,54 @@ Future parts should extend the Level-1 world rather than reintroduce legacy Home
 → real-world result
 
 This is the canonical Level-2 Part IV internal functional-spatial model.
+
+
+---
+
+# CURRENT BRANCH IMPLEMENTATION — ui-stabilization-system-behavior
+
+This section supersedes earlier status labels where they conflict with the current implementation.
+
+## Canonical runtime
+
+Part IV is implemented as one integration layer:
+
+- src/criterivox/world/level2_part4.py
+- src/criterivox/ui/level2_part4_routes.py
+- tests/test_world_map_level2_part4_runtime.py
+- presentation/lib/world_map_level2_part4_page.dart
+- presentation/lib/app_shell.dart
+
+The integration layer reuses Part I–III routing, tracing/events, collaboration, HumanAuthority, evidence/provenance, Work Materials, sandbox, checkpoint/replay and telemetry. It intentionally creates no replacement engines for those capabilities.
+
+## Implemented contracts
+
+### Intelligence
+
+Hypothesis creation, bounded reasoning search, adversarial debate, epistemic audit records, counterfactual scenarios, structured reflexion, goal-alignment measurement, handoff validation, conflict records and formal logic graph construction are represented by runtime contracts and API routes.
+
+### Decision & Action
+
+Planning, declared-metric trade-offs, Action Contracts, contingency graphs, proof packages, peer review, blast-radius states, execution DAGs, resource budgets, FinOps budget checks, tool registration/health, replay records and decision archiving are represented by runtime contracts and API routes.
+
+### Truth model
+
+- LIVE: connected runtime/control contract
+- SIMULATED: bounded scenario/search behavior
+- HISTORICAL: replay/reflexion records
+- PLANNED: reserved for capabilities not yet connected
+
+The presentation reads capability truth from the canonical Part-IV runtime state rather than hard-coding a separate status catalogue.
+
+## Navigation reconciliation
+
+civilization-part4 is the canonical Part-IV presentation route.
+
+The historical decision-action route remains as a compatibility route but now opens the canonical Part-IV surface rather than maintaining a second Decision & Action presentation architecture.
+
+The generic Level-2 operational catalogue remains a compatibility/read-model surface. It is not treated as a second backend implementation.
+
+## Validation boundary
+
+The repository includes focused Part-IV runtime tests. CI/local execution must still be run in an environment containing the project's Python and Flutter dependencies; repository writes alone do not constitute a test pass.
+
