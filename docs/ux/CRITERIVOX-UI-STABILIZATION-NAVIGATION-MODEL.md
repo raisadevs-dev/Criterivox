@@ -151,7 +151,7 @@ The semantic visual contract is now implemented as reusable presentation compone
 | Current civilization/read-model state | Status indicator | Presentation/runtime availability |
 | Home resident quantities | Horizontal bar comparison | Canonical home resident lists |
 | Home/room records | Structured table | Canonical home and Level 2 catalogs |
-| Civilization relationships | Relationship network | `CivilizationPage.relationships` |
+| Civilization relationships | Relationship network | `src/criterivox/world/level2_part1.py::RELATIONSHIPS` |
 | Inspection progression | Timeline | Canonical World → Home → Character → Responsibility path |
 | Evidence progression | Evidence chain | Evidence Home inspection surface |
 | Decision framing | Decision structure | Decision Home inspection surface |
@@ -161,3 +161,8 @@ The semantic visual contract is now implemented as reusable presentation compone
 Bars are only used for a real quantitative value already present in the read-model, rather than fabricated telemetry. Relationship labels are the documented semantic relationships and do not imply social affinity. Evidence and decision surfaces expose structure, not private chain-of-thought.
 
 The Civilization navigation test suite now asserts the semantic network/registry surfaces and Level 2 tests assert the evidence, decision and contextual visual forms.
+
+
+## Level-2 Part-I canonical entry
+
+The `civilization` navigation route now opens the operational `WorldMapLevel2Part1Page`. The older `CivilizationPage` remains available only as `civilization-legacy` compatibility surface. New navigation and runtime data must use the canonical Level-2 Part-I registry and APIs.
