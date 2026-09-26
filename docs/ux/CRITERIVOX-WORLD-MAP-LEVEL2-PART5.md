@@ -901,3 +901,31 @@ Implemented through the existing S8 artifacts/events/policy:
 Browser API surface: `/api/world/level2/part5/evidence/*`.
 
 The Evidence Home presentation now reads the canonical runtime overview. It does not create a parallel evidence store or verification engine.
+
+
+## Pass 2 implementation status — Cross-Quarter Evidence Network
+
+Pass 2 makes the four Part V cross-quarter relationships use one canonical evidence handoff contract rather than separate ad-hoc payloads.
+
+### Canonical contract
+
+`EvidenceHandoff` in `src/criterivox/s8/part5.py` carries:
+- source evidence references;
+- request/claim/purpose context;
+- validation and verification references;
+- provenance and limitations;
+- assumptions and uncertainty;
+- destination;
+- update reason;
+- timestamp.
+
+### Connected flows
+
+- **20 Intelligence → Evidence:** Part IV now has evidence-request and evidence-handoff routes backed by the S8 surface.
+- **21 Decision & Action → Evidence:** the canonical handoff accepts decision/evidence handoff types, so decision flows can consume the same contract rather than a second evidence object.
+- **22 Evidence → Knowledge:** Part III exposes an evidence-handoff route backed by the same S8 contract; existing bounded knowledge transfer remains available for knowledge proposals.
+- **23 Evidence → Human Territory:** the same handoff contract is destination-neutral, allowing Private Room / human-territory consumers to receive the same evidence package without a new evidence engine.
+
+### Stale-test/documentation rule
+
+Pass 2 tests assert the canonical handoff contract and rejection of unknown evidence. Older Part III/IV handoff behavior remains documented as compatibility behavior where present; no legacy engine is deleted merely because the canonical adapter now exists.
