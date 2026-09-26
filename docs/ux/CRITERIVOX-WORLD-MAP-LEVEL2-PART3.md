@@ -1273,3 +1273,62 @@ Those belong to later implementation or specification layers.
 **Observe → Generalize → Challenge → Refine → Reuse → Verify**
 
 This is the internal spatial model for Level 2 Part III.
+
+
+---
+
+# Current branch implementation — ui-stabilization-system-behavior
+
+This section supersedes earlier statements that Knowledge and Challenge rooms are only planned on this branch.
+
+## Layers 1–5 implemented
+
+### Layer 1 — Viveda Knowledge Home
+- src/criterivox/world/level2_part3.py provides the canonical Knowledge Home read-model and workflow state.
+- The Knowledge Home exposes all 15 documented rooms as operational doors through the Part III surface.
+- Trajectory proposals preserve source references, assumptions, limitations and version state.
+- Ontology nodes and mutations are recorded as explicit proposals rather than silently changing knowledge.
+
+### Layer 2 — Knowledge Production
+The branch now supports the bounded lifecycle:
+
+trajectory/evidence → pattern proposal → ontology/structure → bounded transfer proposal
+
+Existing S5 delivery packages, provenance references and knowledge contracts remain the source boundaries. No second evidence, routing, Bloom or orchestration engine was introduced.
+
+### Layer 3 — Knowledge Lifecycle
+The integration layer reuses KnowledgeVersion, SkillMetadata, MigrationContract and existing persistence boundaries for skill registration and packaging, schema translation with explicit missing-field reporting, version history, MemSync-style conflict detection, utility records, reflection proposals and skill health metadata.
+
+The branch does not claim autonomous model training or silent knowledge mutation.
+
+### Layer 4 — Viveda ↔ Manis loop
+Knowledge proposals can enter the existing CollaborationEngine through Manis challenge rooms. Challenge state returns to the Viveda proposal, which can then be revised, approved or rejected.
+
+The existing HumanAuthority / HumanChallenge and CollaborationEngine remain authoritative. No duplicate Manis challenge engine was added.
+
+### Layer 5 — Challenge & Review Home
+Manis is now canonically presented under Challenge & Review Quarter, not as a duplicate Decision Home resident. Level-2 challenge room records use home: challenge and the application shell maps Manis to that destination.
+
+The canonical Part III presentation is presentation/lib/world_map_level2_part3_page.dart with route civilization-part3 and sidebar label World Map • Level 2 Part III.
+
+The Part III API boundary is src/criterivox/ui/level2_part3_routes.py and is registered by src/criterivox/ui/routes.py.
+
+## Navigation
+
+Bloom / Civilization → World Map Level 2 Part III → Knowledge Quarter / Challenge & Review Quarter
+
+Manis navigation now resolves to the Challenge destination. Viveda continues to resolve to Knowledge.
+
+## Truth boundary
+
+Part III capabilities implemented by this branch are marked as runtime-backed integration capabilities. This means the branch provides a deterministic contract/workflow and persistence boundary; it does not imply production-grade external authorization, autonomous learning, or a general-purpose AI model.
+
+## Validation
+
+tests/test_world_map_level2_part3_runtime.py covers canonical spaces, trajectory-to-challenge approval, non-destructive ontology mutation, skill packaging, schema translation, version/MemSync conflict detection, reflection/utility and migration contracts.
+
+A fresh Flutter/browser test run remains environment-dependent in this execution environment. The repository should not claim Flutter test/analyze success unless CI or a local Flutter runtime reports it.
+
+## Architecture rule
+
+Do not create separate Viveda, Manis, collaboration, routing, event-bus, Bloom, or persistence engines for these rooms. Part III is an integration layer over the existing Criterivox architecture.
