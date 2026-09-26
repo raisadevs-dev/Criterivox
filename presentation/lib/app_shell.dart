@@ -7,6 +7,7 @@ import 'bloom_page.dart';
 import 'bloom_companion.dart';
 import 'civilization_world_portal_page.dart';
 import 'civilization_page.dart';
+import 'world_map_level2_part1_page.dart';
 import 'civilization_home_preview_page.dart';
 import 'level2_operational_page.dart';
 import 'world_portal_page.dart';
@@ -829,13 +830,21 @@ class _ShellState extends State<CriterivoxShell> {
           onWorkspace: () => open('workspace'),
         );
 
-      case 'civilization':
+      case 'civilization-legacy':
         return CivilizationPage(
           key: const ValueKey('civilization'),
           state: state,
           onBackToBloom: () => open('bloom'),
           onOpenHome: _openHome,
           onOpenCharacter: openCharacterFocus,
+        );
+
+      case 'civilization':
+        return WorldMapLevel2Part1Page(
+          key: const ValueKey('world-map-level2-part1'),
+          onBack: () => open('bloom'),
+          onOpenCharacter: openCharacterFocus,
+          onOpenHome: _openHome,
         );
 
       case 'intro':
