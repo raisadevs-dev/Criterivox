@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import 'character/session_character_animation.dart';
 import 'foundation/criterivox_responsive_scene.dart';
@@ -15,6 +17,25 @@ class _EvidenceExperimentQuarterPageState extends State<EvidenceExperimentQuarte
   final Map<String, bool> _open = <String, bool>{};
   String _status = 'READY';
   String _selectedArtifact = 'No artifact selected';
+  Map<String, dynamic> _overview = const {};
+  Map<String, dynamic>? _detail;
+  bool _loading = false;
+
+  Future<void> _loadOverview() async {
+    setState(() => _loading = true);
+    try {
+      final response = await http.get(Uri.parse('http://127.0.0.1:8000/api/world/level2/part5/evidence'));
+      if (response.statusCode == 200) setState(() => _overview = jsonDecode(response.body) as Map<String, dynamic>);
+    } finally { if (mounted) setState(() => _loading = false); }
+  }
+
+  Future<void> _loadDetail(String id) async {
+    _inspect(id);
+    try {
+      final response = await http.get(Uri.parse('http://127.0.0.1:8000/api/world/level2/part5/evidence/$id'));
+      if (response.statusCode == 200 && mounted) setState(() => _detail = jsonDecode(response.body) as Map<String, dynamic>);
+    } catch (_) {}
+  }
 
   static const _parts = <_EvidencePart>[
     _EvidencePart('hall','Evidence Hall','Shared evidence coordination','Evidence in → claim status, verification queue, contradictions and knowledge transfer','Evidence / artifacts','Inspectable evidence state'),
@@ -38,6 +59,8 @@ class _EvidenceExperimentQuarterPageState extends State<EvidenceExperimentQuarte
   void _toggle(String id) => setState(() => _open[id] = !(_open[id] ?? false));
   void _inspect(String id) => setState(() { _selectedArtifact = id; _status = 'INSPECTING'; });
 
+  @override void initState() { super.initState(); _loadOverview(); }
+
   @override Widget build(BuildContext context) {
     final t = criterivox_theme.CriterivoxTheme.of(context);
     return Material(
@@ -57,6 +80,8 @@ class _EvidenceExperimentQuarterPageState extends State<EvidenceExperimentQuarte
           _members(t),
           const SizedBox(height: 16),
           _truthPanel(t),
+          const SizedBox(height: 16),
+          _runtimePanel(t),
           const SizedBox(height: 16),
           _partsPanel(t),
           const SizedBox(height: 16),
@@ -96,6 +121,31 @@ class _EvidenceExperimentQuarterPageState extends State<EvidenceExperimentQuarte
       ]),
       const SizedBox(height: 10),
       Text('Selected: $_selectedArtifact', style: TextStyle(color: t.mutedText, fontSize: 10)),
+    ]),
+  );
+
+  Widget _runtimePanel(criterivox_theme.CriterivoxTheme t) => Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(color: t.surface, borderRadius: BorderRadius.circular(20), border: Border.all(color: t.border)),
+    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(children: [
+        Text('RUNTIME EVIDENCE STATE', style: TextStyle(color: t.text, fontWeight: FontWeight.w800, letterSpacing: 1.1)),
+        const Spacer(),
+        if (_loading) const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+      ]),
+      const SizedBox(height: 10),
+      if (_overview.isEmpty) Text('S8 runtime is not reporting state yet.', style: TextStyle(color: t.mutedText, fontSize: 10))
+      else Wrap(spacing: 8, runSpacing: 8, children: [
+        _Meta(label: 'MODE', value: _overview['mode'].toString()),
+        _Meta(label: 'ENGINE', value: _overview['engine'].toString()),
+        _Meta(label: 'EVENTS', value: _overview['event_count'].toString()),
+      ]),
+      if (_detail != null) ...[
+        const SizedBox(height: 12),
+        Text('Selected artifact', style: TextStyle(color: t.text, fontWeight: FontWeight.w700, fontSize: 11)),
+        const SizedBox(height: 6),
+        Text(jsonEncode(_detail), style: TextStyle(color: t.mutedText, fontSize: 9, height: 1.35)),
+      ],
     ]),
   );
 
