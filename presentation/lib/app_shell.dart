@@ -773,10 +773,10 @@ class _ShellState extends State<CriterivoxShell> {
         return CollaborationCommonsPage(destination: CollaborationDestination.sharedWorkspaces, onDecisionDesk: () => open('decision-desk'));
 
       case 'decision-action':
-        return DecisionActionQuarterPage(
-          key: const ValueKey('decision-action'),
-          onBack: () => open('home-preview'),
-          onOpenHumanDecisionWorkspace: () => open('private-room'),
+        // Compatibility route. Part IV is now the canonical quarter surface.
+        return WorldMapLevel2Part4Page(
+          key: const ValueKey('world-map-level2-from-decision-action'),
+          onBack: () => open('civilization'),
         );
 
       case 'evidence-experiment':
