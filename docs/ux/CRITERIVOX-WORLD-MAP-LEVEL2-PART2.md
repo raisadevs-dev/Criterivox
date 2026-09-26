@@ -1605,3 +1605,65 @@ The intended result is a world that makes an otherwise invisible multi-agent arc
 Part III should proceed into the remaining operational Homes and their spatial interiors, followed by the exact city geometry, district transitions, streets, common spaces, environmental locations, camera/viewport behavior, movement model, room-to-room transitions and cross-world spatial interaction rules.
 
 It should not duplicate the Home 03, Bloom, Home 01 or Home 02 functional specification defined here.
+
+
+---
+
+# 64. Implementation Status — Canonical Part-II Integration
+
+**Branch:** `ui-stabilization-system-behavior`
+
+Part II is implemented as an integration layer over existing Criterivox services rather than as replacement engines.
+
+## Canonical runtime
+
+- `src/criterivox/world/level2_part2.py` is the Part-II read-model/control contract.
+- `src/criterivox/ui/level2_part2_routes.py` exposes the human-facing controls.
+- Existing Part-I routing/tracing/event infrastructure remains authoritative.
+- Existing Bloom, S5, and context runtime remain authoritative.
+
+## Canonical presentation
+
+- `presentation/lib/world_map_level2_part2_page.dart` is the Part-II world-map surface.
+- `presentation/lib/app_shell.dart` exposes it as `civilization-part2`.
+- The Part-II page presents the four canonical spaces: Gateway, Bloom, Data Stewardship, and Context.
+
+## Implemented control surfaces
+
+- Dynamic UI intent synthesis
+- Mid-flight steering
+- Human-readable status ticker
+- Bounded Bloom energy allocation
+- Priority-tiered context budgeting
+- Capability/truth-state registry
+- Part-II home/capability inspection
+- Part-II navigation entry and return path
+
+## Reuse rules
+
+The following are intentionally **not duplicated**:
+
+- Part-I routing
+- distributed trace
+- event dispatch
+- BloomController state
+- S5 readiness/provenance/schema-drift/semantic-tagging/quality-gate runtime
+- ContextReplayService and existing context runtime
+- existing Home preview and operational pages
+
+## Truth rule
+
+Every capability is classified as `LIVE`, `SIMULATED`, `HISTORICAL`, or `PLANNED`. Presentation must not imply a backend capability that is not represented by the runtime contract.
+
+## Test coverage
+
+`tests/test_world_map_level2_part2_runtime.py` covers:
+
+- canonical Home registry
+- truth model
+- dynamic UI intents
+- steering state transitions
+- bounded energy allocation
+- context budget invariants
+
+This document is now the implementation-facing companion to the Part-II UX specification. Legacy claims that require a second engine should be interpreted as stale and must not be used to create duplicate runtime systems.
