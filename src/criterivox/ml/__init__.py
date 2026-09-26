@@ -3,6 +3,6 @@
 from .anuka import AnukaMLAgent
 from .dharen import DharenMLAgent
 from .kaelen import KaelenMLAgent
-from .sandre import SandreMLAgent
+from criterivox.Sandre.ml import SandreMLAgent
 
 __all__ = ["AnukaMLAgent", "DharenMLAgent", "KaelenMLAgent", "SandreMLAgent"]
