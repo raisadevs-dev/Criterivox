@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from ..capabilities.foundations import SchemaContract, SkillMetadata
 from ..world.level2_part3 import CHALLENGE_ROOMS, KNOWLEDGE_ROOMS, part3_runtime
+from ..s8.part5 import surface as evidence_surface
 router=APIRouter(prefix="/api/world/level2/part3",tags=["level2-part3"])
 
 @router.get("/state")
@@ -46,6 +47,23 @@ async def schema_translate(payload:dict):
 async def knowledge_version(payload:dict): return part3_runtime.version_knowledge(str(payload.get("knowledge_id","")),str(payload.get("version","1")),[str(x) for x in payload.get("parents",[])],str(payload.get("schema_version","1")),str(payload.get("status","proposed")))
 @router.post("/knowledge/sync")
 async def knowledge_sync(payload:dict): return part3_runtime.sync_knowledge(str(payload.get("knowledge_id","")),dict(payload.get("incoming") or {}),payload.get("base_version"))
+@router.post("/knowledge/evidence-handoff")
+async def knowledge_evidence_handoff(payload: dict):
+    try:
+        return evidence_surface.handoff(
+            tuple(str(x) for x in payload.get("evidence_ids", [])),
+            handoff_type="evidence_to_knowledge",
+            destination=str(payload.get("destination","viveda")),
+            claim=str(payload.get("claim","")),
+            purpose=str(payload.get("purpose","")),
+            request_id=payload.get("request_id"),
+            assumptions=[str(x) for x in payload.get("assumptions", [])],
+            uncertainty=str(payload.get("uncertainty","")),
+            update_reason=str(payload.get("update_reason",""))
+        )
+    except ValueError as exc:
+        return JSONResponse({"error": str(exc)}, status_code=400)
+
 @router.post("/knowledge/transfer")
 async def knowledge_transfer(payload: dict):
     try:
