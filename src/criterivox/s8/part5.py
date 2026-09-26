@@ -30,6 +30,24 @@ class EvidenceRequest:
 
 
 @dataclass(frozen=True)
+class EvidenceHandoff:
+    handoff_id: str
+    handoff_type: str
+    source_refs: tuple[str, ...]
+    request_id: str | None
+    claim: str
+    purpose: str
+    validated: bool
+    verification_refs: tuple[str, ...]
+    provenance_refs: tuple[str, ...]
+    limitations: tuple[str, ...]
+    assumptions: tuple[str, ...]
+    uncertainty: str
+    destination: str
+    update_reason: str
+    created_at: str
+
+@dataclass(frozen=True)
 class ProvenanceDossier:
     dossier_id: str
     claim: str
@@ -144,6 +162,37 @@ class PartVEvidenceSurface:
             if a.kind is ArtifactKind.EVIDENCE and (a.payload.get("claim") == claim or claim in str(a.payload.get("text", ""))):
                 records.append({"artifact_id": a.artifact_id, "source": a.payload.get("source"), "document": a.payload.get("document"), "chunk": a.payload.get("chunk"), "line_start": a.payload.get("line_start"), "line_end": a.payload.get("line_end"), "verification": a.status})
         return {"claim": claim, "records": records, "granularity": "line_or_chunk_when_supplied"}
+
+    def handoff(
+        self,
+        evidence_ids: tuple[str, ...],
+        *,
+        handoff_type: str,
+        destination: str,
+        claim: str = "",
+        purpose: str = "",
+        request_id: str | None = None,
+        assumptions: list[str] | None = None,
+        uncertainty: str = "",
+        update_reason: str = "",
+        tenant_id=None,
+        context_id=None,
+    ) -> dict[str, Any]:
+        missing = [i for i in evidence_ids if i not in self.bureau.artifacts]
+        if missing:
+            raise ValueError(f"Unknown evidence artifact(s): {', '.join(missing)}")
+        verification = [a for a in self.bureau.artifacts.values() if a.kind is ArtifactKind.VERIFICATION and set(a.source_ids) & set(evidence_ids)]
+        provenance = [a.artifact_id for a in self.bureau.artifacts.values() if a.kind is ArtifactKind.PROVENANCE and set(a.source_ids) & set(evidence_ids)]
+        limitations = [str(l) for a in verification for l in a.payload.get("limitations", ())]
+        result = asdict(EvidenceHandoff(
+            f"S8H-{len(self.transfers)+len(self.reconciliations)+1:06d}",
+            handoff_type, evidence_ids, request_id, claim, purpose, bool(verification),
+            tuple(a.artifact_id for a in verification), tuple(provenance), tuple(limitations),
+            tuple(assumptions or []), uncertainty, destination, update_reason, _now()
+        ))
+        self.transfers.append(result)
+        self.bureau._record("EVIDENCE_HANDOFF", evidence_ids, handoff_type=handoff_type, destination=destination, validated=result["validated"])
+        return result
 
     def transfer(self, evidence_ids: tuple[str, ...], *, destination: str, reuse_conditions: list[str] | None = None, tenant_id=None, context_id=None) -> dict[str, Any]:
         missing = [i for i in evidence_ids if i not in self.bureau.artifacts]
