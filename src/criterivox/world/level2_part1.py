@@ -212,7 +212,11 @@ class Level2Runtime:
         }
         self.routes: dict[str, RouteRecord] = {}
         self.envelopes: dict[str, ContextEnvelope] = {}
-        self.traces: dict[str, TraceRecord] = {}\n        self.edge_metrics: dict[tuple[str, str], dict[str, Any]] = {}\n        self.events: list[dict[str, Any]] = []\n        self.subscribers: dict[str, list[str]] = {}\n        self.protocol_adapters: dict[tuple[str, str], str] = {}
+        self.traces: dict[str, TraceRecord] = {}
+        self.edge_metrics: dict[tuple[str, str], dict[str, Any]] = {}
+        self.events: list[dict[str, Any]] = []
+        self.subscribers: dict[str, list[str]] = {}
+        self.protocol_adapters: dict[tuple[str, str], str] = {}
 
     def roster(self) -> dict[str, Any]:
         return {
@@ -370,7 +374,9 @@ class Level2Runtime:
             "truth": TruthClass.LIVE.value,
             "routes": [r.to_dict() for r in self.routes.values()],
             "envelopes": [e.to_dict() for e in self.envelopes.values()],
-            "traces": [t.to_dict() for t in self.traces.values()],\n            "edge_metrics": [dict({"source": k[0], "target": k[1]}, **v) for k, v in self.edge_metrics.items()],\n            "events": list(self.events),
+            "traces": [t.to_dict() for t in self.traces.values()],
+            "edge_metrics": [dict({"source": k[0], "target": k[1]}, **v) for k, v in self.edge_metrics.items()],
+            "events": list(self.events),
             "capabilities": {
                 "intent_router": "LIVE",
                 "context_envelope": "LIVE",
