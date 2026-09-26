@@ -174,6 +174,116 @@ async def service_layer_execute(payload: dict):
     except Exception as exc:
         return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=502)
 
+@router.post('/api/work-materials/from-service')
+async def work_material_from_service(payload: dict):
+    from ..service_layer import ServiceRequest, service_composer
+    owner_id = human_residence_local.owner_for_session(str(payload.get('session_token','')))
+    if owner_id is None:
+        return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    goal = str(payload.get('goal','')).strip()
+    if not goal:
+        return JSONResponse({'accepted': False, 'error': 'goal is required'}, status_code=400)
+    request = ServiceRequest(
+        request_id=str(payload.get('request_id') or f'SVC-{uuid.uuid4()}'),
+        goal=goal,
+        supplied_data=str(payload.get('data','')),
+        context=str(payload.get('context','')),
+        actor_id=owner_id,
+        authorization='human-review',
+    )
+    try:
+        plan, results = service_composer.execute(request)
+        material_type = str(payload.get('material_type','')).strip()
+        if material_type:
+            candidates = {material_type: next((r for n,r in results.items() if n == material_type or r.service_type == material_type), None)}
+        else:
+            candidates = {
+                'situation_brief': results.get('situation_understanding'),
+                'evidence_package': results.get('evidence_data_analysis'),
+                'analytical_report': results.get('analytical_reporting'),
+                'reasoning_map': results.get('reasoning_hypothesis'),
+                'strategy_set': results.get('strategy_construction'),
+                'tradeoff_analysis': results.get('tradeoff_analysis'),
+                'action_plan': results.get('planning'),
+                'verification_explanation': results.get('verification_explanation'),
+            }
+        created=[]
+        for kind,result in candidates.items():
+            if result is None: continue
+            material={
+                'material_id': f'mat-{request.request_id}-{kind}',
+                'material_type': kind,
+                'title': {'situation_brief':'Situation Brief','evidence_package':'Evidence Package','analytical_report':'Analytical Report','reasoning_map':'Reasoning Map','strategy_set':'Strategy Set','tradeoff_analysis':'Trade-off Analysis','action_plan':'Action Plan','verification_explanation':'Verification & Explanation Package'}.get(kind, kind.replace('_',' ').title()),
+                'purpose': result.purpose,
+                'status': result.status,
+                'source_service': result.service_type,
+                'content': dict(result.content),
+                'structured_data': dict(result.structured_data),
+                'evidence_refs': list(result.evidence_refs),
+                'provenance_refs': list(result.provenance_refs),
+                'assumptions': list(result.assumptions),
+                'uncertainty': list(result.uncertainty),
+                'limitations': list(result.limitations),
+                'editable_elements': list(result.editable),
+                'challengeable_elements': list(result.challengeable),
+                'dependencies': list(result.downstream_dependencies),
+                'artifact_refs': list(result.artifact_refs),
+                'execution_ref': result.execution_ref,
+                'authorization_state': result.authorization_state,
+                'history': [{'version': 1, 'source': result.service_type, 'status': result.status}],
+            }
+            created.append(human_residence_local.save_work_material(owner_id=owner_id, residence_id=str(payload.get('residence_id','')) or None, material=material))
+        return {'accepted': True, 'request_id': request.request_id, 'plan': list(plan.services), 'materials': created}
+    except ValueError as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=400)
+    except Exception as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=502)
+
+@router.get('/api/work-materials')
+async def work_materials_list(session_token: str, material_type: str = ''):
+    owner_id = human_residence_local.owner_for_session(session_token)
+    if owner_id is None:
+        return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    return {'accepted': True, 'materials': human_residence_local.list_work_materials(owner_id, material_type)}
+
+@router.get('/api/work-materials/{material_id}')
+async def work_material_get(material_id: str, session_token: str):
+    owner_id = human_residence_local.owner_for_session(session_token)
+    if owner_id is None:
+        return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    material=human_residence_local.get_work_material(material_id, owner_id)
+    if material is None: return JSONResponse({'accepted': False, 'error': 'material_not_found'}, status_code=404)
+    return {'accepted': True, 'material': material}
+
+@router.post('/api/work-materials/{material_id}/challenge')
+async def work_material_challenge(material_id: str, payload: dict):
+    owner_id = human_residence_local.owner_for_session(str(payload.get('session_token','')))
+    if owner_id is None: return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    try:
+        event=human_residence_local.record_material_event(material_id=material_id, owner_id=owner_id, event_type='challenge', payload={'text':str(payload.get('text','')).strip(),'actor':'human'})
+        return {'accepted': True, 'event': event}
+    except ValueError as exc: return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=404)
+
+@router.post('/api/work-materials/{material_id}/change')
+async def work_material_change(material_id: str, payload: dict):
+    owner_id = human_residence_local.owner_for_session(str(payload.get('session_token','')))
+    if owner_id is None: return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    try:
+        current=human_residence_local.get_work_material(material_id, owner_id)
+        if current is None: raise ValueError('material not found')
+        changed=dict(current); changed_fields=payload.get('changes',{})
+        if not isinstance(changed_fields,dict): raise ValueError('changes must be an object')
+        changed['content']=dict(changed.get('content',{}))
+        changed['content'].update(changed_fields.get('content',{}))
+        for field in ('assumptions','limitations'):
+            if field in changed_fields: changed[field]=list(changed_fields[field])
+        changed['status']='changed'
+        changed['history']=list(changed.get('history',[]))+[{'version':int(current.get('version',1))+1,'source':'human','changed':list(changed_fields.keys())}]
+        saved=human_residence_local.save_work_material(owner_id=owner_id,residence_id=current.get('residence_id'),material=changed)
+        event=human_residence_local.record_material_event(material_id=material_id,owner_id=owner_id,event_type='change',payload={'changed_fields':list(changed_fields.keys()),'actor':'human'})
+        return {'accepted': True, 'material': saved, 'event': event, 'recomputation': 'NOT_RUN'}
+    except ValueError as exc: return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=400)
+
 @router.post('/api/human-situation/understand')
 async def human_situation_understand(request: Request):
     from ..application.hybrid_input import normalize_human_situation
