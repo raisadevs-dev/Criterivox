@@ -1181,7 +1181,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
         dense: true, contentPadding: EdgeInsets.zero,
         leading: const Icon(Icons.timeline, size: 16),
         title: Text(entry['event']?.toString() ?? '', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700)),
-        subtitle: Text(entry['stage']?.toString() + ' • ' + entry['at']?.toString(), style: TextStyle(color: theme.mutedText, fontSize: 9)),
+        subtitle: Text('${entry['stage'] ?? ''} • ${entry['at'] ?? ''}', style: TextStyle(color: theme.mutedText, fontSize: 9)),
       )),
     ]));
   }

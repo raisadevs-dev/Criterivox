@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:criterivox/world_map_level2_part4_page.dart';
+import 'package:presentation/world_map_level2_part4_page.dart';
 
 void main() {
   testWidgets('Part IV presents canonical quarter surface', (tester) async {

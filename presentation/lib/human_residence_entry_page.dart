@@ -81,7 +81,7 @@ class _HumanResidenceEntryPageState extends State<HumanResidenceEntryPage> {
           TextField(controller: email, keyboardType: TextInputType.emailAddress, textInputAction: TextInputAction.next, decoration: const InputDecoration(labelText: 'Email')),
           const SizedBox(height: 12),
           TextField(controller: password, obscureText: true, onSubmitted: (_) { if (!busy) _submit(); }, decoration: InputDecoration(labelText: 'Password', helperText: signup ? 'Use at least 8 characters.' : null)),
-          if (error.isNotEmpty) ...[const SizedBox(height: 12), Text(error, style: TextStyle(color: t.danger, fontSize: 11))],
+          if (error.isNotEmpty) ...[const SizedBox(height: 12), Text(error, style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 11))],
           const SizedBox(height: 16),
           FilledButton.icon(onPressed: busy ? null : _submit, icon: Icon(signup ? Icons.person_add_alt_1_rounded : Icons.login_rounded), label: Text(busy ? 'Connecting…' : signup ? 'Create account' : 'Sign in')),
           const SizedBox(height: 8),

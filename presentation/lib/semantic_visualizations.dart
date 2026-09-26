@@ -103,7 +103,7 @@ class CriterivoxSemanticVisuals {
     );
   }
   static Widget table(BuildContext context,{required String title,required List<String> columns,required List<List<String>> rows}) {
-    final t=CriterivoxTheme.of(context); return _Panel(title:title,child:SingleChildScrollView(scrollDirection:Axis.horizontal,child:DataTable(columnSpacing:22,headingTextStyle:TextStyle(color:t.text,fontSize:10,fontWeight:FontWeight.w800),dataTextStyle:TextStyle(color:t.mutedText,fontSize:9.5),columns:columns.map((c)=>DataColumn(label:Text(c))).toList(),rows:rows.map((r)=>DataRow(cells:r.map((v)=>DataCell(Text(v))).toList())).toList()));
+    final t=CriterivoxTheme.of(context); return _Panel(title:title,child:SingleChildScrollView(scrollDirection:Axis.horizontal,child:DataTable(columnSpacing:22,headingTextStyle:TextStyle(color:t.text,fontSize:10,fontWeight:FontWeight.w800),dataTextStyle:TextStyle(color:t.mutedText,fontSize:9.5),columns:columns.map((c)=>DataColumn(label:Text(c))).toList(),rows:rows.map((r)=>DataRow(cells:r.map((v)=>DataCell(Text(v))).toList())).toList())));
   }
   static Widget network(BuildContext context,{required String title,required List<SemanticRelationship> relationships}) {
     final t = CriterivoxTheme.of(context);

@@ -319,6 +319,7 @@ class _CivilizationPageState extends State<CivilizationPage> {
           ],
         ),
       ),
+    ),
     );
   }
 

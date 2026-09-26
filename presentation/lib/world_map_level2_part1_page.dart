@@ -27,8 +27,8 @@ class _WorldMapLevel2Part1PageState extends State<WorldMapLevel2Part1Page> {
 
   Future<void> _load() async {
     try {
-      final a = await http.get(CriterivoxApi.uri('/api/world/level2/roster'));
-      final b = await http.get(CriterivoxApi.uri('/api/world/level2/network'));
+      final a = await http.get(_runtimeUri('/api/world/level2/roster'));
+      final b = await http.get(_runtimeUri('/api/world/level2/network'));
       if (a.statusCode < 200 || a.statusCode >= 300) throw Exception();
       if (!mounted) return;
       setState(() {
@@ -50,7 +50,7 @@ class _WorldMapLevel2Part1PageState extends State<WorldMapLevel2Part1Page> {
     final destination = residents.isEmpty ? 'dharen' : residents.first.toString();
     try {
       final r = await http.post(
-        CriterivoxApi.uri('/api/world/level2/handshake'),
+        _runtimeUri('/api/world/level2/handshake'),
         headers: const {'content-type': 'application/json'},
         body: jsonEncode({
           'source': source, 'destination': destination, 'intent': intent.text.trim(),
@@ -63,6 +63,8 @@ class _WorldMapLevel2Part1PageState extends State<WorldMapLevel2Part1Page> {
       } else { setState(() => status = 'HANDSHAKE FAILED'); }
     } catch (_) { if (mounted) setState(() => status = 'HANDSHAKE UNAVAILABLE'); }
   }
+
+  Uri _runtimeUri(String path) => Uri.base.resolve(path);
 
   @override Widget build(BuildContext context) {
     final t = CriterivoxTheme.of(context);

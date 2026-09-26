@@ -62,9 +62,9 @@ class _WorldMapLevel2Part4PageState extends State<WorldMapLevel2Part4Page> {
             if (_loading) LinearProgressIndicator(color: t.primary),
             if (_error != null) _card(t, 'RUNTIME UNAVAILABLE', Text(_error!, style: TextStyle(color: t.mutedText, fontSize: 11))),
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Expanded(child: _homeCard(t, homes['intelligence'] as Map?, 'INTELLIGENCE • VIVREN + TARKIS')),
+              Expanded(child: _homeCard(t, (homes['intelligence'] as Map?)?.cast<String, dynamic>(), 'INTELLIGENCE • VIVREN + TARKIS')),
               const SizedBox(width: 12),
-              Expanded(child: _homeCard(t, homes['decision'] as Map?, 'DECISION & ACTION • PRAMON + BODHEX')),
+              Expanded(child: _homeCard(t, (homes['decision'] as Map?)?.cast<String, dynamic>(), 'DECISION & ACTION • PRAMON + BODHEX')),
             ]),
             const SizedBox(height: 14),
             _card(t, 'LIVE CAPABILITY COUNTS', Wrap(spacing: 8, runSpacing: 8, children: counts.entries.map((e) => _chip(t, '${e.key}: ${e.value}')).toList())),
