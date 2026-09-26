@@ -72,3 +72,49 @@ def test_guest_cannot_vote_or_execute(tmp_path, monkeypatch):
         assert False, "guest dispatch must be rejected"
     except PermissionError:
         pass
+
+
+def test_visibility_is_enforced_in_runtime_snapshot(tmp_path, monkeypatch):
+    import criterivox.human.collaboration_engine as module
+    monkeypatch.setattr(module, "ROOT", tmp_path)
+    monkeypatch.setattr(module, "STORE", tmp_path / "sessions.json")
+    monkeypatch.setattr(module, "LEARNING_STORE", tmp_path / "learning.json")
+    engine = CollaborationEngine()
+    created = engine.create("res-1", "owner-1", "Owner")
+    sid = created["session"]["session_id"]
+    engine.add_member(sid, "owner-1", "Resident", "resident", "resident-1")
+    engine.add_member(sid, "owner-1", "Guest", "guest", "guest-1")
+
+    engine.comment(sid, "owner-1", "owner secret", "OWNER_CONFIDENTIAL")
+    engine.comment(sid, "owner-1", "resident note", "RESIDENT_ONLY")
+    engine.comment(sid, "owner-1", "room note", "PUBLIC_TO_ROOM")
+
+    guest = engine.snapshot(sid, "guest-1")["session"]["threads"]
+    resident = engine.snapshot(sid, "resident-1")["session"]["threads"]
+    owner = engine.snapshot(sid, "owner-1")["session"]["threads"]
+
+    assert [x["text"] for x in guest] == ["room note"]
+    assert [x["text"] for x in resident] == ["resident note", "room note"]
+    assert [x["text"] for x in owner] == ["owner secret", "resident note", "room note"]
+
+
+def test_team_context_stream_uses_part5_categories(tmp_path, monkeypatch):
+    import criterivox.human.collaboration_engine as module
+    monkeypatch.setattr(module, "ROOT", tmp_path)
+    monkeypatch.setattr(module, "STORE", tmp_path / "sessions.json")
+    monkeypatch.setattr(module, "LEARNING_STORE", tmp_path / "learning.json")
+    engine = CollaborationEngine()
+    created = engine.create("res-1", "owner-1", "Owner")
+    sid = created["session"]["session_id"]
+
+    cases = {
+        "Our goal is to finish": "goal",
+        "The evidence source is verified": "evidence",
+        "The budget must stay low": "decision_constraint",
+        "Please execute the action": "action_request",
+        "Can you clarify this?": "clarification",
+        "hello thanks": "non_decision_conversation",
+    }
+    for text_value, expected in cases.items():
+        item = engine.classify_context(sid, "owner-1", text_value)
+        assert item["classification"] == expected
