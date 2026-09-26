@@ -1420,8 +1420,16 @@ class _SidebarState extends State<_Sidebar> {
                     _nav(
                       'Criterivox Workers / Bloom',
                       Icons.auto_awesome_rounded,
-                      const {'bloom','civilization','home-preview','level2','character-focus','reasoning-room'}.contains(widget.page),
+                      const {'bloom','civilization','civilization-part2','home-preview','level2','character-focus','reasoning-room'}.contains(widget.page),
                       () => widget.onOpen('bloom'),
+                      expanded, t,
+                    ),
+                    const SizedBox(height: 12),
+                    _nav(
+                      'World Map • Level 2 Part II',
+                      Icons.account_tree_rounded,
+                      widget.page == 'civilization-part2',
+                      () => widget.onOpen('civilization-part2'),
                       expanded, t,
                     ),
                     const SizedBox(height: 12),
