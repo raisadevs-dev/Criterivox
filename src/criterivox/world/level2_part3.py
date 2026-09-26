@@ -81,6 +81,10 @@ class KnowledgeChallengeRuntime:
         r={"knowledge_id":knowledge_id,"base_version":base_version,"current_version":cur.get("version") if cur else None,"status":"CONFLICT" if conflict else "SYNCED","incoming_digest":_digest(incoming),"created_at":_now()}
         if conflict: self.sync_conflicts.append(r)
         self._save(); return r
+    def transfer_structure(self, proposal_id, target_context, reuse_conditions=None):
+        if proposal_id not in self.proposals: raise KeyError("proposal_not_found")
+        p=self.proposals[proposal_id]
+        return {"transfer_id":f"transfer-{_digest([proposal_id,target_context])[:16]}","proposal_id":proposal_id,"target_context":target_context,"reuse_conditions":list(reuse_conditions or []),"source_version":p.version,"status":"BOUNDED_TRANSFER_PROPOSAL","provenance":list(p.source_refs),"limitations":list(p.limitations),"created_at":_now()}
     def record_utility(self,knowledge_id,outcome,evidence_refs=None):
         r={"knowledge_id":knowledge_id,"outcome":outcome,"evidence_refs":list(evidence_refs or []),"created_at":_now()}; self.utility.append(r); self._save(); return r
     def record_reflection(self,knowledge_id,observation,proposal):
