@@ -59,11 +59,11 @@ def test_context_envelope_excludes_private_chain_of_thought_by_default():
     assert envelope.truth is TruthClass.LIVE
 
 
-def test_planned_network_capabilities_are_not_reported_as_live():
+def test_network_capabilities_match_current_runtime_contract():
     capabilities = level2_runtime.route_status()["capabilities"]
-    assert capabilities["loop_interceptor"] == "PLANNED"
-    assert capabilities["dynamic_edge_weighting"] == "PLANNED"
-    assert capabilities["protocol_bridge"] == "PLANNED"
+    assert capabilities["loop_interceptor"] == "LIVE"
+    assert capabilities["dynamic_edge_weighting"] == "LIVE"
+    assert capabilities["protocol_bridge"] == "LIVE"
     assert capabilities["parallel_routing"] == "PLANNED"
     assert capabilities["event_dispatch"] == "PLANNED"
 
