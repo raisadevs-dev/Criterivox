@@ -1193,3 +1193,22 @@ The current branch now uses a canonical Part-II integration layer rather than in
 - Capability truth is no longer inferred from decorative presentation. The Part-II registry exposes LIVE/SIMULATED/HISTORICAL/PLANNED state explicitly.
 
 Older documentation in this file that describes Part-II as requiring duplicate engines is stale for the current branch and should not be used as implementation guidance.
+
+
+## Level 2 Part III reconciliation — current branch
+
+The current branch now contains a single Knowledge/Challenge integration layer for Part III. It does not duplicate existing character, collaboration, routing, event, Bloom, S5 or persistence engines.
+
+- Knowledge runtime: src/criterivox/world/level2_part3.py
+- Knowledge/Challenge API: src/criterivox/ui/level2_part3_routes.py
+- Canonical presentation: presentation/lib/world_map_level2_part3_page.dart
+- Navigation: presentation/lib/app_shell.dart route civilization-part3
+- Runtime coverage: tests/test_world_map_level2_part3_runtime.py
+
+Viveda is the canonical Knowledge resident. Manis is the canonical Challenge & Review resident. Manis challenge operations reuse the existing CollaborationEngine and HumanAuthority boundary.
+
+The lifecycle represented by this branch is:
+
+Evidence / trajectory → Knowledge proposal → Manis challenge → human review → versioned reusable knowledge → downstream transfer / reuse → new evidence.
+
+The Part III room catalog is now aligned with this architecture. Earlier documentation in this file that described these rooms only as planned must be interpreted as historical pre-integration state and is superseded by the current Part III reconciliation above.
