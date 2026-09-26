@@ -100,7 +100,7 @@ class _WorldMapLevel2Part1PageState extends State<WorldMapLevel2Part1Page> {
         const Divider(),
         Wrap(spacing: 6, runSpacing: 6, children: [for (final r in rels) Chip(label: Text(r['source'].toString() + ' → ' + r['target'].toString() + ' · ' + r['kind'].toString(), style: const TextStyle(fontSize: 9)))]),
         const SizedBox(height: 7),
-        Text('Dynamic edge weighting, protocol translation, loop interception, parallel routing and event mesh are shown as PLANNED until real mechanisms exist.', style: TextStyle(color: t.mutedText, fontSize: 10)),
+        Text('Loop protection, dynamic edge metrics, protocol translation, distributed trace, event dispatch and controlled parallel routing are backed by the development runtime; parallel execution is explicitly labelled LIVE_SIMULATION.', style: TextStyle(color: t.mutedText, fontSize: 10)),
       ]),
       const SizedBox(height: 12),
       _card(t, 'CROSS-HOME HANDSHAKE · SAFE SANDBOX', [
