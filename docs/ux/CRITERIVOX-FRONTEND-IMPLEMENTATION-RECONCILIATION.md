@@ -1229,3 +1229,10 @@ The former decision-action route is retained only for compatibility and redirect
 Part IV reuses existing Part I–III routing, event/trace, collaboration, HumanAuthority, evidence/provenance, Work Materials, sandbox, checkpoint/replay and telemetry systems. No replacement engine was introduced for those capabilities.
 
 Truth labels are runtime-backed at the Part-IV registry boundary. Repository writes do not constitute a test pass; focused tests require the project's runnable Python/Flutter environment.
+
+
+## Part V Pass 2 reconciliation
+
+The cross-quarter Evidence network now has a canonical S8 `EvidenceHandoff` adapter. Part IV Intelligence and Part III Knowledge expose integration routes backed by that adapter. Decision/Action and Human Territory use the same destination-neutral contract rather than creating separate evidence payload models.
+
+This does not make every downstream consumer fully UI-integrated: the contract/API layer is canonical and live, while richer human-facing handoff inspectors remain presentation work. Existing Part III `transfer_structure` and Part IV `handoff` APIs are retained as compatibility behavior and are not treated as competing Evidence engines.
