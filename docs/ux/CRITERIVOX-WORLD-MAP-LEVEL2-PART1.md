@@ -1134,3 +1134,45 @@ Character scripts remain outside this part until explicitly requested.
 **Level-2 Part-I principle:**
 
 > **Criterivox is experienced as a living spatial system, but every visible behavior must remain traceable to a real responsibility, interaction state, runtime event, or explicitly labelled simulation.**
+
+---
+
+# 36. Current Implementation Reconciliation
+
+This section supersedes earlier statements that described the Level-2 Part-I capabilities as purely planned or visually represented.
+
+## Canonical implementation
+
+The operational entry point is now `presentation/lib/world_map_level2_part1_page.dart`, mounted by `presentation/lib/app_shell.dart` at the `civilization` route. The previous `CivilizationPage` remains available as `civilization-legacy` for compatibility while consumers migrate.
+
+The backend source of truth is `src/criterivox/world/level2_part1.py`. It owns:
+
+- the canonical 15-character registry;
+- the seven Home registry;
+- semantic relationship records;
+- character operational and attention states;
+- explicit LIVE / SIMULATED / HISTORICAL / PLANNED truth classes;
+- Context Envelopes with private-chain-of-thought exclusion;
+- route records and trace spans.
+
+`src/criterivox/ui/level2_part1_routes.py` exposes the read/inspection and controlled handshake APIs, and `src/criterivox/ui/routes.py` mounts that router.
+
+## Phase 1–27 implementation status
+
+The Level-2 Part-I phases are implemented as one connected surface rather than 27 unrelated screens.
+
+- **1–11: Roster, briefing, state, relationships and handshake:** implemented through the canonical registry, operational briefing surface, semantic state model, relationship graph, and explicit simulation handshake.
+- **12–21: Anukor network layer:** the canonical route/envelope/trace model and inspection APIs are implemented. Intent routing and distributed trace are live in this development runtime. Loop interception, dynamic edge weighting, protocol translation, parallel routing and event-mesh dispatch are explicitly reported as **PLANNED** until their real mechanisms are added. The UI does not fake these capabilities.
+- **22–29: Guest Pass:** the existing `GuestPassManager` and Guest Pass experience remain the single implementation for ephemeral sessions, isolation, X-Ray, trade-off exploration and claim/leave. The Level-2 control plane does not duplicate that subsystem.
+
+## Truth and presentation rules
+
+Live data is only labelled LIVE when supplied by the runtime. Sandbox handshakes are labelled SIMULATED. Historical records remain HISTORICAL and unimplemented architecture remains PLANNED. Character visuals and navigation do not manufacture telemetry.
+
+The Level-2 presentation may expose structured decision lineage, provenance, route metadata and evidence references, but it must not expose private chain-of-thought.
+
+## Test coverage
+
+`tests/test_world_map_level2_part1_runtime.py` covers the canonical 15-character/7-Home registry, Anukor's network residency, semantic state, simulated route + trace continuity, Context Envelope exclusion, and PLANNED capability boundaries.
+
+The older `CivilizationPage` is retained only as a compatibility surface. New Level-2 work must use the canonical Part-I runtime and page rather than adding parallel registries or fabricated telemetry.
