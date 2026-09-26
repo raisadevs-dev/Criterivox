@@ -136,7 +136,7 @@ async def service_layer_execute(payload: dict):
     if not goal:
         return JSONResponse({'accepted': False, 'error': 'goal is required'}, status_code=400)
     request = ServiceRequest(
-        request_id=str(payload.get('request_id') or f'SVC-{uuid.uuid4()}'),
+        request_id=str(payload.get('request_id') or f'SVC-{time.time_ns()}'),
         goal=goal,
         supplied_data=str(payload.get('data', '')),
         context=str(payload.get('context', '')),
