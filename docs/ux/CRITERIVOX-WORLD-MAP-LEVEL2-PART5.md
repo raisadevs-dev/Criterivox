@@ -879,3 +879,25 @@ GATE 2 — HUMAN TERRITORY
 ## 50. Canonical Design Statement
 
 **Level 2 Part V turns evidence, memory, provenance, human authority, and collaborative decision-making into spatially inspectable structures. The Evidence & Experiment Quarter makes the truth lifecycle visible; the Private Room preserves individual human authority; and the Collaboration Room makes shared authority, disagreement, privacy, and accountability explicit.**
+
+
+## Pass 1 implementation status — Evidence & Experiment Quarter
+
+The canonical runtime remains `src/criterivox/s8/`. Pass 1 adds `src/criterivox/s8/part5.py` as an integration adapter rather than a second Evidence engine.
+
+Implemented through the existing S8 artifacts/events/policy:
+- Grounding Matrix data via claim verification;
+- Provenance Dossier assembly;
+- contradiction reconciliation state;
+- Receipt/Artifact inspection with integrity verification;
+- bi-temporal inspection;
+- explicit deterministic/probabilistic retrieval-mode reporting;
+- memory consolidation state inspection;
+- tenant/context security inspection;
+- semantic entropy as an explicitly labelled RESEARCH PROTOTYPE;
+- line/chunk attribution when source metadata is available;
+- Evidence → Knowledge transfer package.
+
+Browser API surface: `/api/world/level2/part5/evidence/*`.
+
+The Evidence Home presentation now reads the canonical runtime overview. It does not create a parallel evidence store or verification engine.
