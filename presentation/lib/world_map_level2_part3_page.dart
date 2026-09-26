@@ -9,7 +9,7 @@ class WorldMapLevel2Part3Page extends StatefulWidget {
 }
 
 class _WorldMapLevel2Part3PageState extends State<WorldMapLevel2Part3Page> {
-  Map<String,dynamic> state={}; String status='Loading…'; bool loading=true;
+  Map<String,dynamic> state={}; String status='Loading…'; bool loading=true; String selectedRoom='knowledge.hall';
   @override void initState(){super.initState(); _refresh();}
   Future<void> _refresh() async {
     try {
@@ -34,7 +34,7 @@ class _WorldMapLevel2Part3PageState extends State<WorldMapLevel2Part3Page> {
         const Text('Evidence / trajectory → proposal → Manis challenge → human review → versioned reusable knowledge.'),
         const SizedBox(height:12),Wrap(spacing:8,children:[FilledButton(onPressed:_trajectory,child:const Text('Create trajectory proposal')),OutlinedButton(onPressed:_challenge,child:const Text('Challenge latest with Manis')),OutlinedButton(onPressed:_refresh,child:const Text('Refresh'))])
       ]))),
-      const SizedBox(height:12),Text('Active proposals: ${List<dynamic>.from(state['proposals']??[]).length} • skills: ${List<dynamic>.from(state['skills']??[]).length}',style:TextStyle(color:t.onSurfaceVariant))
+      const SizedBox(height:12),Card(child:Padding(padding:const EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[const Text('OPERATIONAL DOORS',style:TextStyle(fontWeight:FontWeight.w800)),const SizedBox(height:8),Wrap(spacing:6,runSpacing:6,children:[...List<String>.from(k['rooms']??[]),...List<String>.from(c['rooms']??[])].map((room)=>ChoiceChip(label:Text(room),selected:selectedRoom==room,onSelected:(_)=>setState(()=>selectedRoom=room))))]))),const SizedBox(height:12),Text('Selected door: $selectedRoom • inspectable through the shared Part III runtime'),const SizedBox(height:12),Text('Active proposals: ${List<dynamic>.from(state['proposals']??[]).length} • skills: ${List<dynamic>.from(state['skills']??[]).length}',style:TextStyle(color:t.onSurfaceVariant))
     ]);}
   Widget _card(ColorScheme t,String title,Map<String,dynamic> data,List<String> bullets)=>Card(child:Padding(padding:const EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(title,style:TextStyle(color:t.primary,fontWeight:FontWeight.w800)),const SizedBox(height:8),Text('Resident: ${data['resident']??'—'} • Truth: ${data['truth']??'—'}'),const SizedBox(height:8),...bullets.map((x)=>Padding(padding:const EdgeInsets.only(bottom:4),child:Text('• $x'))),if(data['rooms'] is List)Text('Operational doors: ${(data['rooms'] as List).length}')])));}
 }
