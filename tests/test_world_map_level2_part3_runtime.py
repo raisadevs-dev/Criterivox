@@ -23,3 +23,7 @@ def test_version_and_memsync_conflict():
 
 def test_reflection_utility_migration():
     x=r(); assert x.record_utility("k","reused")["outcome"]=="reused"; assert x.record_reflection("k","observation","proposal")["status"]=="PENDING_CHALLENGE"; assert x.migration_contract("m","1","2")["to_version"]=="2"
+
+
+def test_structural_transfer_is_bounded():
+    x=r(); p=x.ingest_trajectory({'title':'transferable','references':['e1'],'steps':['inspect']}); t=x.transfer_structure(p.proposal_id,'reasoning', ['same scope']); assert t['status']=='BOUNDED_TRANSFER_PROPOSAL'; assert t['provenance']==['e1']
