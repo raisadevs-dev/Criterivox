@@ -1367,6 +1367,7 @@ class _Level2OperationalPageState extends State<Level2OperationalPage> {
                 completed: rooms.length,
                 total: rooms.length,
               ),
+              _HumanWorkDoors(home: widget.homeId, onOpen: widget.onEnterRoom),
               CriterivoxSemanticVisuals.table(
                 context,
                 title: 'Room responsibility register',
@@ -1434,4 +1435,17 @@ class _Level2OperationalPageState extends State<Level2OperationalPage> {
       ),
     );
   }
+}
+class _HumanWorkDoors extends StatelessWidget {
+  final String home; final ValueChanged<String>? onOpen;
+  const _HumanWorkDoors({required this.home, required this.onOpen});
+  static const mappings=<String,List<List<String>>>{
+    'context':[['Situation','material:situation_brief']],
+    'data':[['Evidence','material:evidence_package']],
+    'reasoning':[['Reasoning','material:reasoning_map']],
+    'decision':[['Strategies','material:strategy_set'],['Trade-offs','material:tradeoff_analysis'],['Plan','material:action_plan']],
+    'evidence':[['Evidence','material:evidence_package'],['Verification','material:verification_explanation']],
+    'knowledge':[['Knowledge','material:knowledge']],
+  };
+  @override Widget build(BuildContext context){final theme=CriterivoxTheme.of(context);final doors=mappings[home]??const <List<String>>[];if(doors.isEmpty)return const SizedBox.shrink();return Container(margin:const EdgeInsets.only(bottom:14),padding:const EdgeInsets.all(14),decoration:BoxDecoration(color:theme.surface,borderRadius:BorderRadius.circular(18),border:Border.all(color:theme.primary.withValues(alpha:.35))),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('HUMAN WORK DOORS',style:TextStyle(color:theme.primary,fontWeight:FontWeight.w900,fontSize:10,letterSpacing:1.2)),const SizedBox(height:5),Text('These entries open work materials. Internal civilization rooms remain available below for deeper inspection.',style:TextStyle(color:theme.mutedText,fontSize:9)),const SizedBox(height:10),Wrap(spacing:8,runSpacing:8,children:[for(final d in doors)FilledButton.tonalIcon(onPressed:onOpen==null?null:()=>onOpen!(d[1]),icon:const Icon(Icons.open_in_new_rounded,size:15),label:Text(d[0]))]) ]));}
 }
