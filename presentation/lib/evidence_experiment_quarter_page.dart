@@ -157,7 +157,7 @@ class _EvidenceExperimentQuarterPageState extends State<EvidenceExperimentQuarte
       const SizedBox(height: 4),
       Text('One home. Expandable responsibilities. No Level-2 doorway is required to reach the evidence work.', style: TextStyle(color: t.mutedText, fontSize: 10)),
       const SizedBox(height: 10),
-      ..._parts.map((part) => _EvidenceExpansion(part: part, expanded: _open[part.id] ?? false, onToggle: () => _toggle(part.id), onInspect: () => _inspect(part.id))),
+      ..._parts.map((part) => _EvidenceExpansion(part: part, expanded: _open[part.id] ?? false, onToggle: () => _toggle(part.id), onInspect: () => _loadDetail(part.id))),
     ]),
   );
 
