@@ -18,7 +18,97 @@ from .level2_part3_routes import router as level2_part3_router
 from .level2_part4_routes import router as level2_part4_router
 from ..infrastructure.runtime import runtime_connections
 install_home03_bridge(runtime_connections)
-router=APIRouter();router.include_router(collaboration_router);router.include_router(level2_part1_router);router.include_router(level2_part2_router);router.include_router(level2_part3_router);router.include_router(level2_part4_router);guest_passes=GuestPassManager()
+router=APIRouter();router.include_router(collaboration_router)
+from ..s8.part5 import surface as part5_evidence_surface
+
+@router.get('/api/world/level2/part5/evidence')
+async def part5_evidence_overview():
+    return part5_evidence_surface.overview()
+
+@router.get('/api/world/level2/part5/evidence/{artifact_id}')
+async def part5_evidence_artifact(artifact_id: str):
+    artifact = part5_evidence_surface.bureau.artifacts.get(artifact_id)
+    if artifact is None:
+        return JSONResponse({'error': 'artifact_not_found'}, status_code=404)
+    return {
+        'artifact_id': artifact.artifact_id, 'kind': artifact.kind.value,
+        'payload': dict(artifact.payload), 'source_ids': list(artifact.source_ids),
+        'parent_ids': list(artifact.parent_ids), 'created_at': artifact.created_at.isoformat(),
+        'tenant_id': artifact.tenant_id, 'context_id': artifact.context_id,
+        'content_hash': artifact.content_hash, 'status': artifact.status,
+    }
+
+@router.post('/api/world/level2/part5/evidence/request')
+async def part5_evidence_request(payload: dict):
+    return part5_evidence_surface.request_evidence(
+        str(payload.get('claim','')).strip(), str(payload.get('purpose','')).strip(), str(payload.get('requested_by','human')).strip()
+    ).__dict__
+
+@router.post('/api/world/level2/part5/evidence/verify')
+async def part5_evidence_verify(payload: dict):
+    return part5_evidence_surface.verify(
+        str(payload.get('claim','')).strip(), tuple(str(x) for x in payload.get('evidence_ids', [])),
+        tenant_id=payload.get('tenant_id'), context_id=payload.get('context_id')
+    )
+
+@router.post('/api/world/level2/part5/evidence/reconcile')
+async def part5_evidence_reconcile(payload: dict):
+    try:
+        return part5_evidence_surface.reconcile(
+            str(payload.get('contradiction_id','')), str(payload.get('resolution','unresolved')),
+            actor=str(payload.get('actor','human')), note=str(payload.get('note',''))
+        )
+    except (KeyError, ValueError) as exc:
+        return JSONResponse({'error': str(exc)}, status_code=400)
+
+@router.get('/api/world/level2/part5/evidence/retrieval')
+async def part5_evidence_retrieval(subject: str, mode: str = 'deterministic_temporal'):
+    try:
+        return part5_evidence_surface.retrieval(subject, mode=mode)
+    except ValueError as exc:
+        return JSONResponse({'error': str(exc)}, status_code=400)
+
+@router.get('/api/world/level2/part5/evidence/bitemporal')
+async def part5_evidence_bitemporal(subject: str):
+    return {'subject': subject, 'records': part5_evidence_surface.bitemporal(subject=subject)}
+
+@router.get('/api/world/level2/part5/evidence/dossier')
+async def part5_evidence_dossier(claim: str, evidence_ids: str = ''):
+    ids = tuple(x for x in evidence_ids.split(',') if x)
+    return part5_evidence_surface.dossier(claim, ids)
+
+@router.get('/api/world/level2/part5/evidence/security')
+async def part5_evidence_security(actor_id: str = 'human'):
+    return part5_evidence_surface.security(actor_id=actor_id)
+
+@router.post('/api/world/level2/part5/evidence/drift')
+async def part5_evidence_drift(payload: dict):
+    return part5_evidence_surface.drift([str(x) for x in payload.get('interpretations', [])])
+
+@router.get('/api/world/level2/part5/evidence/attribution')
+async def part5_evidence_attribution(claim: str):
+    return part5_evidence_surface.attribution(claim)
+
+@router.post('/api/world/level2/part5/evidence/transfer')
+async def part5_evidence_transfer(payload: dict):
+    try:
+        return part5_evidence_surface.transfer(
+            tuple(str(x) for x in payload.get('evidence_ids', [])),
+            destination=str(payload.get('destination','knowledge')),
+            reuse_conditions=[str(x) for x in payload.get('reuse_conditions', [])],
+            tenant_id=payload.get('tenant_id'), context_id=payload.get('context_id')
+        )
+    except ValueError as exc:
+        return JSONResponse({'error': str(exc)}, status_code=400)
+
+@router.post('/api/world/level2/part5/evidence/receipt/{artifact_id}')
+async def part5_evidence_receipt(artifact_id: str):
+    try:
+        return part5_evidence_surface.receipt(artifact_id)
+    except (KeyError, PermissionError) as exc:
+        return JSONResponse({'error': str(exc)}, status_code=400)
+
+router.include_router(collaboration_router);router.include_router(level2_part1_router);router.include_router(level2_part2_router);router.include_router(level2_part3_router);router.include_router(level2_part4_router);guest_passes=GuestPassManager()
 def _plan_payload(plan):return {'task_id':plan.task_id,'intent':{'goal':plan.intent.goal,'intent_type':plan.intent.intent_type,'confidence':plan.intent.confidence,'entities':plan.intent.entities},'steps':[step.__dict__ for step in plan.steps],'created_at':plan.created_at}
 
 @router.post('/api/human-auth/signup')
