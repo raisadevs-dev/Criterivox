@@ -273,7 +273,7 @@ async def human_residence_intake(payload: dict):
     if not isinstance(sources, list) or not sources:
         return JSONResponse({'accepted': False, 'error': 'at least one source is required'}, status_code=400)
     try:
-        from ..application.data_foundation_store import data_foundations
+        from ..Sandre.store import data_foundations
         foundation = data_foundations.ingest({
             'sources': sources[:50],
             'collection_id': payload.get('collection_id'),
@@ -419,7 +419,7 @@ async def human_residence_intake_folder(payload: dict):
     if not sources:
         return JSONResponse({'accepted': False, 'error': 'folder contains no readable files'}, status_code=400)
 
-    from ..application.data_foundation_store import data_foundations
+    from ..Sandre.store import data_foundations
     foundation = data_foundations.ingest({
         'sources': sources,
         'collection_id': collection_id or None,
