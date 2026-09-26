@@ -100,3 +100,60 @@ async def capabilities():
         "capabilities": level2_runtime.route_status()["capabilities"],
         "truth": "LIVE",
     }
+
+@router.post("/loop-check")
+async def loop_check(payload: dict):
+    return {"accepted": True, "loop": level2_runtime.inspect_loop([str(x) for x in payload.get("visited_nodes", [])], int(payload.get("max_depth", 8)))}
+
+
+@router.post("/edge-metric")
+async def edge_metric(payload: dict):
+    return {"accepted": True, "edge": level2_runtime.update_edge_metric(
+        str(payload.get("source", "")), str(payload.get("target", "")),
+        latency_ms=float(payload.get("latency_ms", 0.0)),
+        success=bool(payload.get("success", True)),
+        active_workload=int(payload.get("active_workload", 0)),
+    )}
+
+
+@router.post("/protocol-bridge")
+async def protocol_bridge(payload: dict):
+    try:
+        return {"accepted": True, "bridge": level2_runtime.translate_protocol(
+            str(payload.get("source_protocol", "")),
+            str(payload.get("target_protocol", "")),
+            dict(payload.get("payload") or {}),
+        )}
+    except ValueError as exc:
+        return JSONResponse({"accepted": False, "error": str(exc)}, status_code=400)
+
+
+@router.post("/parallel-route")
+async def parallel_route(payload: dict):
+    try:
+        return {"accepted": True, "parallel": level2_runtime.parallel_route(
+            str(payload.get("source", "anukor")),
+            [str(x) for x in payload.get("destinations", [])],
+            str(payload.get("intent", "")),
+        )}
+    except ValueError as exc:
+        return JSONResponse({"accepted": False, "error": str(exc)}, status_code=400)
+
+
+@router.post("/events/subscribe")
+async def event_subscribe(payload: dict):
+    event_type = str(payload.get("event_type", "")).strip()
+    subscriber = str(payload.get("subscriber", "")).strip()
+    if not event_type or not subscriber:
+        return JSONResponse({"accepted": False, "error": "event_type_and_subscriber_required"}, status_code=400)
+    level2_runtime.subscribe(event_type, subscriber)
+    return {"accepted": True, "event_type": event_type, "subscriber": subscriber}
+
+
+@router.post("/events/dispatch")
+async def event_dispatch(payload: dict):
+    event_type = str(payload.get("event_type", "")).strip()
+    producer = str(payload.get("producer", "")).strip()
+    if not event_type or not producer:
+        return JSONResponse({"accepted": False, "error": "event_type_and_producer_required"}, status_code=400)
+    return {"accepted": True, "event": level2_runtime.dispatch_event(event_type, producer, dict(payload.get("payload") or {}))}
