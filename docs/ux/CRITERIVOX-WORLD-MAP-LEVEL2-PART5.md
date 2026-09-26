@@ -952,3 +952,40 @@ Implemented/refined:
 ### Acceptance reconciliation
 
 The Private Room acceptance criteria in §47 are now represented by the existing runtime: separated goal/context inputs, surfaced missing variables, inspectable alternatives, explicit challenge, approval boundary, and actual outcome recording. Richer timeline/event inspection is now exposed directly in the Private Room rather than requiring a separate decision backend.
+
+
+## Pass 4 implementation status — Gate 2 Collaboration Room
+
+Pass 4 completes the Collaboration Room around the existing `src/criterivox/human/collaboration_engine.py` and `presentation/lib/collaboration_room_page.dart`. No second collaboration engine is introduced.
+
+### 31. Collaboration Room
+
+The existing collaboration session is the canonical shared decision surface. Runtime state is synchronized through the collaboration API and Human Residence remains the residence boundary.
+
+### 32. Human Role Model
+
+Owner / Resident / Guest roles are runtime permissions, not decorative labels. The engine denies operations outside each role's permission set.
+
+### 33. Context Masking Wall
+
+Pass 4 strengthens this boundary at the runtime snapshot: PUBLIC_TO_ROOM is visible to all participants, RESIDENT_ONLY to owner/residents, and OWNER_CONFIDENTIAL only to the owner. Guest snapshots do not receive resident context diffs or signatures.
+
+### 34. Consensus & Disagreement Observatory
+
+Existing vote/consensus/challenge state remains canonical. Risk changes the consensus threshold, and unresolved alignment/high-risk/multi-signatory governance activates Manis friction rather than manufacturing agreement.
+
+### 35. Team Context Stream
+
+Context classification now explicitly supports the Part V categories: goal update, data input, decision constraint, evidence, action request, clarification, and non-decision conversation. Only confirmed context mutations enter authoritative context.
+
+### 36. Multi-Signatory Action Gate
+
+Existing Owner + designated Resident signatures and Bodhex dispatch remain the authorization boundary. Required resident count is configurable and dispatch remains locked until the configured policy is satisfied. Runtime receipts are labelled tamper-evident hashes, not claimed as external cryptographic signatures.
+
+### 37. Shared Results Journal
+
+Existing outcome recording preserves selected option, consensus, contributors, and the real result. Learning proposals remain explicitly pending human approval before promotion.
+
+### Pass 4 acceptance reconciliation
+
+The Collaboration Room acceptance criteria in §48 are now directly represented by the runtime: roles are visible, context scope is enforced server-side, disagreement/challenges are recorded, high-impact actions remain authorization-gated, and outcomes preserve contributor attribution.
