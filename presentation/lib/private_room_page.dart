@@ -1070,7 +1070,9 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
             'Action Scope: decision-derived tool action\n'
             'Blast Radius: user-controlled and explicitly reviewed\n'
             'Rollback Plan: must be defined before dispatch\n'
-            'Resource Cost: governed by the selected preference vector',
+            'Resource Cost: governed by the selected preference vector\\n'
+            'Evidence Status: ' + (research != null ? 'ATTACHED' : 'SUPPLIED-MATERIAL ONLY') + '\\n'
+            'Unresolved Challenges: ' + (challenges.length - challengedIndexes.length).toString(),
             style: TextStyle(
               color: theme.mutedText,
               fontSize: 10,
@@ -1082,6 +1084,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
             onChanged: (value) {
               setState(() {
                 actApproved = value ?? false;
+                _refreshDecisionState();
               });
             },
             title: const Text(
@@ -1094,6 +1097,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
             onChanged: (value) {
               setState(() {
                 secondFactor = value ?? false;
+                _refreshDecisionState();
               });
             },
             title: const Text(
