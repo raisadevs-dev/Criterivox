@@ -172,6 +172,33 @@ class CollaborationEngine:
 
         return member
 
+    def _visible(self, item: dict[str, Any], member: CollaborationMember) -> bool:
+        visibility = str(item.get("visibility", "PUBLIC_TO_ROOM"))
+        if visibility == "PUBLIC_TO_ROOM":
+            return True
+        if visibility == "RESIDENT_ONLY":
+            return member.role in {"owner", "resident"}
+        if visibility == "OWNER_CONFIDENTIAL":
+            return member.role == "owner"
+        return False
+
+    def _filtered_session(self, session: CollaborationSession, member: CollaborationMember) -> dict[str, Any]:
+        data = asdict(session)
+        for key in ("threads", "candidate_context", "challenges", "outcomes"):
+            data[key] = [
+                item for item in data.get(key, [])
+                if self._visible(item, member)
+            ]
+        if member.role == "guest":
+            data["context_diffs"] = []
+            data["signatures"] = {}
+        elif member.role == "resident":
+            data["signatures"] = {
+                key: value for key, value in data.get("signatures", {}).items()
+                if value.get("role") == "resident"
+            }
+        return data
+
     def snapshot(
         self,
         sid: str,
@@ -179,18 +206,17 @@ class CollaborationEngine:
     ) -> dict[str, Any]:
         session = self.sessions[sid]
         member = self._member(session, member_id)
-
         if member is None:
-            raise PermissionError(
-                "unknown collaboration member"
-            )
-
+            raise PermissionError("unknown collaboration member")
         return {
-            "session": asdict(session),
+            "session": self._filtered_session(session, member),
             "member": asdict(member),
-            "permissions": sorted(
-                PERMISSIONS.get(member.role, set())
-            ),
+            "permissions": sorted(PERMISSIONS.get(member.role, set())),
+            "visibility_policy": {
+                "PUBLIC_TO_ROOM": True,
+                "RESIDENT_ONLY": member.role in {"owner", "resident"},
+                "OWNER_CONFIDENTIAL": member.role == "owner",
+            },
         }
 
     def create(
@@ -393,7 +419,7 @@ class CollaborationEngine:
         text: str,
         *,
         confirm: bool = False,
-        variable_type: str = "constraint",
+        variable_type: str = "decision_constraint",
     ) -> dict[str, Any]:
         with self._lock:
             session = self.sessions[sid]
@@ -428,19 +454,20 @@ class CollaborationEngine:
             ):
                 kind = "data"
 
-            elif any(
-                term in lowered
-                for term in (
-                    "must",
-                    "cannot",
-                    "limit",
-                    "budget",
-                    "deadline",
-                    "risk",
-                    "constraint",
-                )
-            ):
-                kind = "constraint"
+            elif any(term in lowered for term in ("must", "cannot", "limit", "budget", "deadline", "risk", "constraint")):
+                kind = "decision_constraint"
+
+            elif any(term in lowered for term in ("evidence", "source", "proof", "citation", "verify")):
+                kind = "evidence"
+
+            elif any(term in lowered for term in ("do ", "execute", "send", "schedule", "deploy", "action")):
+                kind = "action_request"
+
+            elif any(term in lowered for term in ("clarify", "what do you mean", "question", "unclear")):
+                kind = "clarification"
+
+            elif any(term in lowered for term in ("chat", "hello", "thanks", "off-topic")):
+                kind = "non_decision_conversation"
 
             else:
                 kind = "discussion"
