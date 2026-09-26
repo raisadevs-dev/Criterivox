@@ -26,7 +26,7 @@ import 'presentation/criterivox_theme.dart' as criterivox_theme;
 import 'presentation/language_mode.dart';
 import 'presentation/presentation_state.dart';
 import 'presentation/runtime_client.dart';
-import 'data_stewardship_page.dart';
+import 'Sandre/data_stewardship_page.dart';
 import 'home03_syvax_page.dart';
 import 's7/s7_environment_page.dart';
 import 'decision_action_quarter_page.dart';
