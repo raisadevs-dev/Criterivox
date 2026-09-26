@@ -89,6 +89,8 @@ class HumanResidenceLocalStore:
                     created_at TEXT NOT NULL
                 );
                 CREATE INDEX IF NOT EXISTS idx_decision_events_decision ON decision_events(decision_id, created_at ASC);
+                CREATE TABLE IF NOT EXISTS work_materials (material_id TEXT PRIMARY KEY, owner_id TEXT NOT NULL, residence_id TEXT, material_type TEXT NOT NULL, title TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1, status TEXT NOT NULL, payload_json TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS idx_work_materials_owner ON work_materials(owner_id, updated_at DESC);
                 CREATE TABLE IF NOT EXISTS calendar_events (
                     calendar_id TEXT PRIMARY KEY,
                     owner_id TEXT NOT NULL,
@@ -310,6 +312,30 @@ class HumanResidenceLocalStore:
             )
         return self.get_calendar_event(calendar_id) or {}
 
+    def save_work_material(self, *, owner_id: str, residence_id: str | None, material: dict[str, Any]) -> dict[str, Any]:
+        material_id = str(material.get('material_id') or f'material-{secrets.token_urlsafe(12)}'); now = _now(); existing = self.get_work_material(material_id, owner_id)
+        version = int(existing.get('version', 0)) + 1 if existing else int(material.get('version', 1)); payload = dict(material); payload.update({'material_id': material_id, 'version': version, 'updated_at': now})
+        with self._connect() as db:
+            if existing: db.execute('UPDATE work_materials SET version=?, status=?, title=?, payload_json=?, updated_at=? WHERE material_id=? AND owner_id=?', (version, str(payload.get('status','available')), str(payload.get('title','Work Material')), json.dumps(payload, default=str, sort_keys=True), now, material_id, owner_id))
+            else: db.execute('INSERT INTO work_materials(material_id,owner_id,residence_id,material_type,title,version,status,payload_json,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)', (material_id, owner_id, residence_id, str(payload.get('material_type','work')), str(payload.get('title','Work Material')), version, str(payload.get('status','available')), json.dumps(payload, default=str, sort_keys=True), now, now))
+        return self.get_work_material(material_id, owner_id) or payload
+
+    def get_work_material(self, material_id: str, owner_id: str) -> dict[str, Any] | None:
+        with self._connect() as db: row = db.execute('SELECT * FROM work_materials WHERE material_id=? AND owner_id=?', (material_id, owner_id)).fetchone()
+        if row is None: return None
+        payload=json.loads(row['payload_json']); payload.update({'material_id':row['material_id'],'material_type':row['material_type'],'title':row['title'],'version':row['version'],'status':row['status'],'created_at':row['created_at'],'updated_at':row['updated_at']}); return payload
+
+    def list_work_materials(self, owner_id: str, material_type: str = '') -> list[dict[str, Any]]:
+        with self._connect() as db:
+            rows = db.execute('SELECT * FROM work_materials WHERE owner_id=? AND material_type=? ORDER BY updated_at DESC', (owner_id, material_type)).fetchall() if material_type else db.execute('SELECT * FROM work_materials WHERE owner_id=? ORDER BY updated_at DESC', (owner_id,)).fetchall()
+        out=[]
+        for row in rows:
+            payload=json.loads(row['payload_json']); payload.update({'material_id':row['material_id'],'material_type':row['material_type'],'title':row['title'],'version':row['version'],'status':row['status'],'created_at':row['created_at'],'updated_at':row['updated_at']}); out.append(payload)
+        return out
+
+    def record_material_event(self, *, material_id: str, owner_id: str, event_type: str, payload: dict[str, Any]) -> dict[str, Any]:
+        if self.get_work_material(material_id, owner_id) is None: raise ValueError('material not found')
+        return self.record_decision_event(decision_id=material_id, owner_id=owner_id, event_type=f'material:{event_type}', payload=payload)
     def get_decision(self, decision_id: str) -> dict[str, Any] | None:
         with self._connect() as db:
             row = db.execute("SELECT * FROM decisions WHERE decision_id=?", (decision_id,)).fetchone()
