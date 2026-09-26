@@ -1,4 +1,4 @@
-from criterivox.application.data_foundation_store import DataFoundationStore
+from criterivox.Sandre.store import DataFoundationStore
 from criterivox.domain.data_foundation import ConfirmationStatus, DataFoundation
 
 
