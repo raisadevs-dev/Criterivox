@@ -228,7 +228,7 @@ class _ShellState extends State<CriterivoxShell> {
       'syvax': 'gateway', 'sandre': 'data', 'kaelen': 'data',
       'dharen': 'context', 'anuka': 'context',
       'vivren': 'reasoning', 'tarkis': 'reasoning',
-      'pramon': 'decision', 'bodhex': 'decision', 'manis': 'decision',
+      'pramon': 'decision', 'bodhex': 'decision', 'manis': 'challenge',
       'medrus': 'evidence', 'epistre': 'evidence', 'veridat': 'evidence',
       'viveda': 'knowledge',
     };
@@ -468,6 +468,11 @@ class _ShellState extends State<CriterivoxShell> {
 
     if (home == 'knowledge') {
       _openHome08Inspection();
+      return;
+    }
+
+    if (home == 'challenge') {
+      open('civilization-part3');
       return;
     }
 
@@ -723,6 +728,7 @@ class _ShellState extends State<CriterivoxShell> {
   String get _companionLocation {
     if (page == 'bloom') return 'bloom';
     if (page == 'civilization') return 'civilization';
+    if (page == 'civilization-part3') return 'civilization';
     if (page == 'home-preview') return 'home';
     if (page == 'level2') return 'level2';
     if (page == 'reasoning-room') return 'reasoning-room';
