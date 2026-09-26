@@ -9,7 +9,8 @@ import 'semantic_visualizations.dart';
 
 class DecisionDeskPage extends StatefulWidget {
   final VoidCallback? onResults;
-  const DecisionDeskPage({super.key, this.onResults});
+  final VoidCallback? onWorkMaterials;
+  const DecisionDeskPage({super.key, this.onResults, this.onWorkMaterials});
   @override State<DecisionDeskPage> createState() => _DecisionDeskPageState();
 }
 class _DecisionDeskPageState extends State<DecisionDeskPage> {
@@ -80,6 +81,7 @@ class _DecisionDeskPageState extends State<DecisionDeskPage> {
         const SizedBox(height:12),
         Wrap(spacing:8,runSpacing:8,children:[
           if(widget.onResults!=null)OutlinedButton.icon(onPressed:widget.onResults,icon:const Icon(Icons.menu_book_outlined),label:const Text('Open Results Journal')),
+          if(widget.onWorkMaterials!=null)OutlinedButton.icon(onPressed:widget.onWorkMaterials,icon:const Icon(Icons.inventory_2_outlined),label:const Text('Open Work Materials')),
           OutlinedButton.icon(onPressed:()=>setState((){status='READY_FOR_HUMAN_REVIEW';}),icon:const Icon(Icons.edit_note_rounded),label:const Text('Correct the situation')),
         ]),
       ])),
