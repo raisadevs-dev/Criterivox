@@ -108,7 +108,7 @@ class Part4Runtime:
         self.risk_profiles: list[dict[str, Any]] = []
         self.dags: list[dict[str, Any]] = []
         self.resources: list[dict[str, Any]] = []
-        self.finops: list[dict[str, Any]] = []
+        self.finops_records: list[dict[str, Any]] = []
         self.tools: dict[str, dict[str, Any]] = {}
         self.replays: list[dict[str, Any]] = []
         self.tool_health: dict[str, dict[str, Any]] = {}
@@ -336,7 +336,7 @@ class Part4Runtime:
     def finops(self, estimated_cost: float, budget: float, authorized: bool = False) -> dict[str, Any]:
         estimated_cost = max(0.0, float(estimated_cost)); budget = max(0.0, float(budget))
         result = {"finops_id": _id("fin"), "estimated_cost": estimated_cost, "budget": budget, "authorized": bool(authorized and estimated_cost <= budget), "throttle_required": estimated_cost > budget, "truth": LIVE, "created_at": _now()}
-        self.finops.append(result)
+        self.finops_records.append(result)
         return result
 
     def register_tool(self, identifier: str, schema: dict[str, Any], capability: str, permissions: list[str], latency_ms: int = 0, available: bool = True) -> dict[str, Any]:
