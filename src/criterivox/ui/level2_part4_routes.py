@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
 from ..world.level2_part4 import runtime
+from ..s8.part5 import surface as evidence_surface
 
 router = APIRouter(prefix="/api/world/level2/part4", tags=["world-level2-part4"])
 
@@ -61,6 +62,27 @@ async def reflexion(payload: dict):
 async def goal_alignment(payload: dict):
     return _call(runtime.goal_alignment, str(payload.get("original_goal", "")), str(payload.get("current_goal", "")))
 
+
+@router.post("/evidence-request")
+async def evidence_request(payload: dict):
+    return _call(evidence_surface.request_evidence, str(payload.get("claim","")), str(payload.get("purpose","")), str(payload.get("requested_by","part4")))
+
+@router.post("/evidence-handoff")
+async def evidence_handoff(payload: dict):
+    try:
+        return evidence_surface.handoff(
+            tuple(str(x) for x in payload.get("evidence_ids", [])),
+            handoff_type="intelligence_to_evidence",
+            destination="part4",
+            claim=str(payload.get("claim","")),
+            purpose=str(payload.get("purpose","")),
+            request_id=payload.get("request_id"),
+            assumptions=[str(x) for x in payload.get("assumptions", [])],
+            uncertainty=str(payload.get("uncertainty","")),
+            update_reason=str(payload.get("update_reason",""))
+        )
+    except ValueError as exc:
+        return JSONResponse({"accepted": False, "error": str(exc)}, status_code=400)
 
 @router.post("/handoff")
 async def handoff(payload: dict):
