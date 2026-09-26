@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'presentation/api_client.dart';
+import 'human_residence_store.dart';
+import 'package:http/http.dart' as http;
 
 class WorkMaterialPage extends StatefulWidget {
   final VoidCallback? onBack;
@@ -12,15 +14,18 @@ class _WorkMaterialPageState extends State<WorkMaterialPage> {
   Map<String,dynamic>? selected;
   bool loading=true;
   String status='';
+  final store=HumanResidenceStore();
+  String token='';
   final challenge=TextEditingController();
   @override void initState(){super.initState();_load();}
   @override void dispose(){challenge.dispose();super.dispose();}
   Future<void> _load() async {
     setState(()=>loading=true);
-    setState(()=>status='Work Materials requires an authenticated Human Residence session.');
-    setState(()=>loading=false);
+    final residence=await store.load(); token=residence?.metadata['session_token']?.toString()??'';
+    if(token.isEmpty){setState(()=>status='Open an authenticated Human Residence session before inspecting work materials.');setState(()=>loading=false);return;}
+    try { final r=await http.get(CriterivoxApi.uri('/api/work-materials?session_token='+Uri.encodeQueryComponent(token))).timeout(const Duration(seconds:8)); final body=jsonDecode(r.body); if(r.statusCode<200||r.statusCode>=300||body is! Map) throw Exception('Could not load work materials'); final raw=body['materials']; setState(()=>materials=raw is List?raw.whereType<Map>().map((x)=>Map<String,dynamic>.from(x)).toList():[]); if(materials.isNotEmpty)selected=materials.first; } catch(e){setState(()=>status=e.toString().replaceFirst('Exception: ',''));} finally {if(mounted)setState(()=>loading=false);}
   }
-  void _challenge(){if(challenge.text.trim().isEmpty)return;setState(()=>status='Challenge prepared. Persistence requires an authenticated session.');}
+  Future<void> _challenge() async {final m=selected;if(m==null||challenge.text.trim().isEmpty)return;try{final r=await http.post(CriterivoxApi.uri('/api/work-materials/'+m['material_id'].toString()+'/challenge'),headers:const {'content-type':'application/json'},body:jsonEncode({'session_token':token,'text':challenge.text.trim()}));if(r.statusCode<200||r.statusCode>=300)throw Exception('Challenge was not saved');setState(()=>status='Challenge recorded and persisted for this material.');challenge.clear();}catch(e){setState(()=>status=e.toString().replaceFirst('Exception: ',''));}}
   @override Widget build(BuildContext context){
     final cs=Theme.of(context).colorScheme;
     return Scaffold(
