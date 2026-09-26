@@ -442,11 +442,13 @@ class CollaborationEngine:
             ):
                 kind = "goal"
 
+            elif any(term in lowered for term in ("evidence", "source", "proof", "citation", "verify")):
+                kind = "evidence"
+
             elif any(
                 term in lowered
                 for term in (
                     "data",
-                    "evidence",
                     "dataset",
                     "metric",
                     "result",
@@ -456,9 +458,6 @@ class CollaborationEngine:
 
             elif any(term in lowered for term in ("must", "cannot", "limit", "budget", "deadline", "risk", "constraint")):
                 kind = "decision_constraint"
-
-            elif any(term in lowered for term in ("evidence", "source", "proof", "citation", "verify")):
-                kind = "evidence"
 
             elif any(term in lowered for term in ("do ", "execute", "send", "schedule", "deploy", "action")):
                 kind = "action_request"
