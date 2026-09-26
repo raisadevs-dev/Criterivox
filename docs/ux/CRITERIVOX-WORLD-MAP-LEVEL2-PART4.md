@@ -1498,3 +1498,8 @@ The generic Level-2 operational catalogue remains a compatibility/read-model sur
 
 The repository includes focused Part-IV runtime tests. CI/local execution must still be run in an environment containing the project's Python and Flutter dependencies; repository writes alone do not constitute a test pass.
 
+
+
+## Current runtime reconciliation
+
+The Part I network capabilities covered by this Part IV integration are now marked LIVE where the canonical runtime implements them. The FinOps control is exposed by the callable `Part4Runtime.finops(...)`; its internal record collection is `finops_records` so the method is not shadowed by instance state.
