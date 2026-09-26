@@ -1243,3 +1243,10 @@ This does not make every downstream consumer fully UI-integrated: the contract/A
 Private Room is the canonical Gate 2 personal decision surface. Its existing Human Residence store remains the persistence boundary; the existing decision API remains the decision pipeline; the existing challenge and authorization routes remain the governance/action boundaries.
 
 The Pass 3 UI now exposes explicit context readiness, decision stage, action-safety evidence/uncertainty state, and a persisted Decision Timeline. The implementation does not create a parallel Private Room backend or a replacement decision engine.
+
+
+## Part V Pass 4 reconciliation
+
+The Collaboration Room is canonical on `CollaborationEngine` + `CollaborationRoomPage`. Pass 4 does not introduce a second RBAC, context, consensus, signing, outcome, or learning engine.
+
+Runtime enforcement now matches the presentation model for differential visibility. The seven Team Context Stream categories are represented by the collaboration classifier, while human confirmation remains required before authoritative context mutation. Multi-signatory dispatch continues to use the existing owner/resident authorization boundary.
