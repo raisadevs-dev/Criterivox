@@ -217,7 +217,7 @@ class _CollaborationRoomPageState extends State<CollaborationRoomPage> {
     final data = await _request(
         'POST',
         '/api/collaboration/session/$sid/classify',
-        {'actor': actor, 'text': text, 'variable_type': 'constraint'});
+        {'actor': actor, 'text': text, 'variable_type': 'decision_constraint'});
     if (data != null) {
       messageCtl.clear();
       await _refresh();
@@ -537,7 +537,7 @@ class _CollaborationRoomPageState extends State<CollaborationRoomPage> {
 
   Widget _context(CriterivoxTheme t) => _panel(
       t,
-      'C • RAW CHAT → SYVAX CLASSIFICATION → HUMAN CONFIRMATION → DHAREN CONTEXT DIFF',
+      'C • TEAM CONTEXT STREAM • SYVAX → HUMAN CONFIRMATION → DHARENON → HUMAN CONFIRMATION → DHAREN CONTEXT DIFF',
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(
             'Raw discussion is not authoritative context. Syvax classifies it into a candidate variable; a human must confirm it before Dharen receives a Context Diff.',
