@@ -2,7 +2,7 @@ from criterivox.context.ml import S6LearnedModelRegistry
 from criterivox.ml.anuka import AnukaMLAgent
 from criterivox.ml.dharen import DharenMLAgent
 from criterivox.ml.kaelen import KaelenMLAgent
-from criterivox.ml.sandre import SandreMLAgent
+from criterivox.Sandre.ml import SandreMLAgent
 
 
 def test_all_s6_learned_models_load_from_registry():
