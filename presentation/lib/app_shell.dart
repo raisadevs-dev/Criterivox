@@ -445,10 +445,8 @@ class _ShellState extends State<CriterivoxShell> {
   }
 
   void _openReasoningRoom(String roomId) {
-    setState(() {
-      civilizationHome = 'reasoning';
-      page = 'reasoning-room';
-    });
+    if (roomId.startsWith('material:')) { open('work-materials'); return; }
+    setState(() { civilizationHome = 'reasoning'; page = 'reasoning-room'; });
   }
 
   void _openLevel2(String home) {
@@ -477,7 +475,7 @@ class _ShellState extends State<CriterivoxShell> {
     open('level2');
   }
 
-  Future<void> _openHome07Inspection() async {
+  void _openLevel2Room(String roomId) { if (roomId.startsWith('material:')) { open('work-materials'); return; } if (civilizationHome == 'reasoning') { _openReasoningRoom(roomId); } }\n\n  Future<void> _openHome07Inspection() async {
     await showDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -794,9 +792,7 @@ class _ShellState extends State<CriterivoxShell> {
           key: const ValueKey('level2'),
           homeId: civilizationHome ?? 'context',
           onBack: () => open('home-preview'),
-          onEnterRoom: civilizationHome == 'reasoning'
-              ? _openReasoningRoom
-              : null,
+          onEnterRoom: _openLevel2Room,
         );
 
       case 'human-residence-entry':
