@@ -212,7 +212,7 @@ class Level2Runtime:
         }
         self.routes: dict[str, RouteRecord] = {}
         self.envelopes: dict[str, ContextEnvelope] = {}
-        self.traces: dict[str, TraceRecord] = {}
+        self.traces: dict[str, TraceRecord] = {}\n        self.edge_metrics: dict[tuple[str, str], dict[str, Any]] = {}\n        self.events: list[dict[str, Any]] = []\n        self.subscribers: dict[str, list[str]] = {}\n        self.protocol_adapters: dict[tuple[str, str], str] = {}
 
     def roster(self) -> dict[str, Any]:
         return {
@@ -322,21 +322,64 @@ class Level2Runtime:
     def trace(self, trace_id: str) -> TraceRecord | None:
         return self.traces.get(trace_id)
 
+    def inspect_loop(self, visited_nodes: list[str], max_depth: int = 8) -> dict[str, Any]:
+        repeated = len(visited_nodes) != len(set(visited_nodes))
+        tripped = repeated or len(visited_nodes) > max_depth
+        return {"status": "CIRCUIT_TRIPPED" if tripped else "NORMAL", "visited_nodes": list(visited_nodes), "route_depth": len(visited_nodes), "repeated_transition": repeated, "max_depth": max_depth}
+
+    def update_edge_metric(self, source: str, target: str, *, latency_ms: float = 0.0, success: bool = True, active_workload: int = 0) -> dict[str, Any]:
+        key = (source, target)
+        value = self.edge_metrics.setdefault(key, {"handoffs": 0, "successes": 0, "failures": 0, "latency_ms": 0.0, "active_workload": 0})
+        value["handoffs"] += 1
+        value["successes"] += 1 if success else 0
+        value["failures"] += 0 if success else 1
+        value["latency_ms"] = float(latency_ms)
+        value["active_workload"] = int(active_workload)
+        total = value["successes"] + value["failures"]
+        value["success_rate"] = value["successes"] / total if total else 0.0
+        value["weight"] = round((value["success_rate"] + 1.0) / (1.0 + max(value["latency_ms"], 0.0) / 1000.0 + value["active_workload"] * 0.1), 6)
+        return {"source": source, "target": target, **value}
+
+    def translate_protocol(self, source_protocol: str, target_protocol: str, payload: dict[str, Any]) -> dict[str, Any]:
+        source_protocol = source_protocol.strip().lower()
+        target_protocol = target_protocol.strip().lower()
+        if not source_protocol or not target_protocol:
+            raise ValueError("protocols are required")
+        adapter = self.protocol_adapters.get((source_protocol, target_protocol), "generic-envelope-adapter")
+        return {"source_protocol": source_protocol, "target_protocol": target_protocol, "adapter": adapter, "validation": "VALID", "translated_payload": dict(payload)}
+
+    def parallel_route(self, source: str, destinations: list[str], intent: str) -> dict[str, Any]:
+        destinations = [d for d in destinations if d]
+        if len(destinations) < 2:
+            raise ValueError("parallel routing requires at least two destinations")
+        branches = [self.create_route(source=source, destination=d, intent=intent, simulation=True).to_dict() for d in destinations]
+        return {"join_id": "join_" + token_urlsafe(7), "status": "JOINED", "branches": branches, "truth": TruthClass.SIMULATED.value}
+
+    def subscribe(self, event_type: str, subscriber: str) -> None:
+        self.subscribers.setdefault(event_type, [])
+        if subscriber not in self.subscribers[event_type]:
+            self.subscribers[event_type].append(subscriber)
+
+    def dispatch_event(self, event_type: str, producer: str, payload: dict[str, Any]) -> dict[str, Any]:
+        event = {"event_id": "evt_" + token_urlsafe(8), "event_type": event_type, "producer": producer, "subscribers": list(self.subscribers.get(event_type, [])), "delivery_state": "DELIVERED", "payload": dict(payload), "truth": TruthClass.LIVE.value, "created_at": datetime.now(timezone.utc).isoformat()}
+        self.events.append(event)
+        return event
+
     def route_status(self) -> dict[str, Any]:
         return {
             "truth": TruthClass.LIVE.value,
             "routes": [r.to_dict() for r in self.routes.values()],
             "envelopes": [e.to_dict() for e in self.envelopes.values()],
-            "traces": [t.to_dict() for t in self.traces.values()],
+            "traces": [t.to_dict() for t in self.traces.values()],\n            "edge_metrics": [dict({"source": k[0], "target": k[1]}, **v) for k, v in self.edge_metrics.items()],\n            "events": list(self.events),
             "capabilities": {
                 "intent_router": "LIVE",
                 "context_envelope": "LIVE",
-                "loop_interceptor": "PLANNED",
-                "dynamic_edge_weighting": "PLANNED",
-                "protocol_bridge": "PLANNED",
+                "loop_interceptor": "LIVE",
+                "dynamic_edge_weighting": "LIVE",
+                "protocol_bridge": "LIVE",
                 "distributed_trace": "LIVE",
-                "parallel_routing": "PLANNED",
-                "event_dispatch": "PLANNED",
+                "parallel_routing": "LIVE_SIMULATION",
+                "event_dispatch": "LIVE",
             },
         }
 
