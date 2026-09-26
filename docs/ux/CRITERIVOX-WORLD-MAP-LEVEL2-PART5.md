@@ -989,3 +989,8 @@ Existing outcome recording preserves selected option, consensus, contributors, a
 ### Pass 4 acceptance reconciliation
 
 The Collaboration Room acceptance criteria in §48 are now directly represented by the runtime: roles are visible, context scope is enforced server-side, disagreement/challenges are recorded, high-impact actions remain authorization-gated, and outcomes preserve contributor attribution.
+
+
+### Pass 4 validation note
+
+Focused collaboration coverage now includes runtime visibility filtering and all seven Team Context Stream classifications. Existing A→G collaboration coverage remains the primary lifecycle test. Test execution is intentionally not marked as passed until the repository's Python/Flutter toolchains execute these tests in the development environment.
