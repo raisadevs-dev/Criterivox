@@ -10,6 +10,7 @@ from .policy import AccessRequest, AuthorizationError, S8Policy
 from .research import EvaluationRecorder, ExperimentRecord, MemoryConsolidator, TemporalRetriever, impacted_downstream
 from .s7_adapter import S7Adapter, S7ArtifactEnvelope
 from .intake import CriterivoxMessage, S8Intake, CONTRACT
+from .part5 import EvidenceRequest, PartVEvidenceSurface, ProvenanceDossier, surface
 
 __all__ = [
     "AccessRequest", "ArenaInterpretation", "Artifact", "ArtifactKind", "AuthorizationError", "BureauEvent",
