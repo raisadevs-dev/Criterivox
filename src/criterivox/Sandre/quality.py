@@ -2,7 +2,7 @@
 from __future__ import annotations
 from typing import Any
 from ..application.s5_advanced_runtime import EvaluationGate
-from ..application.s5_sklearn_backend import SklearnAnomalyBackend
+from .sklearn_backend import SklearnAnomalyBackend
 
 class SandreQuality:
     def __init__(self) -> None:
