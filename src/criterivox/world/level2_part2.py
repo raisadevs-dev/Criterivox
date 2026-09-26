@@ -125,6 +125,19 @@ class Part2Runtime:
         label = {"READY": "Ready for human action", "PAUSED": "Waiting for human steering", "RUNNING": "Work in progress"}.get(status, status)
         return {"state": status, "human_text": label, "truth": "LIVE"}
 
+    def adaptive_render(self, result: Any, *, intent: str = "general", detail: str = "balanced") -> dict[str, Any]:
+        detail = detail if detail in {"compact", "balanced", "detailed"} else "balanced"
+        rendered = result
+        if isinstance(result, dict):
+            if detail == "compact":
+                rendered = {k: result[k] for k in list(result)[:6]}
+            elif detail == "detailed":
+                rendered = dict(result)
+        return {"intent": intent, "detail": detail, "rendered": rendered, "truth": "LIVE", "renderer": "part2_adaptive_human_output"}
+
+    def guardrail_state(self, constraints: list[str] | None = None, blocked_actions: list[str] | None = None) -> dict[str, Any]:
+        return {"truth": "LIVE", "constraints": list(constraints or []), "blocked_actions": list(blocked_actions or []), "status": "CLEAR" if not blocked_actions else "REVIEW"}
+
     def synthesize_ui_intents(self, current_state: dict[str, Any]) -> dict[str, Any]:
         status = str(current_state.get("status", self.steering["status"])).upper()
         intents = ["inspect"]
