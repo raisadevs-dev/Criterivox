@@ -1,6 +1,6 @@
 from criterivox.ml.corruption import corrupt
 from criterivox.ml.kaelen import KaelenMLAgent
-from criterivox.ml.sandre import SandreMLAgent
+from criterivox.Sandre.ml import SandreMLAgent
 
 
 def test_sandre_train_and_predict() -> None:
