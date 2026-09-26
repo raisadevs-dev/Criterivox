@@ -38,6 +38,40 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
   bool secondFactor = false;
 
   String status = 'PRIVATE_ROOM_READY';
+  String contextState = 'CONTEXT_SLOT_MISSING';
+  String decisionStage = 'GOAL';
+  DateTime? lastDecisionEventAt;
+
+  void _refreshDecisionState() {
+    final hasGoal = goal.text.trim().isNotEmpty;
+    final hasData = data.text.trim().isNotEmpty || materials.isNotEmpty;
+    final hasContext = contextCtl.text.trim().isNotEmpty;
+    contextState = !hasData ? 'CONTEXT_SLOT_MISSING' : (!hasContext ? 'CONTEXT_SLOT_MISSING' : (hasGoal ? 'DATA_COMPLETE' : 'AMBIGUOUS_BOUNDS'));
+    if (hasGoal && hasData && hasContext) contextState = 'READY_FOR_ANALYSIS';
+    if (options.isNotEmpty) decisionStage = challengedIndexes.isNotEmpty ? 'CHALLENGE' : 'OPTIONS';
+    if (actApproved && secondFactor) decisionStage = calendarId != null ? 'ACTION' : 'APPROVAL';
+    if (journal.isNotEmpty && journal.first['real_result'] != null) decisionStage = 'RESULT';
+  }
+
+  Future<void> _recordTimeline(String event, {Map<String, dynamic>? details}) async {
+    lastDecisionEventAt = DateTime.now();
+    _refreshDecisionState();
+    final current = residence;
+    if (current == null) return;
+    final events = <Map<String, dynamic>>[];
+    final raw = current.metadata['decision_timeline'];
+    if (raw is List) events.addAll(raw.whereType<Map>().map((entry) => Map<String, dynamic>.from(entry)));
+    final record = <String, dynamic>{'at': lastDecisionEventAt!.toIso8601String(), 'event': event, 'stage': decisionStage};
+    if (details != null) record.addAll(details);
+    events.insert(0, record);
+    final updated = HumanResidenceRecord(
+      residenceId: current.residenceId, ownerId: current.ownerId, displayName: current.displayName,
+      email: current.email, residenceType: current.residenceType, createdAt: current.createdAt,
+      members: current.members, metadata: {...current.metadata, 'decision_timeline': events.take(100).toList()},
+    );
+    await store.save(updated);
+    if (mounted) setState(() => residence = updated);
+  }
 
   List<String> options = const [];
   List<String> challenges = const [];
@@ -116,6 +150,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
         speed = restoredSpeed.clamp(0, 100).toDouble();
         cost = restoredCost.clamp(0, 100).toDouble();
         reliability = restoredReliability.clamp(0, 100).toDouble();
+        _refreshDecisionState();
       });
     } catch (e) {
       if (!mounted) {
@@ -353,6 +388,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
         running = false;
         status = research != null ? 'RESEARCH_COMPLETE • evidence attached to decision trace' : 'DECISION_READY • challenge before acceptance';
       });
+      await _recordTimeline('OPTIONS_GENERATED', details: {'decision_id': decisionId, 'research_attached': research != null});
       await _persist('decision_pipeline_complete');
     } catch (e) {
       if (mounted) setState(() { running = false; status = 'DECISION_PIPELINE_FAILED • $e'; });
@@ -379,6 +415,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
       },
     );
 
+    await _recordTimeline('DECISION_SAVED', details: {'decision_id': decisionId});
     await _persist('decision_saved');
     final token = residence?.metadata['session_token']?.toString();
     if (token != null) {
@@ -464,6 +501,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     });
 
     if (residence != null) {
+      await _recordTimeline('CHALLENGE_RECORDED', details: {'challenge_index': index});
       await _persist('challenge_recorded');
       final token = residence!.metadata['session_token']?.toString();
       if (token != null && decisionId != null) {
@@ -527,6 +565,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
         secondFactor = true;
         status = 'STRATEGY ACCEPTED • CALENDAR EVENT CREATED • BODHEX READY';
       });
+      await _recordTimeline('APPROVAL_AND_ACTION_SCHEDULED', details: {'calendar_id': calendarId});
       await _loadCalendar();
       await _persist('strategy_accepted_and_scheduled');
     } catch (e) {
@@ -549,6 +588,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
       ).timeout(const Duration(seconds: 8));
       if (response.statusCode < 200 || response.statusCode >= 300) throw Exception('calendar execution authorization rejected');
       setState(() => status = 'EXECUTION AUTHORIZED • BODHEX HANDLER • CALENDAR EVENT READY');
+      await _recordTimeline('ACTION_AUTHORIZED', details: {'calendar_id': calendarId});
       await _persist('action_approved');
     } catch (e) {
       setState(() => status = 'ACTION_AUTHORIZATION_FAILED • $e');
@@ -588,6 +628,8 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
           _calendar(theme),
           const SizedBox(height: 14),
           _researchTrace(theme),
+          const SizedBox(height: 14),
+          _decisionTimeline(theme),
           const SizedBox(height: 14),
           _journal(theme),
         ],
@@ -796,7 +838,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
   Widget _pareto(CriterivoxTheme theme) {
     return _panel(
       theme,
-      '2 • PARETO DECISION FRONTIER',
+      '2 • DECISION OPTIONS OBSERVATORY',
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -921,7 +963,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
   Widget _challengeBench(CriterivoxTheme theme) {
     return _panel(
       theme,
-      '3 • MANIS STRESS-TEST BENCH',
+      '3 • HUMAN CHALLENGE BENCH',
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1012,7 +1054,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
   Widget _actGate(CriterivoxTheme theme) {
     return _panel(
       theme,
-      '4 • TWO-FACTOR JUDGMENT + ACTION SAFETY GATE',
+      '4 • ACTION SAFETY GATE',
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1124,10 +1166,26 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     );
   }
 
+  Widget _decisionTimeline(CriterivoxTheme theme) {
+    final raw = residence?.metadata['decision_timeline'];
+    final events = raw is List ? raw.whereType<Map>().map((entry) => Map<String, dynamic>.from(entry)).toList() : <Map<String, dynamic>>[];
+    return _panel(theme, '6 • DECISION TIMELINE', Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      const Text('INPUT → OPTIONS → CHALLENGES → DECISION → ACTION → RESULT → LEARNING'),
+      const SizedBox(height: 8),
+      if (events.isEmpty) Text('No decision events recorded yet.', style: TextStyle(color: theme.mutedText, fontSize: 10))
+      else ...events.take(20).map((entry) => ListTile(
+        dense: true, contentPadding: EdgeInsets.zero,
+        leading: const Icon(Icons.timeline, size: 16),
+        title: Text(entry['event']?.toString() ?? '', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700)),
+        subtitle: Text(entry['stage']?.toString() + ' • ' + entry['at']?.toString(), style: TextStyle(color: theme.mutedText, fontSize: 9)),
+      )),
+    ]));
+  }
+
   Widget _journal(CriterivoxTheme theme) {
     return _panel(
       theme,
-      '5 • BI-TEMPORAL RESULTS JOURNAL',
+      '7 • RESULTS JOURNAL • BI-TEMPORAL RESULTS JOURNAL',
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
