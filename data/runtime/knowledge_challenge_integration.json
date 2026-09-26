@@ -1,0 +1,400 @@
+{
+  "proposals": {
+    "knowledge-d33e14f35e6fa922": {
+      "proposal_id": "knowledge-d33e14f35e6fa922",
+      "kind": "trajectory_pattern",
+      "title": "trajectory",
+      "source_refs": [
+        "delivery-1"
+      ],
+      "assumptions": [],
+      "limitations": [],
+      "payload": {
+        "pattern": {
+          "steps": [
+            "inspect",
+            "compare"
+          ],
+          "conditions": [],
+          "outcomes": [],
+          "success_signals": []
+        },
+        "source_digest": "23d144d32e3a0ffcb2d9e2544be77373096de98bff9e60e193bdc1bef729ebc7"
+      },
+      "status": "APPROVED",
+      "challenge_ids": [
+        "90705c382cae4df692455a99427fa059"
+      ],
+      "created_at": "2026-09-26T12:53:42.196825+00:00",
+      "version": "2"
+    },
+    "knowledge-c91e60e7565ae281": {
+      "proposal_id": "knowledge-c91e60e7565ae281",
+      "kind": "trajectory_pattern",
+      "title": "transferable",
+      "source_refs": [
+        "e1"
+      ],
+      "assumptions": [],
+      "limitations": [],
+      "payload": {
+        "pattern": {
+          "steps": [
+            "inspect"
+          ],
+          "conditions": [],
+          "outcomes": [],
+          "success_signals": []
+        },
+        "source_digest": "957f72b06d014638a06210509eb546a2d8a694bb4bbaa4bf947c1fa217f3d4c8"
+      },
+      "status": "PROPOSED",
+      "challenge_ids": [],
+      "created_at": "2026-09-26T12:53:43.530980+00:00",
+      "version": "1"
+    }
+  },
+  "ontology": {
+    "decision": {
+      "node_id": "decision",
+      "label": "Decision",
+      "relationships": [],
+      "source_refs": [],
+      "status": "PROPOSED",
+      "updated_at": "2026-09-26T12:53:43.276185+00:00"
+    }
+  },
+  "skills": {
+    "s1": {
+      "skill_id": "s1",
+      "version": "1",
+      "taxonomy_path": [
+        "reasoning",
+        "review"
+      ],
+      "constraints": [
+        "human_review"
+      ],
+      "status": "active"
+    }
+  },
+  "skill_health": {
+    "s1": {
+      "skill_id": "s1",
+      "uses": 0,
+      "contradictions": 0,
+      "last_validated": "2026-09-26T11:58:31.422980+00:00",
+      "status": "active"
+    }
+  },
+  "versions": {
+    "k": [
+      {
+        "knowledge_id": "k",
+        "version": "1",
+        "parents": [],
+        "schema_version": "1",
+        "status": "proposed"
+      },
+      {
+        "knowledge_id": "k",
+        "version": "1",
+        "parents": [],
+        "schema_version": "1",
+        "status": "proposed"
+      },
+      {
+        "knowledge_id": "k",
+        "version": "1",
+        "parents": [],
+        "schema_version": "1",
+        "status": "proposed"
+      },
+      {
+        "knowledge_id": "k",
+        "version": "1",
+        "parents": [],
+        "schema_version": "1",
+        "status": "proposed"
+      }
+    ]
+  },
+  "translations": [
+    {
+      "translation_id": "translation-ee3c56d2941803ef",
+      "target_schema": {
+        "schema_id": "knowledge",
+        "version": "2",
+        "required_fields": [
+          "title",
+          "evidence"
+        ],
+        "optional_fields": []
+      },
+      "source_fields": [
+        "title"
+      ],
+      "missing_required": [
+        "evidence"
+      ],
+      "status": "INCOMPATIBLE",
+      "created_at": "2026-09-26T11:58:31.813915+00:00"
+    },
+    {
+      "translation_id": "translation-ee3c56d2941803ef",
+      "target_schema": {
+        "schema_id": "knowledge",
+        "version": "2",
+        "required_fields": [
+          "title",
+          "evidence"
+        ],
+        "optional_fields": []
+      },
+      "source_fields": [
+        "title"
+      ],
+      "missing_required": [
+        "evidence"
+      ],
+      "status": "INCOMPATIBLE",
+      "created_at": "2026-09-26T12:33:39.605108+00:00"
+    },
+    {
+      "translation_id": "translation-ee3c56d2941803ef",
+      "target_schema": {
+        "schema_id": "knowledge",
+        "version": "2",
+        "required_fields": [
+          "title",
+          "evidence"
+        ],
+        "optional_fields": []
+      },
+      "source_fields": [
+        "title"
+      ],
+      "missing_required": [
+        "evidence"
+      ],
+      "status": "INCOMPATIBLE",
+      "created_at": "2026-09-26T12:44:45.714773+00:00"
+    },
+    {
+      "translation_id": "translation-ee3c56d2941803ef",
+      "target_schema": {
+        "schema_id": "knowledge",
+        "version": "2",
+        "required_fields": [
+          "title",
+          "evidence"
+        ],
+        "optional_fields": []
+      },
+      "source_fields": [
+        "title"
+      ],
+      "missing_required": [
+        "evidence"
+      ],
+      "status": "INCOMPATIBLE",
+      "created_at": "2026-09-26T12:53:43.345074+00:00"
+    }
+  ],
+  "mutations": [
+    {
+      "mutation_id": "mutation-8a5358397062948b",
+      "node_id": "decision",
+      "before": {
+        "node_id": "decision",
+        "label": "Decision",
+        "relationships": [],
+        "source_refs": [],
+        "status": "PROPOSED",
+        "updated_at": "2026-09-26T11:58:30.234375+00:00"
+      },
+      "proposed_changes": {
+        "relationships": [
+          {
+            "to": "evidence"
+          }
+        ]
+      },
+      "reason": "reviewed relation",
+      "source_refs": [
+        "e-1"
+      ],
+      "status": "PROPOSED",
+      "created_at": "2026-09-26T11:58:30.907087+00:00"
+    },
+    {
+      "mutation_id": "mutation-48a62f56cb989dcb",
+      "node_id": "decision",
+      "before": {
+        "node_id": "decision",
+        "label": "Decision",
+        "relationships": [],
+        "source_refs": [],
+        "status": "PROPOSED",
+        "updated_at": "2026-09-26T12:33:37.180742+00:00"
+      },
+      "proposed_changes": {
+        "relationships": [
+          {
+            "to": "evidence"
+          }
+        ]
+      },
+      "reason": "reviewed relation",
+      "source_refs": [
+        "e-1"
+      ],
+      "status": "PROPOSED",
+      "created_at": "2026-09-26T12:33:37.410364+00:00"
+    },
+    {
+      "mutation_id": "mutation-f59c62d34d75ed3c",
+      "node_id": "decision",
+      "before": {
+        "node_id": "decision",
+        "label": "Decision",
+        "relationships": [],
+        "source_refs": [],
+        "status": "PROPOSED",
+        "updated_at": "2026-09-26T12:44:45.599722+00:00"
+      },
+      "proposed_changes": {
+        "relationships": [
+          {
+            "to": "evidence"
+          }
+        ]
+      },
+      "reason": "reviewed relation",
+      "source_refs": [
+        "e-1"
+      ],
+      "status": "PROPOSED",
+      "created_at": "2026-09-26T12:44:45.605648+00:00"
+    },
+    {
+      "mutation_id": "mutation-02f78b62afa35e69",
+      "node_id": "decision",
+      "before": {
+        "node_id": "decision",
+        "label": "Decision",
+        "relationships": [],
+        "source_refs": [],
+        "status": "PROPOSED",
+        "updated_at": "2026-09-26T12:53:43.276185+00:00"
+      },
+      "proposed_changes": {
+        "relationships": [
+          {
+            "to": "evidence"
+          }
+        ]
+      },
+      "reason": "reviewed relation",
+      "source_refs": [
+        "e-1"
+      ],
+      "status": "PROPOSED",
+      "created_at": "2026-09-26T12:53:43.279881+00:00"
+    }
+  ],
+  "utility": [
+    {
+      "knowledge_id": "k",
+      "outcome": "reused",
+      "evidence_refs": [],
+      "created_at": "2026-09-26T11:58:33.949506+00:00"
+    },
+    {
+      "knowledge_id": "k",
+      "outcome": "reused",
+      "evidence_refs": [],
+      "created_at": "2026-09-26T12:33:39.770192+00:00"
+    },
+    {
+      "knowledge_id": "k",
+      "outcome": "reused",
+      "evidence_refs": [],
+      "created_at": "2026-09-26T12:44:45.854269+00:00"
+    },
+    {
+      "knowledge_id": "k",
+      "outcome": "reused",
+      "evidence_refs": [],
+      "created_at": "2026-09-26T12:53:43.451105+00:00"
+    }
+  ],
+  "sync_conflicts": [
+    {
+      "knowledge_id": "k",
+      "base_version": "0",
+      "current_version": "1",
+      "status": "CONFLICT",
+      "incoming_digest": "0b3a178d3458979eb4524c685a11f329077b77c0b98c630b02b928918d1b4f11",
+      "created_at": "2026-09-26T11:58:33.224928+00:00"
+    },
+    {
+      "knowledge_id": "k",
+      "base_version": "0",
+      "current_version": "1",
+      "status": "CONFLICT",
+      "incoming_digest": "0b3a178d3458979eb4524c685a11f329077b77c0b98c630b02b928918d1b4f11",
+      "created_at": "2026-09-26T12:33:39.717247+00:00"
+    },
+    {
+      "knowledge_id": "k",
+      "base_version": "0",
+      "current_version": "1",
+      "status": "CONFLICT",
+      "incoming_digest": "0b3a178d3458979eb4524c685a11f329077b77c0b98c630b02b928918d1b4f11",
+      "created_at": "2026-09-26T12:44:45.799724+00:00"
+    },
+    {
+      "knowledge_id": "k",
+      "base_version": "0",
+      "current_version": "1",
+      "status": "CONFLICT",
+      "incoming_digest": "0b3a178d3458979eb4524c685a11f329077b77c0b98c630b02b928918d1b4f11",
+      "created_at": "2026-09-26T12:53:43.406845+00:00"
+    }
+  ],
+  "reflections": [
+    {
+      "reflection_id": "reflection-6422a525696ea08d",
+      "knowledge_id": "k",
+      "observation": "observation",
+      "proposal": "proposal",
+      "status": "PENDING_CHALLENGE",
+      "created_at": "2026-09-26T11:58:33.953130+00:00"
+    },
+    {
+      "reflection_id": "reflection-547eccba49deaaec",
+      "knowledge_id": "k",
+      "observation": "observation",
+      "proposal": "proposal",
+      "status": "PENDING_CHALLENGE",
+      "created_at": "2026-09-26T12:33:39.797651+00:00"
+    },
+    {
+      "reflection_id": "reflection-55f2d61ff11a3c8f",
+      "knowledge_id": "k",
+      "observation": "observation",
+      "proposal": "proposal",
+      "status": "PENDING_CHALLENGE",
+      "created_at": "2026-09-26T12:44:45.856788+00:00"
+    },
+    {
+      "reflection_id": "reflection-0170423d2fbd0c6a",
+      "knowledge_id": "k",
+      "observation": "observation",
+      "proposal": "proposal",
+      "status": "PENDING_CHALLENGE",
+      "created_at": "2026-09-26T12:53:43.455250+00:00"
+    }
+  ]
+}
