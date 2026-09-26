@@ -9,6 +9,7 @@ import 'civilization_world_portal_page.dart';
 import 'civilization_page.dart';
 import 'world_map_level2_part1_page.dart';
 import 'world_map_level2_part2_page.dart';
+import 'world_map_level2_part3_page.dart';
 import 'civilization_home_preview_page.dart';
 import 'level2_operational_page.dart';
 import 'world_portal_page.dart';
@@ -714,7 +715,7 @@ class _ShellState extends State<CriterivoxShell> {
   }
 
   bool get _isCivilizationExperience => const {
-        'bloom', 'civilization', 'civilization-part2', 'home-preview', 'level2',
+        'bloom', 'civilization', 'civilization-part2', 'civilization-part3', 'home-preview', 'level2',
         'reasoning-room', 'character-focus', 'decision-action',
         'evidence-experiment',
       }.contains(page);
@@ -838,6 +839,12 @@ class _ShellState extends State<CriterivoxShell> {
           onBackToBloom: () => open('bloom'),
           onOpenHome: _openHome,
           onOpenCharacter: openCharacterFocus,
+        );
+
+      case 'civilization-part3':
+        return WorldMapLevel2Part3Page(
+          key: const ValueKey('world-map-level2-part3'),
+          onBack: () => open('civilization'),
         );
 
       case 'civilization-part2':
@@ -1430,6 +1437,14 @@ class _SidebarState extends State<_Sidebar> {
                       Icons.account_tree_rounded,
                       widget.page == 'civilization-part2',
                       () => widget.onOpen('civilization-part2'),
+                      expanded, t,
+                    ),
+                    const SizedBox(height: 12),
+                    _nav(
+                      'World Map • Level 2 Part III',
+                      Icons.account_tree_rounded,
+                      widget.page == 'civilization-part3',
+                      () => widget.onOpen('civilization-part3'),
                       expanded, t,
                     ),
                     const SizedBox(height: 12),
