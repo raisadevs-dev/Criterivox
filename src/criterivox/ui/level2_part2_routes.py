@@ -17,6 +17,20 @@ async def home(home: str):
     except ValueError as exc:
         return JSONResponse({"accepted": False, "error": str(exc)}, status_code=404)
 
+@router.post("/render")
+async def render(payload: dict):
+    return {"accepted": True, "render": part2_runtime.adaptive_render(
+        payload.get("result"), intent=str(payload.get("intent", "general")),
+        detail=str(payload.get("detail", "balanced")),
+    )}
+
+@router.post("/guardrails")
+async def guardrails(payload: dict):
+    return {"accepted": True, "guardrails": part2_runtime.guardrail_state(
+        [str(x) for x in payload.get("constraints", [])],
+        [str(x) for x in payload.get("blocked_actions", [])],
+    )}
+
 @router.post("/ui-intents")
 async def ui_intents(payload: dict):
     return {"accepted": True, "ui_intents": part2_runtime.synthesize_ui_intents(dict(payload or {}))}
