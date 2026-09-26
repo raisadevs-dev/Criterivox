@@ -16,7 +16,7 @@ class _WorldMapLevel2Part3PageState extends State<WorldMapLevel2Part3Page> {
       final r=await http.get(Uri.parse('/api/world/level2/part3/state'));
       if(!mounted)return;
       setState(()=>{state: Map<String,dynamic>.from(jsonDecode(r.body) as Map),loading:false,status:r.statusCode>=200&&r.statusCode<300?'LIVE • shared Knowledge / Challenge integration':'HTTP ${r.statusCode}'});
-    } catch (_) { if(mounted)setState(()=>{loading:false,status:'Runtime unavailable • inspection boundary remains visible'}); }
+    } catch (_) { if(mounted)setState(() { loading = false; status = 'Runtime unavailable • inspection boundary remains visible'; }); }
   }
   Future<void> _post(String path,Map<String,dynamic> body) async {
     try { final r=await http.post(Uri.parse('/api/world/level2/part3$path'),headers:{'content-type':'application/json'},body:jsonEncode(body)); if(!mounted)return; setState(()=>status=r.statusCode>=200&&r.statusCode<300?'LIVE • action accepted':'Action rejected • HTTP ${r.statusCode}'); await _refresh(); } catch(_){if(mounted)setState(()=>status='Runtime unavailable');}
