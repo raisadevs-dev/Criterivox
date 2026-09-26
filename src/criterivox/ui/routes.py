@@ -2,6 +2,7 @@
 """Browser-facing UI routes and Home 03 interaction APIs."""
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
+import json
 import base64,binascii,hashlib,json,time
 from ..application.syvax import syvax_engine
 from ..application.bloom import bloom_controller
@@ -245,6 +246,19 @@ async def work_materials_list(session_token: str, material_type: str = ''):
     if owner_id is None:
         return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
     return {'accepted': True, 'materials': human_residence_local.list_work_materials(owner_id, material_type)}
+
+@router.get('/api/work-materials/{material_id}/export')
+async def work_material_export(material_id: str, session_token: str, format: str = 'json'):
+    owner_id = human_residence_local.owner_for_session(session_token)
+    if owner_id is None: return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    material=human_residence_local.get_work_material(material_id, owner_id)
+    if material is None: return JSONResponse({'accepted': False, 'error': 'material_not_found'}, status_code=404)
+    from fastapi.responses import Response
+    if format.lower() == 'html':
+        title=str(material.get('title','Criterivox Work Material'))
+        body='<h1>'+title+'</h1><p>'+str(material.get('purpose',''))+'</p><h2>Status</h2><p>'+str(material.get('status',''))+'</p><h2>Content</h2><pre>'+json.dumps(material.get('content',{}),indent=2,default=str)+'</pre><h2>Limitations</h2><pre>'+json.dumps(material.get('limitations',[]),indent=2)+'</pre>'
+        return Response('<!doctype html><html><body>'+body+'</body></html>',media_type='text/html',headers={'Content-Disposition': 'attachment; filename="criterivox-material-'+material_id+'.html"'})
+    return Response(json.dumps(material,indent=2,default=str),media_type='application/json',headers={'Content-Disposition': 'attachment; filename="criterivox-material-'+material_id+'.json"'})
 
 @router.get('/api/work-materials/{material_id}')
 async def work_material_get(material_id: str, session_token: str):
