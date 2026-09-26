@@ -1236,3 +1236,10 @@ Truth labels are runtime-backed at the Part-IV registry boundary. Repository wri
 The cross-quarter Evidence network now has a canonical S8 `EvidenceHandoff` adapter. Part IV Intelligence and Part III Knowledge expose integration routes backed by that adapter. Decision/Action and Human Territory use the same destination-neutral contract rather than creating separate evidence payload models.
 
 This does not make every downstream consumer fully UI-integrated: the contract/API layer is canonical and live, while richer human-facing handoff inspectors remain presentation work. Existing Part III `transfer_structure` and Part IV `handoff` APIs are retained as compatibility behavior and are not treated as competing Evidence engines.
+
+
+## Part V Pass 3 reconciliation
+
+Private Room is the canonical Gate 2 personal decision surface. Its existing Human Residence store remains the persistence boundary; the existing decision API remains the decision pipeline; the existing challenge and authorization routes remain the governance/action boundaries.
+
+The Pass 3 UI now exposes explicit context readiness, decision stage, action-safety evidence/uncertainty state, and a persisted Decision Timeline. The implementation does not create a parallel Private Room backend or a replacement decision engine.
