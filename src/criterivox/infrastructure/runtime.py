@@ -11,7 +11,7 @@ from criterivox.application.conversation import interpret_message
 from criterivox.application.language_intake import detect_language_profile, interpretation_summary
 from criterivox.application.language_service import language_service
 from criterivox.application.research_instrumentation import research_instrumentation
-from criterivox.application.data_foundation_store import data_foundations
+from criterivox.Sandre.store import data_foundations
 from criterivox.application.service import UnsupportedCapabilityError
 from criterivox.domain.analysis import AnalysisReference,AnalysisTask,AnalysisTaskSource,AnalysisTaskState
 from criterivox.domain.characters import CharacterActivityManager,CharacterState,CHARACTER_REGISTRY
