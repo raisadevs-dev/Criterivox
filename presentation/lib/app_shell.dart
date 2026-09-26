@@ -869,7 +869,9 @@ class _ShellState extends State<CriterivoxShell> {
 
       case 'civilization':
         return WorldMapLevel2Part1Page(
-          key: const ValueKey('world-map-level2-part1'),
+          // Keep the canonical route identity stable for navigation/integration tests.
+          // The page implementation is Part I; the route remains "civilization".
+          key: const ValueKey('civilization'),
           onBack: () => open('bloom'),
           onOpenCharacter: openCharacterFocus,
           onOpenHome: _openHome,
