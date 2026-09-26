@@ -467,7 +467,7 @@ class _ShellState extends State<CriterivoxShell> {
     }
 
     if (home == 'knowledge') {
-      _openHome08Inspection();
+      open('civilization-part3');
       return;
     }
 
