@@ -44,6 +44,24 @@ async def part5_evidence_request(payload: dict):
         str(payload.get('claim','')).strip(), str(payload.get('purpose','')).strip(), str(payload.get('requested_by','human')).strip()
     ).__dict__
 
+@router.post('/api/world/level2/part5/evidence/handoff')
+async def part5_evidence_handoff(payload: dict):
+    try:
+        return part5_evidence_surface.handoff(
+            tuple(str(x) for x in payload.get('evidence_ids', [])),
+            handoff_type=str(payload.get('handoff_type','evidence_to_knowledge')),
+            destination=str(payload.get('destination','knowledge')),
+            claim=str(payload.get('claim','')),
+            purpose=str(payload.get('purpose','')),
+            request_id=payload.get('request_id'),
+            assumptions=[str(x) for x in payload.get('assumptions', [])],
+            uncertainty=str(payload.get('uncertainty','')),
+            update_reason=str(payload.get('update_reason','')),
+            tenant_id=payload.get('tenant_id'), context_id=payload.get('context_id')
+        )
+    except ValueError as exc:
+        return JSONResponse({'error': str(exc)}, status_code=400)
+
 @router.post('/api/world/level2/part5/evidence/verify')
 async def part5_evidence_verify(payload: dict):
     return part5_evidence_surface.verify(
