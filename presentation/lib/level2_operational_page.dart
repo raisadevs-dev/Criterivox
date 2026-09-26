@@ -101,7 +101,7 @@ class Level2Catalog {
       input: 'Result/read model',
       output: 'Summary, detail or structured view',
       interaction: 'Change presentation depth',
-      truth: Level2Truth.planned,
+      truth: Level2Truth.live,
     ),
     Level2RoomSpec(
       id: 'gateway.steering',
@@ -113,7 +113,7 @@ class Level2Catalog {
       input: 'Active task',
       output: 'Authorized intervention',
       interaction: 'Inspect available controls',
-      truth: Level2Truth.planned,
+      truth: Level2Truth.live,
     ),
     Level2RoomSpec(
       id: 'gateway.telemetry',
@@ -161,7 +161,7 @@ class Level2Catalog {
       input: 'Task/read model',
       output: 'Presentation surface',
       interaction: 'Inspect generated surface',
-      truth: Level2Truth.planned,
+      truth: Level2Truth.live,
     ),
     Level2RoomSpec(
       id: 'gateway.guardrails',
@@ -369,7 +369,7 @@ class Level2Catalog {
       input: 'Context candidates / budget',
       output: 'Priority tiers',
       interaction: 'Inspect allocation',
-      truth: Level2Truth.planned,
+      truth: Level2Truth.live,
     ),
 
     // Part III — Knowledge.
