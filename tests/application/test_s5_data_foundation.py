@@ -1,5 +1,5 @@
-from criterivox.application.data_foundation import DataFoundationService
-from criterivox.application.data_intake import ingest_sources
+from criterivox.Sandre.foundation import DataFoundationService
+from criterivox.Sandre.intake import ingest_sources
 from criterivox.domain.data_foundation import ConfirmationStatus, SourceType
 
 
