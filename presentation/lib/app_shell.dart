@@ -8,6 +8,7 @@ import 'bloom_companion.dart';
 import 'civilization_world_portal_page.dart';
 import 'civilization_page.dart';
 import 'world_map_level2_part1_page.dart';
+import 'world_map_level2_part2_page.dart';
 import 'civilization_home_preview_page.dart';
 import 'level2_operational_page.dart';
 import 'world_portal_page.dart';
@@ -713,7 +714,7 @@ class _ShellState extends State<CriterivoxShell> {
   }
 
   bool get _isCivilizationExperience => const {
-        'bloom', 'civilization', 'home-preview', 'level2',
+        'bloom', 'civilization', 'civilization-part2', 'home-preview', 'level2',
         'reasoning-room', 'character-focus', 'decision-action',
         'evidence-experiment',
       }.contains(page);
@@ -837,6 +838,13 @@ class _ShellState extends State<CriterivoxShell> {
           onBackToBloom: () => open('bloom'),
           onOpenHome: _openHome,
           onOpenCharacter: openCharacterFocus,
+        );
+
+      case 'civilization-part2':
+        return WorldMapLevel2Part2Page(
+          key: const ValueKey('world-map-level2-part2'),
+          onBack: () => open('civilization'),
+          onOpenHome: _openHome,
         );
 
       case 'civilization':
