@@ -65,7 +65,7 @@ def test_network_capabilities_match_current_runtime_contract():
     assert capabilities["dynamic_edge_weighting"] == "LIVE"
     assert capabilities["protocol_bridge"] == "LIVE"
     assert capabilities["parallel_routing"] == "LIVE_SIMULATION"
-    assert capabilities["event_dispatch"] == "PLANNED"
+    assert capabilities["event_dispatch"] == "LIVE"
 
 
 def test_loop_interceptor_trips_on_repeated_transition():
