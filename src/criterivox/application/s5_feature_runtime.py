@@ -16,7 +16,7 @@ from .s5_advanced_runtime import (
     SyntheticDataEngine,
 )
 from .s5_ml_stack import LocalMLStack
-from .s5_sklearn_backend import SklearnAnomalyBackend
+from ..Sandre.sklearn_backend import SklearnAnomalyBackend
 
 
 @dataclass(frozen=True)
