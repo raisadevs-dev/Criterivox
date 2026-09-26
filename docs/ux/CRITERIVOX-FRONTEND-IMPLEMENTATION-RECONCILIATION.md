@@ -1178,3 +1178,18 @@ Historical routes are retained where existing runtime compatibility requires the
 ### Progressive disclosure
 
 Level 1 remains world orientation. Level 2 provides human-readable operational meaning. Deeper inspection remains the place for evidence, reasoning, provenance and technical state. The current branch does not promote internal IDs or raw telemetry to the primary user presentation.
+
+
+## Level 2 Part-II reconciliation — current branch
+
+The current branch now uses a canonical Part-II integration layer rather than introducing replacement S5/S6/Bloom engines.
+
+- `src/criterivox/world/level2_part2.py` is the Part-II capability/control read-model.
+- `src/criterivox/ui/level2_part2_routes.py` is the Part-II API boundary.
+- `presentation/lib/world_map_level2_part2_page.dart` is the canonical Part-II world surface.
+- `presentation/lib/app_shell.dart` exposes the surface as `civilization-part2`.
+- Existing Part-I routing/tracing/events, BloomController, S5 advanced runtime and ContextReplayService remain authoritative.
+- Adaptive output, dynamic UI intent, steering, guardrail inspection, Bloom energy allocation and context budget are represented by explicit runtime contracts.
+- Capability truth is no longer inferred from decorative presentation. The Part-II registry exposes LIVE/SIMULATED/HISTORICAL/PLANNED state explicitly.
+
+Older documentation in this file that describes Part-II as requiring duplicate engines is stale for the current branch and should not be used as implementation guidance.
