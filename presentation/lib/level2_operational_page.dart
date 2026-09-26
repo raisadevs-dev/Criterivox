@@ -1441,9 +1441,9 @@ class _HumanWorkDoors extends StatelessWidget {
   const _HumanWorkDoors({required this.home, required this.onOpen});
   static const mappings=<String,List<List<String>>>{
     'context':[['Situation','material:situation_brief']],
-    'data':[['Evidence','material:evidence_package']],
+    'data':[['Evidence','material:evidence_package'],['Analysis','material:analytical_report']],
     'reasoning':[['Reasoning','material:reasoning_map']],
-    'decision':[['Strategies','material:strategy_set'],['Trade-offs','material:tradeoff_analysis'],['Plan','material:action_plan']],
+    'decision':[['Strategies','material:strategy_set'],['Trade-offs','material:tradeoff_analysis'],['Plan','material:action_plan'],['Results','material:outcome_review']],
     'evidence':[['Evidence','material:evidence_package'],['Verification','material:verification_explanation']],
     'knowledge':[['Knowledge','material:knowledge']],
   };
