@@ -1212,3 +1212,20 @@ The lifecycle represented by this branch is:
 Evidence / trajectory → Knowledge proposal → Manis challenge → human review → versioned reusable knowledge → downstream transfer / reuse → new evidence.
 
 The Part III room catalog is now aligned with this architecture. Earlier documentation in this file that described these rooms only as planned must be interpreted as historical pre-integration state and is superseded by the current Part III reconciliation above.
+
+
+## Level 2 Part IV reconciliation — current branch
+
+Part IV now has one canonical integration and presentation path on ui-stabilization-system-behavior.
+
+- src/criterivox/world/level2_part4.py — canonical Intelligence + Decision/Action integration runtime.
+- src/criterivox/ui/level2_part4_routes.py — canonical API boundary.
+- presentation/lib/world_map_level2_part4_page.dart — canonical presentation.
+- presentation/lib/app_shell.dart — civilization-part4 navigation.
+- tests/test_world_map_level2_part4_runtime.py — focused runtime coverage.
+
+The former decision-action route is retained only for compatibility and redirects to the canonical Part-IV surface. The generic Level-2 catalogue remains a compatibility/read-model surface, not a duplicate backend.
+
+Part IV reuses existing Part I–III routing, event/trace, collaboration, HumanAuthority, evidence/provenance, Work Materials, sandbox, checkpoint/replay and telemetry systems. No replacement engine was introduced for those capabilities.
+
+Truth labels are runtime-backed at the Part-IV registry boundary. Repository writes do not constitute a test pass; focused tests require the project's runnable Python/Flutter environment.
