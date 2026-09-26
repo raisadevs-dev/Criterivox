@@ -17,6 +17,7 @@ import 'collaboration_room_page.dart';
 import 'decision_history_page.dart';
 import 'decision_desk_page.dart';
 import 'results_journal_page.dart';
+import 'work_material_page.dart';
 import 'collaboration_commons_page.dart';
 import 'character_focus_page.dart';
 import 'chat/character_chat_page.dart';
@@ -752,6 +753,9 @@ class _ShellState extends State<CriterivoxShell> {
 
       case 'results-journal':
         return ResultsJournalPage(onDecisionDesk: () => open('decision-desk'));
+
+      case 'work-materials':
+        return WorkMaterialPage(onBack: () => open('decision-desk'));
 
       case 'meeting-hall':
         return CollaborationCommonsPage(destination: CollaborationDestination.meetingHall, onDecisionDesk: () => open('decision-desk'));
