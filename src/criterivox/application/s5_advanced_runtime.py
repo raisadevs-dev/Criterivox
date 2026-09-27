@@ -53,31 +53,12 @@ class FoundationSynchronizer:
         self.revisions[envelope.foundation_id]=envelope.revision; self.hashes[envelope.foundation_id]=envelope.payload_hash
         return {"accepted":True,"duplicate":False,"revision":envelope.revision,"payload_hash":envelope.payload_hash}
 
-@dataclass(frozen=True)
-class PipelineStep:
-    name: str
-    action: str
-    inputs: tuple[str,...]=()
-    outputs: tuple[str,...]=()
+# Kaelen's schema/pipeline capabilities live in the first-class character package.
+# These imports preserve the legacy S5 application import surface while ownership
+# remains explicit under criterivox.Kaelen.
+from criterivox.Kaelen.pipeline import KaelenPipeline, PipelineStep
+from criterivox.Kaelen.schema import SchemaDriftHealer
 
-class KaelenPipeline:
-    """Declarative, inspectable S5->S6 transformation DAG."""
-    def __init__(self) -> None:
-        self.steps=(PipelineStep("ingest","load",(),("raw",)),PipelineStep("profile","profile",("raw",),("profile",)),PipelineStep("validate","quality_gate",("raw","profile"),("validated",)),PipelineStep("normalize","normalize",("validated",),("normalized",)),PipelineStep("patch","schema_patch",("normalized",),("canonical",)),PipelineStep("handoff","package",("canonical","profile"),("handoff",)))
-    def dag(self)->dict[str,Any]: return {"nodes":[s.name for s in self.steps],"edges":[[a.name,b.name] for a,b in zip(self.steps,self.steps[1:])],"steps":[s.__dict__ for s in self.steps]}
-    def execute(self, data: list[dict[str,Any]]) -> dict[str,Any]:
-        keys=sorted({k for row in data for k in row})
-        normalized=[{k: row.get(k) for k in keys} for row in data]
-        return {"status":"ready","rows":len(normalized),"schema":keys,"canonical_data":normalized,"dag":self.dag()}
-
-class SchemaDriftHealer:
-    def diff(self, old: list[str], new: list[str]) -> dict[str,Any]:
-        old_set,new_set=set(old),set(new)
-        return {"added":sorted(new_set-old_set),"removed":sorted(old_set-new_set),"unchanged":sorted(old_set&new_set),"drift":old_set!=new_set}
-    def patch(self, rows: list[dict[str,Any]], old: list[str], new: list[str], aliases: dict[str,str]|None=None) -> dict[str,Any]:
-        aliases=aliases or {}; mapping={key:aliases.get(key,key) for key in old}
-        patched=[{target:row.get(source) for source,target in mapping.items() if target in new} for row in rows]
-        return {"diff":self.diff(old,new),"mapping":mapping,"patched_rows":patched,"reversible":True}
 
 class SyntheticDataEngine:
     def preview(self, rows: list[dict[str,Any]], seed: int=17) -> dict[str,Any]:
