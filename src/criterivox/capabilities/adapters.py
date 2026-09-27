@@ -5,17 +5,17 @@ import json
 from datetime import datetime, timezone
 from typing import Any, Mapping
 
-from criterivox.s8.models import Artifact, ArtifactKind, BureauEvent
-from criterivox.s8.persistence import S8SQLiteStore
+from criterivox.mechanisms.evidence.models import Artifact, ArtifactKind, BureauEvent
+from criterivox.mechanisms.evidence.persistence import EvidenceSQLiteStore
 
 
-class S8ArtifactRepository:
+class EvidenceArtifactRepository:
     """S9 repository adapter over the existing S8 artifact/event persistence.
 
     This is an adapter, not a second database. S8 SQLite/IndexedDB remain the
     persistence boundary established by the earlier sprints.
     """
-    def __init__(self, store: S8SQLiteStore):
+    def __init__(self, store: EvidenceSQLiteStore):
         self.store = store
 
     def save_artifact(self, artifact: Artifact) -> None:
@@ -56,4 +56,4 @@ def verify_artifact_integrity(artifact: Artifact) -> bool:
     return artifact.content_hash == artifact_hash(artifact.payload)
 
 
-__all__ = ["S8ArtifactRepository", "artifact_hash", "make_audit_artifact", "verify_artifact_integrity"]
+__all__ = ["EvidenceArtifactRepository", "artifact_hash", "make_audit_artifact", "verify_artifact_integrity"]
