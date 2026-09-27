@@ -4,17 +4,14 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import 'api_client.dart';
+
 import 'context_residency_store.dart';
 import 'foundation_residency_store.dart';
-import '../human_residence_store.dart';
+import '../../human/residence/store.dart';
 import 'presentation_state.dart';
 
 class CharacterRuntimeClient {
-  static const backendPort = String.fromEnvironment(
-    'CRITERIVOX_BACKEND_PORT',
-    defaultValue: '8000',
-  );
-
   static const _retryDelay = Duration(milliseconds: 900);
   static const _maxPending = 40;
 
@@ -59,19 +56,9 @@ class CharacterRuntimeClient {
   Stream<Map<String, dynamic>> get contextEvents => _contextEvents.stream;
   Stream<Map<String, dynamic>> get operationEvents => _operationEvents.stream;
 
-  Uri get endpoint {
-    final scheme = Uri.base.scheme == 'https' ? 'wss' : 'ws';
-    final host = Uri.base.host.isEmpty ? '127.0.0.1' : Uri.base.host;
-    return Uri.parse(
-      '$scheme://$host:$backendPort/runtime/characters',
-    );
-  }
+  Uri get endpoint => CriterivoxApi.websocketUri('/runtime/characters');
 
-  Uri get httpBase {
-    final scheme = Uri.base.scheme == 'https' ? 'https' : 'http';
-    final host = Uri.base.host.isEmpty ? '127.0.0.1' : Uri.base.host;
-    return Uri.parse('$scheme://$host:$backendPort');
-  }
+  Uri get httpBase => CriterivoxApi.uri('/');
 
   Future<void> connect() async {
     if (_disposed || _connecting || _channel != null) {
