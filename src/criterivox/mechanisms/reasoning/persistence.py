@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 from typing import Callable, TypeVar
 
-from criterivox.s7.models import (
+from criterivox.mechanisms.reasoning.models import (
     AnalysisSession,
     Artifact,
     ArtifactKind,
