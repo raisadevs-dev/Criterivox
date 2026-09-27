@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'human_residence_store.dart';
-import 'presentation/criterivox_theme.dart';
-import 'presentation/api_client.dart';
-import 'semantic_visualizations.dart';
+import '../../human/residence/store.dart';
+import '../../presentation/shared/criterivox_theme.dart';
+import '../../presentation/shared/api_client.dart';
+import '../../presentation/visualizations.dart';
 
 class DecisionDeskPage extends StatefulWidget {
   final VoidCallback? onResults;
