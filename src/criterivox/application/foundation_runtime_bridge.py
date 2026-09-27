@@ -8,7 +8,7 @@ from typing import Any
 from criterivox.application.analysis_tasks import analysis_tasks
 from criterivox.application.context_engine import ScratchpadRegistry
 from criterivox.application.conversation import interpret_message
-from criterivox.application.s5_orchestration import (
+from criterivox.orchestration.runtime import (
     analysis_door,
     delivery_package,
     is_past_analysis_query,
