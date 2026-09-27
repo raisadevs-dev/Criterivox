@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
-import 's7_nlp_debate_arena.dart';
+import 'nlp_debate_arena.dart';
 
 const _s7Violet = Color(0xffb59cff);
 const _s7Amber = Color(0xffffb463);
