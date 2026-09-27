@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import asdict
 from typing import Any
-from criterivox.s7.reasoning_pipeline import StagedReasoningPipeline
+from criterivox.mechanisms.reasoning.reasoning_pipeline import StagedReasoningPipeline
 
 def build_reasoning_graph(task: str, context: dict[str, Any]) -> dict[str, Any]:
     graph=StagedReasoningPipeline().plan(task,context)
