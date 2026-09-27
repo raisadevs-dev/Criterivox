@@ -308,10 +308,10 @@ class _BloomState extends State<Bloom>
         final heightLimitedSize =
             constraints.hasBoundedHeight
                 ? constraints.maxHeight / ratio
-                : double.infinity;
+                : availableWidth;
 
         final size = math.max(
-          240.0,
+          1.0,
           math.min(
             availableWidth,
             heightLimitedSize,
