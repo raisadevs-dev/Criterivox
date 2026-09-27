@@ -9,6 +9,7 @@ import '../Bodhex/bodhex_presentation.dart';
 import '../Anukor/anukor_presentation.dart';
 import '../Manis/manis_presentation.dart';
 import '../Viveda/viveda_presentation.dart';
+import '../Veridat/veridat_presentation.dart';
 
 import 'dart:convert';
 
@@ -641,7 +642,9 @@ class _Conversation extends StatelessWidget {
                                             ? ManisPresentation.chatPrompts
                                             : target == 'viveda'
                                                 ? VivedaPresentation.chatPrompts
-                                                : _CharacterChatPageState.prompts[target] ??
+                                                : target == 'veridat'
+                                                    ? VeridatPresentation.chatPrompts
+                                                    : _CharacterChatPageState.prompts[target] ??
                                 _CharacterChatPageState.fallbackPrompts;
 
     return Column(
