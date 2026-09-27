@@ -28,7 +28,7 @@ import '../presentation/shared/presentation_state.dart';
 import '../presentation/shared/runtime_client.dart';
 import '../agents/sandre/data_stewardship_page.dart';
 import '../workspaces/interaction/home03_syvax_page.dart';
-import '../workspaces/reasoning/reasoning_environment_page.dart';
+import '../workspaces/reasoning/environment_page.dart';
 import '../workspaces/decision/action_quarter_page.dart';
 import '../workspaces/evidence/experiment_quarter_page.dart';
 
@@ -731,7 +731,7 @@ class _ShellState extends State<CriterivoxShell> {
     PresentationState? workspaceState,
   ) {
     if (page == 'reasoning-room') {
-      return const ReasoningEnvironmentPage(
+      return const S7EnvironmentPage(
         key: ValueKey('reasoning-room'),
       );
     }
