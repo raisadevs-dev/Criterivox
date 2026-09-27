@@ -1,10 +1,10 @@
+from criterivox.Dharen.agent import DharenAgent
 from criterivox.context import (
     AnukaAgent,
     ContextInput,
     ContextIntelligenceEngine,
     ContextItem,
     ContextTier,
-    DharenAgent,
 )
 
 
