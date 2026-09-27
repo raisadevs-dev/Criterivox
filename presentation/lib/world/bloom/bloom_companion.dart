@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'character/character_identity.dart';
+import '../../runtime/character/character_identity.dart';
 import 'Bloom/bloom_presentation.dart';
-import 'character/session_character_animation.dart';
-import 'presentation/criterivox_theme.dart';
+import '../../runtime/../../runtime/character/session_character_animation.dart';
+import '../../presentation/shared/criterivox_theme.dart';
 
 class BloomCompanion extends StatelessWidget {
   final String location;
