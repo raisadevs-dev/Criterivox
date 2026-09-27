@@ -4,6 +4,7 @@ import '../Anuka/anuka_presentation.dart';
 import '../Syvax/syvax_presentation.dart';
 import '../Vivren/vivren_presentation.dart';
 import '../Tarkis/tarkis_presentation.dart';
+import '../Pramon/pramon_presentation.dart';
 
 import 'dart:convert';
 
@@ -626,7 +627,9 @@ class _Conversation extends StatelessWidget {
                         ? VivrenPresentation.chatPrompts
                         : target == 'tarkis'
                             ? TarkisPresentation.chatPrompts
-                            : _CharacterChatPageState.prompts[target] ??
+                            : target == 'pramon'
+                                ? PramonPresentation.chatPrompts
+                                : _CharacterChatPageState.prompts[target] ??
                                 _CharacterChatPageState.fallbackPrompts;
 
     return Column(
