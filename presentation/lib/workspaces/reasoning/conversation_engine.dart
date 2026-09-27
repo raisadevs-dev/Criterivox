@@ -1,8 +1,8 @@
-import 's7_character_response_policy.dart';
-import 's7_context_resolver.dart';
-import 's7_conversation_state.dart';
-import 's7_local_nlp.dart';
-import 's7_nlp_intents.dart';
+import 'character_response_policy.dart';
+import 'context_resolver.dart';
+import 'conversation_state.dart';
+import 'local_nlp.dart';
+import 'nlp_intents.dart';
 
 class S7ConversationAction {
   const S7ConversationAction({
