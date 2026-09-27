@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'presentation/criterivox_theme.dart';
-import 'human_residence_store.dart';
+import '../../presentation/shared/criterivox_theme.dart';
+import '../../presentation/shared/api_client.dart';
+import '../../human/residence/store.dart';
 import 'package:http/http.dart' as http;
 
 class DecisionHistoryPage extends StatefulWidget {
@@ -22,7 +23,7 @@ class _DecisionHistoryPageState extends State<DecisionHistoryPage> {
     final token = residence?.metadata['session_token']?.toString();
     if(token == null) { if(mounted) setState(()=>status='No authenticated Human Residence session is available.'); return; }
     try {
-      final response = await http.get(Uri.base.resolve('/api/human-decisions?session_token=${Uri.encodeQueryComponent(token)}&query=${Uri.encodeQueryComponent(query.text.trim())}'));
+      final response = await http.get(CriterivoxApi.uri('/api/human-decisions?session_token=${Uri.encodeQueryComponent(token)}&query=${Uri.encodeQueryComponent(query.text.trim())}'));
       if(response.statusCode < 200 || response.statusCode >= 300) throw Exception();
       final body=jsonDecode(response.body) as Map<String,dynamic>;
       final raw=body['decisions'];
