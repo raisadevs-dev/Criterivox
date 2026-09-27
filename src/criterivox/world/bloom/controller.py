@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from hashlib import sha256
 from typing import Any, Literal
 
-from criterivox.application.bloom_integration import BloomCapability, BloomIntegration
+from criterivox.world.bloom.integration import BloomCapability, BloomIntegration
 
 Mode = Literal["HITL", "HOTL"]
 
