@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'character/session_character_animation.dart';
-import 'foundation/criterivox_responsive_scene.dart';
-import 'presentation/criterivox_theme.dart' as criterivox_theme;
+import '../../runtime/character/session_character_animation.dart';
+import '../../../../presentation/shared/foundation/criterivox_responsive_scene.dart';
+import '../../presentation/shared/criterivox_theme.dart' as criterivox_theme;
 
 class EvidenceExperimentQuarterPage extends StatefulWidget {
   final VoidCallback onBack;
