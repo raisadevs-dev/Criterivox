@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 's8_evidence_bureau_page.dart';
+import 'evidence_bureau_page.dart';
 
 /// Standalone S8 launcher target. This deliberately does not import or boot
 /// the main Criterivox shell.
