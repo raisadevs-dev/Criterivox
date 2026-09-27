@@ -199,7 +199,7 @@ class Level2Catalog {
       input: 'Schema / transformation plan',
       output: 'Pipeline representation',
       interaction: 'Inspect pipeline',
-      truth: Level2Truth.planned,
+      truth: Level2Truth.functionallyImplemented,
     ),
     Level2RoomSpec(
       id: 'data.lineage',
@@ -247,7 +247,7 @@ class Level2Catalog {
       input: 'Schema changes',
       output: 'Drift state / repair proposal',
       interaction: 'Inspect drift',
-      truth: Level2Truth.planned,
+      truth: Level2Truth.functionallyImplemented,
     ),
     Level2RoomSpec(
       id: 'data.multimodal',
