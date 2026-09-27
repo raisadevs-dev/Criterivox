@@ -6,19 +6,19 @@ import hashlib
 import json
 from typing import Any
 
-from .s5_advanced_runtime import (
+from criterivox.execution.runtime import (
     EvaluationGate,
     FoundationSynchronizer,
     ProvenanceLedger,
     SemanticTagger,
     SyntheticDataEngine,
 )
-from criterivox.Kaelen.pipeline import KaelenPipeline
-from criterivox.Kaelen.schema import SchemaDriftHealer
-from criterivox.Kaelen.vector import VectorEncoder, VectorLakehousePackageBuilder
-from criterivox.Kaelen.streaming import StreamDAG
-from .s5_ml_stack import LocalMLStack
-from ..Sandre.sklearn_backend import SklearnAnomalyBackend
+from criterivox.agents.kaelen.pipeline import KaelenPipeline
+from criterivox.agents.kaelen.schema import SchemaDriftHealer
+from criterivox.agents.kaelen.vector import VectorEncoder, VectorLakehousePackageBuilder
+from criterivox.agents.kaelen.streaming import StreamDAG
+from criterivox.mechanisms.learning.runtime import LocalMLStack
+from criterivox.agents.sandre.sklearn_backend import SklearnAnomalyBackend
 
 
 @dataclass(frozen=True)
@@ -30,7 +30,7 @@ class ReadinessSnapshot:
     decision: str
 
 
-class S5FeatureRuntime:
+class FeatureRuntime:
     """
     Application-layer runtime for the S5 feature stack.
 
@@ -708,7 +708,7 @@ class S5FeatureRuntime:
         self,
         envelope: dict[str, Any],
     ) -> dict[str, Any]:
-        from .s5_advanced_runtime import SyncEnvelope
+        from criterivox.execution.runtime import SyncEnvelope
 
         return self.sync.accept(
             SyncEnvelope(
