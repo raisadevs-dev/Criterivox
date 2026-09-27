@@ -8,3 +8,7 @@ from .models import AnalysisSession, ArtifactKind, SessionStatus
 from .orchestrator import ReasoningResearchBureau
 
 __all__ = ["AnalysisSession", "ArtifactKind", "ReasoningResearchBureau", "SessionStatus"]
+
+
+# Character-owned hypothesis exploration facade
+from criterivox.Tarkis import TarkisExplorer, HypothesisExploration
