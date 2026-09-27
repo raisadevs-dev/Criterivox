@@ -273,7 +273,7 @@ async def human_residence_intake(payload: dict):
     if not isinstance(sources, list) or not sources:
         return JSONResponse({'accepted': False, 'error': 'at least one source is required'}, status_code=400)
     try:
-        from ..Sandre.store import data_foundations
+        from ..agents.sandre.store import data_foundations
         foundation = data_foundations.ingest({
             'sources': sources[:50],
             'collection_id': payload.get('collection_id'),
