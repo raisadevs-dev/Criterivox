@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'human_residence_store.dart';
-import 'presentation/criterivox_theme.dart';
+import '../../human/residence/store.dart';
+import '../../presentation/shared/criterivox_theme.dart';
 
 /// Gate 2 Collaboration Room client.
 ///
