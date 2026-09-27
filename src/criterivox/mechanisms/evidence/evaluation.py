@@ -1,4 +1,4 @@
-"""Human-facing XAI evaluation records for S8 research.
+"""Human-facing XAI evaluation records for Evidence research.
 
 This module records study observations without collapsing them into a universal
 "explainability score". It is deliberately measurement-oriented: the human
