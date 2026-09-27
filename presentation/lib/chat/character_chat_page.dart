@@ -3,6 +3,7 @@ import '../Dharen/dharen_presentation.dart';
 import '../Anuka/anuka_presentation.dart';
 import '../Syvax/syvax_presentation.dart';
 import '../Vivren/vivren_presentation.dart';
+import '../Tarkis/tarkis_presentation.dart';
 
 import 'dart:convert';
 
@@ -623,8 +624,10 @@ class _Conversation extends StatelessWidget {
                     ? SyvaxPresentation.chatPrompts
                     : target == 'vivren'
                         ? VivrenPresentation.chatPrompts
-                        : _CharacterChatPageState.prompts[target] ??
-                            _CharacterChatPageState.fallbackPrompts;
+                        : target == 'tarkis'
+                            ? TarkisPresentation.chatPrompts
+                            : _CharacterChatPageState.prompts[target] ??
+                                _CharacterChatPageState.fallbackPrompts;
 
     return Column(
       children: [
