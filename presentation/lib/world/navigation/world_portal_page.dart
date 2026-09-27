@@ -1,13 +1,13 @@
-import 'presentation/api_client.dart';
+import '../../presentation/shared/api_client.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 
-import 'human_residence_store.dart';
+import '../../human/residence/store.dart';
 import 'interaction/bloom.dart';
-import 'presentation/criterivox_theme.dart';
+import '../../presentation/shared/criterivox_theme.dart';
 
 class HumanResidencePage extends StatefulWidget {
   final VoidCallback onGuest;
