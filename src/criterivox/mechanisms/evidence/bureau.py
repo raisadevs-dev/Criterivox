@@ -1,4 +1,4 @@
-"""Core portable S8 Evidence Research Bureau services."""
+"""Core portable Evidence Evidence Research Bureau services."""
 from __future__ import annotations
 
 import hashlib
@@ -7,24 +7,24 @@ from typing import Any, Mapping
 
 from .models import Artifact, ArtifactKind, BureauEvent, VerificationResult, utc_now
 from .interventions import InterventionRegistry
-from .persistence import S8SQLiteStore
-from .policy import AccessRequest, S8Policy
+from .persistence import EvidenceSQLiteStore
+from .policy import AccessRequest, EvidencePolicy
 from .research import MemoryConsolidator, TemporalRetriever, impacted_downstream
 
 
 class EvidenceResearchBureau:
-    """Deterministic artifact-first S8 coordinator."""
+    """Deterministic artifact-first Evidence coordinator."""
     CHARACTERS = {
         "medrus": "knowledge retention / temporal evidence",
         "epistre": "explanation / provenance / audit narrative",
         "veridat": "verification / grounding / contradiction inspection",
     }
 
-    def __init__(self, *, store: S8SQLiteStore | None = None, policy: S8Policy | None = None) -> None:
+    def __init__(self, *, store: EvidenceSQLiteStore | None = None, policy: EvidencePolicy | None = None) -> None:
         self.artifacts: dict[str, Artifact] = {}
         self.events: list[BureauEvent] = []
         self.store = store
-        self.policy = policy or S8Policy()
+        self.policy = policy or EvidencePolicy()
         self.interventions = InterventionRegistry()
         self.temporal = TemporalRetriever()
         self._sequence = 0
@@ -34,7 +34,7 @@ class EvidenceResearchBureau:
         return f"{prefix}-{self._sequence:06d}"
 
     def _record(self, event_type: str, artifact_ids: tuple[str, ...], **payload: Any) -> BureauEvent:
-        event = BureauEvent(event_id=self._id("S8E"), event_type=event_type, artifact_ids=artifact_ids, actor=payload.pop("actor", "system"), tenant_id=payload.pop("tenant_id", None), context_id=payload.pop("context_id", None), payload=payload)
+        event = BureauEvent(event_id=self._id("EvidenceE"), event_type=event_type, artifact_ids=artifact_ids, actor=payload.pop("actor", "system"), tenant_id=payload.pop("tenant_id", None), context_id=payload.pop("context_id", None), payload=payload)
         self.events.append(event)
         if self.store:
             self.store.save_event(event)
@@ -49,7 +49,7 @@ class EvidenceResearchBureau:
         self.policy.check(AccessRequest(actor_id, operation, tenant_id, context_id, artifact.tenant_id, artifact.context_id, authorized))
 
     def add_artifact(self, kind: ArtifactKind, payload: Mapping[str, Any], *, source_ids: tuple[str, ...] = (), parent_ids: tuple[str, ...] = (), tenant_id: str | None = None, context_id: str | None = None, status: str = "authoritative") -> Artifact:
-        artifact_id = self._id("S8A")
+        artifact_id = self._id("EvidenceA")
         artifact = Artifact(artifact_id=artifact_id, kind=kind, payload=dict(payload), source_ids=source_ids, parent_ids=parent_ids, tenant_id=tenant_id, context_id=context_id, content_hash=self._hash(payload), status=status)
         self.artifacts[artifact_id] = artifact
         if self.store:
@@ -97,7 +97,7 @@ class EvidenceResearchBureau:
         else:
             status, limitations = "grounded_pending_validation", ()
         provenance = self.add_artifact(ArtifactKind.PROVENANCE, {"claim": claim, "evidence_ids": evidence_ids, "method": "artifact-reference-trace"}, source_ids=tuple(a.artifact_id for a in evidence), tenant_id=tenant_id, context_id=context_id)
-        result = VerificationResult(self._id("S8V"), claim, status, evidence_ids, limitations, tuple(contradictions), provenance.artifact_id)
+        result = VerificationResult(self._id("EvidenceV"), claim, status, evidence_ids, limitations, tuple(contradictions), provenance.artifact_id)
         self.add_artifact(ArtifactKind.VERIFICATION, {"verification_id": result.verification_id, "claim": claim, "status": status, "evidence_ids": evidence_ids, "limitations": limitations, "contradiction_ids": tuple(contradictions)}, source_ids=tuple(a.artifact_id for a in evidence), parent_ids=(provenance.artifact_id,), tenant_id=tenant_id, context_id=context_id, status=status)
         return result
 
