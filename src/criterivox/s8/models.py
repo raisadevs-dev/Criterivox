@@ -17,6 +17,7 @@ def utc_now() -> datetime:
 
 class ArtifactKind(str, Enum):
     EVIDENCE = "evidence"
+    EXPERIMENT = "experiment"
     VERIFICATION = "verification"
     PROVENANCE = "provenance"
     TRANSFORMATION = "transformation"
