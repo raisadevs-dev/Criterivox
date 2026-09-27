@@ -1,10 +1,10 @@
 
 import 'package:flutter/material.dart';
 
-import 's8_character_presentation.dart';
-import 's8_environment.dart';
-import 's8_intervention_arena.dart';
-import 's8_presentation_state.dart';
+import 'character_presentation.dart';
+import 'environment.dart';
+import 'intervention_arena.dart';
+import 'presentation_state.dart';
 
 class S8EvidenceBureauPage extends StatefulWidget {
   const S8EvidenceBureauPage({super.key});
