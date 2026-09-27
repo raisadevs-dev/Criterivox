@@ -1,4 +1,4 @@
-"""Local SQLite persistence for S8 authoritative artifacts and events.
+"""Local SQLite persistence for Evidence authoritative artifacts and events.
 
 The store is deliberately small and portable. It persists the epistemic record,
 not presentation state, and keeps JSON payloads inspectable.
@@ -14,8 +14,8 @@ from typing import Any
 from .models import Artifact, ArtifactKind, BureauEvent
 
 
-class S8SQLiteStore:
-    """Append-oriented local store for S8 artifacts/events."""
+class EvidenceSQLiteStore:
+    """Append-oriented local store for Evidence artifacts/events."""
 
     def __init__(self, path: str | Path = ":memory:") -> None:
         self.path = str(path)
