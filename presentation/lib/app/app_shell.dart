@@ -2,35 +2,35 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import 'app_introduction_page.dart';
-import 'bloom_page.dart';
-import 'bloom_companion.dart';
-import 'civilization_world_portal_page.dart';
-import 'civilization_page.dart';
-import 'civilization_home_preview_page.dart';
-import 'level2_operational_page.dart';
-import 'world_portal_page.dart';
-import 'human_residence_entry_page.dart';
-import 'guest_pass_experience_page.dart';
-import 'private_room_page.dart';
-import 'collaboration_room_page.dart';
-import 'decision_history_page.dart';
-import 'decision_desk_page.dart';
-import 'results_journal_page.dart';
-import 'collaboration_commons_page.dart';
-import 'character_focus_page.dart';
-import 'chat/character_chat_page.dart';
-import 'context/context_intelligence_page.dart';
-import 'interaction/bloom.dart';
-import 'presentation/criterivox_theme.dart' as criterivox_theme;
-import 'presentation/language_mode.dart';
-import 'presentation/presentation_state.dart';
-import 'presentation/runtime_client.dart';
-import 'Sandre/data_stewardship_page.dart';
-import 'home03_syvax_page.dart';
-import 's7/s7_environment_page.dart';
-import 'decision_action_quarter_page.dart';
-import 'evidence_experiment_quarter_page.dart';
+import 'introduction_page.dart';
+import '../world/bloom/bloom_page.dart';
+import '../world/bloom/bloom_companion.dart';
+import '../world/civilization/world_portal_page.dart';
+import '../world/civilization/civilization_page.dart';
+import '../world/civilization/home_preview_page.dart';
+import '../workspaces/operations/level2_operational_page.dart';
+import '../world/navigation/world_portal_page.dart';
+import '../human/residence/entry_page.dart';
+import '../human/access/guest_pass_experience_page.dart';
+import '../human/residence/private_room_page.dart';
+import '../human/collaboration/room_page.dart';
+import '../workspaces/decision/history_page.dart';
+import '../workspaces/decision/decision_desk_page.dart';
+import '../workspaces/results/journal_page.dart';
+import '../human/collaboration/commons_page.dart';
+import '../agents/character_focus_page.dart';
+import '../interaction/chat/character_chat_page.dart';
+import '../workspaces/context/context_intelligence_page.dart';
+import '../interaction/bloom.dart';
+import '../presentation/shared/criterivox_theme.dart' as criterivox_theme;
+import '../presentation/shared/language_mode.dart';
+import '../presentation/shared/presentation_state.dart';
+import '../presentation/shared/runtime_client.dart';
+import '../agents/sandre/data_stewardship_page.dart';
+import '../workspaces/interaction/home03_syvax_page.dart';
+import '../workspaces/reasoning/reasoning_environment_page.dart';
+import '../workspaces/decision/action_quarter_page.dart';
+import '../workspaces/evidence/experiment_quarter_page.dart';
 
 class CriterivoxShell extends StatefulWidget {
   final bool isDarkMode;
@@ -731,7 +731,7 @@ class _ShellState extends State<CriterivoxShell> {
     PresentationState? workspaceState,
   ) {
     if (page == 'reasoning-room') {
-      return const S7EnvironmentPage(
+      return const ReasoningEnvironmentPage(
         key: ValueKey('reasoning-room'),
       );
     }
