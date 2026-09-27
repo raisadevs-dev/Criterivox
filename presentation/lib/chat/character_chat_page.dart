@@ -1,3 +1,5 @@
+import '../Kaelen/kaelen_presentation.dart';
+
 import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
@@ -107,11 +109,6 @@ class _CharacterChatPageState
       'Inspect the data foundation.',
       'Show provenance gaps.',
       'Check data readiness.',
-    ],
-    'kaelen': [
-      'Prepare a controlled experiment.',
-      'Inspect scratchpad work.',
-      'Record the current build state.',
     ],
     'vivren': [
       'Challenge this interpretation.',
