@@ -11,6 +11,7 @@ import '../Manis/manis_presentation.dart';
 import '../Viveda/viveda_presentation.dart';
 import '../Veridat/veridat_presentation.dart';
 import '../Epistre/epistre_presentation.dart';
+import '../Medrus/medrus_presentation.dart';
 
 import 'dart:convert';
 
@@ -647,7 +648,9 @@ class _Conversation extends StatelessWidget {
                                                     ? VeridatPresentation.chatPrompts
                                                     : target == 'epistre'
                                                         ? EpistrePresentation.chatPrompts
-                                                        : _CharacterChatPageState.prompts[target] ??
+                                                        : target == 'medrus'
+                                                            ? MedrusPresentation.chatPrompts
+                                                            : _CharacterChatPageState.prompts[target] ??
                                 _CharacterChatPageState.fallbackPrompts;
 
     return Column(
