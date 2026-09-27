@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from typing import Any, Mapping
 from uuid import uuid4
 
-from criterivox.s8.models import Artifact, ArtifactKind, BureauEvent
+from criterivox.mechanisms.evidence.models import Artifact, ArtifactKind, BureauEvent
 from .adapters import S8ArtifactRepository, artifact_hash, make_audit_artifact
 from .core import DomainEvent, EventBus, stable_id
 
