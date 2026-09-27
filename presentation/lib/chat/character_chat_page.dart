@@ -1,4 +1,5 @@
 import '../Kaelen/kaelen_presentation.dart';
+import '../Dharen/dharen_presentation.dart';
 
 import 'dart:convert';
 
@@ -611,8 +612,10 @@ class _Conversation extends StatelessWidget {
 
     final promptList = target == 'kaelen'
         ? KaelenPresentation.chatPrompts
-        : _CharacterChatPageState.prompts[target] ??
-            _CharacterChatPageState.fallbackPrompts;
+        : target == 'dharen'
+            ? DharenPresentation.chatPrompts
+            : _CharacterChatPageState.prompts[target] ??
+                _CharacterChatPageState.fallbackPrompts;
 
     return Column(
       children: [
