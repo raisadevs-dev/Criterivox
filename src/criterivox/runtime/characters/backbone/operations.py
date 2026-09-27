@@ -18,12 +18,12 @@ from pathlib import Path
 from typing import Any, Mapping, Protocol
 from uuid import uuid4
 
-from criterivox.s8.models import Artifact, ArtifactKind, BureauEvent
-from criterivox.s8.persistence import S8SQLiteStore
+from criterivox.mechanisms.evidence.models import Artifact, ArtifactKind, BureauEvent
+from criterivox.mechanisms.evidence.persistence import EvidenceSQLiteStore
 
 
 ROOT = Path(__file__).resolve().parents[3]
-STORE_PATH = ROOT / "data" / "s8" / "character_operations.sqlite3"
+STORE_PATH = ROOT / "data" / "evidence" / "character_operations.sqlite3"
 STORE_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 
@@ -492,8 +492,8 @@ class OperationStore:
     ):
         self.path = Path(path)
 
-    def _open(self) -> S8SQLiteStore:
-        return S8SQLiteStore(self.path)
+    def _open(self) -> EvidenceSQLiteStore:
+        return EvidenceSQLiteStore(self.path)
 
     def artifact(
         self,
