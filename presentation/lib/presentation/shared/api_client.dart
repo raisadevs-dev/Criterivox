@@ -8,7 +8,11 @@ class CriterivoxApi {
     if (backendUrl.isNotEmpty) {
       final parsed = Uri.parse(backendUrl);
       if (!websocket) return parsed;
-      return parsed.replace(scheme: parsed.scheme == 'https' ? 'wss' : 'ws');
+      final socketScheme = switch (parsed.scheme.toLowerCase()) {
+        'https' || 'wss' => 'wss',
+        _ => 'ws',
+      };
+      return parsed.replace(scheme: socketScheme);
     }
     if (kIsWeb) {
       final host = Uri.base.host.isEmpty ? '127.0.0.1' : Uri.base.host;
