@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
-from .agents import AnukaAgent, DharenAgent
+from .agents import AnukaAgent
+from criterivox.Dharen.agent import DharenAgent
 from .models import AdaptiveContextState, ContextCheckpoint, ContextFork, ContextFrame, ContextInput
 
 
