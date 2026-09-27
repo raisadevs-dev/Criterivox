@@ -1,4 +1,4 @@
-"""Implementation-level S8 research support mechanisms.
+"""Implementation-level Evidence research support mechanisms.
 
 These mechanisms create inspectable artifacts/records. They do not decide truth,
 resolve contradictions automatically, or replace human authorization.
@@ -27,7 +27,7 @@ class ExperimentRecord:
 
 
 class TemporalRetriever:
-    """Deterministic temporal retrieval over S8 temporal artifacts."""
+    """Deterministic temporal retrieval over Evidence temporal artifacts."""
 
     def retrieve(self, artifacts: Mapping[str, Artifact], *, subject: str, at: datetime | None = None) -> list[Artifact]:
         point = at or utc_now()
@@ -63,7 +63,7 @@ class MemoryConsolidator:
                 raise PermissionError("Memory consolidation cannot cross tenant/context boundaries.")
             selected.append(artifact)
         return Artifact(
-            artifact_id=f"S8M-{len(selected):06d}-{int(utc_now().timestamp())}", kind=ArtifactKind.MEMORY,
+            artifact_id=f"EvidenceM-{len(selected):06d}-{int(utc_now().timestamp())}", kind=ArtifactKind.MEMORY,
             payload={"member_artifact_ids": tuple(a.artifact_id for a in selected), "retains_provenance": True,
                      "retains_temporal_history": True, "retains_verification": True, "retains_integrity": True,
                      "retains_uncertainty": True, "write_mode": "derived_reference_only"},
@@ -90,6 +90,6 @@ class EvaluationRecorder:
     def __init__(self) -> None: self.records: list[ExperimentRecord] = []
 
     def record(self, capability: str, inputs: Mapping[str, Any], artifact_ids: tuple[str, ...], *, execution_receipt: Mapping[str, Any]) -> ExperimentRecord:
-        record = ExperimentRecord(f"S8X-{len(self.records) + 1:06d}", capability, dict(inputs), artifact_ids, dict(execution_receipt))
+        record = ExperimentRecord(f"EvidenceX-{len(self.records) + 1:06d}", capability, dict(inputs), artifact_ids, dict(execution_receipt))
         self.records.append(record)
         return record
