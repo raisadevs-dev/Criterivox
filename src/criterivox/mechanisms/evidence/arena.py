@@ -1,4 +1,4 @@
-"""Dependency-free local layered NLP boundary for S8 Debate Arena.
+"""Dependency-free local layered NLP boundary for Evidence Debate Arena.
 
 This is intentionally conservative: it structures human language into candidate
 operations and never claims that language parsing establishes truth.
