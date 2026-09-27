@@ -1,6 +1,6 @@
-import 's8_artifact_store.dart';
-import 's8_capability_ports.dart';
-import 's8_presentation_state.dart';
+import 'artifact_store.dart';
+import 'capability_ports.dart';
+import 'presentation_state.dart';
 
 /// Evidence lifecycle states deliberately avoid treating absence of evidence as
 /// proof of a claim.
