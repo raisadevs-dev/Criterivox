@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-import 'character/character_identity.dart';
-import 'character/session_character_animation.dart';
-import 'foundation/criterivox_responsive_scene.dart';
-import 'foundation/criterivox_scene.dart';
-import 'foundation/criterivox_status.dart';
-import 'foundation/criterivox_visual_tokens.dart';
-import 'presentation/criterivox_theme.dart';
-import 'presentation/presentation_state.dart';
-import 'semantic_visualizations.dart';
+import '../../runtime/character/character_identity.dart';
+import '../../runtime/character/session_character_animation.dart';
+import '../../../../presentation/shared/foundation/criterivox_responsive_scene.dart';
+import '../../../../presentation/shared/foundation/criterivox_scene.dart';
+import '../../../../presentation/shared/foundation/criterivox_status.dart';
+import '../../../../presentation/shared/foundation/criterivox_visual_tokens.dart';
+import '../../presentation/shared/criterivox_theme.dart';
+import '../../presentation/shared/presentation_state.dart';
+import '../../presentation/visualizations.dart';
 
 class CivilizationPage extends StatefulWidget {
   final PresentationState? state;
