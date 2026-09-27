@@ -1,9 +1,11 @@
-from criterivox.Bloom import BloomController, BloomCapability
+from criterivox.world.bloom import BloomCapability, BloomController
+
 
 def test_bloom_capability_activation_routes():
     result = BloomController().activate_capability(BloomCapability.ANALYZE, source="test")
     assert result["capability"] == "analyze"
     assert result["destinations"]
+
 
 def test_bloom_budget_and_mode():
     controller = BloomController()
