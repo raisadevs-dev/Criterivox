@@ -9,12 +9,14 @@ from typing import Any
 from .s5_advanced_runtime import (
     EvaluationGate,
     FoundationSynchronizer,
-    KaelenPipeline,
     ProvenanceLedger,
-    SchemaDriftHealer,
     SemanticTagger,
     SyntheticDataEngine,
 )
+from criterivox.Kaelen.pipeline import KaelenPipeline
+from criterivox.Kaelen.schema import SchemaDriftHealer
+from criterivox.Kaelen.vector import VectorEncoder, VectorLakehousePackageBuilder
+from criterivox.Kaelen.streaming import StreamDAG
 from .s5_ml_stack import LocalMLStack
 from ..Sandre.sklearn_backend import SklearnAnomalyBackend
 
@@ -49,6 +51,9 @@ class S5FeatureRuntime:
         self.pipeline = KaelenPipeline()
         self.healer = SchemaDriftHealer()
         self.synthetic = SyntheticDataEngine()
+        self.vector_encoder = VectorEncoder()
+        self.vector_package_builder = VectorLakehousePackageBuilder(self.vector_encoder)
+        self.stream_dag = StreamDAG(self.pipeline)
         self.tagger = SemanticTagger()
         self.evaluator = EvaluationGate()
         self.ml = LocalMLStack()
@@ -824,20 +829,54 @@ class S5FeatureRuntime:
         self,
         foundation: Any,
     ) -> dict[str, Any]:
+        rows = self._rows(foundation)
         return {
-            "stage": (
-                "embedding-ready-representation"
-            ),
-            "text": bool(
-                self._rows(foundation)
-            ),
+            "stage": "vector-encoded",
+            "text": bool(rows),
             "image": False,
             "audio": False,
-            "lakehouse": (
-                "deferred-by-S5-scope"
-            ),
+            "lakehouse": "local-inspectable-artifact",
+            "dimension": self.vector_encoder.dimension,
+            "encoder": "deterministic-feature-hash-v1",
+            "semantic_embedding": False,
         }
 
+    # ------------------------------------------------------------------
+    # Kaelen vector / streaming capabilities
+    # ------------------------------------------------------------------
+
+    def vector_encode(self, foundation: Any) -> dict[str, Any]:
+        rows = self._rows(foundation)
+        encoded = [self.vector_encoder.encode(row) for row in rows]
+        return {
+            "stage": "encoded",
+            "encoder": "deterministic-feature-hash-v1",
+            "dimension": self.vector_encoder.dimension,
+            "vectors": [list(item.vector) for item in encoded],
+            "rows": len(encoded),
+            "semantic_embedding": False,
+        }
+
+    def vector_package(self, foundation: Any) -> dict[str, Any]:
+        rows = self._rows(foundation)
+        return self.vector_package_builder.build(rows)
+
+    def stream_result(
+        self,
+        events: Any,
+        *,
+        expected_schema: list[str] | None = None,
+        aliases: dict[str, str] | None = None,
+        casts: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
+        return self.stream_dag.execute(
+            events,
+            expected_schema=expected_schema,
+            aliases=aliases,
+            casts=casts,
+        )
+
+    # ------------------------------------------------------------------
     # ------------------------------------------------------------------
     # EDD gate
     # ------------------------------------------------------------------
