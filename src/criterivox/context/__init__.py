@@ -1,6 +1,6 @@
 """S6 Context Intelligence computational agents and runtime."""
 
-from .agents import AnukaAgent
+from criterivox.Anuka.agent import AnukaAgent
 from criterivox.Dharen.agent import DharenAgent
 from .engine import ContextIntelligenceEngine
 from .models import AdaptiveContextState, ContextCheckpoint, ContextDiff, ContextFork, ContextFrame, ContextInput, ContextItem, ContextTier, ContextViolation
