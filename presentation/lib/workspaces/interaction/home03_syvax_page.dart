@@ -44,17 +44,28 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
       body: jsonEncode(body),
     );
 
-    final decoded = jsonDecode(response.body);
+    dynamic decoded;
+    if (response.body.trim().isNotEmpty) {
+      try {
+        decoded = jsonDecode(response.body);
+      } on FormatException {
+        throw Exception(
+          'Syvax backend returned non-JSON (HTTP \${response.statusCode}).',
+        );
+      }
+    }
 
     if (decoded is! Map) {
-      throw Exception('Backend returned an invalid response.');
+      throw Exception(
+        'Syvax backend returned no JSON object (HTTP \${response.statusCode}).',
+      );
     }
 
     final data = Map<String, dynamic>.from(decoded);
 
     if (response.statusCode >= 400) {
       throw Exception(
-        '${data['detail'] ?? data['safety'] ?? 'Request failed'}',
+        '\${data['detail'] ?? data['safety'] ?? data['error'] ?? 'Request failed'}',
       );
     }
 
