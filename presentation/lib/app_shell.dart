@@ -923,6 +923,11 @@ class _ShellState extends State<CriterivoxShell> {
           onOpen: open,
         );
 
+      case 'dharen':
+        return const DharenWorkspacePage(
+          key: ValueKey('dharen'),
+        );
+
       case 'kaelen':
         return const KaelenWorkspacePage(
           key: ValueKey('kaelen'),
