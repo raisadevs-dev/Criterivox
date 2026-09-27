@@ -41,8 +41,9 @@ def test_semantic_and_vector_surfaces_are_explicit():
     vector = runtime.vector_readiness(foundation())
     assert semantic["active_metadata"] is True
     assert semantic["agent_readability_score"] > 0
-    assert vector["stage"] == "embedding-ready-representation"
-    assert vector["lakehouse"] == "deferred-by-S5-scope"
+    assert vector["stage"] == "vector-encoded"
+    assert vector["lakehouse"] == "local-inspectable-artifact"
+    assert vector["semantic_embedding"] is False
 
 
 def test_edd_requires_confirmation():
@@ -51,3 +52,17 @@ def test_edd_requires_confirmation():
     result = S5FeatureRuntime().edd_gate(f)
     assert result["status"] == "REVIEW"
     assert result["checks"]["confirmation"] is False
+
+
+def test_kaelen_vector_and_stream_surfaces_are_executable():
+    runtime = S5FeatureRuntime()
+    vector = runtime.vector_encode(foundation())
+    package = runtime.vector_package(foundation())
+    stream = runtime.stream_result([
+        {"_sequence": 1, "id": 1},
+        {"_sequence": 2, "id": 2},
+    ])
+    assert vector["dimension"] == 32
+    assert len(vector["vectors"]) == 2
+    assert package["kind"] == "kaelen.vectorized_lakehouse_package"
+    assert stream["checkpoint"]["sequence"] == 2
