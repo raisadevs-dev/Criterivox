@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import 's7_visuals.dart';
-import 's7_functional_layer.dart';
+import 'visuals.dart';
+import 'functional_layer.dart';
 
 class S7EnvironmentPage extends StatefulWidget {
   /// System-owned reasoning room. Initial task/data arrive from Human Residence;
