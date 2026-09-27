@@ -1,4 +1,6 @@
-from criterivox.application.s5_advanced_runtime import EvaluationGate,FoundationSynchronizer,KaelenPipeline,ProvenanceLedger,SchemaDriftHealer,SemanticTagger,SyntheticDataEngine
+from criterivox.application.s5_advanced_runtime import EvaluationGate,FoundationSynchronizer,ProvenanceLedger,SemanticTagger,SyntheticDataEngine
+from criterivox.Kaelen.pipeline import KaelenPipeline
+from criterivox.Kaelen.schema import SchemaDriftHealer
 
 def test_provenance_rewind_round_trip():
  l=ProvenanceLedger();a=l.append('DF-X','A',{'v':1});b=l.append('DF-X','B',{'v':2});assert l.rewind('DF-X',a.revision).snapshot=={'v':1};assert b.parent_revision==a.revision
