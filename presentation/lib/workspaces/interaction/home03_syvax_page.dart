@@ -2,9 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import 'interaction/syvax.dart';
-import 'Syvax/syvax_presentation.dart';
-import 'presentation/criterivox_theme.dart';
+import '../../interaction/syvax.dart';
+import '../../agents/syvax/syvax_presentation.dart';
+import '../../presentation/shared/criterivox_theme.dart';
+import '../../presentation/shared/api_client.dart';
 
 class Home03SyvaxPage extends StatefulWidget {
   final ValueChanged<String> onOpen;
@@ -29,24 +30,14 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
   String view = 'executive';
   bool busy = false;
 
-  Uri get base {
-    final scheme = Uri.base.scheme == 'https' ? 'https' : 'http';
-    final host = Uri.base.host.isEmpty ? '127.0.0.1' : Uri.base.host;
-
-    return Uri.parse(
-      '$scheme://$host:${const String.fromEnvironment(
-        'CRITERIVOX_BACKEND_PORT',
-        defaultValue: '8000',
-      )}',
-    );
-  }
+  Uri get base => CriterivoxApi.uri('/');
 
   Future<Map<String, dynamic>> post(
     String path,
     Map<String, dynamic> body,
   ) async {
     final response = await http.post(
-      base.replace(path: '${base.path}$path'),
+      CriterivoxApi.uri(path),
       headers: const {
         'content-type': 'application/json',
       },
