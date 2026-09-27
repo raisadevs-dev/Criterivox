@@ -609,10 +609,10 @@ class _Conversation extends StatelessWidget {
             ? (state?.characterState ?? 'IDLE')
             : 'IDLE';
 
-    final promptList =
-        _CharacterChatPageState.prompts[target] ??
-            _CharacterChatPageState
-                .fallbackPrompts;
+    final promptList = target == 'kaelen'
+        ? KaelenPresentation.chatPrompts
+        : _CharacterChatPageState.prompts[target] ??
+            _CharacterChatPageState.fallbackPrompts;
 
     return Column(
       children: [
