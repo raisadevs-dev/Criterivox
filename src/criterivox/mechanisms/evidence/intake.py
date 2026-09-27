@@ -1,4 +1,4 @@
-"""Upstream-facing S8 intake contract.
+"""Upstream-facing Evidence intake contract.
 
 This is the bridge used by the synthetic Criterivox world and future real
 component adapters. It deliberately preserves member identity, provenance,
@@ -35,16 +35,16 @@ class CriterivoxMessage:
             raise ValueError("context must be a mapping")
 
 
-class S8Intake:
+class EvidenceIntake:
     """Validate internal-language messages without computing their claims."""
 
     def parse(self, envelope: Mapping[str, Any]) -> CriterivoxMessage:
         if envelope.get("contract") != CONTRACT:
-            raise ValueError(f"Unsupported S8 intake contract: {envelope.get('contract')!r}")
+            raise ValueError(f"Unsupported Evidence intake contract: {envelope.get('contract')!r}")
         required = ("message_id", "sender", "message_type", "task", "context")
         missing = [key for key in required if key not in envelope]
         if missing:
-            raise ValueError(f"S8 intake envelope missing fields: {missing}")
+            raise ValueError(f"Evidence intake envelope missing fields: {missing}")
         materials = envelope.get("materials", ())
         if not isinstance(materials, (list, tuple)) or not all(isinstance(item, Mapping) for item in materials):
             raise ValueError("materials must be a list of mappings")
