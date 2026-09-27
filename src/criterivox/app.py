@@ -244,6 +244,9 @@ async def _safe_data_action(payload: dict) -> None:
                 "schema_patch": s5_features.schema_patch,
                 "pipeline": s5_features.pipeline_result,
                 "vector_readiness": s5_features.vector_readiness,
+                "vector_encode": s5_features.vector_encode,
+                "vector_package": s5_features.vector_package,
+                "stream": s5_features.stream_result,
                 "edd_gate": s5_features.edd_gate,
                 "ml_anomaly": s5_features.ml_train_and_score,
             }
@@ -256,6 +259,8 @@ async def _safe_data_action(payload: dict) -> None:
                 result = method(foundation, feature_values.get("revision"))
             elif feature == "synthetic_preview":
                 result = method(foundation, int(feature_values.get("seed", 17)))
+            elif feature == "stream":
+                result = method(feature_values.get("events", []), expected_schema=feature_values.get("expected_schema"), aliases=feature_values.get("aliases"), casts=feature_values.get("casts"))
             else:
                 result = method(foundation)
 
