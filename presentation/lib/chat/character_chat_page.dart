@@ -6,6 +6,7 @@ import '../Vivren/vivren_presentation.dart';
 import '../Tarkis/tarkis_presentation.dart';
 import '../Pramon/pramon_presentation.dart';
 import '../Bodhex/bodhex_presentation.dart';
+import '../Anukor/anukor_presentation.dart';
 
 import 'dart:convert';
 
@@ -632,7 +633,9 @@ class _Conversation extends StatelessWidget {
                                 ? PramonPresentation.chatPrompts
                                 : target == 'bodhex'
                                     ? BodhexPresentation.chatPrompts
-                                    : _CharacterChatPageState.prompts[target] ??
+                                    : target == 'anukor'
+                                        ? AnukorPresentation.chatPrompts
+                                        : _CharacterChatPageState.prompts[target] ??
                                 _CharacterChatPageState.fallbackPrompts;
 
     return Column(
