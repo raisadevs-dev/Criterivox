@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'character/character_identity.dart';
+import 'Bloom/bloom_presentation.dart';
 import 'character/session_character_animation.dart';
 import 'presentation/criterivox_theme.dart';
 
@@ -28,7 +29,7 @@ class BloomCompanion extends StatelessWidget {
       return '${identity.displayName} represents ${identity.role}. The underlying system work remains in Criterivox services.';
     }
     switch (location) {
-      case 'bloom': return 'You are at the civilization gateway. Choose a capability or enter the world.';
+      case 'bloom': return BloomPresentation.companionMessage;
       case 'civilization': return 'Explore a district, meet a worker, and follow the responsibility into its Home.';
       case 'home': return 'You are visiting a Home. Its residents anchor the responsibility shown here.';
       case 'level2': return 'You are inspecting operational meaning. Deeper technical detail stays behind explicit inspection.';
