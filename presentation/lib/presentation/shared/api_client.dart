@@ -1,32 +1,23 @@
 import 'package:flutter/foundation.dart';
 
-/// Resolves Criterivox HTTP API calls to the Python backend rather than the
-/// Flutter presentation server.
-///
-/// The managed launcher runs Flutter on 8080 and Python on 8000. Production
-/// deployments may override the backend origin at build time.
 class CriterivoxApi {
-  static const backendUrl = String.fromEnvironment(
-    'CRITERIVOX_BACKEND_URL',
-    defaultValue: '',
-  );
+  static const backendUrl = String.fromEnvironment('CRITERIVOX_BACKEND_URL', defaultValue: '');
+  static const backendPort = String.fromEnvironment('CRITERIVOX_BACKEND_PORT', defaultValue: '8000');
 
-  static Uri uri(String path) {
-    final normalized = path.startsWith('/') ? path : '/$path';
+  static Uri _origin({required bool websocket}) {
     if (backendUrl.isNotEmpty) {
-      return Uri.parse(backendUrl).resolve(normalized);
+      final parsed = Uri.parse(backendUrl);
+      if (!websocket) return parsed;
+      return parsed.replace(scheme: parsed.scheme == 'https' ? 'wss' : 'ws');
     }
-
     if (kIsWeb) {
-      final scheme = Uri.base.scheme == 'https' ? 'https' : 'http';
       final host = Uri.base.host.isEmpty ? '127.0.0.1' : Uri.base.host;
-      const backendPort = String.fromEnvironment(
-        'CRITERIVOX_BACKEND_PORT',
-        defaultValue: '8000',
-      );
-      return Uri.parse('$scheme://$host:$backendPort$normalized');
+      final scheme = Uri.base.scheme == 'https' ? (websocket ? 'wss' : 'https') : (websocket ? 'ws' : 'http');
+      return Uri.parse(scheme + '://' + host + ':' + backendPort);
     }
-
-    return Uri.parse('http://127.0.0.1:8000$normalized');
+    return Uri.parse((websocket ? 'ws' : 'http') + '://127.0.0.1:' + backendPort);
   }
+
+  static Uri uri(String path) => _origin(websocket: false).resolve(path.startsWith('/') ? path : '/' + path);
+  static Uri websocketUri(String path) => _origin(websocket: true).resolve(path.startsWith('/') ? path : '/' + path);
 }
