@@ -49,7 +49,7 @@ class InterventionRegistry:
     def create(self, actor_id: str, target_artifact_ids: tuple[str, ...], *, evidence_ids: tuple[str, ...] = (), context: str = "", proposed_alternative: str = "", target_relationship_ids: tuple[str, ...] = (), target_path_ids: tuple[str, ...] = ()) -> HumanIntervention:
         if not target_artifact_ids and not target_relationship_ids and not target_path_ids:
             raise ValueError("A challenge must target an artifact, relationship, or path.")
-        intervention = HumanIntervention(self._id("S8I"), actor_id, target_artifact_ids, target_relationship_ids, target_path_ids, evidence_ids, context, proposed_alternative)
+        intervention = HumanIntervention(self._id("EvidenceI"), actor_id, target_artifact_ids, target_relationship_ids, target_path_ids, evidence_ids, context, proposed_alternative)
         self.interventions[intervention.intervention_id] = intervention
         return intervention
 
@@ -68,6 +68,6 @@ class InterventionRegistry:
             raise PermissionError("Explicit authorization is required before revision.")
         if not original_ids:
             raise ValueError("A revision must preserve at least one original artifact identity.")
-        revision = RevisionRecord(self._id("S8R"), intervention_id, original_ids, revised_ids, affected_ids)
+        revision = RevisionRecord(self._id("EvidenceR"), intervention_id, original_ids, revised_ids, affected_ids)
         self.revisions[revision.revision_id] = revision
         return revision
