@@ -1,4 +1,4 @@
-"""Minimal standalone S8 process smoke entrypoint."""
+"""Minimal standalone Evidence process smoke entrypoint."""
 from __future__ import annotations
 
 from .bureau import EvidenceResearchBureau
@@ -19,7 +19,7 @@ def main() -> int:
         tenant_id="standalone",
         context_id="default",
     )
-    print(f"S8 standalone: {result.status}; artifacts={len(bureau.artifacts)} events={len(bureau.events)}")
+    print(f"Evidence standalone: {result.status}; artifacts={len(bureau.artifacts)} events={len(bureau.events)}")
     return 0
 
 
