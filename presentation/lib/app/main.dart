@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'app_shell.dart';
-import 'presentation/criterivox_theme.dart';
-import 'presentation/language_mode.dart';
-import 'foundation/criterivox_visual_tokens.dart';
+import '../presentation/shared/criterivox_theme.dart';
+import '../presentation/shared/language_mode.dart';
+import '../presentation/foundation/criterivox_visual_tokens.dart';
 
 class CriterivoxApp extends StatefulWidget {
   const CriterivoxApp({super.key});
