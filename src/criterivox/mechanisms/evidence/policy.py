@@ -1,4 +1,4 @@
-"""Explicit S8 authorization/isolation boundary.
+"""Explicit Evidence authorization/isolation boundary.
 
 Characters never grant authority. Callers supply an actor identity and operation;
 the policy decides whether the requested operation may inspect or mutate a
@@ -10,7 +10,7 @@ from dataclasses import dataclass
 
 
 class AuthorizationError(PermissionError):
-    """Raised when an S8 operation is not explicitly authorized."""
+    """Raised when an Evidence operation is not explicitly authorized."""
 
 
 @dataclass(frozen=True)
@@ -24,7 +24,7 @@ class AccessRequest:
     authorized: bool = False
 
 
-class S8Policy:
+class EvidencePolicy:
     """Least-privilege policy with tenant/context isolation."""
 
     CONSEQUENT_OPERATIONS = frozenset({"challenge", "intervene", "reevaluate", "revise"})
