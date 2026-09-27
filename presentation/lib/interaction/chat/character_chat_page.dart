@@ -1,17 +1,17 @@
-import '../Kaelen/kaelen_presentation.dart';
-import '../Dharen/dharen_presentation.dart';
-import '../Anuka/anuka_presentation.dart';
-import '../Syvax/syvax_presentation.dart';
-import '../Vivren/vivren_presentation.dart';
-import '../Tarkis/tarkis_presentation.dart';
-import '../Pramon/pramon_presentation.dart';
-import '../Bodhex/bodhex_presentation.dart';
-import '../Anukor/anukor_presentation.dart';
-import '../Manis/manis_presentation.dart';
-import '../Viveda/viveda_presentation.dart';
-import '../Veridat/veridat_presentation.dart';
-import '../Epistre/epistre_presentation.dart';
-import '../Medrus/medrus_presentation.dart';
+import '../../agents/kaelen/kaelen_presentation.dart';
+import '../../agents/dharen/dharen_presentation.dart';
+import '../../agents/anuka/anuka_presentation.dart';
+import '../../agents/syvax/syvax_presentation.dart';
+import '../../agents/vivren/vivren_presentation.dart';
+import '../../agents/tarkis/tarkis_presentation.dart';
+import '../../agents/pramon/pramon_presentation.dart';
+import '../../agents/bodhex/bodhex_presentation.dart';
+import '../../agents/anukor/anukor_presentation.dart';
+import '../../agents/manis/manis_presentation.dart';
+import '../../agents/viveda/viveda_presentation.dart';
+import '../../agents/veridat/veridat_presentation.dart';
+import '../../agents/epistre/epistre_presentation.dart';
+import '../../agents/medrus/medrus_presentation.dart';
 
 import 'dart:convert';
 
@@ -19,9 +19,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
-import '../character/session_character_animation.dart';
-import '../presentation/criterivox_theme.dart';
-import '../presentation/presentation_state.dart';
+import '../../runtime/character/session_character_animation.dart';
+import '../../presentation/shared/criterivox_theme.dart';
+import '../../presentation/shared/presentation_state.dart';
 
 class CharacterChatPage extends StatefulWidget {
   final PresentationState? state;
