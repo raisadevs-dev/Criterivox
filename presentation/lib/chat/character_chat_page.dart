@@ -10,6 +10,7 @@ import '../Anukor/anukor_presentation.dart';
 import '../Manis/manis_presentation.dart';
 import '../Viveda/viveda_presentation.dart';
 import '../Veridat/veridat_presentation.dart';
+import '../Epistre/epistre_presentation.dart';
 
 import 'dart:convert';
 
@@ -644,7 +645,9 @@ class _Conversation extends StatelessWidget {
                                                 ? VivedaPresentation.chatPrompts
                                                 : target == 'veridat'
                                                     ? VeridatPresentation.chatPrompts
-                                                    : _CharacterChatPageState.prompts[target] ??
+                                                    : target == 'epistre'
+                                                        ? EpistrePresentation.chatPrompts
+                                                        : _CharacterChatPageState.prompts[target] ??
                                 _CharacterChatPageState.fallbackPrompts;
 
     return Column(
