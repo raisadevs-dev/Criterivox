@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/s7/s7_functional_layer.dart';
+import 'package:presentation/workspaces/reasoning/functional_layer.dart';
 
 void main() {
   test('Vivren and Tarkis retain distinct state-machine semantics', () {
