@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../presentation/language_mode.dart';
+import '../../presentation/language_mode.dart';
 
-import '../presentation/criterivox_theme.dart';
-import '../presentation/presentation_state.dart';
+import '../../presentation/criterivox_theme.dart';
+import '../../presentation/presentation_state.dart';
 import 'character_identity.dart';
 import 'character_runtime_flutter.dart';
 
