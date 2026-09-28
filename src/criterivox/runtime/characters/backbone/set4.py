@@ -10,8 +10,8 @@ from typing import Any, Iterator, Mapping
 from uuid import uuid4
 
 
-ROOT = Path(__file__).resolve().parents[3]
-STORE_PATH = ROOT / "data" / "s8" / "character_operations.sqlite3"
+ROOT = Path(__file__).resolve().parents[5]
+STORE_PATH = ROOT / "data" / "evidence" / "character_operations.sqlite3"
 
 
 def now() -> str:
