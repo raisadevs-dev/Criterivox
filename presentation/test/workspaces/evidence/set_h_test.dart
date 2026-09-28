@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/s8_local_intelligence.dart';
-import 'package:presentation/s8_persistence.dart';
-import 'package:presentation/s8_sqlite_persistence.dart';
-import 'package:presentation/s8_temporal.dart';
-import 'package:presentation/s8_presentation_state.dart';
+import 'package:presentation/workspaces/evidence/local_intelligence.dart';
+import 'package:presentation/workspaces/evidence/persistence.dart';
+import 'package:presentation/workspaces/evidence/sqlite_persistence.dart';
+import 'package:presentation/workspaces/evidence/temporal.dart';
+import 'package:presentation/workspaces/evidence/presentation_state.dart';
 
 S8ArtifactSummary artifact(String id) => S8ArtifactSummary(
       id: id,
