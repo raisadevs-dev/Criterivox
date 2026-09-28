@@ -4,7 +4,7 @@ from criterivox.runtime.characters.core import (
     AnimationState,
     CharacterState,
 )
-from criterivox.presentation.states import (
+from criterivox.presentation_contracts.states import (
     VisualPresentation,
     present_communicate,
     present_complete,
