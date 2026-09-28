@@ -1,4 +1,4 @@
-from criterivox.Manis import ManisChallenge
+from criterivox.agents.manis import ManisChallenge
 def test_manis_assesses_human_challenge():
     a=ManisChallenge().assess("What evidence would falsify this?",challenge_type="evidence",affected_options=("strategy-rapid",))
     assert a.challenge_type=="evidence"
