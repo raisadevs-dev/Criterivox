@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import 's8_presentation_state.dart';
+import 'presentation_state.dart';
 
 /// Reference-driven, Flutter-only interior design for the S8 bureau.
 ///
