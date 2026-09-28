@@ -1,9 +1,9 @@
 import pytest
 
-from criterivox.domain.characters import get_character
-from criterivox.domain.characters.handoff_payload import HandoffPayload
-from criterivox.domain.characters.handoff_router import HandoffRouter
-from criterivox.domain.characters.state import CharacterState
+from criterivox.runtime.characters.core import get_character
+from criterivox.runtime.characters.core.handoff_payload import HandoffPayload
+from criterivox.runtime.characters.core.handoff_router import HandoffRouter
+from criterivox.runtime.characters.core.state import CharacterState
 
 
 def test_successful_handoff_preserves_sender_receiver_and_payload() -> None:
