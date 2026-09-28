@@ -1,4 +1,4 @@
-from criterivox.s8 import ArtifactKind, EvidenceResearchBureau
+from criterivox.mechanisms.evidence import ArtifactKind, EvidenceResearchBureau
 
 
 def test_verification_is_evidence_linked_and_explicitly_limited() -> None:
