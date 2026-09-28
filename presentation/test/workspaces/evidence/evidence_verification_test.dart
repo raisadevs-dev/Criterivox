@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/s8_artifact_store.dart';
-import 'package:presentation/s8_evidence_verification.dart';
+import 'package:presentation/workspaces/evidence/artifact_store.dart';
+import 'package:presentation/workspaces/evidence/evidence_verification.dart';
 
 void main() {
   late S8ArtifactStore store;
