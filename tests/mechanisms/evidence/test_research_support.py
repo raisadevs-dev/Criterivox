@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from criterivox.s8.bureau import EvidenceResearchBureau
+from criterivox.mechanisms.evidence.bureau import EvidenceResearchBureau
 from criterivox.s8.models import ArtifactKind
 from criterivox.s8.research import EvaluationRecorder, MemoryConsolidator, TemporalRetriever
 
