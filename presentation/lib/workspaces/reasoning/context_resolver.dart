@@ -1,5 +1,5 @@
-import 's7_conversation_state.dart';
-import 's7_nlp_intents.dart';
+import 'conversation_state.dart';
+import 'nlp_intents.dart';
 
 class S7ResolvedTarget {
   const S7ResolvedTarget({required this.value, required this.confidence});
