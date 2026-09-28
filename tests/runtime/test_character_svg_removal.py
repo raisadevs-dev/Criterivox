@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-ROOT = Path(__file__).parents[1] / "presentation"
+ROOT = Path(__file__).parents[2] / "presentation"
 
 
 IGNORED_DIRECTORIES = {
@@ -91,6 +91,7 @@ def test_generated_vector_animation_is_not_treated_as_legacy_asset_dependency():
     generator = (
         ROOT
         / "lib"
+        / "runtime"
         / "character"
         / "generated_vector_animation.dart"
     )
