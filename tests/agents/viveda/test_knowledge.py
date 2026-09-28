@@ -1,4 +1,4 @@
-from criterivox.Viveda import VivedaKnowledge
+from criterivox.agents.viveda import VivedaKnowledge
 
 class Store:
     def record_knowledge(self, record): return record.knowledge_id
