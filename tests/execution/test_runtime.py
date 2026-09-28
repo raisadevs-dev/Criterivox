@@ -1,4 +1,4 @@
-from criterivox.application.s5_advanced_runtime import EvaluationGate,FoundationSynchronizer,ProvenanceLedger,SemanticTagger,SyntheticDataEngine
+from criterivox.execution.runtime import EvaluationGate,FoundationSynchronizer,ProvenanceLedger,SemanticTagger,SyntheticDataEngine
 from criterivox.Kaelen.pipeline import KaelenPipeline
 from criterivox.Kaelen.schema import SchemaDriftHealer
 
