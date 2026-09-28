@@ -106,12 +106,7 @@ class _BloomPageState extends State<BloomPage> {
                         selected: selected,
                         onCapability: _select,
                         onOpenCapability: widget.onOpenCapability,
-                        height: 600)),
-                const SizedBox(width: 16),
-                const SizedBox(
-                    width: 320,
-                    child: Column(children: [
-                    ]))
+                        height: 600))
               ]),
             const SizedBox(height: 14),
             _Lifecycle(state: widget.state),
