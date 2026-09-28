@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from criterivox.domain.characters import (
+from criterivox.runtime.characters.core import (
     AnimationState,
     CharacterState,
 )
