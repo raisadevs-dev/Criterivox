@@ -32,7 +32,7 @@ jobs:
       - name: Compile Python
         run: python -m compileall -q src
       - name: Run Python tests
-        run: PYTHONPATH=src pytest -q
+        run: PYTHONPATH=src pytest --import-mode=importlib -q
 
   flutter:
     runs-on: ubuntu-latest
