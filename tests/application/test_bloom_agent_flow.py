@@ -4,7 +4,7 @@ from criterivox.application.bloom_integration import (
     BloomCapability,
     BloomIntegration,
 )
-from criterivox.domain.characters import CharacterState
+from criterivox.runtime.characters.core import CharacterState
 
 
 def test_bloom_analyze_flows_to_agents() -> None:
