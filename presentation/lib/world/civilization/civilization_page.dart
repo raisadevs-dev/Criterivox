@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../runtime/character/character_identity.dart';
 import '../../runtime/character/session_character_animation.dart';
-import '../../../../presentation/shared/foundation/criterivox_responsive_scene.dart';
-import '../../../../presentation/shared/foundation/criterivox_scene.dart';
-import '../../../../presentation/shared/foundation/criterivox_status.dart';
-import '../../../../presentation/shared/foundation/criterivox_visual_tokens.dart';
+import '../../presentation/foundation/criterivox_responsive_scene.dart';
+import '../../presentation/foundation/criterivox_scene.dart';
+import '../../presentation/foundation/criterivox_status.dart';
+import '../../presentation/foundation/criterivox_visual_tokens.dart';
 import '../../presentation/shared/criterivox_theme.dart';
 import '../../presentation/shared/presentation_state.dart';
 import '../../presentation/visualizations.dart';
