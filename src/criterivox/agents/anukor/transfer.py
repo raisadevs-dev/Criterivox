@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Mapping
-from criterivox.character_backbone.set4 import TransferRecord
+from criterivox.runtime.characters.backbone.set4 import TransferRecord
 
 @dataclass(frozen=True)
 class TransferAssessment:
