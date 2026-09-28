@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:presentation/character/character_identity.dart';
-import 'package:presentation/character/character_visual_profile.dart';
+import 'package:presentation/runtime/character/character_identity.dart';
+import 'package:presentation/runtime/character/character_visual_profile.dart';
 
 /// Flutter-side visual runtime for a Criterivox character.
 ///
