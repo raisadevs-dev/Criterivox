@@ -53,4 +53,4 @@ jobs:
       - name: Tests
         run: flutter test
 
-# CI trigger: validate current semantic-architecture-refactor head.
+# CI trigger: validate current semantic-architecture-refactor head.\n# Triggered after the final migration/runtime repair pass.
