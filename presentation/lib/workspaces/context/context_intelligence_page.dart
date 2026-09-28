@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../analysis_context_workspace_page.dart';
+import '../analysis/context_workspace_page.dart';
 import '../../../runtime/character/live_agent_panel.dart';
 import '../../../presentation/shared/criterivox_theme.dart';
 import '../../../presentation/shared/presentation_state.dart';
