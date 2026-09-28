@@ -1,4 +1,4 @@
-from criterivox.Pramon import PramonPlanner
+from criterivox.agents.pramon import PramonPlanner
 def test_pramon_builds_three_decision_options():
     options=PramonPlanner().build_options("Choose.",object())
     assert [x["id"] for x in options]==["strategy-rapid","strategy-balanced","strategy-rigor"]
