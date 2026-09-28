@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'character/character_runtime_flutter.dart';
-import 'presentation/presentation_state.dart';
-import 's8_character_details.dart';
-import 's8_presentation_state.dart';
+import 'runtime/character/character_runtime_flutter.dart';
+import 'presentation/shared/presentation_state.dart';
+import 'character_details.dart';
+import 'presentation_state.dart';
 
 /// S8 presentation identity: canonical character renderer + reference-driven
 /// costume/tool details + an inspectable profile card.
