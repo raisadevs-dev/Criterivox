@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import 's8_environment_motion.dart';
-import 's8_presentation_state.dart';
+import 'environment_motion.dart';
+import 'presentation_state.dart';
 
 /// Functional S8 room selector. The bureau has exactly four specialist rooms;
 /// Home is the hub and is not counted as a fifth specialist room.
