@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/s7/s7_environment_page.dart';
+import 'package:presentation/workspaces/reasoning/environment_page.dart';
 
 void main() {
   testWidgets(
