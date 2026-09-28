@@ -1,4 +1,4 @@
-from criterivox.Kaelen.ml import KaelenMLAgent
+from criterivox.agents.kaelen.ml import KaelenMLAgent
 
 
 def test_kaelen_ml_plan_remains_constrained():
