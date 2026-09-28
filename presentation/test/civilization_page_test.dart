@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/foundation/criterivox_responsive_scene.dart';
+import 'package:presentation/presentation/foundation/criterivox_responsive_scene.dart';
 
 void main() {
   group('Criterivox responsive civilization', () {
