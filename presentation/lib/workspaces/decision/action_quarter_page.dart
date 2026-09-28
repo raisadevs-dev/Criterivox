@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import 'runtime/character/character_identity.dart';
-import 'runtime/character/session_character_animation.dart';
+import 'runtime/../../runtime/character/character_identity.dart';
+import 'runtime/../../runtime/character/session_character_animation.dart';
 import '../human/residence/store.dart';
 import 'presentation/shared/criterivox_theme.dart';
 
