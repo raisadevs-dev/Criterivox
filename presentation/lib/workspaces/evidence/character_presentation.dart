@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'runtime/../../runtime/character/character_runtime_flutter.dart';
-import 'presentation/shared/presentation_state.dart';
+import '../../runtime/character/character_runtime_flutter.dart';
+import '../../../presentation/shared/presentation_state.dart';
 import 'character_details.dart';
 import 'presentation_state.dart';
 
