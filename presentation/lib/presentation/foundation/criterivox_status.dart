@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'criterivox_visual_tokens.dart';
-import '../../presentation/shared/shared/criterivox_theme.dart';
+import '../shared/criterivox_theme.dart';
 
 enum CriterivoxStatus {
   loading, ready, active, waiting, error, warning, uncertain,
