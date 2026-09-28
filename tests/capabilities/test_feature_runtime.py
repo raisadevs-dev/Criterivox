@@ -1,6 +1,6 @@
 from types import SimpleNamespace
 
-from criterivox.application.s5_feature_runtime import S5FeatureRuntime
+from criterivox.capabilities.feature_runtime import FeatureRuntime
 
 
 def foundation():
