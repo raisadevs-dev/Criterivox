@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Mapping
-from criterivox.character_backbone.set4 import KnowledgeRecord
+from criterivox.runtime.characters.backbone.set4 import KnowledgeRecord
 
 @dataclass(frozen=True)
 class KnowledgeAssessment:
