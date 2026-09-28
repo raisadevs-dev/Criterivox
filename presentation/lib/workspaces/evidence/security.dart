@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 
-import 's8_presentation_state.dart';
+import 'presentation_state.dart';
 
 /// Stable canonical representation used for integrity checks.
 /// Ordering is fixed so the same artifact produces the same digest.
