@@ -1,9 +1,9 @@
 import pytest
 
-from criterivox.domain.characters.communication_message import (
+from criterivox.runtime.characters.core.communication_message import (
     CommunicationPriority,
 )
-from criterivox.domain.characters.communication_priority import (
+from criterivox.runtime.characters.core.communication_priority import (
     highest_priority,
     is_higher_priority,
     priority_value,
