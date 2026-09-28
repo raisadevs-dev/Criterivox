@@ -56,3 +56,5 @@ jobs:
 # CI trigger: validate current semantic-architecture-refactor head.\n# Triggered after the final migration/runtime repair pass.
 
 # trigger repair CI 2026-09-29
+
+# retrigger after Bodhex boundary fix
