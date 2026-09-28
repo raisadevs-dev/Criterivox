@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../private_room_page.dart';
+import '../../private_room_page.dart';
 import 'manis_presentation.dart';
 class ManisWorkspacePage extends StatelessWidget {
   final VoidCallback onWorkspace;
