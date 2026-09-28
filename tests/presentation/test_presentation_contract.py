@@ -1,5 +1,5 @@
-from criterivox.domain.characters import CharacterState
-from criterivox.presentation.contract import PresentationContract
+from criterivox.runtime.characters.core import CharacterState
+from criterivox.presentation_contracts.contract import PresentationContract
 
 
 def test_sandre_state_can_carry_foundation_metadata():
