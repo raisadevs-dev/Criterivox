@@ -1470,6 +1470,15 @@ class OperationEngine:
             ),
         )
 
+        if cmd.intent == "ACTION_PREPARATION":
+            return (
+                self.snapshot(cmd.command_id)
+                | {
+                    "classification": "AUTH_REQUIRED",
+                    "approval": {"state": Approval.APPROVAL_REQUESTED.value},
+                }
+            )
+
         if cmd.intent == "CAPABILITY_DISCOVERY":
             return {
                 "message_type": "operation_state",
