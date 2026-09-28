@@ -1,4 +1,4 @@
-from criterivox.domain.characters.humor_repetition import (
+from criterivox.runtime.characters.core.humor_repetition import (
     HumorRecord,
     HumorRepetitionController,
 )
