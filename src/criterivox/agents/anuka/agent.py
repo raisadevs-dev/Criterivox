@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
-from .models import (
+from criterivox.context.models import (
     AdaptiveContextState,
     ContextCheckpoint,
     ContextDiff,
