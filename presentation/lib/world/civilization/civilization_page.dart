@@ -516,7 +516,8 @@ class _WorldLighting extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 }
 
