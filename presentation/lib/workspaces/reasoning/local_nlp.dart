@@ -1,4 +1,4 @@
-import 's7_nlp_intents.dart';
+import 'nlp_intents.dart';
 
 /// Result of deterministic local language interpretation.
 class S7LocalNlpResult {
