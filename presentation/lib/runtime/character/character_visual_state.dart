@@ -1,4 +1,4 @@
-import '../../../presentation/shared/shared/presentation_state.dart';
+import '../../presentation/shared/presentation_state.dart';
 
 class CharacterVisualState {
   final String agentId;
