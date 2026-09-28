@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../runtime/../runtime/character/session_character_animation.dart';
-import '../../presentation/shared/shared/criterivox_theme.dart';
+import '../presentation/shared/criterivox_theme.dart';
 
 class Syvax extends StatefulWidget {
   final ValueChanged<String> onSubmit;
