@@ -1,4 +1,4 @@
-from criterivox.Sandre.stewardship import SandreStewardship
+from criterivox.agents.sandre.stewardship import SandreStewardship
 from criterivox.domain.data_foundation import ConfirmationStatus, DataFoundation
 
 
