@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from criterivox.agents.sandre.store import data_foundations
+from criterivox.agents.pramon import PramonPlanner
 from .external_research import google_research
 from .human_residence_local_store import human_residence_local
 from .syvax import syvax_engine
@@ -108,7 +109,6 @@ class DecisionOrchestrator:
             event("human", "research authorization", "External research was not authorized; supplied material only.")
 
         event("tarkis", "reasoning", "Evaluated the structured goal, constraints and available evidence.")
-        from criterivox.agents.pramon import PramonPlanner
         option_rows = PramonPlanner().build_options(goal, plan, research_run)
         event("pramon", "decision options", "Produced strategy candidates with explicit trade-offs.", option_count=len(option_rows))
         event("manis", "challenge", "Generated challenge points for the human to stress-test.")
