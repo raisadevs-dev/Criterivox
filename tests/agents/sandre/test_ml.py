@@ -1,4 +1,4 @@
-from criterivox.Sandre.ml import SandreMLAgent
+from criterivox.agents.sandre.ml import SandreMLAgent
 
 
 def test_sandre_train_and_predict() -> None:
