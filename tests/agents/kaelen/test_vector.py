@@ -1,4 +1,4 @@
-from criterivox.Kaelen.vector import VectorEncoder, VectorLakehousePackageBuilder
+from criterivox.agents.kaelen.vector import VectorEncoder, VectorLakehousePackageBuilder
 
 
 def test_vector_encoder_is_deterministic_and_normalized():
