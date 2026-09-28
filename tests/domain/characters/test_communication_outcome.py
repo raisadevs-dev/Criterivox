@@ -1,7 +1,7 @@
-from criterivox.domain.characters.communication_message import (
+from criterivox.runtime.characters.core.communication_message import (
     CommunicationPriority,
 )
-from criterivox.domain.characters.communication_outcome import (
+from criterivox.runtime.characters.core.communication_outcome import (
     create_completion_message,
     create_uncertainty_message,
 )
