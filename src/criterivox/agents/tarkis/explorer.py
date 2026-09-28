@@ -1,8 +1,8 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
-from criterivox.s7.models import AnalysisSession, ArtifactKind
-from criterivox.s7.mechanisms import build_hypotheses, compare_hypotheses
+from criterivox.mechanisms.reasoning.models import AnalysisSession, ArtifactKind
+from criterivox.mechanisms.reasoning.mechanisms import build_hypotheses, compare_hypotheses
 
 @dataclass(frozen=True, slots=True)
 class HypothesisExploration:
