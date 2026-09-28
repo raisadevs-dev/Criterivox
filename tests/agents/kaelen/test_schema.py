@@ -1,4 +1,4 @@
-from criterivox.Kaelen.schema import SchemaDriftHealer, SchemaTransformer
+from criterivox.agents.kaelen.schema import SchemaDriftHealer, SchemaTransformer
 
 
 def test_schema_transform_maps_aliases_and_casts():
