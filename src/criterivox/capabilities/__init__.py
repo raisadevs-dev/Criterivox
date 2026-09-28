@@ -22,6 +22,8 @@ from .core import (
 )
 from .execution import ExecutionContext, ExecutionPolicy, PermissionBoundary, ResourceBudget, CircuitBreaker, RetryPolicy
 from .human import HumanChallenge, HumanAuthority, HumanChallengeState
+from .adapters import EvidenceArtifactRepository
+S8ArtifactRepository = EvidenceArtifactRepository
 
 __all__ = [
     "ArtifactRepository", "Capability", "CapabilityDescriptor", "CapabilityRegistry",
@@ -29,5 +31,5 @@ __all__ = [
     "ExecutionAudit", "ExecutionContext", "ExecutionPolicy", "HumanAuthority",
     "HumanChallenge", "HumanChallengeState", "PermissionBoundary", "PipelineContext",
     "PipelineDefinition", "PipelineExecutor", "PipelineResult", "PipelineStep",
-    "ResourceBudget", "RetryPolicy",
+    "ResourceBudget", "RetryPolicy", "EvidenceArtifactRepository", "S8ArtifactRepository",
 ]
