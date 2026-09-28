@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Any, Mapping
-from criterivox.character_backbone.operations import OperationEngine
+from criterivox.runtime.characters.backbone.operations import OperationEngine
 
 class BodhexActionPreparer:
     """Character-owned facade for governed action-contract preparation.
