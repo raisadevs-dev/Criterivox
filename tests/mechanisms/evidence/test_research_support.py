@@ -27,5 +27,5 @@ def test_memory_consolidation_retains_epistemic_metadata():
 def test_evaluation_record_is_reproducible_input_record():
     recorder = EvaluationRecorder()
     record = recorder.record("verification", {"dataset": "local"}, ("S8A-1",), execution_receipt={"status": "recorded"})
-    assert record.experiment_id == "S8X-000001"
+    assert record.experiment_id == "EvidenceX-000001"
     assert record.artifact_ids == ("S8A-1",)
