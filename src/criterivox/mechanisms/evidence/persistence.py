@@ -129,3 +129,6 @@ class EvidenceSQLiteStore:
 
     def close(self) -> None:
         self.connection.close()
+
+
+S8SQLiteStore = EvidenceSQLiteStore
