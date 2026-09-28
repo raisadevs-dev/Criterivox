@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../presentation/foundation/criterivox_responsive_scene.dart';
 import '../../presentation/foundation/criterivox_status.dart';
-import '../../presentation/semantic_visualizations.dart';
+import '../../presentation/visualizations.dart';
 
 class CriterivoxTheme {
   final Color page;
