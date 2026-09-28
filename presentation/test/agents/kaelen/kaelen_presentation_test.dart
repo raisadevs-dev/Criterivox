@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:criterivox/Kaelen/kaelen_presentation.dart';
+import 'package:presentation/agents/kaelen/kaelen_presentation.dart';
 
 void main() {
   test('Kaelen presentation owns build capabilities', () {
