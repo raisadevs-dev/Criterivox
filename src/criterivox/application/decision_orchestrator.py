@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from .data_foundation_store import data_foundations
+from criterivox.agents.sandre.store import data_foundations
 from .external_research import google_research
 from .human_residence_local_store import human_residence_local
 from .syvax import syvax_engine
