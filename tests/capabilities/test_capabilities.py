@@ -14,12 +14,12 @@ from criterivox.capabilities import (
     PipelineDefinition,
     PipelineExecutor,
     PipelineStep,
-    S8ArtifactRepository,
+    EvidenceArtifactRepository,
 )
 from criterivox.capabilities.adapters import make_audit_artifact, verify_artifact_integrity
 from criterivox.capabilities.execution import BudgetExceeded, CircuitBreaker, CircuitTripped, PermissionBoundary, ResourceBudget
 from criterivox.capabilities.runtime import ArtifactIntegrity, CapabilityRouter, ExecutionJournal
-from criterivox.s8.persistence import S8SQLiteStore
+from criterivox.mechanisms.evidence.persistence import EvidenceSQLiteStore
 
 
 class EchoCapability:
@@ -58,13 +58,13 @@ def test_one_home_can_compose_multiple_capabilities_and_events_connect_them() ->
 
 
 def test_persistence_and_integrity_survive_reload_and_detect_mutation() -> None:
-    repository = S8ArtifactRepository(S8SQLiteStore(":memory:"))
+    repository = EvidenceArtifactRepository(EvidenceSQLiteStore(":memory:"))
     artifact = make_audit_artifact(artifact_id="A-1", payload={"x": 1}, context_id="CTX")
     assert verify_artifact_integrity(artifact)
     mutated = replace(artifact, payload={"x": 2})
     assert not verify_artifact_integrity(mutated)
 
-    persistent = S8ArtifactRepository(S8SQLiteStore())
+    persistent = EvidenceArtifactRepository(EvidenceSQLiteStore())
     persistent.save_artifact(artifact)
     restored = persistent.get_artifact("A-1")
     assert restored is not None
@@ -100,7 +100,7 @@ def test_permissions_budgets_and_circuit_breaker() -> None:
 
 
 def test_checkpoint_replay_and_route_loop_detection(tmp_path) -> None:
-    repository = S8ArtifactRepository(S8SQLiteStore(tmp_path / "journal.sqlite3"))
+    repository = EvidenceArtifactRepository(EvidenceSQLiteStore(tmp_path / "journal.sqlite3"))
     journal = ExecutionJournal(repository)
     checkpoint = journal.checkpoint("EX-1", 1, {"step": "a"}, context_id="CTX")
     assert journal.replay("EX-1", context_id="CTX")[0].checkpoint_id == checkpoint.checkpoint_id
