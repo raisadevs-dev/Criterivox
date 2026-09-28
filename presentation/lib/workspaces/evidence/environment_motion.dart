@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import 's8_environment.dart';
-import 's8_presentation_state.dart';
+import 'environment.dart';
+import 'presentation_state.dart';
 
 /// Asset-free environmental motion. It animates atmosphere and room signals,
 /// never computational truth.
