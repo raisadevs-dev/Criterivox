@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/s8_artifact_store.dart';
-import 'package:presentation/s8_authority.dart';
-import 'package:presentation/s8_presentation_state.dart';
+import 'package:presentation/workspaces/evidence/artifact_store.dart';
+import 'package:presentation/workspaces/evidence/authority.dart';
+import 'package:presentation/workspaces/evidence/presentation_state.dart';
 
 void main() {
   test('authoritative state preserves the upstream snapshot', () {
