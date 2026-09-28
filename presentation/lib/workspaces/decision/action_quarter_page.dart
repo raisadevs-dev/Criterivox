@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import 'character/character_identity.dart';
-import 'character/session_character_animation.dart';
-import 'human_residence_store.dart';
-import 'presentation/criterivox_theme.dart';
+import 'runtime/character/character_identity.dart';
+import 'runtime/character/session_character_animation.dart';
+import '../human/residence/store.dart';
+import 'presentation/shared/criterivox_theme.dart';
 
 /// Home 05 is one operational chamber.
 ///
