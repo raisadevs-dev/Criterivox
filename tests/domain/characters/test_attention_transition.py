@@ -1,7 +1,7 @@
 import pytest
 
-from criterivox.domain.characters.attention_state import AttentionState
-from criterivox.domain.characters.attention_transition import (
+from criterivox.runtime.characters.core.attention_state import AttentionState
+from criterivox.runtime.characters.core.attention_transition import (
     AttentionTransitionError,
     can_transition,
     transition_attention,
