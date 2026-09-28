@@ -1,4 +1,4 @@
-from criterivox.Syvax import SyvaxEngine
+from criterivox.agents.syvax import SyvaxEngine
 
 def test_syvvax_preflight_and_plan():
     engine = SyvaxEngine()
