@@ -1,6 +1,6 @@
 import pytest
 
-from criterivox.domain.characters.handoff_relationship import (
+from criterivox.runtime.characters.core.handoff_relationship import (
     HandoffRelationship,
 )
 
