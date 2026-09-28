@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'character/character_identity.dart';
+import '../runtime/character/character_identity.dart';
 import 'presentation/criterivox_theme.dart';
 
 class SemanticTimelineItem { final String title; final String detail; const SemanticTimelineItem(this.title, this.detail); }
