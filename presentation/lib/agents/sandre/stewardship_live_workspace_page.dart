@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'Sandre/data_stewardship_page.dart';
-import 'presentation/presentation_state.dart';
-import 'presentation/runtime_client.dart';
+import 'data_stewardship_page.dart';
+import '../../presentation/shared/presentation_state.dart';
+import '../../presentation/shared/runtime_client.dart';
 
 /// Compatibility wrapper retained for callers while Home 01 has one canonical
 /// operational surface: DataStewardshipPage.
