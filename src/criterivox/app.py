@@ -20,7 +20,6 @@ from .agents.sandre.store import data_foundations
 from .application.research_instrumentation import research_instrumentation
 from .agents.sandre.stewardship import SandreStewardship
 from .capabilities.feature_runtime import FeatureRuntime
-from .application import foundation_runtime_bridge  # noqa: F401
 from .infrastructure.runtime import dharen_runtime, handle_application_request, handle_chat_message, handle_chat_interpretation_confirmation, parse_analysis_request, runtime_connections
 from .logging_config import configure_logging
 from .presentation_contracts.contract import PresentationContract
@@ -30,6 +29,7 @@ from .runtime.characters.backbone.operations_api import ENGINE as operations_eng
 
 logger = logging.getLogger(__name__)
 app = FastAPI(title="Criterivox")
+from .application import foundation_runtime_bridge  # noqa: F401
 app.mount("/static", StaticFiles(directory="src/criterivox/ui/static"), name="static")
 stewardship = SandreStewardship()
 context_engine = ContextEngine()
