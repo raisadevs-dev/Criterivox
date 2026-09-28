@@ -1,6 +1,6 @@
 
-import 's8_authority.dart';
-import 's8_presentation_state.dart';
+import 'authority.dart';
+import 'presentation_state.dart';
 
 class S8HumanActionResult {
   final S8HumanDecision decision;
