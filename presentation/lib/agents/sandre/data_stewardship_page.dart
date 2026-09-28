@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
-import 'presentation/criterivox_theme.dart';
-import 'presentation/presentation_state.dart';
-import 'presentation/runtime_client.dart';
-import 'character/live_agent_panel.dart';
+import '../../presentation/shared/criterivox_theme.dart';
+import '../../presentation/shared/presentation_state.dart';
+import '../../presentation/shared/runtime_client.dart';
+import '../../runtime/character/live_agent_panel.dart';
 
 class DataStewardshipPage extends StatefulWidget {
   final PresentationState? state;
