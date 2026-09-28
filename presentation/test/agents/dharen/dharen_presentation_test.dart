@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:criterivox/Dharen/dharen_presentation.dart';
+import 'package:presentation/agents/dharen/dharen_presentation.dart';
 
 void main() {
   test('Dharen presentation owns context capabilities', () {
