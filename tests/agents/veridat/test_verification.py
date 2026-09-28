@@ -1,4 +1,4 @@
-from criterivox.Veridat import VeridatVerifier
+from criterivox.agents.veridat import VeridatVerifier
 from criterivox.mechanisms.evidence.bureau import EvidenceResearchBureau
 from criterivox.mechanisms.evidence.models import ArtifactKind
 
