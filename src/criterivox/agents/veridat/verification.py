@@ -2,8 +2,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Mapping
-from criterivox.s8.bureau import EvidenceResearchBureau
-from criterivox.character_backbone.set4 import VerificationRecord
+from criterivox.mechanisms.evidence.bureau import EvidenceResearchBureau
+from criterivox.runtime.characters.backbone.set4 import VerificationRecord
 
 @dataclass(frozen=True)
 class VerificationAssessment:
