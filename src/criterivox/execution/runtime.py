@@ -55,7 +55,7 @@ class FoundationSynchronizer:
 
 # Kaelen's schema/pipeline capabilities live in the first-class character package.
 # These imports preserve the legacy S5 application import surface while ownership
-# remains explicit under criterivox.Kaelen.
+# remains explicit under criterivox.agents.kaelen.
 from criterivox.agents.kaelen.pipeline import KaelenPipeline, PipelineStep
 from criterivox.agents.kaelen.schema import SchemaDriftHealer
 
