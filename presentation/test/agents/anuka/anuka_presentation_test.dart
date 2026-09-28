@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:criterivox/Anuka/anuka_presentation.dart';
+import 'package:presentation/agents/anuka/anuka_presentation.dart';
 
 void main() {
   test('Anuka presentation owns adaptive capabilities', () {
