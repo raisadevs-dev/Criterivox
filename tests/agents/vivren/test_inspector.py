@@ -1,4 +1,4 @@
-from criterivox.Vivren import VivrenInspector
+from criterivox.agents.vivren import VivrenInspector
 from criterivox.s7.models import AnalysisSession, ArtifactKind
 
 def test_vivren_inspection_exposes_public_critical_fields():
