@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import 's8_authority.dart';
-import 's8_explanation_pipeline.dart';
+import 'authority.dart';
+import 'explanation_pipeline.dart';
 
 class S8XaiDashboard extends StatelessWidget {
   final S8AuthoritativeState state;
