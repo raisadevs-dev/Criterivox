@@ -8,6 +8,6 @@ class VivrenWorkspacePage extends StatelessWidget {
       Icon(Icons.psychology_alt_outlined),SizedBox(width:10),Expanded(child:Text('VIVREN · CRITICAL REASONING',style:TextStyle(fontSize:13,fontWeight:FontWeight.w900,letterSpacing:1.2))),
       Text('6 inspection surfaces',style:TextStyle(fontSize:9,color:Colors.white54)),
     ])),
-    Expanded(child:S7EnvironmentPage(key:const ValueKey('vivren-s7-environment'),sessionId:sessionId,initialRoom:'vivren')),
+    Expanded(child:S7EnvironmentPage(key:const ValueKey('vivren-s7-environment'),sessionId:sessionId)),
   ]);
 }
