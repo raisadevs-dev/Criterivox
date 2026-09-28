@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import 'character/character_identity.dart';
-import 'character/character_runtime_flutter.dart';
-import 's8_presentation_state.dart';
+import 'runtime/character/character_identity.dart';
+import 'runtime/character/character_runtime_flutter.dart';
+import 'presentation_state.dart';
 
 /// S8 character identity is presentation-only. Visual state is projected from
 /// authoritative S8CharacterState and never used as a source of truth.
