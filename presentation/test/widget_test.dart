@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/app_shell.dart';
-import 'package:presentation/presentation/language_mode.dart';
+import 'package:presentation/app/app_shell.dart';
+import 'package:presentation/presentation/shared/language_mode.dart';
 
 void main() {
   testWidgets(
