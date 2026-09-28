@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../decision_action_quarter_page.dart';
+import '../../workspaces/decision/action_quarter_page.dart';
 import 'bodhex_presentation.dart';
 class BodhexWorkspacePage extends StatelessWidget {
   final VoidCallback? onOpenDecisionChamber;
