@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
 
 from criterivox.mechanisms.evidence.bureau import EvidenceResearchBureau
-from criterivox.s8.models import ArtifactKind
-from criterivox.s8.research import EvaluationRecorder, MemoryConsolidator, TemporalRetriever
+from criterivox.mechanisms.evidence.models import ArtifactKind
+from criterivox.mechanisms.evidence.research import EvaluationRecorder, MemoryConsolidator, TemporalRetriever
 
 
 def test_temporal_retrieval_respects_validity_window():
