@@ -4,7 +4,7 @@ from pathlib import Path
 from criterivox.application.context_engine import ContextEngine
 from criterivox.domain.data_foundation import DataFoundation, Provenance, SourceRecord, SourceType
 
-DATA = Path(__file__).parents[1] / "data" / "s6"
+DATA = Path(__file__).parents[2] / "data" / "context"
 
 
 def cases(filename: str):
