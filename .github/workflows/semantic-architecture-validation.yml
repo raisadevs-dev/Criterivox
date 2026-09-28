@@ -52,3 +52,5 @@ jobs:
         run: flutter analyze
       - name: Tests
         run: flutter test
+
+# CI trigger: validate current semantic-architecture-refactor head.
