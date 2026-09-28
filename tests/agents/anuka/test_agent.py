@@ -1,4 +1,4 @@
-from criterivox.Anuka.agent import AnukaAgent
+from criterivox.agents.anuka.agent import AnukaAgent
 from criterivox.context.models import ContextFrame, ContextInput, ContextItem, ContextTier
 
 
