@@ -1,7 +1,7 @@
 from criterivox.mechanisms.evidence.bureau import EvidenceResearchBureau
-from criterivox.s8.models import ArtifactKind
-from criterivox.s8.persistence import S8SQLiteStore
-from criterivox.s8.policy import AuthorizationError
+from criterivox.mechanisms.evidence.models import ArtifactKind
+from criterivox.mechanisms.evidence.persistence import S8SQLiteStore
+from criterivox.mechanisms.evidence.policy import AuthorizationError
 
 
 def test_sqlite_round_trip_and_context_filter():
