@@ -21,14 +21,14 @@ from criterivox.context.replay import ContextReplayService
 from criterivox.context.replay_routes import configure as configure_replay_routes
 from criterivox.context.replay_routes import router as replay_router
 from criterivox.context.runtime import ContextRuntime
-from criterivox.domain.characters import CharacterState
+from criterivox.runtime.characters.core import CharacterState
 from criterivox.infrastructure import runtime as runtime_module
 from criterivox.infrastructure.runtime import (
     DharenRuntime,
     dharen_runtime,
     runtime_connections,
 )
-from criterivox.presentation.contract import PresentationContract
+from criterivox.presentation_contracts.contract import PresentationContract
 
 
 _original_publish_task = DharenRuntime.publish_task
