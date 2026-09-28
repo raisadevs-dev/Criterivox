@@ -1,4 +1,4 @@
-import 's8_presentation_state.dart';
+import 'presentation_state.dart';
 
 /// S8 authoritative state boundary.
 ///
