@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/character/character_identity.dart';
-import 'package:presentation/character/character_visual_profile.dart';
+import 'package:presentation/runtime/character/character_identity.dart';
+import 'package:presentation/runtime/character/character_visual_profile.dart';
 
 void main() {
   test('current character registry exposes all 15 specialists', () {
