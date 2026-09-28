@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 's7/s7_environment_page.dart';
+import 'environment_page.dart';
 
 void main() => runApp(const S7App());
 
