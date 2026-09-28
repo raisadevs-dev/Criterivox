@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from criterivox.runtime.characters.core import (
     AnimationState,
     CharacterState,
+    get_all_characters,
 )
 
 
@@ -23,10 +24,18 @@ def present_state(
 ) -> VisualPresentation:
     """Create a presentation that exactly reflects the domain state."""
 
-    if not character_id.strip():
+    supplied_id = character_id.strip()
+    if not supplied_id:
         raise ValueError(
             "Character identifier cannot be empty."
         )
+
+    canonical_ids = {
+        item.identity.identifier.lower()
+        for item in get_all_characters()
+    }
+    if supplied_id.lower() not in canonical_ids:
+        raise ValueError(f"Unknown character identifier: {character_id}")
 
     if not isinstance(state, CharacterState):
         raise TypeError(
@@ -34,7 +43,7 @@ def present_state(
         )
 
     return VisualPresentation(
-        character_id=character_id,
+        character_id=supplied_id,
         state=state,
         animation=AnimationState(state.value),
     )
