@@ -1,5 +1,5 @@
 import pytest
-from criterivox.s8.intake import CONTRACT, S8Intake
+from criterivox.mechanisms.evidence.intake import CONTRACT, S8Intake
 
 
 def valid():
