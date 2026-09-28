@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import '../../presentation/shared/shared/criterivox_theme.dart';
-import '../presentation/shared/shared/api_client.dart';
+import '../presentation/shared/criterivox_theme.dart';
+import '../presentation/shared/api_client.dart';
 
 class BloomActivation {
   final BloomCapability capability;
