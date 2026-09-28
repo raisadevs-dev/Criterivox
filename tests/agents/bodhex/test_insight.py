@@ -1,4 +1,4 @@
-from criterivox.Bodhex import InsightCompiler
+from criterivox.agents.bodhex import InsightCompiler
 
 class A:
     def __init__(self,i,p): self.artifact_id=i; self.payload=p; self.kind="evidence"
