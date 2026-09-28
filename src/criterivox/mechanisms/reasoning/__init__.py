@@ -10,5 +10,3 @@ from .orchestrator import ReasoningResearchBureau
 __all__ = ["AnalysisSession", "ArtifactKind", "ReasoningResearchBureau", "SessionStatus"]
 
 
-# Character-owned hypothesis exploration facade
-from criterivox.agents.tarkis import TarkisExplorer, HypothesisExploration
