@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from criterivox.domain.characters import (
+from criterivox.runtime.characters.core import (
     AnimationState,
     CharacterState,
 )
-from criterivox.presentation.states import VisualPresentation
+from criterivox.presentation_contracts.states import VisualPresentation
 
 
 @dataclass(frozen=True, slots=True)
