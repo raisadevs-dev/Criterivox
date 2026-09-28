@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import 's8_authority.dart';
-import 's8_human_authority.dart';
+import 'authority.dart';
+import 'human_authority.dart';
 
 class S8HumanAuthorityPanel extends StatefulWidget {
   final S8HumanActionPanelModel model;
