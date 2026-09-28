@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/presentation/presentation_state.dart';
-import 'package:presentation/presentation/responsive_presentation.dart';
+import 'package:presentation/presentation/shared/presentation_state.dart';
+import 'package:presentation/presentation/shared/responsive_presentation.dart';
 
 void main() {
   test('small screens use compact scale', () {
