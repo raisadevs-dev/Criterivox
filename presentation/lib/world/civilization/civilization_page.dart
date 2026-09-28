@@ -320,7 +320,6 @@ class _CivilizationPageState extends State<CivilizationPage> {
         ),
       ),
     );
-    );
   }
 
   void _selectHome(String id) {
