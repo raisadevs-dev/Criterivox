@@ -1,7 +1,7 @@
 """Sandre provenance capability facade over the shared provenance ledger."""
 from __future__ import annotations
 from typing import Any
-from ..application.s5_advanced_runtime import ProvenanceLedger
+from criterivox.execution.runtime import ProvenanceLedger
 
 class SandreProvenance:
     def __init__(self) -> None: self.ledger=ProvenanceLedger()
