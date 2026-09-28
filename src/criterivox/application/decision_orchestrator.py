@@ -108,7 +108,7 @@ class DecisionOrchestrator:
             event("human", "research authorization", "External research was not authorized; supplied material only.")
 
         event("tarkis", "reasoning", "Evaluated the structured goal, constraints and available evidence.")
-        from criterivox.Pramon import PramonPlanner
+        from criterivox.agents.pramon import PramonPlanner
         option_rows = PramonPlanner().build_options(goal, plan, research_run)
         event("pramon", "decision options", "Produced strategy candidates with explicit trade-offs.", option_count=len(option_rows))
         event("manis", "challenge", "Generated challenge points for the human to stress-test.")
@@ -148,6 +148,10 @@ class DecisionOrchestrator:
             research=research_run.to_dict() if research_run else None,
             foundation_id=foundation_id,
         )
+
+    @staticmethod
+    def _options(goal: str, plan: Any, research_run: Any) -> list[dict[str, Any]]:
+        return PramonPlanner().build_options(goal, plan, research_run)
 
     @staticmethod
     def _research_query(goal: str, context: str) -> str:
