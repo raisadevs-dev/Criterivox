@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../presentation/criterivox_theme.dart';
+import '../../../presentation/shared/shared/criterivox_theme.dart';
 import 'character_identity.dart';
 import 'character_runtime_flutter.dart';
 class LiveAgentPanel extends StatefulWidget {
