@@ -1,4 +1,4 @@
-from criterivox.Tarkis import TarkisExplorer
+from criterivox.agents.tarkis import TarkisExplorer
 from criterivox.s7.models import AnalysisSession, ArtifactKind
 
 def test_tarkis_generates_bounded_candidates():
