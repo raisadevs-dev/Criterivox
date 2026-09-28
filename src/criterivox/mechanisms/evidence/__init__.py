@@ -8,12 +8,13 @@ from .models import Artifact, ArtifactKind, BureauEvent, VerificationResult
 from .persistence import EvidenceSQLiteStore
 from .policy import AccessRequest, AuthorizationError, EvidencePolicy
 from .research import EvaluationRecorder, ExperimentRecord, MemoryConsolidator, TemporalRetriever, impacted_downstream
+from .reasoning_adapter import S7Adapter, S7ArtifactEnvelope
 from .intake import CriterivoxMessage, EvidenceIntake, CONTRACT
 
 __all__ = [
     "AccessRequest", "ArenaInterpretation", "Artifact", "ArtifactKind", "AuthorizationError", "BureauEvent",
     "CONTRACT", "CriterivoxMessage", "DebateArena", "DIMENSIONS", "EvaluationRecorder", "EvidenceResearchBureau",
     "ExperimentRecord", "HumanIntervention", "HumanXAIEvaluation", "HumanXAIResponse", "InterventionRegistry",
-    "LocalLayeredNLP", "MemoryConsolidator", "RevisionRecord", "EvidenceIntake",
+    "LocalLayeredNLP", "MemoryConsolidator", "RevisionRecord", "S7Adapter", "S7ArtifactEnvelope", "EvidenceIntake",
     "EvidencePolicy", "EvidenceSQLiteStore", "TemporalRetriever", "VerificationResult", "impacted_downstream",
 ]
