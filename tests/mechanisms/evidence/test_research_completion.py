@@ -1,4 +1,4 @@
-from criterivox.s8 import ArtifactKind, EvidenceResearchBureau, HumanXAIEvaluation, S7Adapter
+from criterivox.mechanisms.evidence import ArtifactKind, EvidenceResearchBureau, HumanXAIEvaluation, S7Adapter
 
 
 def test_human_xai_evaluation_records_protocol_dimensions_without_universal_score():
