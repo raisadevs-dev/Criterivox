@@ -1,7 +1,7 @@
 import pytest
 
-from criterivox.domain.characters.state import CharacterState
-from criterivox.domain.characters.state_manager import (
+from criterivox.runtime.characters.core.state import CharacterState
+from criterivox.runtime.characters.core.state_manager import (
     CharacterStateManager,
     InvalidStateTransition,
 )
