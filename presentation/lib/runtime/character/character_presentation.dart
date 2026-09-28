@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../presentation/shared/shared/language_mode.dart';
+import '../../presentation/shared/language_mode.dart';
 
-import '../../../presentation/shared/shared/criterivox_theme.dart';
-import '../../../presentation/shared/shared/presentation_state.dart';
+import '../../presentation/shared/criterivox_theme.dart';
+import '../../presentation/shared/presentation_state.dart';
 import 'character_identity.dart';
 import 'character_runtime_flutter.dart';
 
