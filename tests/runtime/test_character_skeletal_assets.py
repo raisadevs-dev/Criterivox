@@ -6,6 +6,7 @@ PROFILE = (
     ROOT
     / "presentation"
     / "lib"
+    / "runtime"
     / "character"
     / "character_visual_profile.dart"
 )
@@ -13,6 +14,7 @@ RUNTIME = (
     ROOT
     / "presentation"
     / "lib"
+    / "runtime"
     / "character"
     / "session_character_animation.dart"
 )
@@ -20,6 +22,7 @@ GENERATOR = (
     ROOT
     / "presentation"
     / "lib"
+    / "runtime"
     / "character"
     / "generated_vector_animation.dart"
 )
