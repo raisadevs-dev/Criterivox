@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/foundation/criterivox_artifact.dart';
-import 'package:presentation/foundation/criterivox_responsive_scene.dart';
-import 'package:presentation/foundation/criterivox_scene.dart';
-import 'package:presentation/foundation/criterivox_status.dart';
-import 'package:presentation/foundation/criterivox_visual_tokens.dart';
+import 'package:presentation/presentation/foundation/criterivox_artifact.dart';
+import 'package:presentation/presentation/foundation/criterivox_responsive_scene.dart';
+import 'package:presentation/presentation/foundation/criterivox_scene.dart';
+import 'package:presentation/presentation/foundation/criterivox_status.dart';
+import 'package:presentation/presentation/foundation/criterivox_visual_tokens.dart';
 
 void main() {
   test('responsive foundation preserves spatial hierarchy across widths', () {
