@@ -1,4 +1,4 @@
-from criterivox.Kaelen.streaming import StreamDAG, StreamIngestor
+from criterivox.agents.kaelen.streaming import StreamDAG, StreamIngestor
 
 
 def test_stream_ingestion_tracks_checkpoint_and_rejects_replay():
