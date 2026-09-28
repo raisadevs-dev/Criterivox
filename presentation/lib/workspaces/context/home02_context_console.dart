@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../presentation/criterivox_theme.dart';
-import '../presentation/presentation_state.dart';
+import '../presentation/shared/criterivox_theme.dart';
+import '../presentation/shared/presentation_state.dart';
 
 class Home02ContextConsole extends StatelessWidget {
   final PresentationState? state; final VoidCallback? onBuildContext; final VoidCallback? onManualAdapt;
