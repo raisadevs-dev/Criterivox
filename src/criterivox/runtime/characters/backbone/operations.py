@@ -22,7 +22,7 @@ from criterivox.mechanisms.evidence.models import Artifact, ArtifactKind, Bureau
 from criterivox.mechanisms.evidence.persistence import EvidenceSQLiteStore
 
 
-ROOT = Path(__file__).resolve().parents[3]
+ROOT = Path(__file__).resolve().parents[5]
 STORE_PATH = ROOT / "data" / "evidence" / "character_operations.sqlite3"
 STORE_PATH.parent.mkdir(parents=True, exist_ok=True)
 
