@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/character/session_character_animation.dart';
-import 'package:presentation/character/character_visual_profile.dart';
+import 'package:presentation/runtime/character/session_character_animation.dart';
+import 'package:presentation/runtime/character/character_visual_profile.dart';
 
 void main() {
   test('all canonical character profiles are animation-capable', () {
