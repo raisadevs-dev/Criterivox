@@ -5,7 +5,7 @@ from dataclasses import replace
 from typing import Any
 
 from .foundation import DataFoundationService
-from .folder_material_loader import collect_folder_sources
+from .folder_loader import collect_folder_sources
 from criterivox.domain.data_foundation import (
     ConfirmationStatus,
     DataFoundation,
