@@ -2,9 +2,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Mapping
-from criterivox.s8.bureau import EvidenceResearchBureau
-from criterivox.s8.models import ArtifactKind
-from criterivox.character_backbone.set4 import EvidenceRecord
+from criterivox.mechanisms.evidence.bureau import EvidenceResearchBureau
+from criterivox.mechanisms.evidence.models import ArtifactKind
+from criterivox.runtime.characters.backbone.set4 import EvidenceRecord
 
 @dataclass(frozen=True)
 class EvidenceAssessment:
