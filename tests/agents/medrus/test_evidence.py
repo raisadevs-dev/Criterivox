@@ -1,5 +1,5 @@
-from criterivox.Medrus import MedrusEvidence, EvidenceAssessment, ExperimentAssessment
-from criterivox.s8.bureau import EvidenceResearchBureau
+from criterivox.agents.medrus import MedrusEvidence, EvidenceAssessment, ExperimentAssessment
+from criterivox.mechanisms.evidence.bureau import EvidenceResearchBureau
 
 def test_medrus_collects_raw_evidence():
     m=MedrusEvidence(EvidenceResearchBureau())
