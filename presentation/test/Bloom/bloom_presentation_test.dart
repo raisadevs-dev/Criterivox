@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:criterivox/Bloom/bloom_presentation.dart';
+import 'package:presentation/Bloom/bloom_presentation.dart';
 
 void main() {
   test('Bloom presentation exposes the civilization capability set', () {
