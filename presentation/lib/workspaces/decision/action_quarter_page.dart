@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import '../../runtime/character/character_identity.dart';
 import '../../runtime/character/session_character_animation.dart';
 import '../../human/residence/store.dart';
-import '../../../presentation/shared/criterivox_theme.dart';
+import '../../presentation/shared/criterivox_theme.dart';
 
 /// Home 05 is one operational chamber.
 ///
