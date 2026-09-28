@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../decision_action_quarter_page.dart';
+import '../../workspaces/decision/action_quarter_page.dart';
 import 'pramon_presentation.dart';
 class PramonWorkspacePage extends StatelessWidget {
   final VoidCallback? onOpenDecisionChamber;
