@@ -1,4 +1,4 @@
-from criterivox.Sandre.privacy import PrivacyMasker
+from criterivox.agents.sandre.privacy import PrivacyMasker
 
 
 def test_sensitive_field_detection_and_explicit_masking_preserve_shape():
