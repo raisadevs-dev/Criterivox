@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/s8_artifact_store.dart';
-import 'package:presentation/s8_explanation_pipeline.dart';
-import 'package:presentation/s8_presentation_state.dart';
+import 'package:presentation/workspaces/evidence/artifact_store.dart';
+import 'package:presentation/workspaces/evidence/explanation_pipeline.dart';
+import 'package:presentation/workspaces/evidence/presentation_state.dart';
 
 void main() {
   test('explanation preserves verification lineage, uncertainty and contradictions', () async {
