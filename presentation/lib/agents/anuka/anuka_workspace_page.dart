@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../character/live_agent_panel.dart';
-import '../presentation/criterivox_theme.dart';
+import '../../runtime/character/live_agent_panel.dart';
+import '../../presentation/shared/criterivox_theme.dart';
 import 'anuka_presentation.dart';
 
 class AnukaWorkspacePage extends StatelessWidget {
