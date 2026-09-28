@@ -1,4 +1,4 @@
-from criterivox.Bodhex import BodhexActionPreparer
+from criterivox.agents.bodhex import BodhexActionPreparer
 
 def test_bodhex_action_preparation_keeps_authorization_boundary():
     result=BodhexActionPreparer().prepare("prepare an action",conversation_id="test")
