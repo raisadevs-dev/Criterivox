@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../runtime/character/character_identity.dart';
-import 'presentation/criterivox_theme.dart';
+import 'shared/criterivox_theme.dart';
 
 class SemanticTimelineItem { final String title; final String detail; const SemanticTimelineItem(this.title, this.detail); }
 class SemanticRelationship { final String from; final String to; final String label; const SemanticRelationship(this.from, this.to, this.label); }
