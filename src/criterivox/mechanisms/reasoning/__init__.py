@@ -11,4 +11,4 @@ __all__ = ["AnalysisSession", "ArtifactKind", "ReasoningResearchBureau", "Sessio
 
 
 # Character-owned hypothesis exploration facade
-from criterivox.Tarkis import TarkisExplorer, HypothesisExploration
+from criterivox.agents.tarkis import TarkisExplorer, HypothesisExploration
