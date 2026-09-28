@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../presentation/shared/criterivox_theme.dart';
-import '../../../../presentation/shared/presentation_state.dart';
+import '../../../../../presentation/shared/criterivox_theme.dart';
+import '../../../../../presentation/shared/presentation_state.dart';
 
 class ContextWorkspacePage extends StatelessWidget {
   final PresentationState? state;
