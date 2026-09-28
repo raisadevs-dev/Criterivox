@@ -1,6 +1,6 @@
-import 's8_artifact_store.dart';
-import 's8_capability_ports.dart';
-import 's8_presentation_state.dart';
+import 'artifact_store.dart';
+import 'capability_ports.dart';
+import 'presentation_state.dart';
 
 /// Structured explanation facts. The service only explains relationships that
 /// already exist in the authoritative artifact graph.
