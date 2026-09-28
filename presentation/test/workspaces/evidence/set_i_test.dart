@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/s8_authority.dart';
-import 'package:presentation/s8_human_authority.dart';
-import 'package:presentation/s8_presentation_state.dart';
-import 'package:presentation/s8_security.dart';
+import 'package:presentation/workspaces/evidence/authority.dart';
+import 'package:presentation/workspaces/evidence/human_authority.dart';
+import 'package:presentation/workspaces/evidence/presentation_state.dart';
+import 'package:presentation/workspaces/evidence/security.dart';
 
 void main() {
   S8ArtifactSummary artifact({
