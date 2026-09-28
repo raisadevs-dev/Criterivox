@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'characters/s7_character_cinematics.dart';
+import 'characters/character_cinematics.dart';
 
 class S7CinematicStage extends StatelessWidget {
   final String room;
