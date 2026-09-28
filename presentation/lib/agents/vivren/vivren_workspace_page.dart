@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../s7/s7_environment_page.dart';
+import '../../workspaces/reasoning/environment_page.dart';
 class VivrenWorkspacePage extends StatelessWidget {
   final String? sessionId;
   const VivrenWorkspacePage({super.key,this.sessionId});
