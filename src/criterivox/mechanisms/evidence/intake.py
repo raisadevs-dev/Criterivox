@@ -74,3 +74,6 @@ class EvidenceIntake:
             "provenance": dict(message.provenance),
             "synthetic": message.synthetic,
         }
+
+
+S8Intake = EvidenceIntake
