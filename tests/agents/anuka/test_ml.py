@@ -1,4 +1,4 @@
-from criterivox.Anuka.ml import AnukaMLAgent
+from criterivox.agents.anuka.ml import AnukaMLAgent
 
 
 def test_anuka_ml_agent_is_ready():
