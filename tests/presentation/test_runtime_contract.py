@@ -15,7 +15,7 @@ def test_contract_serializes_renderer_independent_state() -> None:
     payload = contract.to_dict()
 
     assert payload["contract_version"] == 1
-    assert payload["character_id"] == "Dharen"
+    assert payload["character_id"] == "dharen"
     assert payload["character_state"] == "work"
     assert payload["animation"] == "work"
     assert payload["message"] == "Dharen is working."
