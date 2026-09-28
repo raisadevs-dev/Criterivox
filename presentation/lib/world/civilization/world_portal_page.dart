@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../interaction/bloom.dart';
+import '../bloom/bloom_page.dart';
 import '../../presentation/shared/presentation_state.dart';
 import '../../presentation/shared/criterivox_theme.dart';
 
