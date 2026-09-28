@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../runtime/character/character_identity.dart';
-import 'presentation/criterivox_theme.dart';
+import 'shared/criterivox_theme.dart';
 
 class AppIntroductionPage extends StatelessWidget{
   final VoidCallback onOpenWorkspace;
