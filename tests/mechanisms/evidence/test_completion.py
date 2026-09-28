@@ -1,4 +1,4 @@
-from criterivox.s8 import ArtifactKind, DebateArena, EvidenceResearchBureau
+from criterivox.mechanisms.evidence import ArtifactKind, DebateArena, EvidenceResearchBureau
 
 
 def test_dependency_aware_revision_requires_authorization():
