@@ -1,4 +1,4 @@
-from criterivox.Kaelen.pipeline import KaelenPipeline
+from criterivox.agents.kaelen.pipeline import KaelenPipeline
 
 
 def test_pipeline_builds_inspectable_dag():
