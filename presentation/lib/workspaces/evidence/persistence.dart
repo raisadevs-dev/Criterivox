@@ -1,8 +1,8 @@
 
 import 'dart:convert';
 
-import 's8_artifact_store.dart';
-import 's8_presentation_state.dart';
+import 'artifact_store.dart';
+import 'presentation_state.dart';
 
 class S8PersistedArtifact {
   const S8PersistedArtifact({
