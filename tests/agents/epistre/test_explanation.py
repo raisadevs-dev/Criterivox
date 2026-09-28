@@ -1,6 +1,6 @@
 from criterivox.Epistre import EpistreExplainer
-from criterivox.s8.bureau import EvidenceResearchBureau
-from criterivox.s8.models import ArtifactKind
+from criterivox.mechanisms.evidence.bureau import EvidenceResearchBureau
+from criterivox.mechanisms.evidence.models import ArtifactKind
 
 def test_epistre_explains_artifact_and_preserves_lineage():
     b=EvidenceResearchBureau()
