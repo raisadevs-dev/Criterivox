@@ -1,4 +1,4 @@
-from criterivox.Anukor import AnukorTransfer
+from criterivox.agents.anukor import AnukorTransfer
 
 def test_anukor_rejects_incompatible_transfer():
     r=AnukorTransfer(object()).assess(source_home="Medrus",destination_home="Pramon",source_artifact="e1",compatibility="INCOMPATIBLE")
