@@ -1,7 +1,7 @@
 """Sandre semantic enrichment capability facade."""
 from __future__ import annotations
 from typing import Any
-from ..application.s5_advanced_runtime import SemanticTagger, SchemaDriftHealer
+from criterivox.execution.runtime import SemanticTagger, SchemaDriftHealer
 
 class SandreSemantic:
     def __init__(self) -> None:
