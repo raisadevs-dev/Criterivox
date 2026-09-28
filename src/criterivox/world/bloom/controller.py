@@ -79,7 +79,7 @@ class BloomController:
     ) -> dict[str, Any]:
         """Record a Bloom capability activation and return its backend routing contract."""
         try:
-            selected = BloomCapability(str(capability).strip().lower())
+            selected = capability if isinstance(capability, BloomCapability) else BloomCapability(str(capability).strip().lower())
         except ValueError as exc:
             raise ValueError(f"Unknown Bloom capability: {capability}") from exc
 
