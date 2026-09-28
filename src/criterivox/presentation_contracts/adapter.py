@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from criterivox.domain.characters import CharacterState
+from criterivox.runtime.characters.core import CharacterState
 
 
 class PresentationAdapter(ABC):
