@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 
-import 's8_ambient_motion.dart';
+import 'ambient_motion.dart';
 
 class S8AnimatedEnvironment extends StatelessWidget {
   final Widget? child;
