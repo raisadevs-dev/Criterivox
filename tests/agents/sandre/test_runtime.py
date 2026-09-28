@@ -1,6 +1,6 @@
 import asyncio
 
-from criterivox.Sandre.store import DataFoundationStore
+from criterivox.agents.sandre.store import DataFoundationStore
 
 
 def test_store_confirm_then_handoff_preserves_foundation_identity():
