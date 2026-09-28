@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../s7/s7_environment_page.dart';
+import '../../workspaces/reasoning/environment_page.dart';
 class TarkisWorkspacePage extends StatelessWidget {
   final String? sessionId;
   const TarkisWorkspacePage({super.key,this.sessionId});
