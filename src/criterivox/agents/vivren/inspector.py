@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Mapping
-from criterivox.s7.models import AnalysisSession, ArtifactKind
+from criterivox.mechanisms.reasoning.models import AnalysisSession, ArtifactKind
 
 @dataclass(frozen=True, slots=True)
 class CriticalInspection:
