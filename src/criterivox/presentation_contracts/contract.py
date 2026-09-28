@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from typing import Any
 
-from criterivox.domain.characters import CharacterState
-from criterivox.presentation.states import VisualPresentation
+from criterivox.runtime.characters.core import CharacterState, get_all_characters
+from criterivox.presentation_contracts.states import VisualPresentation, present_state
 
 
 @dataclass(frozen=True, slots=True)
@@ -136,24 +136,18 @@ class PresentationContract:
         event: str | None = None,
         **task_fields: Any,
     ) -> "PresentationContract":
-        from criterivox.presentation.states import present_state
-
         supplied_id = character_id.strip()
 
         if not supplied_id:
             raise ValueError("character_id must not be empty")
 
-        # Character routing remains canonical.
+        # The Python runtime uses mixed-case internal character definitions,
+        # while the presentation boundary is a stable lowercase identifier.
+        canonical_ids = {item.identity.identifier.lower() for item in get_all_characters()}
         canonical_id = supplied_id.lower()
+        if canonical_id not in canonical_ids:
+            raise ValueError(f"Unknown character identifier: {supplied_id}")
         presentation = present_state(canonical_id, state)
-
-        # Preserve the caller-facing character identity in the
-        # renderer-independent contract.
-        presentation = VisualPresentation(
-            character_id=supplied_id,
-            state=presentation.state,
-            animation=presentation.animation,
-        )
 
         return cls.from_visual_presentation(
             presentation,
