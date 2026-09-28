@@ -6,7 +6,7 @@ from typing import Any, Mapping
 from uuid import uuid4
 
 from criterivox.mechanisms.evidence.models import Artifact, ArtifactKind, BureauEvent
-from .adapters import S8ArtifactRepository, artifact_hash, make_audit_artifact
+from .adapters import EvidenceArtifactRepository, artifact_hash, make_audit_artifact
 from .core import DomainEvent, EventBus, stable_id
 
 
@@ -38,7 +38,7 @@ class Checkpoint:
 
 class ExecutionJournal:
     """Durable checkpoint/audit journal backed by the existing S8 store."""
-    def __init__(self, repository: S8ArtifactRepository, event_bus: EventBus | None = None):
+    def __init__(self, repository: EvidenceArtifactRepository, event_bus: EventBus | None = None):
         self.repository = repository
         self.event_bus = event_bus or EventBus()
 
@@ -87,7 +87,7 @@ class CapabilityRouter:
 
 
 class ArtifactIntegrity:
-    def __init__(self, repository: S8ArtifactRepository):
+    def __init__(self, repository: EvidenceArtifactRepository):
         self.repository = repository
 
     def verify(self, artifact_id: str) -> bool:
