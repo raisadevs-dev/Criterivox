@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:idb_shim/idb_browser.dart';
 
-import 's8_presentation_state.dart';
+import 'presentation_state.dart';
 
 /// Authoritative artifact contract at the S8 presentation boundary.
 ///
