@@ -1,6 +1,6 @@
 from criterivox.Veridat import VeridatVerifier
-from criterivox.s8.bureau import EvidenceResearchBureau
-from criterivox.s8.models import ArtifactKind
+from criterivox.mechanisms.evidence.bureau import EvidenceResearchBureau
+from criterivox.mechanisms.evidence.models import ArtifactKind
 
 def test_veridat_reports_insufficient_evidence():
     v=VeridatVerifier(EvidenceResearchBureau())
