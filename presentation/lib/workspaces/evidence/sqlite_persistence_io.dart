@@ -2,8 +2,8 @@
 import 'package:path/path.dart' as path;
 import 'package:sqflite/sqflite.dart';
 
-import 's8_persistence.dart';
-import 's8_presentation_state.dart';
+import 'persistence.dart';
+import 'presentation_state.dart';
 
 class S8SqliteArtifactPersistence
     implements S8ArtifactPersistence {
