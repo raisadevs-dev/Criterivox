@@ -66,3 +66,14 @@ def evaluate(session: AnalysisSession, reasoning_id: str, hypothesis_id: str):
     if not findings:
         findings.append("No deterministic defect was identified from the supplied structure; external truth remains unverified.")
     return session.artifact(ArtifactKind.EVALUATION, "Critical evaluation", {"findings": tuple(findings), "reasoning_artifact_id": reasoning_id, "hypothesis_artifact_id": hypothesis_id, "mechanism_id": "s7-critical-check", "status": "bounded"}, parents=(reasoning_id, hypothesis_id))
+
+
+def compare_hypotheses(evidence_items, hypotheses):
+    """Return bounded, deterministic comparisons without asserting external truth."""
+    evidence = list(evidence_items)
+    results = []
+    for hypothesis in hypotheses:
+        statement = str(hypothesis.get("statement", ""))
+        support = sum(1 for item in evidence if statement.lower() in str(getattr(item, "content", item)).lower())
+        results.append({"hypothesis": statement, "supporting_evidence_count": support, "status": "candidate_not_established"})
+    return results
