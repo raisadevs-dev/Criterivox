@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 's7_conversation_engine.dart';
+import 'conversation_engine.dart';
 
 class S7NlpDebateArena extends StatefulWidget {
   const S7NlpDebateArena({super.key});
