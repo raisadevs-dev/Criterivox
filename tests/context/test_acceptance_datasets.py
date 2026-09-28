@@ -5,7 +5,7 @@ from criterivox.application.context_engine import ContextEngine
 from criterivox.domain.data_foundation import DataFoundation, SourceRecord, SourceType
 
 
-DATA = Path(__file__).parents[1] / "data" / "s6" / "acceptance"
+DATA = Path(__file__).parents[2] / "data" / "context" / "acceptance"
 
 
 def rows(name: str):
