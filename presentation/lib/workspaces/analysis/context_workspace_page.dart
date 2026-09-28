@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'character/live_agent_panel.dart';
-import '../../../presentation/shared/criterivox_theme.dart';
-import '../../../presentation/shared/presentation_state.dart';
+import '../../runtime/character/live_agent_panel.dart';
+import '../../presentation/shared/criterivox_theme.dart';
+import '../../presentation/shared/presentation_state.dart';
 
 class AnalysisContextWorkspacePage extends StatelessWidget {
   final PresentationState? state;
