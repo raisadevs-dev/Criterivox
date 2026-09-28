@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
-from criterivox.s8.bureau import EvidenceResearchBureau
+from criterivox.mechanisms.evidence.bureau import EvidenceResearchBureau
 
 @dataclass(frozen=True)
 class ExplanationAssessment:
