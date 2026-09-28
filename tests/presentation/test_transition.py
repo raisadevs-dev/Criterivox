@@ -4,8 +4,8 @@ from criterivox.runtime.characters.core import (
     AnimationState,
     CharacterState,
 )
-from criterivox.presentation.states import present_state
-from criterivox.presentation.transition import (
+from criterivox.presentation_contracts.states import present_state
+from criterivox.presentation_contracts.transition import (
     PresentationTransition,
     create_transition,
     transition_is_consistent,
