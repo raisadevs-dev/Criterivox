@@ -5,7 +5,7 @@ import '../lib/agents/character_focus_page.dart';
 import '../lib/world/civilization/civilization_page.dart';
 import '../lib/world/civilization/home_preview_page.dart';
 import '../lib/world/bloom/bloom_companion.dart';
-import '../lib/character/character_identity.dart';
+import '../lib/runtime/character/character_identity.dart';
 import '../lib/workspaces/operations/level2_operational_page.dart';
 
 void main() {
