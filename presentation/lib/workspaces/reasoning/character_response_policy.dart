@@ -1,4 +1,4 @@
-import 's7_local_nlp.dart';
+import 'local_nlp.dart';
 
 /// Converts a parsed S7 intent into a deterministic character response.
 ///
