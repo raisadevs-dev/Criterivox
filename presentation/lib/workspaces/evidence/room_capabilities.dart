@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 's8_authority.dart';
-import 's8_presentation_state.dart';
+import 'authority.dart';
+import 'presentation_state.dart';
 
 /// The four specialist rooms expose capabilities through this presentation
 /// contract. Home remains the navigation hub, not a fifth specialist room.
