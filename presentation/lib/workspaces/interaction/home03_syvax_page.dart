@@ -57,7 +57,7 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
 
     if (decoded is! Map) {
       throw Exception(
-        'Syvax backend returned no JSON object (HTTP \${response.statusCode}).',
+        'Syvax backend returned no JSON object (HTTP ${response.statusCode}).',
       );
     }
 
@@ -65,7 +65,7 @@ class _Home03SyvaxPageState extends State<Home03SyvaxPage> {
 
     if (response.statusCode >= 400) {
       throw Exception(
-        '\${data['detail'] ?? data['safety'] ?? data['error'] ?? 'Request failed'}',
+        '${data['detail'] ?? data['safety'] ?? data['error'] ?? 'Request failed'}',
       );
     }
 
