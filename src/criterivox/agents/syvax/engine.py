@@ -7,7 +7,7 @@ import re
 from typing import Any, Literal
 
 from criterivox.application.home03_models import adaptive_intent_model
-from .home03_planner import runtime_adaptive_planner
+from criterivox.application.home03_planner import runtime_adaptive_planner
 
 
 OversightMode = Literal["HITL", "HOTL"]
