@@ -1,5 +1,5 @@
-import 's8_persistence.dart';
-import 's8_presentation_state.dart';
+import 'persistence.dart';
+import 'presentation_state.dart';
 
 /// Web deliberately does not emulate SQLite. IndexedDB is the browser-native
 /// S8 persistence backend and remains the authoritative web adapter.
