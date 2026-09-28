@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 
-from criterivox.domain.characters import get_all_characters
+from criterivox.runtime.characters.core import get_all_characters
 
 
 class BloomCapability(str, Enum):
