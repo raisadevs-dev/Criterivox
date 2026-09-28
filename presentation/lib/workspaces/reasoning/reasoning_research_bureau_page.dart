@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 's7_environment_page.dart';
+import 'environment_page.dart';
 
 /// Canonical entry point for the S7 Reasoning Research Bureau.
 ///
