@@ -11,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import settings
 from .domain.analysis import AnalysisTaskSource
-from .domain.characters import CharacterState
+from .runtime.characters.core import CharacterState
 from .domain.context_intelligence import ObservabilityTimeline
 from .application.analysis_tasks import analysis_tasks
 from .application.character_chat import PROFILES, handle_character_chat, sign_off_task_scratchpad
