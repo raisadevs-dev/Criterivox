@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../character/character_identity.dart';
+import '../../runtime/character/character_identity.dart';
 
 class PresentationState {
   static const allowedStates = <String>{
