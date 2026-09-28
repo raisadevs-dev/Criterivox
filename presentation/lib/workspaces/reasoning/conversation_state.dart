@@ -1,4 +1,4 @@
-import 's7_nlp_intents.dart';
+import 'nlp_intents.dart';
 
 class S7ConversationTurn {
   const S7ConversationTurn({
