@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'criterivox_visual_tokens.dart';
 import 'criterivox_status.dart';
-import '../../presentation/shared/shared/criterivox_theme.dart';
+import '../shared/criterivox_theme.dart';
 
 enum CriterivoxArtifactKind {
   evidence, reasoning, explanation, provenance, graph, context,
