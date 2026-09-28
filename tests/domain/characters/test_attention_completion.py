@@ -1,9 +1,9 @@
 import pytest
 
-from criterivox.domain.characters.attention_completion import (
+from criterivox.runtime.characters.core.attention_completion import (
     AttentionCompletion,
 )
-from criterivox.domain.characters.attention_state import AttentionState
+from criterivox.runtime.characters.core.attention_state import AttentionState
 
 
 def test_completing_becomes_quiet() -> None:
