@@ -1,6 +1,6 @@
 import pytest
 
-from criterivox.domain.characters.registry import (
+from criterivox.runtime.characters.core.registry import (
     CHARACTER_REGISTRY,
     CharacterRegistry,
     get_all_characters,
