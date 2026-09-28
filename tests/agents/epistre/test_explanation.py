@@ -1,4 +1,4 @@
-from criterivox.Epistre import EpistreExplainer
+from criterivox.agents.epistre import EpistreExplainer
 from criterivox.mechanisms.evidence.bureau import EvidenceResearchBureau
 from criterivox.mechanisms.evidence.models import ArtifactKind
 
