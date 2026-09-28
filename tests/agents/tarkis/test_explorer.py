@@ -1,5 +1,5 @@
 from criterivox.agents.tarkis import TarkisExplorer
-from criterivox.s7.models import AnalysisSession, ArtifactKind
+from criterivox.mechanisms.reasoning.models import AnalysisSession, ArtifactKind
 
 def test_tarkis_generates_bounded_candidates():
     s=AnalysisSession.create("What could explain the supplied result?",{"observation":"A or B"})
