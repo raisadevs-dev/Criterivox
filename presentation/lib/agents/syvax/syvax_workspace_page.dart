@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../interaction/syvax.dart';
-import '../presentation/criterivox_theme.dart';
+import '../../interaction/syvax.dart';
+import '../../presentation/shared/criterivox_theme.dart';
 import 'syvax_presentation.dart';
 
 class SyvaxWorkspacePage extends StatelessWidget {
