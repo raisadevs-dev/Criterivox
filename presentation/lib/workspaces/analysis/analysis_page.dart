@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'character/character_presentation.dart';
-import 'presentation/shared/criterivox_theme.dart';
-import 'presentation/shared/presentation_state.dart';
+import '../../runtime/character/character_presentation.dart';
+import '../../presentation/shared/criterivox_theme.dart';
+import '../../presentation/shared/presentation_state.dart';
 
 class AnalysisPage extends StatelessWidget {
   final PresentationState? state;
