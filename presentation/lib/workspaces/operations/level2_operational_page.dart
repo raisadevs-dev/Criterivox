@@ -37,6 +37,7 @@ class CriterivoxTheme {
       text: colors.onSurface,
       warning: colors.error,
     );
+    );
   }
 }
 
