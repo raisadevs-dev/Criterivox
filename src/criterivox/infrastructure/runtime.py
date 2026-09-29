@@ -249,7 +249,10 @@ async def handle_chat_message(payload):
   execution_id=str(task_id or '').strip()
   reports=case_report_orchestrator.store.execution(execution_id) if execution_id else []
   selected=next((r for r in reports if r.get('scope')=='character' and r.get('character_id')==target),None) if target!='syvax' else None
+  if selected is None and target!='syvax':
+   selected=case_report_orchestrator.store.latest_character(target)
   selected=selected or next((r for r in reports if r.get('scope')=='task'),None)
+  selected=selected or case_report_orchestrator.store.latest_task()
   if selected is None:
    await _publish_character('Syvax',CharacterState.WARNING,message='I could not find an authoritative report for this task yet.',event='REPORT_NOT_FOUND'); return
   public=public_report_reference(selected)
