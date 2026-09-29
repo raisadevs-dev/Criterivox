@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0.0",
+  "case_id": "CASE-001",
+  "human_id": "CR-27",
+  "title": "Research Strategy",
+  "goal": "Compare three research approaches for a constrained prototype and identify which approach should be investigated first.",
+  "context": "The human has a limited implementation window and wants a transparent comparison rather than an unexplained recommendation.",
+  "constraints": [
+    "Prefer approaches supported by the supplied evidence.",
+    "Surface evidence conflicts instead of hiding them.",
+    "Preserve uncertainty where the supplied material is insufficient.",
+    "The result must remain inspectable by a human."
+  ],
+  "inputs": [
+    {
+      "input_id": "IN-001",
+      "kind": "text",
+      "label": "Human task",
+      "path_or_inline": "goal.txt",
+      "source_role": "goal",
+      "provenance_note": "Synthetic Avishkaar fixture representing direct human input."
+    },
+    {
+      "input_id": "IN-002",
+      "kind": "text",
+      "label": "Task context",
+      "path_or_inline": "context.txt",
+      "source_role": "context",
+      "provenance_note": "Synthetic context supplied with the demo case."
+    },
+    {
+      "input_id": "IN-003",
+      "kind": "table_csv",
+      "label": "Evidence comparison table",
+      "mime_type": "text/csv",
+      "path_or_inline": "evidence.csv",
+      "source_role": "evidence",
+      "provenance_note": "Synthetic structured evidence fixture."
+    }
+  ],
+  "expected_capabilities": [
+    "context_understanding",
+    "evidence_evaluation",
+    "alternative_exploration",
+    "critical_review",
+    "validation",
+    "report_composition"
+  ],
+  "presentation": {
+    "show_human_id": true,
+    "default_report_view": "text",
+    "allow_view_switch": true
+  }
+}
