@@ -693,15 +693,6 @@ class _ShellState extends State<CriterivoxShell> {
                         open('home-preview');
                       }
                     },
-                    onConfirmInterpretation: (accepted) {
-                      final id = state?.inputConfirmationId;
-                      if (id != null) {
-                        runtime.confirmChatInterpretation(
-                          confirmationId: id,
-                          accepted: accepted,
-                        );
-                      }
-                    },
                       ),
                     ),
                   ),
@@ -894,12 +885,6 @@ class _ShellState extends State<CriterivoxShell> {
             );
           },
           onOpenTask: () => open('workspace'),
-          onConfirmInterpretation: (accepted) {
-            final id = state?.inputConfirmationId;
-            if (id != null) {
-              runtime.confirmChatInterpretation(confirmationId: id, accepted: accepted);
-            }
-          },
         );
 
       case 'home02':
