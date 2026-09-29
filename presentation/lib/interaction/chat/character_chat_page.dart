@@ -38,7 +38,6 @@ class CharacterChatPage extends StatefulWidget {
 
   final VoidCallback onOpenTask;
   final ValueChanged<bool>? onConfirmInterpretation;
-  final void Function(String homeId, String? characterId)? onOpenReportHome;
 
   const CharacterChatPage({
     super.key,
@@ -1094,46 +1093,6 @@ class _TaskCard extends StatelessWidget {
   }
 }
 
-class _InterpretationCard extends StatelessWidget {
-  final PresentationState state;
-  final bool busy;
-  final ValueChanged<bool>? onConfirm;
-  const _InterpretationCard({required this.state, required this.busy, required this.onConfirm});
-  @override
-  Widget build(BuildContext context) {
-    final t = CriterivoxTheme.of(context);
-    final status = state.inputConfirmationStatus ?? 'PENDING';
-    final pending = status == 'PENDING';
-    final timedOut = status == 'UNCONFIRMED_TIMEOUT';
-    final language = state.inputLanguageProfile;
-    final languageText = language == null ? '' : 'Language: ${language['primary_language'] ?? 'unknown'}${language['code_mixed'] == true ? ' • code-mixed' : ''}${language['transliterated'] == true ? ' • transliterated' : ''}';
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: t.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: timedOut ? t.warning : t.border)),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('INPUT INTERPRETATION', style: TextStyle(color: t.mutedText, fontSize: 9, fontWeight: FontWeight.w800, letterSpacing: 1.1)),
-        const SizedBox(height: 10),
-        Text('What you said', style: TextStyle(color: t.text, fontWeight: FontWeight.w800)),
-        const SizedBox(height: 4),
-        SelectableText(state.inputOriginal ?? '', style: TextStyle(color: t.mutedText, height: 1.4)),
-        const SizedBox(height: 10),
-        Text('What Criterivox understood', style: TextStyle(color: t.text, fontWeight: FontWeight.w800)),
-        const SizedBox(height: 4),
-        Text(state.inputSemanticSummary ?? state.inputInterpretation ?? '', style: TextStyle(color: t.text, height: 1.4)),
-        if (language != null) ...[const SizedBox(height: 6), Text(languageText, style: TextStyle(color: t.mutedText, fontSize: 9))],
-        const SizedBox(height: 10),
-        Text(pending ? 'Is this what you meant? Criterivox will continue automatically after 1 minute if you do not respond.' : timedOut ? 'No confirmation arrived within 1 minute. Work continued with this interpretation and it is marked unconfirmed.' : status == 'CORRECTED' ? 'The interpretation was rejected. Corrected input is required before this task can continue.' : 'Interpretation confirmed. Work is continuing.', style: TextStyle(color: timedOut ? t.warning : t.mutedText, fontSize: 10, height: 1.4)),
-        if (pending && onConfirm != null) ...[
-          const SizedBox(height: 10),
-          Wrap(spacing: 8, children: [
-            FilledButton(onPressed: busy ? null : () => onConfirm!(true), child: const Text('Yes, continue')),
-            OutlinedButton(onPressed: busy ? null : () => onConfirm!(false), child: const Text('No, correct it')),
-          ]),
-        ],
-      ]),
-    );
-  }
-}
 class _OperationCard
     extends StatelessWidget {
   final Map<String, dynamic> state;
