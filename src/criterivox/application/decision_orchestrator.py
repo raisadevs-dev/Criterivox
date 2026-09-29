@@ -58,7 +58,20 @@ class DecisionOrchestrator:
         event("human", "authority", "Submitted natural-language problem, supplied material and context.", email=email, case_id=case_id)
         event("sandre", "data stewardship", "Registered supplied material and provenance.")
         event("kaelen", "structure", "Structured the decision inputs and constraints.")
-        event("dharen", "context", "Interpreted goal and context without inventing missing constraints.", case_id=case_id)\n        event("case", "execution contract", f"Loaded {case_id}: {case.get("title", case_id)}.", expected_capabilities=list(case.get("expected_capabilities") or []))
+        event(
+            "dharen",
+            "context",
+            "Interpreted goal and context without inventing missing constraints.",
+            case_id=case_id,
+        )
+        event(
+            "case",
+            "execution contract",
+            "Loaded selected case execution contract.",
+            case_id=case_id,
+            case_title=case.get("title", case_id),
+            expected_capabilities=list(case.get("expected_capabilities") or []),
+        )
 
         plan = syvax_engine.compile_plan(goal)
         foundation = None
