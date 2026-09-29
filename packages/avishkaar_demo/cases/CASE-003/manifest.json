@@ -1,0 +1,84 @@
+{
+  "schema_version": "1.1.0",
+  "case_id": "CASE-003",
+  "human_id": "CR-003",
+  "title": "Evidence Review",
+  "goal": "Assess supplied evidence, provenance, contradictions, and uncertainty before downstream use.",
+  "context": "Standardized execution contract. Runtime inputs supplied through Human Residence are authoritative; fixture materials are validation aids, not hidden answers.",
+  "constraints": [
+    "Do not invent absent evidence.",
+    "Preserve provenance and uncertainty.",
+    "Character reports are separate inspectable artifacts.",
+    "Combined reports reference child artifacts rather than replacing them.",
+    "Visualization must be derived from structured report data.",
+    "Human intervention must preserve prior revisions."
+  ],
+  "inputs": [
+    {
+      "input_id": "IN-003-01",
+      "kind": "text",
+      "label": "Case 003 text material",
+      "path_or_inline": "materials/text-01",
+      "source_role": "goal",
+      "provenance_note": "Runtime may receive this material from Human Residence; the path is a package fixture convention only."
+    },
+    {
+      "input_id": "IN-003-02",
+      "kind": "pdf",
+      "label": "Case 003 pdf material",
+      "path_or_inline": "materials/pdf-02",
+      "source_role": "evidence",
+      "provenance_note": "Runtime may receive this material from Human Residence; the path is a package fixture convention only."
+    },
+    {
+      "input_id": "IN-003-03",
+      "kind": "table_csv",
+      "label": "Case 003 table_csv material",
+      "path_or_inline": "materials/table_csv-03",
+      "source_role": "evidence",
+      "provenance_note": "Runtime may receive this material from Human Residence; the path is a package fixture convention only."
+    }
+  ],
+  "execution": {
+    "profile": "evidence_review",
+    "capability_selection": "dynamic",
+    "human_intervention": true,
+    "revision_history": true,
+    "preserve_character_reports": true,
+    "combined_report": true,
+    "report_views": [
+      "text",
+      "visualization"
+    ]
+  },
+  "expected_capabilities": [
+    "evidence_evaluation",
+    "validation",
+    "provenance_tracking"
+  ],
+  "expected_artifacts": [
+    "foundation",
+    "capability_plan",
+    "character_reports",
+    "combined_report",
+    "visualization_projection",
+    "provenance",
+    "evaluation"
+  ],
+  "evaluation_contract": {
+    "answer_key": false,
+    "checks": [
+      "capability_activation",
+      "provenance",
+      "uncertainty_preservation",
+      "report_completeness",
+      "visualization_consistency",
+      "human_intervention_preservation"
+    ]
+  },
+  "presentation": {
+    "show_human_id": true,
+    "default_report_view": "text",
+    "allow_view_switch": true
+  }
+}
