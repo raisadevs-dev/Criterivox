@@ -41,6 +41,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
   String? foundationId;
   Map<String, dynamic>? caseReport;
   String reportView = 'text';
+  String selectedCaseId = 'CASE-010';
 
   List<String> options = const [];
   List<String> challenges = const [];
@@ -377,6 +378,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
             'context': contextCtl.text.trim(),
             'foundation_id': foundationId,
             'decision_id': decisionId,
+            'case_id': selectedCaseId,
           }),
         ).timeout(const Duration(seconds: 30));
         final reportBody = jsonDecode(reportResponse.body);
@@ -511,6 +513,25 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
             headers: const {'content-type': 'application/json'},
             body: jsonEncode({'session_token': token, 'text': challenges[index]}),
           ).timeout(const Duration(seconds: 8));
+        } catch (_) {}
+      }
+      final executionId = caseReport?['execution_id']?.toString();
+      if (token != null && executionId != null && executionId.isNotEmpty) {
+        try {
+          final response = await http.post(
+            CriterivoxApi.uri('/api/human-residence/case-report/$executionId/challenge'),
+            headers: const {'content-type': 'application/json'},
+            body: jsonEncode({'session_token': token, 'text': challenges[index]}),
+          ).timeout(const Duration(seconds: 8));
+          if (response.statusCode >= 200 && response.statusCode < 300 && mounted) {
+            final body = jsonDecode(response.body);
+            if (body is Map && body['revision_report'] is Map) {
+              setState(() {
+                caseReport = Map<String, dynamic>.from(body['revision_report'] as Map);
+                status = 'REPORT_REVISED • ORIGINAL PRESERVED • HUMAN CHALLENGE APPLIED';
+              });
+            }
+          }
         } catch (_) {}
       }
     }
