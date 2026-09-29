@@ -4,9 +4,9 @@ from dataclasses import dataclass
 
 from criterivox.application.context_engine import ScratchpadRegistry
 from criterivox.application.failure_telemetry import FailureType, TELEMETRY
-from criterivox.domain.characters import CharacterState
+from criterivox.runtime.characters.core import CharacterState
 from criterivox.domain.context_intelligence import ObservabilityTimeline
-from criterivox.character_backbone.set4 import Set4Runtime
+from criterivox.runtime.characters.backbone.set4 import Set4Runtime
 
 
 @dataclass(frozen=True, slots=True)
@@ -31,7 +31,7 @@ PROFILES: dict[str, CharacterChatProfile] = {
 # Set 1 registry fallback: every registered character is addressable even when
 # its computational capability is architecture-defined rather than implemented.
 try:
-    from criterivox.character_backbone.loader import load_character_registry
+    from criterivox.runtime.characters.backbone.loader import load_character_registry
     _BACKBONE_REGISTRY = load_character_registry()
     for _definition in _BACKBONE_REGISTRY.characters:
         PROFILES.setdefault(
@@ -106,7 +106,7 @@ def _failure_from_message(message: str) -> FailureType | None:
 async def handle_character_chat(payload: dict) -> None:
     """Handle independent character conversations on the shared runtime boundary."""
     from criterivox.infrastructure.runtime import runtime_connections
-    from criterivox.presentation.contract import PresentationContract
+    from criterivox.presentation_contracts.contract import PresentationContract
 
     target = str(payload.get("target_character", "")).strip().lower()
     message = str(payload.get("message", "")).strip()

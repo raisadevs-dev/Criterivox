@@ -1,7 +1,7 @@
 import pytest
 
-from criterivox.domain.characters.handoff_event import HandoffEvent
-from criterivox.domain.characters.handoff_payload import HandoffPayload
+from criterivox.runtime.characters.core.handoff_event import HandoffEvent
+from criterivox.runtime.characters.core.handoff_payload import HandoffPayload
 
 
 def make_payload() -> HandoffPayload:

@@ -1,5 +1,5 @@
-from criterivox.Anuka.agent import AnukaAgent
-from criterivox.Dharen.agent import DharenAgent
+from criterivox.agents.anuka.agent import AnukaAgent
+from criterivox.agents.dharen.agent import DharenAgent
 from criterivox.context import (
     ContextInput,
     ContextIntelligenceEngine,

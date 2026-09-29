@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/presentation/motion_presentation.dart';
-import 'package:presentation/presentation/presentation_state.dart';
+import 'package:presentation/presentation/shared/motion_presentation.dart';
+import 'package:presentation/presentation/shared/presentation_state.dart';
 
 void main() {
   test('normal presentation allows animation', () {

@@ -11,6 +11,7 @@ dependencies = [
     "fastapi[standard]>=0.115,<1",
     "pydantic>=2,<3",
     "pydantic-settings>=2,<3",
+    "numpy>=2,<3",
     "scikit-learn>=1.9,<1.10",
 ]
 
@@ -20,7 +21,6 @@ dev = [
 ]
 ml = [
     "joblib>=1.4,<2",
-    "scikit-learn>=1.5,<2",
     "datasets>=3,<5",
 ]
 

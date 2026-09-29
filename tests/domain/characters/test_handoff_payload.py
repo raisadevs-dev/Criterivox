@@ -1,6 +1,6 @@
 import pytest
 
-from criterivox.domain.characters.handoff_payload import HandoffPayload
+from criterivox.runtime.characters.core.handoff_payload import HandoffPayload
 
 
 def test_handoff_payload_can_be_created() -> None:

@@ -1,6 +1,6 @@
-"""Backward-compatible import surface for Syvax."""
+"""Semantic compatibility surface for Syvax."""
+from criterivox.agents.syvax.engine import SyvaxEngine
 
-from criterivox.Syvax.engine import *
-from criterivox.Syvax.engine import SyvaxEngine
+syvax_engine = SyvaxEngine()
 
-__all__ = [name for name in globals() if not name.startswith('_')]
+__all__ = ["SyvaxEngine", "syvax_engine"]

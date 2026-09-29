@@ -1,7 +1,7 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from criterivox.character_backbone.operations import (
+from criterivox.runtime.characters.backbone.operations import (
     Auth, CapabilityRegistry, CapabilitySpec, ExecStatus, Lifecycle, Op,
     OperationEngine, OperationStore, Verification,
 )

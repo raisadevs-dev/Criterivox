@@ -1,11 +1,11 @@
 import pytest
 
-from criterivox.domain.characters import get_character
-from criterivox.domain.characters.humor import (
+from criterivox.runtime.characters.core import get_character
+from criterivox.runtime.characters.core.humor import (
     HumorEligibility,
     HumorSituation,
 )
-from criterivox.domain.characters.humor_selection import (
+from criterivox.runtime.characters.core.humor_selection import (
     CompletionHumorPolicy,
     ContextualHumorSelector,
     HarmlessErrorHumorPolicy,

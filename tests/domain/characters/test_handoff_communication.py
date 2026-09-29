@@ -1,11 +1,11 @@
 import pytest
 
-from criterivox.domain.characters import get_character
-from criterivox.domain.characters.handoff_communication import (
+from criterivox.runtime.characters.core import get_character
+from criterivox.runtime.characters.core.handoff_communication import (
     HandoffCommunication,
     HandoffCommunicationManager,
 )
-from criterivox.domain.characters.handoff_payload import HandoffPayload
+from criterivox.runtime.characters.core.handoff_payload import HandoffPayload
 
 
 def test_handoff_communication_can_be_created() -> None:

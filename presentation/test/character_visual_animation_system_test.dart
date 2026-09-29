@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/character/character_visual_profile.dart';
-import 'package:presentation/character/generated_vector_animation.dart';
-import 'package:presentation/character/session_character_animation.dart';
+import 'package:presentation/runtime/character/character_visual_profile.dart';
+import 'package:presentation/runtime/character/generated_vector_animation.dart';
+import 'package:presentation/runtime/character/session_character_animation.dart';
 
 void main() {
   test('all fifteen specialists have complete visual profiles', () {

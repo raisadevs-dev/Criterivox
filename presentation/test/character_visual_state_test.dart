@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/character/character_visual_state.dart';
-import 'package:presentation/presentation/presentation_state.dart';
+import 'package:presentation/runtime/character/character_visual_state.dart';
+import 'package:presentation/presentation/shared/presentation_state.dart';
 
 void main() {
   group('CharacterVisualState', () {

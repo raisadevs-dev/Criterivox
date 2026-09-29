@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/character/character_runtime_flutter.dart';
+import 'package:presentation/runtime/character/character_runtime_flutter.dart';
 
 void main() {
   const semanticStates = [

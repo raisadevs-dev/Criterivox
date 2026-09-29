@@ -8,7 +8,7 @@ from enum import Enum
 from typing import Any, Callable, Mapping, Protocol, Sequence
 from uuid import uuid4
 
-from criterivox.s8.models import Artifact, ArtifactKind, BureauEvent
+from criterivox.mechanisms.evidence.models import Artifact, ArtifactKind, BureauEvent
 
 
 def utc_now() -> datetime:

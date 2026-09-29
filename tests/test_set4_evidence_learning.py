@@ -1,6 +1,6 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from criterivox.character_backbone.set4 import (
+from criterivox.runtime.characters.backbone.set4 import (
     Set4Store, Set4Runtime, EvidenceRecord, VerificationRecord,
     ReasoningExplanation, HypothesisRecord, ChallengeRecord,
     DecisionRecord, OutcomeRecord, KnowledgeRecord, AdaptationRecord,

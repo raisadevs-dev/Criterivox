@@ -1,7 +1,7 @@
 import pytest
 
-from criterivox.domain.characters.attention import CharacterAttention
-from criterivox.domain.characters.attention_state import AttentionState
+from criterivox.runtime.characters.core.attention import CharacterAttention
+from criterivox.runtime.characters.core.attention_state import AttentionState
 
 
 def test_character_attention_can_be_created() -> None:

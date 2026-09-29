@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
-from criterivox.Anuka.agent import AnukaAgent
-from criterivox.Dharen.agent import DharenAgent
+from criterivox.agents.anuka.agent import AnukaAgent
+from criterivox.agents.dharen.agent import DharenAgent
 from .models import AdaptiveContextState, ContextCheckpoint, ContextFork, ContextFrame, ContextInput
 
 
@@ -12,7 +12,7 @@ class ContextIntelligenceEngine:
 
     def __init__(self, dharen: DharenAgent | None = None, anuka: AnukaAgent | None = None) -> None:
         # Lazy imports avoid the context-package <-> criterivox.ml circular import.
-        from criterivox.Anuka.ml import AnukaMLAgent
+        from criterivox.agents.anuka.ml import AnukaMLAgent
         from criterivox.ml.dharen import DharenMLAgent
         if dharen is None:
             self.dharen = DharenMLAgent()

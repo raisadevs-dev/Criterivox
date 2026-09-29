@@ -1,4 +1,4 @@
-"""Criterivox application entry point and S6 context runtime boundary."""
+"""Criterivox application entry point and context runtime boundary."""
 
 import asyncio
 import hashlib
@@ -11,25 +11,25 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import settings
 from .domain.analysis import AnalysisTaskSource
-from .domain.characters import CharacterState
+from .runtime.characters.core import CharacterState
 from .domain.context_intelligence import ObservabilityTimeline
 from .application.analysis_tasks import analysis_tasks
 from .application.character_chat import PROFILES, handle_character_chat, sign_off_task_scratchpad
 from .application.context_engine import ContextEngine
-from .Sandre.store import data_foundations
+from .agents.sandre.store import data_foundations
 from .application.research_instrumentation import research_instrumentation
-from .Sandre.stewardship import SandreStewardship
-from .application.s5_feature_runtime import S5FeatureRuntime
-from .application import foundation_runtime_bridge  # noqa: F401
+from .agents.sandre.stewardship import SandreStewardship
+from .capabilities.feature_runtime import FeatureRuntime
 from .infrastructure.runtime import dharen_runtime, handle_application_request, handle_chat_message, handle_chat_interpretation_confirmation, parse_analysis_request, runtime_connections
 from .logging_config import configure_logging
-from .presentation.contract import PresentationContract
+from .presentation_contracts.contract import PresentationContract
 from .ui.routes import router
-from .character_backbone.operations_api import router as operations_router
-from .character_backbone.operations_api import ENGINE as operations_engine
+from .runtime.characters.backbone.operations_api import router as operations_router
+from .runtime.characters.backbone.operations_api import ENGINE as operations_engine
 
 logger = logging.getLogger(__name__)
 app = FastAPI(title="Criterivox")
+from .application import foundation_runtime_bridge  # noqa: F401
 app.mount("/static", StaticFiles(directory="src/criterivox/ui/static"), name="static")
 stewardship = SandreStewardship()
 context_engine = ContextEngine()

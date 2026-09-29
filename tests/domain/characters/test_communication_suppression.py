@@ -1,8 +1,8 @@
-from criterivox.domain.characters.communication_message import (
+from criterivox.runtime.characters.core.communication_message import (
     CommunicationPriority,
     ContextualMessage,
 )
-from criterivox.domain.characters.communication_suppression import (
+from criterivox.runtime.characters.core.communication_suppression import (
     is_repeated_message,
     suppress_repeated_messages,
 )

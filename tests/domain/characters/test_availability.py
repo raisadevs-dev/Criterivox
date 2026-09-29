@@ -1,6 +1,6 @@
 import pytest
 
-from criterivox.domain.characters import (
+from criterivox.runtime.characters.core import (
     CharacterAvailabilityManager,
     get_all_characters,
 )

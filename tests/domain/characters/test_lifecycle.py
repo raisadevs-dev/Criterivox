@@ -1,7 +1,7 @@
 import pytest
 
-from criterivox.domain.characters.lifecycle import CharacterLifecycle
-from criterivox.domain.characters.state import CharacterState
+from criterivox.runtime.characters.core.lifecycle import CharacterLifecycle
+from criterivox.runtime.characters.core.state import CharacterState
 
 
 def test_lifecycle_starts_idle() -> None:

@@ -1,6 +1,6 @@
 import pytest
 
-from criterivox.domain.characters.communication_message import (
+from criterivox.runtime.characters.core.communication_message import (
     CommunicationPriority,
     ContextualMessage,
 )

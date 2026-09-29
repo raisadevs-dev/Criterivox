@@ -1,8 +1,8 @@
 import pytest
 
-from criterivox.domain.characters.attention import CharacterAttention
-from criterivox.domain.characters.attention_state import AttentionState
-from criterivox.domain.characters import (
+from criterivox.runtime.characters.core.attention import CharacterAttention
+from criterivox.runtime.characters.core.attention_state import AttentionState
+from criterivox.runtime.characters.core import (
     AnimationState,
     Character,
     CharacterBehavior,
