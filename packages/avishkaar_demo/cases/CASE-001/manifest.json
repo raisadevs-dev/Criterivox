@@ -1,43 +1,56 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "case_id": "CASE-001",
   "human_id": "CR-27",
   "title": "Research Strategy",
-  "goal": "Compare three research approaches for a constrained prototype and identify which approach should be investigated first.",
-  "context": "The human has a limited implementation window and wants a transparent comparison rather than an unexplained recommendation.",
+  "goal": "Compare supplied alternatives while retaining evidence conflict and uncertainty.",
+  "context": "Runtime inputs supplied through Human Residence are authoritative. Package materials are validation fixtures only and never hidden answer keys.",
   "constraints": [
-    "Prefer approaches supported by the supplied evidence.",
-    "Surface evidence conflicts instead of hiding them.",
-    "Preserve uncertainty where the supplied material is insufficient.",
-    "The result must remain inspectable by a human."
+    "Do not invent absent evidence.",
+    "Preserve provenance and uncertainty.",
+    "Character reports are separate inspectable artifacts.",
+    "Combined reports reference child artifacts.",
+    "Visualization is derived from structured report data.",
+    "Human intervention preserves prior revisions."
   ],
   "inputs": [
     {
-      "input_id": "IN-001",
+      "input_id": "IN-001-01",
       "kind": "text",
-      "label": "Human task",
-      "path_or_inline": "goal.txt",
+      "label": "Research Strategy text material",
+      "path_or_inline": "materials/text-01",
       "source_role": "goal",
-      "provenance_note": "Synthetic Avishkaar fixture representing direct human input."
+      "provenance_note": "Fixture path convention; live Human Residence input may replace it."
     },
     {
-      "input_id": "IN-002",
+      "input_id": "IN-001-02",
       "kind": "text",
-      "label": "Task context",
-      "path_or_inline": "context.txt",
-      "source_role": "context",
-      "provenance_note": "Synthetic context supplied with the demo case."
+      "label": "Research Strategy text material",
+      "path_or_inline": "materials/text-02",
+      "source_role": "evidence",
+      "provenance_note": "Fixture path convention; live Human Residence input may replace it."
     },
     {
-      "input_id": "IN-003",
+      "input_id": "IN-001-03",
       "kind": "table_csv",
-      "label": "Evidence comparison table",
-      "mime_type": "text/csv",
-      "path_or_inline": "evidence.csv",
+      "label": "Research Strategy table_csv material",
+      "path_or_inline": "materials/table_csv-03",
       "source_role": "evidence",
-      "provenance_note": "Synthetic structured evidence fixture."
+      "provenance_note": "Fixture path convention; live Human Residence input may replace it."
     }
   ],
+  "execution": {
+    "profile": "research_comparison",
+    "capability_selection": "dynamic",
+    "human_intervention": true,
+    "revision_history": true,
+    "preserve_character_reports": true,
+    "combined_report": true,
+    "report_views": [
+      "text",
+      "visualization"
+    ]
+  },
   "expected_capabilities": [
     "context_understanding",
     "evidence_evaluation",
@@ -46,6 +59,26 @@
     "validation",
     "report_composition"
   ],
+  "expected_artifacts": [
+    "foundation",
+    "capability_plan",
+    "character_reports",
+    "combined_report",
+    "visualization_projection",
+    "provenance",
+    "evaluation"
+  ],
+  "evaluation_contract": {
+    "answer_key": false,
+    "checks": [
+      "capability_activation",
+      "provenance",
+      "uncertainty_preservation",
+      "report_completeness",
+      "visualization_consistency",
+      "human_intervention_preservation"
+    ]
+  },
   "presentation": {
     "show_human_id": true,
     "default_report_view": "text",
