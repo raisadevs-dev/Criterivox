@@ -18,6 +18,7 @@ from criterivox.runtime.characters.core import CharacterActivityManager,Characte
 from criterivox.presentation_contracts.contract import PresentationContract
 from criterivox.application.state_runtime import state_runtime
 from criterivox.application.state_chat import respond_state_query
+from criterivox.application.global_chat import interpret_global_chat, public_report_reference
 MAX_REFERENCE_BYTES=4*1024*1024;
 CHAT_CONFIRMATION_TIMEOUT_SECONDS=60;
 _pending_chat_confirmations:dict[str,dict[str,Any]]={};
@@ -228,72 +229,75 @@ def _record_instrumentation(*,event_type:str,payload:dict[str,Any],participant_i
   return
 
 async def handle_chat_message(payload):
- if not isinstance(payload,dict):raise ValueError('Malformed chat message.')
- target=str(payload.get('target_character','syvax')).strip().lower()
- if target not in ALLOWED_CHAT_CHARACTERS:raise ValueError('Unknown chat character.')
- task_id=payload.get('task_id');message=payload.get('message')
- if not isinstance(message,str) or not message.strip() or len(message)>2000:raise ValueError('Chat message is invalid.')
- profile=detect_language_profile(message);normalized=await language_service.to_reasoning_language(message,profile);interpretation=interpret_message(normalized);object.__setattr__(interpretation,'language_profile',profile);refs,details=_parse_chat_references(payload.get('references',[]));await _sync_chat_material(refs,details,message,task_id);participant_id=_research_identity(payload);_record_instrumentation(event_type='human_input_received',participant_id=participant_id,payload={'intent':interpretation.intent,'route_target':interpretation.route_target,'language_profile':profile.to_dict(),'normalized_meaning':interpretation.normalized_text,'semantic_summary':interpretation.semantic_summary,'task_id':task_id,'language_mode':payload.get('language_mode','auto')});_record_instrumentation(event_type='human_input_raw_text',participant_id=participant_id,payload={'raw_text':message,'language_profile':profile.to_dict()},raw_text=True)
- if interpretation.intent in {"analyze","handoff","unknown","change_request","continue"}:
-  task=analysis_tasks.get_task(str(task_id)) if task_id is not None else analysis_tasks.create_task(task=interpretation.normalized_text,data=payload.get('data') if isinstance(payload.get('data'),dict) else {},context=payload.get('context') if isinstance(payload.get('context'),dict) else {},source=AnalysisTaskSource.CHAT,references=refs,reference_details=details)
-  _task_language_profiles[task.task_id]=profile
-  await _queue_chat_confirmation(character=target,original=message,interpretation=interpretation,task=task,participant_id=participant_id)
-  _record_instrumentation(event_type='interpretation_confirmation_requested',participant_id=participant_id,payload={'confirmation_status':'PENDING','task_id':task.task_id,'interpretation':interpretation.normalized_text,'confirmation_timeout_seconds':CHAT_CONFIRMATION_TIMEOUT_SECONDS})
+ if not isinstance(payload,dict): raise ValueError('Malformed chat message.')
+ requested_target=str(payload.get('target_character','syvax')).strip().lower()
+ if requested_target not in ALLOWED_CHAT_CHARACTERS: raise ValueError('Unknown chat character.')
+ task_id=payload.get('task_id'); message=payload.get('message')
+ if not isinstance(message,str) or not message.strip() or len(message)>2000: raise ValueError('Chat message is invalid.')
+ profile=detect_language_profile(message)
+ normalized=await language_service.to_reasoning_language(message,profile)
+ global_intent=interpret_global_chat(normalized, explicit_target=requested_target)
+ interpretation=global_intent.source_interpretation
+ object.__setattr__(interpretation,'language_profile',profile)
+ refs,details=_parse_chat_references(payload.get('references',[]))
+ await _sync_chat_material(refs,details,message,task_id)
+ participant_id=_research_identity(payload)
+ _record_instrumentation(event_type='global_chat_understood',participant_id=participant_id,payload={'intent':global_intent.intent,'route_target':global_intent.character_id,'language_mode':payload.get('language_mode','auto'),'confidence':global_intent.confidence,'task_id':task_id})
+ target=global_intent.character_id or requested_target
+ if global_intent.is_report_request:
+  from criterivox.application.case_reports import case_report_orchestrator
+  execution_id=str(task_id or '').strip()
+  reports=case_report_orchestrator.store.execution(execution_id) if execution_id else []
+  selected=next((r for r in reports if r.get('scope')=='character' and r.get('character_id')==target),None) if target!='syvax' else None
+  selected=selected or next((r for r in reports if r.get('scope')=='task'),None)
+  if selected is None:
+   await _publish_character('Syvax',CharacterState.WARNING,message='I could not find an authoritative report for this task yet.',event='REPORT_NOT_FOUND'); return
+  public=public_report_reference(selected)
+  display_character=str(selected.get('character_id') or 'epistre')
+  home=public.get('report_home_id') or 'human-residence'
+  message_out=(f"{selected.get('character_name',display_character.title())} has the report. Open their {home} home to inspect it." if selected.get('scope')=='character' else 'The combined task report is ready for inspection in Human Residence.')
+  task_obj=analysis_tasks.get_task(execution_id) if execution_id in analysis_tasks.store.tasks else None
+  await _publish_character(display_character,CharacterState.COMMUNICATE,message=message_out,event='REPORT_READY',task=task_obj)
+  await runtime_connections.publish(PresentationContract.from_state(display_character,CharacterState.COMPLETE,active=True,prominence=.85,message=selected.get('summary') or 'The requested report is ready.',event='REPORT_LINK_READY',task_id=execution_id or None,report_id=public['report_id'],report_title=public['report_title'],report_scope=public['report_scope'],report_home_id=home,report_character_id=public['report_character_id'],report_views=public['report_views']))
   return
- if target not in {'syvax','dharen'}:
-  await _safe_character_chat(payload)
+ if interpretation.intent in {'history','current','next','status'}:
+  if task_id is None:
+   await _publish_character(target.title(),CharacterState.WARNING,message='There is no bound task to inspect yet.',event='STATE_QUERY_NO_TASK'); return
+  tid=str(task_id); task=analysis_tasks.get_task(tid) if tid in analysis_tasks.store.tasks else None
+  if task is None:
+   await _publish_character(target.title(),CharacterState.WARNING,message='The requested task is not available in the current runtime.',event='STATE_QUERY_NOT_FOUND'); return
+  message_out,_=respond_state_query(tid,interpretation) if target=='syvax' else (f'{target.title()} reports the authoritative task state: {task.state.value}.',{})
+  await _publish_character(target.title(),CharacterState.COMMUNICATE,message=message_out,event='STATE_AWARE_RESPONSE',task=task); return
+ if interpretation.intent in {'pause','resume','cancel','change_request'}:
+  if task_id is None:
+   await _publish_character('Syvax',CharacterState.WARNING,message='No task is bound to this conversation, so no workflow interruption was performed.',event='INTERRUPTION_NO_TASK'); return
+  tid=str(task_id); task=analysis_tasks.get_task(tid)
+  if interpretation.intent=='pause':
+   if task.is_terminal: await _publish_character('Syvax',CharacterState.WARNING,message='The task is already terminal; no pause was performed.',event='PAUSE_UNSUPPORTED',task=task); return
+   state_runtime.pause(tid); await _publish_character('Syvax',CharacterState.COMMUNICATE,message='The task has been paused through the runtime gate.',event='TASK_PAUSED',task=task); return
+  if interpretation.intent=='resume':
+   state_runtime.resume(tid); await _publish_character('Syvax',CharacterState.COMMUNICATE,message='The task has been resumed through the runtime gate.',event='TASK_RESUMED',task=task); return
+  if interpretation.intent=='cancel':
+   await _publish_character('Syvax',CharacterState.WARNING,message='Cancellation is not supported by the current safe character-chat boundary.',event='CANCEL_UNSUPPORTED',task=task); return
+  state_runtime.record_event(tid,'CHANGE_REQUESTED',actor='human',provenance={'request':message}); await _publish_character('Syvax',CharacterState.COMMUNICATE,message='The requested change was recorded. Downstream state was not silently modified.',event='CHANGE_REQUESTED',task=task); return
+ if task_id is None:
+  task=analysis_tasks.create_task(task=interpretation.normalized_text,data=payload.get('data') if isinstance(payload.get('data'),dict) else {},context=payload.get('context') if isinstance(payload.get('context'),dict) else {},source=AnalysisTaskSource.CHAT,references=refs,reference_details=details); task_id=task.task_id
+ else: task=analysis_tasks.get_task(str(task_id))
+ if details:
+  task.references=tuple(dict.fromkeys((*task.references,*refs))); task.reference_details=(*task.reference_details,*details); task.add_activity(f'Attached {len(details)} additional reference(s) to the task.')
+ _task_language_profiles[task.task_id]=profile
+ if global_intent.character_id and global_intent.character_id!='syvax':
+  await _publish_character(global_intent.character_id,CharacterState.RECEIVE,message=f'{global_intent.character_id.title()} received your request.',event='CHARACTER_REQUEST_RECEIVED',task=task); await asyncio.sleep(.08)
+  await _publish_character(global_intent.character_id,CharacterState.WORK,message=f'{global_intent.character_id.title()} is working on the request.',event='CHARACTER_WORKING',task=task)
+  await _safe_character_chat({**payload,'target_character':global_intent.character_id,'task_id':task.task_id}); return
+ if interpretation.intent in {'analyze','handoff','unknown','change_request','continue'}:
+  await _publish_character('Syvax',CharacterState.RECEIVE,message='Criterivox received your request.',event='SYVAX_RECEIVED',task=task); await asyncio.sleep(.08)
+  await _publish_character('Syvax',CharacterState.HANDOFF,message='Syvax routed the request to the matching character capability.',event='CAPABILITY_ROUTED',task=task); await asyncio.sleep(.08)
+  await dharen_runtime.publish_task(task,message='Dharen received the routed task from the global chat.',event='GLOBAL_CHAT_ROUTED')
+  if not task.is_terminal: asyncio.create_task(analysis_tasks.execute(task.task_id))
   return
- if target=='syvax':
-  if interpretation.intent in {'history','current','next','status'}:
-   if task_id is None:
-    await _publish_character('Syvax',CharacterState.WARNING,message='No task is bound to this conversation, so there is no authoritative state record to inspect.',event='STATE_QUERY_NO_TASK'); return
-   tid=str(task_id)
-   try:
-    message_out,structured=respond_state_query(tid,interpretation)
-   except Exception:
-    message_out,structured='No authoritative runtime record exists for that state.',{'status':'NO_AUTHORITATIVE_RECORD'}
-   await _publish_character('Syvax',CharacterState.COMMUNICATE,message=message_out,event='STATE_AWARE_RESPONSE',task=analysis_tasks.get_task(tid) if tid in analysis_tasks.store.tasks else None)
-   return
-  if interpretation.intent in {'pause','resume','cancel','change_request'}:
-   if task_id is None:
-    await _publish_character('Syvax',CharacterState.WARNING,message='No task is bound to this conversation, so no workflow interruption was performed.',event='INTERRUPTION_NO_TASK'); return
-   tid=str(task_id); task=analysis_tasks.get_task(tid)
-   if interpretation.intent=='pause':
-    from criterivox.application.home03_runtime import home03_runtime
-    if task.is_terminal:
-     await _publish_character('Syvax',CharacterState.WARNING,message='The task is already terminal; no pause was performed.',event='PAUSE_UNSUPPORTED',task=task); return
-    state_runtime.pause(tid); await _publish_character('Syvax',CharacterState.COMMUNICATE,message='The task has been paused through the runtime gate.',event='TASK_PAUSED',task=task); return
-   if interpretation.intent=='resume':
-    state_runtime.resume(tid); await _publish_character('Syvax',CharacterState.COMMUNICATE,message='The task has been resumed through the runtime gate.',event='TASK_RESUMED',task=task); return
-   if interpretation.intent=='cancel':
-    await _publish_character('Syvax',CharacterState.WARNING,message='Cancellation is not supported by the current safe character-chat boundary.',event='CANCEL_UNSUPPORTED',task=task); return
-   state_runtime.record_event(tid,'CHANGE_REQUESTED',actor='human',provenance={'request':message})
-   await _publish_character('Syvax',CharacterState.COMMUNICATE,message='The requested change was recorded. Downstream state was not silently modified.',event='CHANGE_REQUESTED',task=task); return
-  if interpretation.intent=='handoff':
-   if task_id is None:task=analysis_tasks.create_task(task=interpretation.normalized_text,data={},context={},source=AnalysisTaskSource.CHAT,references=refs,reference_details=details);task_id=task.task_id
-   else:task=analysis_tasks.get_task(str(task_id))
-   await _publish_character('Syvax',CharacterState.RECEIVE,message='Syvax received your handoff instruction.',event='SYVAX_RECEIVED',task=task);await asyncio.sleep(.12);await _publish_character('Syvax',CharacterState.WORK,message='Syvax is preparing the handoff context for Dharen.',event='HANDOFF_PREPARING',task=task);await asyncio.sleep(.12);await _publish_character('Syvax',CharacterState.HANDOFF,message='Syvax can hand this task to Dharen. The current task, data, context, and references will remain attached.',event='HANDOFF_ACCEPTED',task=task);await asyncio.sleep(.12);await _publish_character('Dharen',CharacterState.RECEIVE,message='Dharen received the task from Syvax.',event='HANDOFF_COMPLETED',task=task)
-   if not task.is_terminal:asyncio.create_task(analysis_tasks.execute(task.task_id))
-   return
-  if interpretation.intent=='user_continue':
-   if task_id is None:await _publish_character('Syvax',CharacterState.RECEIVE,message='Syvax received your choice to continue yourself.',event='SYVAX_RECEIVED')
-   else:task=analysis_tasks.get_task(str(task_id));await _publish_character('Syvax',CharacterState.COMMUNICATE,message='Syvax will keep the current task with you. No handoff was performed.',event='USER_CONTINUES',task=task)
-   return
-  if interpretation.intent=='analyze':
-   if task_id is None:task=analysis_tasks.create_task(task=interpretation.normalized_text,data=payload.get('data') if isinstance(payload.get('data'),dict) else {},context=payload.get('context') if isinstance(payload.get('context'),dict) else {},source=AnalysisTaskSource.CHAT,references=refs,reference_details=details);task_id=task.task_id
-   else:task=analysis_tasks.get_task(str(task_id))
-   await _publish_character('Syvax',CharacterState.RECEIVE,message='Syvax received your analysis request.',event='SYVAX_RECEIVED',task=task);await asyncio.sleep(.12);await _publish_character('Syvax',CharacterState.COMMUNICATE,message='This is an analysis task. Syvax recommends Dharen for the structural analysis. You can hand it over to Dharen or continue yourself.',event='HANDOFF_PROPOSED',task=task);return
-  if task_id is None:task=analysis_tasks.create_task(task=interpretation.normalized_text,data=payload.get('data') if isinstance(payload.get('data'),dict) else {},context=payload.get('context') if isinstance(payload.get('context'),dict) else {},source=AnalysisTaskSource.CHAT,references=refs,reference_details=details);task_id=task.task_id
-  else:task=analysis_tasks.get_task(str(task_id))
-  await _publish_character('Syvax',CharacterState.RECEIVE,message='Syvax received your request and is interpreting what you need.',event='SYVAX_RECEIVED',task=task);await asyncio.sleep(.12);await _publish_character('Syvax',CharacterState.COMMUNICATE,message='I can route analysis work to Dharen, or you can continue the task yourself. Tell me which you prefer.',event='HANDOFF_PROPOSED',task=task);return
- task=analysis_tasks.get_task(str(task_id)) if task_id is not None else None
- if task is None:
-  data=payload.get('data') if isinstance(payload.get('data'),dict) else {};context=payload.get('context') if isinstance(payload.get('context'),dict) else {};task=analysis_tasks.create_task(task=interpretation.normalized_text,data=data,context=context,source=AnalysisTaskSource.CHAT,references=refs,reference_details=details);await dharen_runtime.publish_task(task,message='Dharen received your request directly.',event='CHAT_ANALYSIS_REQUESTED');asyncio.create_task(analysis_tasks.execute(task.task_id));return
- if details:task.references=tuple(dict.fromkeys((*task.references,*refs)));task.reference_details=(*task.reference_details,*details);task.add_activity(f'Attached {len(details)} additional reference(s) to the task.')
- task.add_activity(f'User asked Dharen: {interpretation.normalized_text}')
- if interpretation.intent=='status':await dharen_runtime.publish_task(task,message=f'Dharen reports the authoritative analysis state: {task.state.value}.',event='TASK_STATUS_REQUESTED')
- elif interpretation.intent=='continue':await dharen_runtime.publish_task(task,message='Dharen confirms the current analysis remains active. The same task state and evidence are preserved.',event='TASK_CONTINUE_REQUESTED')
- else:await dharen_runtime.publish_task(task,message='Dharen received the follow-up. The task remains grounded in its recorded data, context, and references.',event='TASK_FOLLOWUP_RECEIVED')
+ await _safe_character_chat({**payload,'target_character':target,'task_id':task.task_id})
+
 async def _publish_character(character_id,state,*,message,event,task=None,active=True,prominence=.85):
  activity_manager=dharen_runtime._activity;activity=activity_manager.set_state(character_id,state);fields={}
  if task is not None:
