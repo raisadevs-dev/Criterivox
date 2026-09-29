@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import '../presentation/criterivox_theme.dart';
+import '../presentation/shared/criterivox_theme.dart';
+import '../presentation/shared/api_client.dart';
 
 class BloomActivation {
   final BloomCapability capability;
@@ -240,7 +241,7 @@ class _BloomState extends State<Bloom>
   ) async {
     final response = await http
         .post(
-          Uri.base.resolve('/api/bloom/activate'),
+          CriterivoxApi.uri('/api/bloom/activate'),
           headers: const {
             'content-type': 'application/json',
           },
@@ -252,15 +253,28 @@ class _BloomState extends State<Bloom>
         )
         .timeout(const Duration(seconds: 3));
 
-    final decoded = response.body.isEmpty
-        ? <String, dynamic>{}
-        : jsonDecode(response.body) as Map<String, dynamic>;
+    dynamic decoded;
+    if (response.body.trim().isNotEmpty) {
+      try {
+        decoded = jsonDecode(response.body);
+      } on FormatException {
+        throw Exception(
+          'Bloom backend returned non-JSON (HTTP ${response.statusCode}).',
+        );
+      }
+    }
 
     if (response.statusCode < 200 ||
         response.statusCode >= 300 ||
+        decoded is! Map<String, dynamic> ||
         decoded['accepted'] == false) {
+      final error = decoded is Map
+          ? decoded['error']?.toString()
+          : null;
       throw Exception(
-        decoded['error']?.toString() ?? 'Bloom activation was rejected.',
+        error?.isNotEmpty == true
+            ? error
+            : 'Bloom activation failed (HTTP ${response.statusCode}).',
       );
     }
 
@@ -294,10 +308,10 @@ class _BloomState extends State<Bloom>
         final heightLimitedSize =
             constraints.hasBoundedHeight
                 ? constraints.maxHeight / ratio
-                : double.infinity;
+                : availableWidth;
 
         final size = math.max(
-          240.0,
+          1.0,
           math.min(
             availableWidth,
             heightLimitedSize,

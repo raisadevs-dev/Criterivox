@@ -1,4 +1,4 @@
-from criterivox.domain.characters.humor import (
+from criterivox.runtime.characters.core.humor import (
     HumorEligibility,
     HumorPolicy,
     HumorSituation,

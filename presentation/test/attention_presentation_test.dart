@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/presentation/attention_presentation.dart';
-import 'package:presentation/presentation/presentation_state.dart';
+import 'package:presentation/presentation/shared/attention_presentation.dart';
+import 'package:presentation/presentation/shared/presentation_state.dart';
 
 void main() {
   test('inactive agent has no visual prominence', () {

@@ -1,9 +1,9 @@
 import pytest
 
-from criterivox.domain.characters.attention_priority import (
+from criterivox.runtime.characters.core.attention_priority import (
     AttentionPriority,
 )
-from criterivox.domain.characters.attention_state import AttentionState
+from criterivox.runtime.characters.core.attention_state import AttentionState
 
 
 def test_quiet_has_lowest_priority() -> None:

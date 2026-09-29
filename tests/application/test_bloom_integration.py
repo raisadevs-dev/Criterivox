@@ -122,7 +122,7 @@ def test_analysis_event_agents_exist_in_registry(
     registered = {
         character.identity.identifier
         for character in __import__(
-            "criterivox.domain.characters",
+            "criterivox.runtime.characters.core",
             fromlist=["get_all_characters"],
         ).get_all_characters()
     }

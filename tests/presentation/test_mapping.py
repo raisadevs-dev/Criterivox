@@ -1,10 +1,10 @@
 import pytest
 
-from criterivox.domain.characters import (
+from criterivox.runtime.characters.core import (
     AnimationState,
     CharacterState,
 )
-from criterivox.presentation.mapping import (
+from criterivox.presentation_contracts.mapping import (
     character_presentation,
     visual_state_for,
 )

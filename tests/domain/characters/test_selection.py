@@ -1,4 +1,4 @@
-from criterivox.domain.characters import (
+from criterivox.runtime.characters.core import (
     CharacterSelector,
     get_all_characters,
 )

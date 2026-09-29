@@ -93,7 +93,7 @@ class KaelenLearnedModel(LearnedContextModel): labels=("no_change","schema_exten
 class S6LearnedModelRegistry:
     """Single model boundary: all S6 learned agents load through one registry."""
     def __init__(self, model_dir: str | Path | None = None):
-        root=Path(model_dir) if model_dir else Path(__file__).resolve().parents[3]/"models"/"s6"
+        root=Path(model_dir) if model_dir else Path(__file__).resolve().parents[3]/"models"/"context"
         self.model_dir=root
         self.dharen=DharenLearnedModel(root/"dharen.json",model_version="dharen-context-learned-1")
         self.anuka=AnukaLearnedModel(root/"anuka.json",model_version="anuka-adaptation-learned-1")

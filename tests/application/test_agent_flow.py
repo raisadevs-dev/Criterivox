@@ -4,7 +4,7 @@ from criterivox.application.agent_flow import (
     AgentFlowCoordinator,
 )
 from criterivox.application.bloom_integration import ApplicationEvent
-from criterivox.domain.characters import CharacterState
+from criterivox.runtime.characters.core import CharacterState
 
 
 @pytest.fixture

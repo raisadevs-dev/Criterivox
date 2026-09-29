@@ -1,18 +1,18 @@
 import pytest
 
-from criterivox.domain.characters import (
+from criterivox.runtime.characters.core import (
     Character,
     get_all_characters,
 )
-from criterivox.domain.characters.attention import CharacterAttention
-from criterivox.domain.characters.attention_priority import (
+from criterivox.runtime.characters.core.attention import CharacterAttention
+from criterivox.runtime.characters.core.attention_priority import (
     AttentionPriority,
 )
-from criterivox.domain.characters.attention_selection import (
+from criterivox.runtime.characters.core.attention_selection import (
     AttentionCandidate,
     AttentionSelection,
 )
-from criterivox.domain.characters.attention_state import AttentionState
+from criterivox.runtime.characters.core.attention_state import AttentionState
 
 
 def make_character(

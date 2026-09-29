@@ -8,7 +8,7 @@ from typing import Any
 from criterivox.application.analysis_tasks import analysis_tasks
 from criterivox.application.context_engine import ScratchpadRegistry
 from criterivox.application.conversation import interpret_message
-from criterivox.application.s5_orchestration import (
+from criterivox.orchestration.runtime import (
     analysis_door,
     delivery_package,
     is_past_analysis_query,
@@ -21,14 +21,14 @@ from criterivox.context.replay import ContextReplayService
 from criterivox.context.replay_routes import configure as configure_replay_routes
 from criterivox.context.replay_routes import router as replay_router
 from criterivox.context.runtime import ContextRuntime
-from criterivox.domain.characters import CharacterState
+from criterivox.runtime.characters.core import CharacterState
 from criterivox.infrastructure import runtime as runtime_module
 from criterivox.infrastructure.runtime import (
     DharenRuntime,
     dharen_runtime,
     runtime_connections,
 )
-from criterivox.presentation.contract import PresentationContract
+from criterivox.presentation_contracts.contract import PresentationContract
 
 
 _original_publish_task = DharenRuntime.publish_task
@@ -64,7 +64,7 @@ async def _publish_with_foundation_residency(
         return
 
     try:
-        from criterivox.application.data_foundation_store import data_foundations
+        from criterivox.agents.sandre.store import data_foundations
 
         foundation = data_foundations.get(str(foundation_id))
         await _publish_raw(
@@ -514,7 +514,7 @@ DharenRuntime.publish_task = _publish_task_with_foundation
 
 
 try:
-    from criterivox.application.data_foundation_store import data_foundations
+    from criterivox.agents.sandre.store import data_foundations
 
     replay_service = ContextReplayService(
         context_runtime,

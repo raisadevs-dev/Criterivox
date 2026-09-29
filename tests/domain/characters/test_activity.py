@@ -1,11 +1,11 @@
 import pytest
 
-from criterivox.domain.characters import (
+from criterivox.runtime.characters.core import (
     CharacterActivityManager,
     CharacterState,
     get_all_characters,
 )
-from criterivox.domain.characters.activity import (
+from criterivox.runtime.characters.core.activity import (
     InvalidCharacterStateTransition,
 )
 

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/presentation/language_mode.dart';
+import 'package:presentation/presentation/shared/language_mode.dart';
 
 void main() {
   test('application language catalog exposes automatic and supported modes', () {

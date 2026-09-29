@@ -11,11 +11,11 @@ from criterivox.application.conversation import interpret_message
 from criterivox.application.language_intake import detect_language_profile, interpretation_summary
 from criterivox.application.language_service import language_service
 from criterivox.application.research_instrumentation import research_instrumentation
-from criterivox.application.data_foundation_store import data_foundations
+from criterivox.agents.sandre.store import data_foundations
 from criterivox.application.service import UnsupportedCapabilityError
 from criterivox.domain.analysis import AnalysisReference,AnalysisTask,AnalysisTaskSource,AnalysisTaskState
-from criterivox.domain.characters import CharacterActivityManager,CharacterState,CHARACTER_REGISTRY
-from criterivox.presentation.contract import PresentationContract
+from criterivox.runtime.characters.core import CharacterActivityManager,CharacterState,CHARACTER_REGISTRY
+from criterivox.presentation_contracts.contract import PresentationContract
 from criterivox.application.state_runtime import state_runtime
 from criterivox.application.state_chat import respond_state_query
 MAX_REFERENCE_BYTES=4*1024*1024;

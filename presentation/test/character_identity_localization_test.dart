@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/character/character_identity.dart';
+import 'package:presentation/runtime/character/character_identity.dart';
 
 void main() {
   test('stable character ids remain separate from human-facing names', () {

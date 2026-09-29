@@ -1,5 +1,5 @@
-from criterivox.domain.characters import CharacterState
-from criterivox.presentation.adapter import PresentationAdapter
+from criterivox.runtime.characters.core import CharacterState
+from criterivox.presentation_contracts.adapter import PresentationAdapter
 
 
 class RecordingAdapter(PresentationAdapter):

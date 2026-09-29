@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/presentation/presentation_state.dart';
+import 'package:presentation/presentation/shared/presentation_state.dart';
 
 void main() {
   test('presentation state preserves its contract', () {

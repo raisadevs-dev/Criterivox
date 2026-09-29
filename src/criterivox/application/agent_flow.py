@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from criterivox.domain.characters import CharacterState
+from criterivox.runtime.characters.core import CharacterState
 from criterivox.application.bloom_integration import (
     ApplicationEvent,
     BloomIntegration,

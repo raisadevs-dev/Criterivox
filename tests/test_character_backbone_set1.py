@@ -1,8 +1,8 @@
 from pathlib import Path
-from criterivox.character_backbone.loader import load_character_registry,load_capability_registry,load_message_chips
-from criterivox.character_backbone.validator import validate_registries
-from criterivox.character_backbone.chips import validate_message_chips
-from criterivox.character_backbone.datasets import load_jsonl,REQUIRED_TRAIN,REQUIRED_TEST
+from criterivox.runtime.characters.backbone.loader import load_character_registry,load_capability_registry,load_message_chips
+from criterivox.runtime.characters.backbone.validator import validate_registries
+from criterivox.runtime.characters.backbone.chips import validate_message_chips
+from criterivox.runtime.characters.backbone.datasets import load_jsonl,REQUIRED_TRAIN,REQUIRED_TEST
 
 def test_registry_has_15_unique_characters():
     r=load_character_registry(); assert len(r.characters)==15; assert len({c.id for c in r.characters})==15

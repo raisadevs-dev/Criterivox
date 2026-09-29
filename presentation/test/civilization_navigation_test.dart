@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../lib/character_focus_page.dart';
-import '../lib/civilization_page.dart';
-import '../lib/civilization_home_preview_page.dart';
-import '../lib/bloom_companion.dart';
-import '../lib/character/character_identity.dart';
-import '../lib/level2_operational_page.dart';
+import '../lib/agents/character_focus_page.dart';
+import '../lib/world/civilization/civilization_page.dart';
+import '../lib/world/civilization/home_preview_page.dart';
+import '../lib/world/bloom/bloom_companion.dart';
+import '../lib/runtime/character/character_identity.dart';
+import '../lib/workspaces/operations/level2_operational_page.dart';
 
 void main() {
   testWidgets('Civilization exposes canonical homes and Anukor network territory', (tester) async {

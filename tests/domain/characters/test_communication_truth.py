@@ -1,4 +1,4 @@
-from criterivox.domain.characters.communication_truth import (
+from criterivox.runtime.characters.core.communication_truth import (
     CommunicationTruth,
 )
 

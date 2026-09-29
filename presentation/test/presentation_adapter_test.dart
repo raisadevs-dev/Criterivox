@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:presentation/presentation/presentation_adapter.dart';
+import 'package:presentation/presentation/shared/presentation_adapter.dart';
 
 void main() {
   test('adapter creates presentation state from application state', () {

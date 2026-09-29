@@ -1,12 +1,12 @@
-from criterivox.domain.characters import get_all_characters
-from criterivox.domain.characters.attention import CharacterAttention
-from criterivox.domain.characters.attention_activation import (
+from criterivox.runtime.characters.core import get_all_characters
+from criterivox.runtime.characters.core.attention import CharacterAttention
+from criterivox.runtime.characters.core.attention_activation import (
     AttentionActivation,
 )
-from criterivox.domain.characters.attention_selection import (
+from criterivox.runtime.characters.core.attention_selection import (
     AttentionCandidate,
 )
-from criterivox.domain.characters.attention_state import AttentionState
+from criterivox.runtime.characters.core.attention_state import AttentionState
 
 
 def make_candidate(
