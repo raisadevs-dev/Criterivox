@@ -92,6 +92,12 @@ class PresentationContract:
     input_confirmation_status: str | None = None
     input_confirmation_deadline: str | None = None
     input_confirmation_id: str | None = None
+    report_id: str | None = None
+    report_title: str | None = None
+    report_scope: str | None = None
+    report_home_id: str | None = None
+    report_character_id: str | None = None
+    report_views: dict[str, bool] | None = None
 
     @classmethod
     def from_visual_presentation(
