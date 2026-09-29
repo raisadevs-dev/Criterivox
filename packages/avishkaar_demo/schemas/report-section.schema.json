@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://criterivox.org/schemas/avishkaar/report-section.schema.json",
+  "title": "Criterivox Report Section",
+  "type": "object",
+  "required": ["section_id", "title", "semantic_type", "text"],
+  "properties": {
+    "section_id": {"type": "string"},
+    "title": {"type": "string"},
+    "semantic_type": {
+      "enum": [
+        "overview",
+        "context",
+        "evidence",
+        "alternatives",
+        "comparison",
+        "reasoning_summary",
+        "hypothesis",
+        "evaluation",
+        "objection",
+        "validation",
+        "uncertainty",
+        "human_intervention",
+        "result",
+        "provenance",
+        "activity"
+      ]
+    },
+    "text": {"type": "string"},
+    "artifact_refs": {"type": "array", "items": {"type": "string"}},
+    "source_refs": {"type": "array", "items": {"type": "string"}},
+    "visualization": {"$ref": "visualization.schema.json"}
+  },
+  "additionalProperties": false
+}
