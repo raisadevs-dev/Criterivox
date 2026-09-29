@@ -27,3 +27,8 @@ The case boundary supports text, PDF, images/photos, CSV tables, multiple files,
 ## Report views
 
 A report section can expose a semantic visualization descriptor. The visualization is derived from the same structured section/artifact references used by the text view. It is not a screenshot or a second source of truth.
+## Standardized cases
+
+The package currently defines CASE-001 through CASE-010 with the same execution contract: dynamic capability selection, preserved character reports, a combined task report, provenance, text/visualization views, and non-answer-key evaluation checks. CASE-010 exercises the complete 15-character capability surface.
+
+The Human Residence case-report API accepts a `case_id`, so the presenter does not need to browse fixture folders or manually assemble internal inputs. The UI exposes the standardized case selector and preserves human challenge revisions separately from the original report.
