@@ -57,8 +57,11 @@ class DecisionOrchestrator:
         event("dharen", "context", "Interpreted goal and context without inventing missing constraints.")
 
         plan = syvax_engine.compile_plan(goal)
-        foundation_id: str | None = None
-        if supplied_data.strip():
+        foundation = None
+        foundation_id = foundation_id.strip() if foundation_id else None
+        if foundation_id:
+            foundation = data_foundations.get(foundation_id)
+        elif supplied_data.strip():
             foundation = data_foundations.ingest({
                 "sources": [{
                     "name": "Human Residence supplied text",
