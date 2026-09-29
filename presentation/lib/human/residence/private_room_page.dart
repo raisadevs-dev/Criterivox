@@ -876,6 +876,23 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
       const SizedBox(height: 10),
       Text('${report['human_id'] ?? 'CR-27'} · ${report['title'] ?? 'Research Strategy'}',
           style: TextStyle(color: theme.primary, fontWeight: FontWeight.w800, fontSize: 13)),
+      const SizedBox(height: 6),
+      Row(
+        children: [
+          Text('Case', style: TextStyle(color: theme.mutedText, fontSize: 9)),
+          const SizedBox(width: 8),
+          DropdownButton<String>(
+            value: selectedCaseId,
+            isDense: true,
+            items: List<String>.generate(10, (i) => 'CASE-${(i + 1).toString().padLeft(3, '0')}')
+                .map((id) => DropdownMenuItem<String>(value: id, child: Text(id, style: TextStyle(fontSize: 9, color: theme.text))))
+                .toList(),
+            onChanged: (value) {
+              if (value != null) setState(() => selectedCaseId = value);
+            },
+          ),
+        ],
+      ),
       const SizedBox(height: 8),
     ];
     if (reportView == 'text') {
