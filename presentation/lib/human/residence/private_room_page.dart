@@ -386,6 +386,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
               caseReport = Map<String, dynamic>.from(reportBody['combined_report'] as Map);
               status = 'REPORT_READY • TEXT ↔ VISUALIZATION • CHARACTER REPORTS PRESERVED';
             });
+            await _persist('case_report_ready');
           }
         }
       } catch (_) {
