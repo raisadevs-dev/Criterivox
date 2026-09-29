@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0.0",
+  "case_id": "CASE-001",
+  "purpose": "Evaluation expectations only. This file is not an answer key and must never be presented as the system's evidence.",
+  "checks": [
+    {
+      "id": "EV-01",
+      "description": "The analysis identifies the supplied evidence conflict between E-04 and E-06.",
+      "type": "presence",
+      "target": "conflict"
+    },
+    {
+      "id": "EV-02",
+      "description": "The analysis preserves uncertainty for E-04 and E-08 rather than converting them into facts.",
+      "type": "preservation",
+      "target": "uncertainty"
+    },
+    {
+      "id": "EV-03",
+      "description": "The result records which evidence and artifacts support its comparison.",
+      "type": "provenance",
+      "target": "report"
+    },
+    {
+      "id": "EV-04",
+      "description": "A human can inspect the comparison and challenge an assumption without changing the original source evidence.",
+      "type": "interaction",
+      "target": "human_intervention"
+    }
+  ]
+}
