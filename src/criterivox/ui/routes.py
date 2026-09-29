@@ -187,6 +187,13 @@ async def human_situation_understand(request: Request):
     except Exception as exc:
         return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=502)
 
+@router.get('/api/human-residence/cases')
+async def human_residence_cases(session_token: str):
+    if human_residence_local.owner_for_session(session_token) is None:
+        return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    from ..application.case_catalog import available_cases
+    return {'accepted': True, 'cases': available_cases()}
+
 @router.post('/api/human-residence/case-report')
 async def human_residence_case_report(payload: dict):
     """Run the inspectable case-report layer from an existing residence intake."""
