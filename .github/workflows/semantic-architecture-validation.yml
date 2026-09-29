@@ -21,18 +21,27 @@ on:
 jobs:
   python:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-      - name: Install dependencies
-        run: python -m pip install -e ".[dev]"
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+      - name: Install complete Python environment
+        run: python -m pip install -r requirements.txt
+      - name: Verify dependency consistency
+        run: python -m pip check
       - name: Compile Python
         run: python -m compileall -q src
       - name: Run Python tests
         run: PYTHONPATH=src pytest --import-mode=importlib -q
+      - name: Verify ML/NLP dependency boundary
+        run: |
+          python -c "import numpy, sklearn, joblib, datasets; print('ML dependencies import successfully')"
+          python -c "import fastapi, pydantic, pydantic_settings; print('Runtime dependencies import successfully')"
+          python -c "import importlib.util; assert importlib.util.find_spec('nltk') is None; assert importlib.util.find_spec('spacy') is None; assert importlib.util.find_spec('transformers') is None; assert importlib.util.find_spec('torch') is None; print('No undeclared NLP/LLM stack detected')"
 
   flutter:
     runs-on: ubuntu-latest
@@ -48,25 +57,9 @@ jobs:
           cache: true
       - name: Pub get
         run: flutter pub get
+      - name: Verify dependency graph
+        run: flutter pub deps --style=compact
       - name: Analyze
         run: flutter analyze
       - name: Tests
         run: flutter test
-
-# CI trigger: validate current semantic-architecture-refactor head.\n# Triggered after the final migration/runtime repair pass.
-
-# trigger repair CI 2026-09-29
-
-# retrigger after Bodhex boundary fix
-
-# retrigger after Bodhex facade fix
-
-# CI retrigger: Bodhex governed classifier repair
-
-# CI retrigger: classifier + civilization syntax repair
-
-# CI retrigger: final civilization closure repair
-
-# CI retrigger: final Dart closure repair
-
-# CI retrigger: analyzer cleanup
