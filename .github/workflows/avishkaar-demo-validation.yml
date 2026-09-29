@@ -8,6 +8,7 @@ on:
       - 'src/**'
       - 'tests/**'
       - 'presentation/**'
+      - 'src/criterivox/application/global_chat.py'
       - 'packages/avishkaar_demo/**'
       - 'pyproject.toml'
       - 'requirements*.txt'
