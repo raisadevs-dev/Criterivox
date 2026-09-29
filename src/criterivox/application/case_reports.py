@@ -565,7 +565,7 @@ class CaseReportOrchestrator:
                 capability, ("dharen", "Dharen", capability.replace("_", " ").title())
             )
             item = build_capability(capability)
-            report_id = f"R-{human_id}-{case['case_id']}-{character_id.upper()}"
+            report_id = f"R-{human_id}-{case['case_id']}-{character_id.upper()}-{capability.upper().replace('_', '-')}"
             report = {
                 "schema_version": "1.0.0",
                 "report_id": report_id,
