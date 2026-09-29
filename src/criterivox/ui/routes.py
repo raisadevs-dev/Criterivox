@@ -203,6 +203,7 @@ async def human_residence_case_report(payload: dict):
             context=str(payload.get('context', '')).strip(),
             foundation=foundation,
             decision_id=str(payload.get('decision_id', '')).strip() or None,
+            case_id=str(payload.get('case_id', 'CASE-001')).strip() or 'CASE-001',
         )
         return {'accepted': True, **result}
     except (ValueError, TypeError) as exc:
