@@ -1,34 +1,34 @@
 {
   "schema_version": "1.1.0",
   "case_id": "CASE-004",
-  "human_id": "CR-004",
+  "human_id": "CR-27",
   "title": "Hypothesis Exploration",
   "goal": "Generate and compare explicit alternatives and hypotheses while preserving rejected or unresolved branches.",
-  "context": "Standardized execution contract. Runtime inputs supplied through Human Residence are authoritative; fixture materials are validation aids, not hidden answers.",
+  "context": "Runtime inputs supplied through Human Residence are authoritative. Package materials are validation fixtures only and never hidden answer keys.",
   "constraints": [
     "Do not invent absent evidence.",
     "Preserve provenance and uncertainty.",
     "Character reports are separate inspectable artifacts.",
-    "Combined reports reference child artifacts rather than replacing them.",
-    "Visualization must be derived from structured report data.",
-    "Human intervention must preserve prior revisions."
+    "Combined reports reference child artifacts.",
+    "Visualization is derived from structured report data.",
+    "Human intervention preserves prior revisions."
   ],
   "inputs": [
     {
       "input_id": "IN-004-01",
       "kind": "text",
-      "label": "Case 004 text material",
+      "label": "Hypothesis Exploration text material",
       "path_or_inline": "materials/text-01",
       "source_role": "goal",
-      "provenance_note": "Runtime may receive this material from Human Residence; the path is a package fixture convention only."
+      "provenance_note": "Fixture path convention; live Human Residence input may replace it."
     },
     {
       "input_id": "IN-004-02",
       "kind": "table_csv",
-      "label": "Case 004 table_csv material",
+      "label": "Hypothesis Exploration table_csv material",
       "path_or_inline": "materials/table_csv-02",
       "source_role": "evidence",
-      "provenance_note": "Runtime may receive this material from Human Residence; the path is a package fixture convention only."
+      "provenance_note": "Fixture path convention; live Human Residence input may replace it."
     }
   ],
   "execution": {
