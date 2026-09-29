@@ -732,6 +732,9 @@ class OperationEngine:
         ):
             return "SHOW_PLAN", Op.EXPLAIN, {}
 
+        if "prepare an action" in low:
+            return "ACTION_PREPARATION", Op.EXECUTE, {"raw_target": text}
+
         if "action contract" in low:
             return "SHOW_CONTRACT", Op.EXPLAIN, {}
 
