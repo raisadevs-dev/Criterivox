@@ -179,6 +179,7 @@ async def human_situation_understand(request: Request):
             supplied_data=supplied_data,
             context=context,
             allow_external_research=bool(payload.get('allow_external_research', False)),
+            case_id=str(payload.get('case_id', 'CASE-010')).strip() or 'CASE-010',
             foundation_id=str(payload.get('foundation_id', '')).strip() or None,
         )
         return {'accepted': True, **result}
@@ -263,6 +264,7 @@ async def human_residence_decision(payload: dict):
             'trace': result.trace,
             'research': result.research,
             'foundation_id': result.foundation_id,
+            'case_id': result.strategy.get('case_id'),
         }
     except PermissionError as exc:
         return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=401)
