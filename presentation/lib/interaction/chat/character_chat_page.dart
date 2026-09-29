@@ -37,6 +37,7 @@ class CharacterChatPage extends StatefulWidget {
   ) onSend;
 
   final VoidCallback onOpenTask;
+  final void Function(String homeId, String? characterId)? onOpenReportHome;
   final ValueChanged<bool>? onConfirmInterpretation;
 
   const CharacterChatPage({
@@ -48,6 +49,7 @@ class CharacterChatPage extends StatefulWidget {
     required this.onSelectAgent,
     required this.onSend,
     required this.onOpenTask,
+    this.onOpenReportHome,
     this.onConfirmInterpretation,
   });
 
@@ -428,6 +430,8 @@ class _CharacterChatPageState
                   onAttach: _attach,
                   onOpenTask:
                       widget.onOpenTask,
+                  onOpenReportHome:
+                      widget.onOpenReportHome,
                   onConfirmInterpretation:
                       widget.onConfirmInterpretation,
                   onSelectAgent:
@@ -574,6 +578,7 @@ class _Conversation extends StatelessWidget {
   final VoidCallback onSend;
   final VoidCallback onAttach;
   final VoidCallback onOpenTask;
+  final void Function(String homeId, String? characterId)? onOpenReportHome;
   final ValueChanged<bool>? onConfirmInterpretation;
 
   final ValueChanged<String> onSelectAgent;
@@ -593,6 +598,7 @@ class _Conversation extends StatelessWidget {
     required this.onChoice,
     required this.onAttach,
     required this.onOpenTask,
+    this.onOpenReportHome,
     this.onConfirmInterpretation,
     required this.onSelectAgent,
     required this.showPicker,
