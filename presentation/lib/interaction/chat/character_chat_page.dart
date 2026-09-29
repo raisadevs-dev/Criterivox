@@ -594,7 +594,6 @@ class _Conversation extends StatelessWidget {
     required this.onAttach,
     required this.onOpenTask,
     this.onConfirmInterpretation,
-    this.onOpenReportHome,
     required this.onSelectAgent,
     required this.showPicker,
   });
