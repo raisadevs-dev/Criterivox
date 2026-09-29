@@ -38,6 +38,9 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
   bool secondFactor = false;
 
   String status = 'PRIVATE_ROOM_READY';
+  String? foundationId;
+  Map<String, dynamic>? caseReport;
+  String reportView = 'text';
 
   List<String> options = const [];
   List<String> challenges = const [];
@@ -288,7 +291,10 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
         body: jsonEncode({'collection_id': residence?.residenceId, 'sources': encoded, 'supplied_context': {'goal': goal.text.trim(), 'context': contextCtl.text.trim()}}),
       ).timeout(const Duration(seconds: 12));
       if (response.statusCode < 200 || response.statusCode >= 300) throw Exception('intake rejected');
+      final body = jsonDecode(response.body);
+      final newFoundationId = body is Map ? body['foundation_id']?.toString() : null;
       setState(() {
+        foundationId = newFoundationId ?? foundationId;
         materials.addAll(result.files.map((file) => <String, dynamic>{'name': file.name, 'size': file.size, 'extension': file.extension, 'source': 'human-residence'}));
         status = 'MATERIALS_RECEIVED • Python Data Foundation created';
       });
@@ -350,10 +356,36 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
         trace = decoded['trace'] is List ? decoded['trace'].whereType<Map>().map((item) => Map<String, dynamic>.from(item)).toList() : <Map<String, dynamic>>[];
         research = decoded['research'] is Map ? Map<String, dynamic>.from(decoded['research'] as Map) : null;
         decisionId = decoded['decision_id']?.toString();
+        foundationId = decoded['foundation_id']?.toString() ?? foundationId;
         running = false;
         status = research != null ? 'RESEARCH_COMPLETE • evidence attached to decision trace' : 'DECISION_READY • challenge before acceptance';
       });
       await _persist('decision_pipeline_complete');
+      try {
+        final reportResponse = await http.post(
+          CriterivoxApi.uri('/api/human-residence/case-report'),
+          headers: const {'content-type': 'application/json'},
+          body: jsonEncode({
+            'session_token': token,
+            'residence_id': residence!.residenceId,
+            'task': goal.text.trim(),
+            'context': contextCtl.text.trim(),
+            'foundation_id': foundationId,
+            'decision_id': decisionId,
+          }),
+        ).timeout(const Duration(seconds: 30));
+        final reportBody = jsonDecode(reportResponse.body);
+        if (reportResponse.statusCode >= 200 && reportResponse.statusCode < 300 && reportBody is Map) {
+          if (mounted) {
+            setState(() {
+              caseReport = Map<String, dynamic>.from(reportBody['combined_report'] as Map);
+              status = 'REPORT_READY • TEXT ↔ VISUALIZATION • CHARACTER REPORTS PRESERVED';
+            });
+          }
+        }
+      } catch (_) {
+        if (mounted) setState(() => status = 'DECISION_READY • REPORT_LAYER_RETRY_REQUIRED');
+      }
     } catch (e) {
       if (mounted) setState(() { running = false; status = 'DECISION_PIPELINE_FAILED • $e'; });
     }
@@ -581,6 +613,9 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
           const SizedBox(height: 14),
           _pareto(theme),
           const SizedBox(height: 14),
+          _caseReportPanel(theme),
+          _caseCharacterReports(theme),
+          const SizedBox(height: 14),
           _challengeBench(theme),
           const SizedBox(height: 14),
           _actGate(theme),
@@ -791,6 +826,76 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
       ),
       visualDensity: VisualDensity.compact,
     );
+  }
+
+  Widget _caseReportPanel(CriterivoxTheme theme) {
+    final report = caseReport;
+    if (report == null) return const SizedBox.shrink();
+    final sections = report['sections'] is List ? (report['sections'] as List).whereType<Map>().toList() : <Map>[];
+    final children = <Widget>[
+      Row(
+        children: [
+          Expanded(child: Text('3 • COMBINED TASK REPORT', style: TextStyle(color: theme.text, fontWeight: FontWeight.w800, fontSize: 11))),
+          SegmentedButton<String>(
+            segments: const [
+              ButtonSegment(value: 'text', label: Text('Text')),
+              ButtonSegment(value: 'visualization', label: Text('Visualization')),
+            ],
+            selected: <String>{reportView},
+            onSelectionChanged: (v) => setState(() => reportView = v.first),
+          ),
+        ],
+      ),
+      const SizedBox(height: 10),
+      Text('${report['human_id'] ?? 'CR-27'} · ${report['title'] ?? 'Research Strategy'}',
+          style: TextStyle(color: theme.primary, fontWeight: FontWeight.w800, fontSize: 13)),
+      const SizedBox(height: 8),
+    ];
+    if (reportView == 'text') {
+      children.addAll(sections.map((section) => Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('${section['title'] ?? ''}', style: TextStyle(color: theme.text, fontWeight: FontWeight.w700, fontSize: 10)),
+          const SizedBox(height: 3),
+          Text('${section['text'] ?? ''}', style: TextStyle(color: theme.mutedText, fontSize: 9.5, height: 1.35)),
+        ]),
+      )));
+    } else {
+      final alternatives = sections.firstWhere((s) => s['section_id'] == 'alternatives', orElse: () => <String, dynamic>{});
+      final visualization = alternatives['visualization'];
+      final raw = visualization is Map ? visualization['data'] : null;
+      final rows = raw is List ? raw.whereType<Map>().toList() : <Map>[];
+      if (rows.isNotEmpty) {
+        children.addAll(rows.map((row) => Padding(
+          padding: const EdgeInsets.only(bottom: 7),
+          child: Row(children: [
+            SizedBox(width: 90, child: Text('${row['label'] ?? ''}', style: TextStyle(color: theme.text, fontSize: 9, fontWeight: FontWeight.w700))),
+            Expanded(child: Text('${row['evidence'] ?? ''}', style: TextStyle(color: theme.mutedText, fontSize: 9))),
+          ]),
+        )));
+      }
+      children.add(const SizedBox(height: 8));
+      children.add(Text('Derived from report artifacts, not a second data source.', style: TextStyle(color: theme.mutedText, fontSize: 8.5)));
+    }
+    return _panel(theme, 'REPORT VIEW', Column(crossAxisAlignment: CrossAxisAlignment.start, children: children));
+  }
+
+  Widget _caseCharacterReports(CriterivoxTheme theme) {
+    final report = caseReport;
+    if (report == null) return const SizedBox.shrink();
+    final refs = report['child_report_refs'] is List ? (report['child_report_refs'] as List).map((e) => '$e').toList() : <String>[];
+    return _panel(theme, 'CHARACTER REPORTS', Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text('Independent reports preserved for inspection.', style: TextStyle(color: theme.mutedText, fontSize: 9.5)),
+      const SizedBox(height: 8),
+      ...refs.map((id) => ListTile(
+        dense: true,
+        contentPadding: EdgeInsets.zero,
+        leading: const Icon(Icons.description_outlined, size: 18),
+        title: Text(id, style: TextStyle(color: theme.text, fontSize: 10, fontWeight: FontWeight.w700)),
+        subtitle: Text(id == 'R-CR27-VIVREN' ? 'Vivren · Critical Review' : 'Tarkis · Alternative Exploration',
+          style: TextStyle(color: theme.mutedText, fontSize: 8.5)),
+      )),
+    ]));
   }
 
   Widget _pareto(CriterivoxTheme theme) {
