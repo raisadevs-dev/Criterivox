@@ -681,6 +681,18 @@ class _ShellState extends State<CriterivoxShell> {
                       });
                       open('workspace');
                     },
+                    onOpenReportHome: (homeId, characterId) {
+                      setState(() {
+                        chatOverlayOpen = false;
+                        civilizationHome = homeId;
+                        focusedCharacter = characterId;
+                      });
+                      if (characterId != null) {
+                        open('character-focus');
+                      } else {
+                        open('home-preview');
+                      }
+                    },
                     onConfirmInterpretation: (accepted) {
                       final id = state?.inputConfirmationId;
                       if (id != null) {
