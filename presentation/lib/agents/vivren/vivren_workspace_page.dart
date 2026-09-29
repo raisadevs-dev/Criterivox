@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../workspaces/reasoning/environment_page.dart';
+import '../character_report_inspection.dart';
 class VivrenWorkspacePage extends StatelessWidget {
   final String? sessionId;
   const VivrenWorkspacePage({super.key,this.sessionId});
@@ -8,6 +9,6 @@ class VivrenWorkspacePage extends StatelessWidget {
       Icon(Icons.psychology_alt_outlined),SizedBox(width:10),Expanded(child:Text('VIVREN · CRITICAL REASONING',style:TextStyle(fontSize:13,fontWeight:FontWeight.w900,letterSpacing:1.2))),
       Text('6 inspection surfaces',style:TextStyle(fontSize:9,color:Colors.white54)),
     ])),
-    Expanded(child:S7EnvironmentPage(key:const ValueKey('vivren-s7-environment'),sessionId:sessionId)),
+    Expanded(child:Column(children:[CharacterReportInspection(reportId:'R-CR27-VIVREN',characterName:'Vivren'),Expanded(child:S7EnvironmentPage(key:const ValueKey('vivren-s7-environment'),sessionId:sessionId))])),
   ]);
 }
