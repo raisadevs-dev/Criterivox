@@ -172,6 +172,11 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     };
 
     base['results_journal'] = journal;
+    base['foundation_id'] = foundationId;
+    base['decision_id'] = decisionId;
+    base['case_execution_id'] = caseReport?['execution_id'];
+    base['case_report_id'] = caseReport?['report_id'];
+    base['case_child_report_refs'] = caseReport?['child_report_refs'];
 
     return base;
   }
