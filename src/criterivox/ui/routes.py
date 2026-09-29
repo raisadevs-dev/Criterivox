@@ -218,6 +218,22 @@ async def human_residence_case_report(payload: dict):
     except Exception as exc:
         return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=502)
 
+@router.post('/api/human-residence/case-report/{execution_id}/challenge')
+async def human_residence_case_report_challenge(execution_id: str, payload: dict):
+    owner_id = human_residence_local.owner_for_session(str(payload.get('session_token', '')))
+    if owner_id is None:
+        return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    try:
+        from ..application.case_reports import case_report_orchestrator
+        result = case_report_orchestrator.challenge(
+            execution_id=execution_id,
+            text=str(payload.get('text', '')).strip(),
+            actor='human',
+        )
+        return {'accepted': True, **result}
+    except ValueError as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=400)
+
 @router.get('/api/human-residence/case-report/{report_id}')
 async def human_residence_case_report_get(report_id: str, session_token: str):
     if human_residence_local.owner_for_session(session_token) is None:
