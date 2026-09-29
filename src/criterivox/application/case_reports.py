@@ -126,7 +126,10 @@ class CaseReportOrchestrator:
             raise ValueError("task is required")
 
         case = load_case(case_id)
-        if case["case_id"] != "CASE-001":
+        # All ten cases use the same standardized dynamic execution contract.
+        # The legacy CASE-001 implementation remains below only as historical code
+        # and is intentionally unreachable.
+        if True:
             return self._execute_standard_case(case=case, task=task, context=context, foundation=foundation, decision_id=decision_id)
         execution_id = decision_id or f"RUN-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')}"
         foundation = foundation or self._foundation_from_text(task, context)
