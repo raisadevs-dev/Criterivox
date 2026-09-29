@@ -1,0 +1,105 @@
+{
+  "schema_version": "1.1.0",
+  "case_id": "CASE-010",
+  "human_id": "CR-010",
+  "title": "End-to-End Case",
+  "goal": "Exercise the complete case boundary from human input through foundation, capability execution, character reports, combined report, visualization, and intervention.",
+  "context": "Standardized execution contract. Runtime inputs supplied through Human Residence are authoritative; fixture materials are validation aids, not hidden answers.",
+  "constraints": [
+    "Do not invent absent evidence.",
+    "Preserve provenance and uncertainty.",
+    "Character reports are separate inspectable artifacts.",
+    "Combined reports reference child artifacts rather than replacing them.",
+    "Visualization must be derived from structured report data.",
+    "Human intervention must preserve prior revisions."
+  ],
+  "inputs": [
+    {
+      "input_id": "IN-010-01",
+      "kind": "text",
+      "label": "Case 010 text material",
+      "path_or_inline": "materials/text-01",
+      "source_role": "goal",
+      "provenance_note": "Runtime may receive this material from Human Residence; the path is a package fixture convention only."
+    },
+    {
+      "input_id": "IN-010-02",
+      "kind": "pdf",
+      "label": "Case 010 pdf material",
+      "path_or_inline": "materials/pdf-02",
+      "source_role": "evidence",
+      "provenance_note": "Runtime may receive this material from Human Residence; the path is a package fixture convention only."
+    },
+    {
+      "input_id": "IN-010-03",
+      "kind": "image",
+      "label": "Case 010 image material",
+      "path_or_inline": "materials/image-03",
+      "source_role": "evidence",
+      "provenance_note": "Runtime may receive this material from Human Residence; the path is a package fixture convention only."
+    },
+    {
+      "input_id": "IN-010-04",
+      "kind": "table_csv",
+      "label": "Case 010 table_csv material",
+      "path_or_inline": "materials/table_csv-04",
+      "source_role": "evidence",
+      "provenance_note": "Runtime may receive this material from Human Residence; the path is a package fixture convention only."
+    },
+    {
+      "input_id": "IN-010-05",
+      "kind": "file",
+      "label": "Case 010 file material",
+      "path_or_inline": "materials/file-05",
+      "source_role": "evidence",
+      "provenance_note": "Runtime may receive this material from Human Residence; the path is a package fixture convention only."
+    }
+  ],
+  "execution": {
+    "profile": "end_to_end",
+    "capability_selection": "dynamic",
+    "human_intervention": true,
+    "revision_history": true,
+    "preserve_character_reports": true,
+    "combined_report": true,
+    "report_views": [
+      "text",
+      "visualization"
+    ]
+  },
+  "expected_capabilities": [
+    "context_understanding",
+    "evidence_evaluation",
+    "alternative_exploration",
+    "critical_review",
+    "validation",
+    "explanation",
+    "human_challenge",
+    "report_composition"
+  ],
+  "expected_artifacts": [
+    "foundation",
+    "capability_plan",
+    "character_reports",
+    "combined_report",
+    "visualization_projection",
+    "provenance",
+    "evaluation"
+  ],
+  "evaluation_contract": {
+    "answer_key": false,
+    "checks": [
+      "capability_activation",
+      "provenance",
+      "uncertainty_preservation",
+      "report_completeness",
+      "visualization_consistency",
+      "human_intervention_preservation"
+    ]
+  },
+  "presentation": {
+    "show_human_id": true,
+    "default_report_view": "text",
+    "allow_view_switch": true
+  }
+}
