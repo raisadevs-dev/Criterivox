@@ -73,6 +73,7 @@ _REPORT_PHRASES = (
     "their report",
     "report for",
     "report from",
+    "report",
     "what did you report",
     "what did you find",
 )
