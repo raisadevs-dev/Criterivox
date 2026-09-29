@@ -450,10 +450,8 @@ class CaseReportOrchestrator:
         foundation: DataFoundation | None,
         decision_id: str | None,
     ) -> dict[str, Any]:
-        """Execute CASE-002..CASE-010 through the common case contract."""
-        execution_id = decision_id or (
-            f"RUN-{case['case_id']}-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')}"
-        )
+        """Execute a standardized case with dynamic capability-to-character routing."""
+        execution_id = decision_id or f"RUN-{case['case_id']}-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')}"
         foundation = foundation or self._foundation_from_text(task, context)
         human_id = str(case.get("human_id") or self.HUMAN_ID)
         source_refs = [source.source_id for source in foundation.sources]
@@ -471,101 +469,121 @@ class CaseReportOrchestrator:
         )
 
         capabilities = list(case.get("expected_capabilities") or [])
-        state_runtime.record_event(
-            execution_id, "CAPABILITY_PLAN_CREATED", actor="dharen",
-            provenance={"case_id": case["case_id"], "capabilities": capabilities},
-        )
-
         capability_character = {
-            "context_understanding": ("dharen", "Dharen", "Context Structuring"),
-            "evidence_evaluation": ("medrus", "Medrus", "Evidence Evaluation"),
-            "provenance_tracking": ("sandre", "Sandre", "Data Provenance"),
-            "alternative_exploration": ("tarkis", "Tarkis", "Alternative Exploration"),
-            "hypothesis_generation": ("tarkis", "Tarkis", "Hypothesis Exploration"),
+            "interface_gateway": ("syvax", "Syvax", "Interface Gateway"),
+            "data_foundation": ("sandre", "Sandre", "Data Foundation"),
+            "context_understanding": ("dharen", "Dharen", "Context Understanding"),
+            "environment_construction": ("kaelen", "Kaelen", "Environment Construction"),
             "critical_review": ("vivren", "Vivren", "Critical Review"),
+            "insight_generation": ("bodhex", "Bodhex", "Insight Generation"),
+            "hypothesis_generation": ("tarkis", "Tarkis", "Hypothesis Generation"),
+            "alternative_exploration": ("tarkis", "Tarkis", "Alternative Exploration"),
+            "decision_planning": ("pramon", "Pramon", "Decision Planning"),
             "comparison": ("pramon", "Pramon", "Decision Comparison"),
             "validation": ("veridat", "Veridat", "Validation"),
             "verification": ("veridat", "Veridat", "Verification"),
+            "adaptive_refinement": ("anuka", "Anuka", "Adaptive Refinement"),
+            "revision": ("anuka", "Anuka", "Revision"),
             "explanation": ("epistre", "Epistre", "Explanation"),
             "human_challenge": ("manis", "Manis", "Human Challenge"),
-            "revision": ("anuka", "Anuka", "Adaptive Revision"),
+            "evidence_evaluation": ("medrus", "Medrus", "Evidence Evaluation"),
+            "oversight": ("viveda", "Viveda", "Oversight"),
             "transfer": ("anukor", "Anukor", "Context Transfer"),
-            "report_composition": ("syvax", "Syvax", "Presentation Composition"),
+            "report_composition": ("syvax", "Syvax", "Report Composition"),
         }
 
-        def build_capability(capability: str) -> dict[str, Any]:
-            rows = canonical[:10]
-            if capability == "context_understanding":
-                text = (
-                    f"The task contains {len(task.strip())} characters and the supplied context contains "
-                    f"{len(context.strip())} characters. The foundation contains {len(source_refs)} source(s) "
-                    f"and {len(canonical)} canonical row(s)."
-                )
-                semantic = "context"
-                data = {"task_present": bool(task.strip()), "context_present": bool(context.strip()), "source_count": len(source_refs)}
-            elif capability in {"evidence_evaluation", "provenance_tracking", "validation", "verification"}:
-                text = (
-                    f"Review scope contains {len(source_refs)} source reference(s) and {len(canonical)} canonical "
-                    "row(s). No unsupported claim is promoted to a verified fact by this case boundary."
-                )
-                semantic = "validation"
-                data = {"source_count": len(source_refs), "canonical_row_count": len(canonical), "status": "inspectable"}
-            elif capability in {"alternative_exploration", "hypothesis_generation", "comparison"}:
-                text = f"{len(rows)} supplied canonical row(s) are available as candidate comparison material. The runtime does not invent candidate values."
-                semantic = "alternatives" if capability != "comparison" else "comparison"
-                data = {"candidates": rows}
-            elif capability == "critical_review":
-                text = "Critical review is represented as an inspectable evaluation stage; unsupported conclusions remain unresolved."
-                semantic = "evaluation"
-                data = {"review_status": "inspectable", "unresolved_items": max(0, 1 if not canonical else 0)}
-            elif capability == "explanation":
-                text = "The explanation is grounded in the executed capability plan, source references, artifacts, and explicit limitations."
-                semantic = "reasoning_summary"
-                data = {"capabilities": capabilities, "source_refs": source_refs}
-            elif capability == "human_challenge":
-                text = "A human challenge is an intervention artifact. It does not mutate the original source evidence."
-                semantic = "human_intervention"
-                data = {"preserves_original": True, "revision_supported": True}
-            elif capability == "revision":
-                text = "Revision is available as a new report revision; the prior report remains preserved."
-                semantic = "result"
-                data = {"preserves_prior_revision": True}
-            elif capability == "transfer":
-                text = "Context transfer requires an existing artifact and applicability evidence. No transfer claim is asserted without those inputs."
-                semantic = "uncertainty"
-                data = {"status": "requires_applicability_check"}
-            else:
-                text = f"Capability {capability} was selected by the standardized case contract."
-                semantic = "activity"
-                data = {"capability": capability}
-
+        def capability_item(capability: str) -> dict[str, Any]:
             artifact_id = f"ART-{case['case_id']}-{capability.upper().replace('_', '-')}"
-            visualization = {
-                "type": (
-                    "comparison" if semantic in {"alternatives", "comparison"} else
-                    "validation" if semantic == "validation" else
-                    "activity_map" if semantic == "activity" else
-                    "provenance_flow" if semantic in {"context", "reasoning_summary"} else
-                    "workflow"
-                ),
-                "label": capability.replace("_", " ").title(),
-                "description": "Derived from the same structured report artifact as the text view.",
-                "derived_from": [artifact_id],
-                "available": True,
-                "accessibility_label": text[:180],
-                "data": data,
+            if capability == "context_understanding":
+                text = f"Structured the supplied task/context boundary across {len(source_refs)} source(s) and {len(canonical)} canonical row(s)."
+                semantic = "context"
+            elif capability in {"data_foundation", "evidence_evaluation", "validation", "verification", "provenance_tracking"}:
+                text = f"Inspected {len(source_refs)} source reference(s) and {len(canonical)} canonical row(s); unsupported material remains unverified."
+                semantic = "validation"
+            elif capability in {"alternative_exploration", "hypothesis_generation", "comparison"}:
+                text = f"Preserved {min(len(canonical), 10)} supplied candidate row(s) for exploration without inventing candidate values."
+                semantic = "alternatives"
+            elif capability == "critical_review":
+                text = "Retained an inspectable critical-review stage and explicit unresolved items rather than silently resolving ambiguity."
+                semantic = "evaluation"
+            elif capability == "insight_generation":
+                text = "Produced an inspectable insight artifact grounded in the supplied evidence boundary; it is not presented as a verified fact."
+                semantic = "reasoning_summary"
+            elif capability == "decision_planning":
+                text = "Constructed a transparent planning artifact from the selected capability path without claiming that a decision has been made for the human."
+                semantic = "result"
+            elif capability == "interface_gateway":
+                text = "Recorded the Human Residence request as the presentation-layer entry point for this execution."
+                semantic = "activity"
+            elif capability == "environment_construction":
+                text = "Recorded the execution environment and presentation boundary needed for the selected case."
+                semantic = "activity"
+            elif capability == "adaptive_refinement":
+                text = "Marked adaptive refinement as conditional and attached it to an explicit case capability contract."
+                semantic = "result"
+            elif capability == "explanation":
+                text = "Prepared a human-inspectable explanation grounded in executed capabilities, artifacts, provenance, and limitations."
+                semantic = "reasoning_summary"
+            elif capability == "human_challenge":
+                text = "Reserved a human-intervention artifact that preserves the original result and can trigger a revision."
+                semantic = "human_intervention"
+            elif capability == "oversight":
+                text = "Recorded an oversight boundary for provenance, uncertainty, intervention, and report integrity."
+                semantic = "validation"
+            elif capability == "transfer":
+                text = "Recorded context-transfer applicability as conditional; no transfer claim is asserted without an applicability check."
+                semantic = "uncertainty"
+            else:
+                text = f"Executed standardized capability contract: {capability}."
+                semantic = "activity"
+            viz_type = "workflow" if semantic in {"activity","result"} else "validation" if semantic == "validation" else "comparison" if semantic == "alternatives" else "provenance_flow" if semantic in {"context","reasoning_summary"} else "workflow"
+            return {
+                "artifact_id": artifact_id,
+                "text": text,
+                "semantic": semantic,
+                "visualization": {
+                    "type": viz_type,
+                    "label": capability.replace("_", " ").title(),
+                    "description": "Derived from the same structured report artifact as the text view.",
+                    "derived_from": [artifact_id],
+                    "available": True,
+                    "accessibility_label": text[:180],
+                    "data": {"capability": capability, "source_refs": source_refs},
+                },
             }
-            return {"artifact_id": artifact_id, "text": text, "semantic": semantic, "visualization": visualization}
 
-        reports = []
-        report_refs = []
-        artifact_refs = []
+        # One report per participating character; multiple capabilities for the same
+        # character become separate report sections instead of duplicate identities.
+        grouped: dict[str, dict[str, Any]] = {}
         for capability in capabilities:
             character_id, character_name, title = capability_character.get(
                 capability, ("dharen", "Dharen", capability.replace("_", " ").title())
             )
-            item = build_capability(capability)
-            report_id = f"R-{human_id}-{case['case_id']}-{character_id.upper()}-{capability.upper().replace('_', '-')}"
+            grouped.setdefault(character_id, {
+                "character_id": character_id,
+                "character_name": character_name,
+                "title": title,
+                "items": [],
+            })["items"].append((capability, capability_item(capability)))
+
+        reports = []
+        report_refs = []
+        artifact_refs = []
+        for character_id, group in grouped.items():
+            sections = []
+            character_artifacts = []
+            for capability, item in group["items"]:
+                sections.append({
+                    "section_id": capability,
+                    "title": capability.replace("_", " ").title(),
+                    "semantic_type": item["semantic"],
+                    "text": item["text"],
+                    "artifact_refs": [item["artifact_id"]],
+                    "source_refs": source_refs,
+                    "visualization": item["visualization"],
+                })
+                character_artifacts.append(item["artifact_id"])
+            report_id = f"R-{human_id}-{case['case_id']}-{character_id.upper()}"
             report = {
                 "schema_version": "1.0.0",
                 "report_id": report_id,
@@ -573,33 +591,25 @@ class CaseReportOrchestrator:
                 "human_id": human_id,
                 "internal_task_id": execution_id,
                 "character_id": character_id,
-                "character_name": character_name,
-                "title": title,
+                "character_name": group["character_name"],
+                "title": group["title"],
                 "status": "complete",
-                "summary": item["text"],
-                "sections": [{
-                    "section_id": capability,
-                    "title": title,
-                    "semantic_type": item["semantic"],
-                    "text": item["text"],
-                    "artifact_refs": [item["artifact_id"]],
-                    "source_refs": source_refs,
-                    "visualization": item["visualization"],
-                }],
-                "artifact_refs": [item["artifact_id"]],
+                "summary": f"{group['character_name']} executed {len(group['items'])} selected capability contract(s).",
+                "sections": sections,
+                "artifact_refs": character_artifacts,
                 "source_refs": source_refs,
                 "child_report_refs": [],
                 "provenance": {
                     "input_refs": source_refs,
-                    "artifact_refs": [item["artifact_id"]],
-                    "generated_from": [case["case_id"], capability],
+                    "artifact_refs": character_artifacts,
+                    "generated_from": [case["case_id"], *[c for c, _ in group["items"]]],
                 },
                 "views": {"text": True, "visualization": True},
             }
             self.store.save(report, execution_id)
             reports.append(report)
             report_refs.append(report_id)
-            artifact_refs.append(item["artifact_id"])
+            artifact_refs.extend(character_artifacts)
 
         state_runtime.record_event(
             execution_id, "CHARACTER_REPORTS_READY", actor="dharen",
@@ -613,10 +623,7 @@ class CaseReportOrchestrator:
             "internal_task_id": execution_id,
             "title": case["title"],
             "status": "complete",
-            "summary": (
-                f"{case['title']} executed through {len(capabilities)} selected capability contract(s). "
-                "Character reports and their provenance remain independently inspectable."
-            ),
+            "summary": f"{case['title']} executed through {len(capabilities)} selected capability contract(s) across {len(reports)} participating character report(s).",
             "sections": [{
                 "section_id": "execution",
                 "title": "Execution",
@@ -630,7 +637,7 @@ class CaseReportOrchestrator:
                     "description": "Derived from the selected capability artifacts.",
                     "derived_from": artifact_refs or [f"ART-{case['case_id']}-EMPTY"],
                     "available": bool(artifact_refs),
-                    "accessibility_label": f"{len(capabilities)} selected capabilities.",
+                    "accessibility_label": f"{len(capabilities)} selected capabilities across {len(reports)} character reports.",
                     "data": {"capabilities": capabilities, "report_refs": report_refs},
                 },
             }],
