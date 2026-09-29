@@ -50,3 +50,5 @@ jobs:
         run: dart format --output=none lib/human/residence/private_room_page.dart
       - run: flutter analyze
       - run: flutter test
+
+# Validation workflow intentionally runs on every branch update in this demo branch.
