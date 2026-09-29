@@ -319,6 +319,7 @@ class _CivilizationPageState extends State<CivilizationPage> {
           ],
         ),
       ),
+      ),
     );
   }
 
@@ -516,8 +517,7 @@ class _WorldLighting extends StatelessWidget {
           ),
         ),
       ),
-    ),
-  );
+    );
   }
 }
 
