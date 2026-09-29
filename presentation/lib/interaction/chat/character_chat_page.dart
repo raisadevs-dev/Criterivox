@@ -38,6 +38,7 @@ class CharacterChatPage extends StatefulWidget {
 
   final VoidCallback onOpenTask;
   final ValueChanged<bool>? onConfirmInterpretation;
+  final void Function(String homeId, String? characterId)? onOpenReportHome;
 
   const CharacterChatPage({
     super.key,
@@ -49,6 +50,7 @@ class CharacterChatPage extends StatefulWidget {
     required this.onSend,
     required this.onOpenTask,
     this.onConfirmInterpretation,
+    this.onOpenReportHome,
   });
 
   @override
@@ -575,6 +577,7 @@ class _Conversation extends StatelessWidget {
   final VoidCallback onAttach;
   final VoidCallback onOpenTask;
   final ValueChanged<bool>? onConfirmInterpretation;
+  final void Function(String homeId, String? characterId)? onOpenReportHome;
 
   final ValueChanged<String> onSelectAgent;
   final ValueChanged<String> onChoice;
@@ -594,6 +597,7 @@ class _Conversation extends StatelessWidget {
     required this.onAttach,
     required this.onOpenTask,
     this.onConfirmInterpretation,
+    this.onOpenReportHome,
     required this.onSelectAgent,
     required this.showPicker,
   });
@@ -750,10 +754,6 @@ class _Conversation extends StatelessWidget {
                     ),
                 ],
               ),
-              if (state?.inputOriginal != null) ...[
-                const SizedBox(height: 12),
-                _InterpretationCard(state: state!, busy: busy, onConfirm: onConfirmInterpretation),
-              ],
               if (operationState != null) ...[
                 const SizedBox(height: 12),
                 _OperationCard(
@@ -789,6 +789,15 @@ class _Conversation extends StatelessWidget {
                   state: state!,
                   onOpen: onOpenTask,
                 ),
+              if (state?.event == 'REPORT_LINK_READY' &&
+                  state?.reportId != null &&
+                  state?.reportHomeId != null) ...[
+                const SizedBox(height: 12),
+                _ReportCard(
+                  state: state!,
+                  onOpen: onOpenReportHome,
+                ),
+              ],
             ],
           ),
         ),
@@ -801,6 +810,51 @@ class _Conversation extends StatelessWidget {
           onAttach: onAttach,
         ),
       ],
+    );
+  }
+}
+
+class _ReportCard extends StatelessWidget {
+  final PresentationState state;
+  final void Function(String homeId, String? characterId)? onOpen;
+
+  const _ReportCard({required this.state, required this.onOpen});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = CriterivoxTheme.of(context);
+    final title = state.reportTitle ?? 'Report';
+    final character = state.reportCharacterId;
+    final home = state.reportHomeId!;
+    final label = character == null
+        ? 'Combined task report'
+        : 'Character report for ' + character;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: t.surfaceStrong,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: t.border),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: TextStyle(color: t.text, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 4),
+                Text(label, style: TextStyle(color: t.mutedText, fontSize: 11)),
+              ],
+            ),
+          ),
+          FilledButton.icon(
+            onPressed: onOpen == null ? null : () => onOpen!(home, character),
+            icon: const Icon(Icons.open_in_new_rounded, size: 16),
+            label: const Text('Open home'),
+          ),
+        ],
+      ),
     );
   }
 }
