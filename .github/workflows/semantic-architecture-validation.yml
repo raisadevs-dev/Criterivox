@@ -64,3 +64,5 @@ jobs:
 # CI retrigger: Bodhex governed classifier repair
 
 # CI retrigger: classifier + civilization syntax repair
+
+# CI retrigger: final civilization closure repair
