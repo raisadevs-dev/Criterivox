@@ -674,6 +674,55 @@ class CaseReportOrchestrator:
             "runtime": {"status": "complete", "events": [e.event_id for e in state_runtime.events(execution_id)]},
         }
 
+    def challenge(self, *, execution_id: str, text: str, actor: str = "human") -> dict[str, Any]:
+        """Create a preserved human-intervention revision without mutating prior reports."""
+        challenge_text = str(text or "").strip()
+        if not challenge_text:
+            raise ValueError("challenge text is required")
+        reports = self.store.execution(execution_id)
+        task_reports = [r for r in reports if r.get("scope") == "task"]
+        if not task_reports:
+            raise ValueError("execution_not_found")
+        original = sorted(task_reports, key=lambda r: r.get("report_id", ""))[-1]
+        revision = int(original.get("revision", 0) or 0) + 1
+        revision_id = f"{original['report_id']}-REV-{revision}"
+        artifact_id = f"ART-{execution_id}-HUMAN-CHALLENGE-{revision}"
+        revised = dict(original)
+        revised["report_id"] = revision_id
+        revised["status"] = "complete"
+        revised["revision"] = revision
+        revised["previous_report_id"] = original["report_id"]
+        revised["sections"] = list(original.get("sections", [])) + [{
+            "section_id": f"human-intervention-{revision}",
+            "title": "Human intervention",
+            "semantic_type": "human_intervention",
+            "text": challenge_text,
+            "artifact_refs": [artifact_id],
+            "source_refs": [],
+            "visualization": {
+                "type": "workflow",
+                "label": "Human intervention",
+                "description": "Challenge is preserved as a first-class revision artifact.",
+                "derived_from": [artifact_id],
+                "available": True,
+                "accessibility_label": "A human challenge was recorded without mutating the prior report.",
+                "data": {"actor": actor, "preserves_original": True, "revision": revision},
+            },
+        }]
+        revised["artifact_refs"] = list(original.get("artifact_refs", [])) + [artifact_id]
+        revised["provenance"] = {
+            **dict(original.get("provenance") or {}),
+            "artifact_refs": revised["artifact_refs"],
+            "generated_from": [original["report_id"], artifact_id],
+            "human_intervention": {"actor": actor, "text": challenge_text, "revision": revision},
+        }
+        self.store.save(revised, execution_id)
+        state_runtime.record_event(
+            execution_id, "HUMAN_CHALLENGE_RECORDED", actor=actor,
+            provenance={"original_report_id": original["report_id"], "revision_report_id": revision_id, "artifact_id": artifact_id},
+        )
+        return {"original_report": original, "revision_report": revised, "preserved": True}
+
     @staticmethod
     def _character_report(
         *,
