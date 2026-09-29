@@ -107,6 +107,12 @@ class PresentationState {
   final String? inputConfirmationStatus;
   final String? inputConfirmationDeadline;
   final String? inputConfirmationId;
+  final String? reportId;
+  final String? reportTitle;
+  final String? reportScope;
+  final String? reportHomeId;
+  final String? reportCharacterId;
+  final Map<String, dynamic>? reportViews;
 
   const PresentationState({
     required this.agentId,
@@ -189,6 +195,12 @@ class PresentationState {
     this.inputConfirmationStatus,
     this.inputConfirmationDeadline,
     this.inputConfirmationId,
+    this.reportId,
+    this.reportTitle,
+    this.reportScope,
+    this.reportHomeId,
+    this.reportCharacterId,
+    this.reportViews,
   });
 
   /// Creates a new state while preserving every existing value unless
@@ -667,6 +679,12 @@ class PresentationState {
       inputConfirmationStatus: optionalString(decoded['input_confirmation_status']),
       inputConfirmationDeadline: optionalString(decoded['input_confirmation_deadline']),
       inputConfirmationId: optionalString(decoded['input_confirmation_id']),
+      reportId: optionalString(decoded['report_id']),
+      reportTitle: optionalString(decoded['report_title']),
+      reportScope: optionalString(decoded['report_scope']),
+      reportHomeId: optionalString(decoded['report_home_id']),
+      reportCharacterId: optionalString(decoded['report_character_id']),
+      reportViews: map(decoded['report_views']),
     );
   }
 
@@ -766,6 +784,12 @@ class PresentationState {
       'input_confirmation_status': inputConfirmationStatus,
       'input_confirmation_deadline': inputConfirmationDeadline,
       'input_confirmation_id': inputConfirmationId,
+      'report_id': reportId,
+      'report_title': reportTitle,
+      'report_scope': reportScope,
+      'report_home_id': reportHomeId,
+      'report_character_id': reportCharacterId,
+      'report_views': reportViews,
     };
   }
 }
