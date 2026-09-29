@@ -35,6 +35,7 @@ class DecisionOrchestrator:
         supplied_data: str,
         context: str,
         allow_external_research: bool,
+        foundation_id: str | None = None,
     ) -> DecisionResult:
         owner_id = human_residence_local.owner_for_session(session_token)
         if owner_id is None:
