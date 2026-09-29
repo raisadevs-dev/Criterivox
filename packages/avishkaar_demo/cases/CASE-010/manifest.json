@@ -68,14 +68,21 @@
     ]
   },
   "expected_capabilities": [
+    "interface_gateway",
+    "data_foundation",
     "context_understanding",
-    "evidence_evaluation",
-    "alternative_exploration",
+    "environment_construction",
     "critical_review",
+    "insight_generation",
+    "hypothesis_generation",
+    "decision_planning",
     "validation",
+    "adaptive_refinement",
     "explanation",
     "human_challenge",
-    "report_composition"
+    "evidence_evaluation",
+    "oversight",
+    "transfer"
   ],
   "expected_artifacts": [
     "foundation",
