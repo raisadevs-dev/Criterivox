@@ -345,6 +345,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
           'data': data.text.trim(),
           'context': contextCtl.text.trim(),
           'allow_external_research': allowExternalResearch,
+          'case_id': selectedCaseId,
         }),
       ).timeout(const Duration(seconds: 30));
       final body = jsonDecode(response.body);
