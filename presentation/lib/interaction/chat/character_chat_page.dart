@@ -49,7 +49,6 @@ class CharacterChatPage extends StatefulWidget {
     required this.onSend,
     required this.onOpenTask,
     this.onConfirmInterpretation,
-    this.onOpenReportHome,
   });
 
   @override
@@ -576,7 +575,6 @@ class _Conversation extends StatelessWidget {
   final VoidCallback onAttach;
   final VoidCallback onOpenTask;
   final ValueChanged<bool>? onConfirmInterpretation;
-  final void Function(String homeId, String? characterId)? onOpenReportHome;
 
   final ValueChanged<String> onSelectAgent;
   final ValueChanged<String> onChoice;
