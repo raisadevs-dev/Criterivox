@@ -1,0 +1,1 @@
+I need to compare three research approaches for a small prototype. I have limited implementation time. I want to understand the evidence, alternatives, uncertainty, and important objections before deciding what to investigate first.
