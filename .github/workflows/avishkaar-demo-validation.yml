@@ -4,15 +4,6 @@ on:
   push:
     branches:
       - avishkaar-demo-data-report-layer
-    paths:
-      - 'src/**'
-      - 'tests/**'
-      - 'presentation/**'
-      - 'src/criterivox/application/global_chat.py'
-      - 'packages/avishkaar_demo/**'
-      - 'pyproject.toml'
-      - 'requirements*.txt'
-      - '.github/workflows/avishkaar-demo-validation.yml'
   workflow_dispatch:
 
 jobs:
