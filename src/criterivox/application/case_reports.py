@@ -103,6 +103,24 @@ class CaseReportStore:
             ).fetchall()
         return [json.loads(row["payload_json"]) for row in rows]
 
+    def latest_character(self, character_id: str) -> dict[str, Any] | None:
+        with self._connect() as db:
+            row = db.execute(
+                "SELECT payload_json FROM case_reports "
+                "WHERE scope='character' AND character_id=? "
+                "ORDER BY updated_at DESC, report_id DESC LIMIT 1",
+                (character_id.strip().lower(),),
+            ).fetchone()
+        return json.loads(row["payload_json"]) if row else None
+
+    def latest_task(self) -> dict[str, Any] | None:
+        with self._connect() as db:
+            row = db.execute(
+                "SELECT payload_json FROM case_reports "
+                "WHERE scope='task' ORDER BY updated_at DESC, report_id DESC LIMIT 1"
+            ).fetchone()
+        return json.loads(row["payload_json"]) if row else None
+
 
 class CaseReportOrchestrator:
     """Connects a live Human Residence task to inspectable character/task reports."""
