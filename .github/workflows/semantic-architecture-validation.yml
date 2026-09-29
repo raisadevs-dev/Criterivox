@@ -62,3 +62,5 @@ jobs:
 # retrigger after Bodhex facade fix
 
 # CI retrigger: Bodhex governed classifier repair
+
+# CI retrigger: classifier + civilization syntax repair
