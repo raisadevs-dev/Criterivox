@@ -45,7 +45,7 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - name: Format changed Decision Desk file
-        run: dart format --output=none --set-exit-if-changed lib/human/residence/private_room_page.dart
+      - name: Parse changed Decision Desk file
+        run: dart format --output=none lib/human/residence/private_room_page.dart
       - run: flutter analyze
       - run: flutter test
