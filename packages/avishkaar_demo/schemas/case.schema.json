@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://criterivox.org/schemas/avishkaar/case.schema.json",
+  "title": "Criterivox Avishkaar Demo Case",
+  "type": "object",
+  "required": ["schema_version", "case_id", "human_id", "title", "goal", "inputs"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "case_id": {"type": "string", "pattern": "^CASE-[0-9]{3,}$"},
+    "human_id": {"type": "string", "pattern": "^CR-[A-Z0-9-]{2,}$"},
+    "title": {"type": "string", "minLength": 1},
+    "goal": {"type": "string", "minLength": 1},
+    "context": {"type": "string"},
+    "constraints": {"type": "array", "items": {"type": "string"}},
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["input_id", "kind", "label", "path_or_inline"],
+        "properties": {
+          "input_id": {"type": "string"},
+          "kind": {"enum": ["text", "pdf", "image", "table_csv", "file"]},
+          "label": {"type": "string"},
+          "mime_type": {"type": "string"},
+          "path_or_inline": {"type": "string"},
+          "description": {"type": "string"},
+          "source_role": {"enum": ["goal", "context", "evidence", "constraint", "reference", "other"]},
+          "provenance_note": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "expected_capabilities": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "presentation": {
+      "type": "object",
+      "properties": {
+        "show_human_id": {"type": "boolean"},
+        "default_report_view": {"enum": ["text", "visualization"]},
+        "allow_view_switch": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
