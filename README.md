@@ -1,195 +1,194 @@
 # Criterivox
 
-Criterivox is a research-driven, context-aware intelligence and decision-support system.
+Criterivox is a research-driven, context-aware, evidence-grounded and inspectable decision-support research prototype.
 
-It began as an application for analysing information with context and gradually evolved into a broader research prototype for traceable, inspectable and human-controlled decision support.
+It is designed around a simple principle: computational support should help a human understand a situation, inspect the relevant evidence and reasoning, challenge or confirm interpretations, and retain explicit authority over consequential decisions.
 
 ## Current Status
 
-**Sprints 1–10 have been crossed.**
+**Current baseline: integrated main.**
 
-The current main branch is the integrated project baseline. Major work from the product shell, character interaction, data foundation, context intelligence, reasoning, XAI/evidence, reusable capability architecture, frontend completion and character-chat/intelligence integration has been consolidated.
+The main branch now contains the consolidated character-capability architecture, semantic architecture refactor, presentation/runtime integration, research instrumentation boundary, and dependency cleanup.
 
-**Current phase: Final Integrated Research Prototype.**
+The repository should be understood as an **implemented research prototype**, not as a claim of general intelligence or universal empirical validation.
 
-The implementation baseline now includes stabilized presentation behavior, multilingual human input handling, interpretation confirmation with a one-minute unattended continuation rule, and consent-aware research instrumentation backed by local SQLite.
+For current implementation authority, see:
 
-## Sprint History
+- `docs/FINAL-INTEGRATED-RESEARCH-PROTOTYPE.md`
+- `docs/PHASE-UI-STABILIZATION-CLOSURE.md`
 
-| Sprint | Focus | Current outcome |
-|---|---|---|
-| **S1** | Product shell + Bloom foundation | User-facing shell, navigation and Bloom foundation established |
-| **S2** | Character-driven interaction + Flutter visual integration | Character interaction and presentation foundation established |
-| **S3** | Application Bloom | Syvax/Bloom connected to the application/runtime boundary |
-| **S4** | Domain Analysis Workspace | Analysis task flow, Python ↔ Flutter path and first functional Dharen runtime integration established |
-| **S5** | Data Foundation + Sandre Data Stewardship | Provenance-aware data foundation, confirmation and stewardship workflow established |
-| **S6** | Context Intelligence | Durable context, transfer, replay, sandboxing, budgeting and Dharen/Anuka context responsibilities established |
-| **S7** | Reasoning Research Bureau | Inspectable reasoning architecture, provenance, intervention and reasoning research surface established |
-| **S8** | XAI / Evidence Research Bureau | Evidence, verification, provenance, integrity and human-facing XAI evaluation boundaries established |
-| **S9** | Capability & Intelligence Architecture | Reusable capabilities, pipelines, routing, execution controls, checkpoints and audit primitives established |
-| **S10** | Integrated baseline + cross-sprint reconciliation | Major architecture/frontend/character-chat/intelligence work consolidated into main; regression baseline restored |
+Historical sprint plans and exploratory architecture documents remain useful as research records, but they are not the authority for current implementation behavior.
 
-Detailed research history is recorded in:
+## System Architecture
 
-docs/research/PROJECT-RESEARCH-JOURNEY-THROUGH-S10.md
+```
+Human Goal / Problem
+        ↓
+Human Residence
+        ↓
+Natural Human Input
+        ↓
+Language + Meaning Intake
+        ↓
+Data / Context / Evidence
+        ↓
+Inspectable Reasoning
+        ↓
+Human Challenge / Confirmation
+        ↓
+Decision / Authorized Action
+        ↓
+Real-world Result
+        ↓
+Outcome / Knowledge / Future Context
+```
 
-## What Criterivox Became
+The architecture separates human-facing interaction from computational capabilities and keeps authorization, evidence, provenance and verification explicit.
 
-Original direction:
+## Character & Capability Architecture
 
-    Human / Information → Analysis → Useful Answer
+Characters are responsibility and interaction surfaces. They are **not** assumed to be independent trained intelligence models.
 
-Current architecture:
+Reusable capabilities are separated from character identity so computational work can be routed, inspected, tested and reused without coupling every capability to a particular character.
 
-    Human Goal / Problem
-            ↓
-    Human Residence
-            ↓
-    Character Interaction / Syvax
-            ↓
-    Data + Provenance
-            ↓
-    Context Intelligence
-            ↓
-    Inspectable Reasoning
-            ↓
-    Evidence / XAI
-            ↓
-    Verification
-            ↓
-    Reusable Capabilities / Pipelines
-            ↓
-    Authorized Execution
-            ↓
-    Result / Audit
-            ↓
-    Knowledge / Adaptation / Future Journey
-            ↓
-    Human Decision
+The integrated main branch includes the character capability bundle together with the semantic runtime architecture and presentation contracts.
 
-The project therefore evolved from a content-analysis/application idea into an integrated research prototype for human decision support.
+## Human Interaction
 
-## What We Learned Beyond the Original Goal
+Criterivox supports natural human input rather than requiring users to learn internal schemas.
 
-1. **Data is not just input.** S5 made source identity, provenance, confirmation, missingness and transformation history part of the downstream foundation.
-2. **Context is not just prompt text.** S6 introduced durable context state, transfer, isolation, replay, adaptation and budgeting boundaries.
-3. **Reasoning needs inspectable artifacts.** S7 established structured reasoning records, dependency/provenance structures and intervention boundaries instead of pretending hidden chain-of-thought is an exposed product artifact.
-4. **Explanations need evidence.** S8 established evidence, verification, provenance and integrity as separate research boundaries.
-5. **Human authority is architectural.** Challenge, approval and consequential-action authority are represented explicitly.
-6. **Characters are responsibility surfaces.** Character identities do not imply fifteen independent trained intelligence models.
-7. **Capabilities should be reusable.** S9 separated reusable computational capabilities from character identities.
-8. **The system became researchable.** The architecture now supports investigation of evidence traceability, explanation understanding, uncertainty comprehension, challenge quality, correction traceability, authorization awareness, context transfer and reasoning inspection.
+The current implementation includes:
 
-## Current Research Position
+- human-facing localization and character-name presentation;
+- natural-language interpretation and confirmation traces;
+- multilingual input handling;
+- heterogeneous material intake;
+- explicit human challenge and confirmation boundaries;
+- a one-minute unattended interpretation continuation rule;
+- human-readable result surfaces;
+- explicit authorization before consequential execution.
 
-The central research direction is:
+When interpretation confirmation receives no response for 60 seconds, the system may continue with the recorded interpretation while marking it `UNCONFIRMED_TIMEOUT`. This preserves both continuity and the fact that the interpretation was not confirmed.
 
-> How can context-aware, evidence-grounded and inspectable computational support help humans make better-informed decisions while preserving human authority?
+## Data, Context, Evidence & Reasoning
 
-The repository contains implementation and evaluation boundaries for this question, but implementation alone does not prove that the system improves human decision-making. Empirical conclusions require appropriate experiments, participants, datasets, measurements and analysis.
+The system treats these as separate architectural concerns:
 
-## Current Verification Baseline
+1. **Data and provenance** preserve source identity, confirmation and transformation history.
+2. **Context intelligence** provides durable context, transfer, isolation, replay and budgeting boundaries.
+3. **Inspectable reasoning** represents reasoning artifacts without exposing or pretending to expose hidden chain-of-thought.
+4. **Evidence and XAI** provide evidence, verification, provenance and integrity boundaries.
+5. **Reusable capabilities** provide computational primitives that can be composed into controlled pipelines.
+6. **Authorized execution** keeps consequential action behind explicit authority boundaries.
 
-**Historical Flutter baseline: 107 passed, 0 failed.**
+Architecture and telemetry are not automatically empirical findings.
 
-That was the pre-final-instrumentation presentation baseline. The current branch has additional runtime, localization and research-instrumentation changes; no fresh CI run is claimed until GitHub Actions reports one.
+## Research Instrumentation
 
-The application previously launched after clearing stale Flutter build state with flutter clean. The final integration changes should be verified in a fresh Flutter/Python environment before a release build is treated as validated.
+Criterivox contains a dedicated consent-aware research instrumentation boundary.
 
-## Final Integration Position
+```
+Criterivox interaction
+        ↓
+Research Instrumentation
+        ├── participant identity
+        ├── consent record
+        ├── session
+        ├── structured interaction events
+        └── optional outcomes
+                 ↓
+        SQLite V1 research store
+```
 
-Known problems currently include:
+Research participation, identifiable participant information, and raw human text use separate consent boundaries. Raw human messages are not retained by default merely because structured interpretation is retained.
 
-- runtime messages containing an unknown character identity;
-- duplicated UI surfaces/components;
-- mismatched component composition;
-- unbalanced visual hierarchy;
-- responsive/layout overflow;
-- reusable components being used where page-specific composition is required;
-- conflicts between global overlays and page-local surfaces.
+The current implementation uses separate Human Residence and Research Instrumentation SQLite stores. The repository boundary is designed so a future authenticated server-backed research store can replace the local implementation without changing the research event vocabulary.
 
-The final integration focuses on:
+## Technology Stack
 
-1. Human-facing localization and character-name presentation
-2. Single canonical Global Chat surface
-3. Natural-language interpretation and confirmation trace
-4. Research instrumentation and consent boundaries
-5. Outcome and improvement-feedback capture
-6. Tests aligned with the final architecture
-7. Documentation aligned with the final implementation
+### Python runtime
 
-Current implementation authority is documented in `docs/FINAL-INTEGRATED-RESEARCH-PROTOTYPE.md`.
+- Python `3.13`
+- FastAPI
+- Pydantic / Pydantic Settings
+- NumPy
+- scikit-learn
+- joblib
+- Hugging Face `datasets` for the ML/data tooling boundary
+- pytest for development and verification
 
-## What Is Not Being Claimed
+Python dependencies are declared in `pyproject.toml`. The repository-level installation entrypoint is:
 
-Criterivox is not being described as:
+```bash
+python -m pip install -r requirements.txt
+```
+
+The requirements file delegates to the project metadata rather than maintaining a second package-version list.
+
+### Flutter presentation
+
+The presentation layer uses Flutter with:
+
+- `web_socket_channel` for WebSocket communication;
+- `http` for HTTP API communication;
+- `file_picker` for material selection;
+- `shared_preferences` and `sqflite` for local persistence;
+- `idb_shim` for browser-compatible local storage;
+- `path` and `crypto` for supporting runtime operations;
+- Flutter's testing and linting tooling.
+
+The Python runtime does not directly depend on `websocket-client` or Python `websockets`; WebSocket transport is provided through the FastAPI/Starlette runtime boundary, while the Flutter client uses `web_socket_channel`.
+
+## Verification Discipline
+
+Criterivox distinguishes:
+
+- **IMPLEMENTED** — present in the codebase/runtime boundary;
+- **VERIFIED** — supported by tests or explicit verification evidence;
+- **RESEARCH QUESTION** — investigated but not empirically settled;
+- **FUTURE** — intentionally deferred;
+- **UNKNOWN** — not established by current evidence.
+
+A test passing does not automatically constitute a research finding. Architecture does not automatically constitute empirical evidence. UI state is not authoritative computational state.
+
+Fresh CI/runtime claims are made only when execution evidence exists.
+
+## What Criterivox Is Not
+
+Criterivox is not being presented as:
 
 - a fully autonomous general intelligence;
 - a universally trained Criterivox model;
 - a production distributed intelligence network;
 - production MCP/external-tool infrastructure;
-- a universal knowledge/skill-learning engine;
+- a universal knowledge or skill-learning engine;
 - a system with universal empirical confidence or explainability thresholds;
 - a completely empirically validated end-to-end civilization.
 
-The project is an implemented research prototype and evolving decision-support architecture with durable foundations for context, inspectable reasoning, evidence/XAI, verification, human challenge, reusable capabilities and controlled execution.
+It is an evolving, implemented research prototype for context-aware, evidence-grounded, inspectable and human-controlled decision support.
 
-## Repository Principle
+## Research Position
 
-The repository distinguishes:
+The central research direction is:
 
-- **IMPLEMENTED** — present in the codebase/runtime boundary;
-- **VERIFIED** — supported by tests or explicit verification evidence;
-- **RESEARCH QUESTION** — investigated but not yet empirically settled;
-- **FUTURE** — intentionally deferred;
-- **UNKNOWN** — not established by current evidence.
+> How can context-aware, evidence-grounded and inspectable computational support help humans make better-informed decisions while preserving human authority?
 
-Architecture is not automatically empirical evidence. Tests are not automatically research findings. UI is not authoritative computational state. Characters are not automatically independent models. Human decision authority remains explicit.
+Answering that question empirically requires appropriate experiments, participants, datasets, measurements and analysis. The repository therefore separates implementation evidence from research conclusions.
 
 ## Project Research Record
 
-The consolidated research journey, including where the project started, what each sprint asked, what was established, what was learned beyond the original plan, current research questions and their evidence status, is maintained in:
+The research journey, including the project's evolution, research questions, implementation boundaries and historical decisions, is maintained in the repository's research documentation.
 
-docs/research/PROJECT-RESEARCH-JOURNEY-THROUGH-S10.md
+The most current implementation authority is:
 
-## Current Position
+`docs/FINAL-INTEGRATED-RESEARCH-PROTOTYPE.md`
 
-**Sprints 1–10: crossed.**
+Historical research records should be read as historical records rather than as guarantees that every planned capability was implemented.
 
-**Current baseline: integrated main.**
+## Main Branch Position
 
-**UI Stabilization: closed.**
+**Integrated main baseline.**
 
-The next work should be a deliberate visual-design pass for the remaining prototype/decorative surfaces, followed by fresh runtime verification before any release claim.
+The character capability bundle and semantic architecture refactor have been merged into main. The repository is now positioned for fresh end-to-end verification of the integrated baseline and subsequent research/runtime work.
 
-## Research Instrumentation
-
-Criterivox includes a consent-aware research instrumentation boundary. It records structured interaction events, optional participant identity, language/interpretation traces and optional outcome reports in a local SQLite research store. Raw human messages require a separate raw-text consent. The instrumentation boundary is designed so the SQLite implementation can later be replaced by a server-backed research repository.
-
-See `docs/FINAL-INTEGRATED-RESEARCH-PROTOTYPE.md` for the current architecture and data boundaries.
-
-
-## UI Stabilization Phase Closure
-
-The UI stabilization phase closed the critical human-flow gaps identified during direct runtime inspection:
-
-- Human Territory now exposes functional local-first sign-up/sign-in and session restoration.
-- Decision Desk has an explicit action that runs the human-situation pipeline and presents the returned strategy/result in a dedicated human-readable result panel.
-- Results Journal reads persisted decision records from the Human Residence decision store.
-- Browser API calls use an explicit Python-backend origin because the managed launcher separates Flutter presentation (8080) from Python runtime (8000).
-- Human situation intake accepts hybrid forms including ordinary text, structured objects/lists, pasted material, form fields, multipart material metadata and plain-text request bodies.
-- JSON is treated as a transport/representation format, not as the required shape of human input.
-- People photos remain contextual only and do not become appearance-based behavioral or identity evidence.
-- Prototype/decorative UI pieces are intentionally retained for a later visual-design pass.
-
-### Phase learning
-
-The key engineering lesson is to keep human input, transport formats, computational normalization and internal capability contracts as separate layers. A human should be able to describe a problem naturally and attach heterogeneous material without learning Criterivox's internal schemas.
-
-A second lesson is that a capability is not complete merely because a route or service exists. The human flow must expose the action, return a comprehensible result, preserve authority, and connect to the next authoritative surface.
-
-A third lesson is that split local runtimes require an explicit browser-to-backend API boundary. Relative browser API paths are not safe when presentation and backend intentionally use different ports.
-
-Closure details are recorded in docs/PHASE-UI-STABILIZATION-CLOSURE.md.
-
-**Verification discipline:** implementation and tests are committed separately from claims of fresh local runtime execution. No passing Flutter/Python run is claimed unless execution evidence exists.
+No release-readiness claim is implied by the merge itself. Software, in its natural habitat, still needs to be run before anyone is allowed to become confident.
