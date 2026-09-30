@@ -217,7 +217,7 @@ pause
     Write-LauncherLog 'PASS: Backend health is ready.'
 
     Write-LauncherLog "Starting Flutter presentation in Chrome using $FlutterEntryPoint"
-    $FlutterCommandLine = """$FlutterExecutable"" run -d chrome --web-port $WebPort -t ""$FlutterEntryPoint"" > ""$FlutterLog"" 2> ""$FlutterErrorLog"""
+    $FlutterCommandLine = """$FlutterExecutable" run -d chrome --web-port $WebPort -t ""$FlutterEntryPoint"" --dart-define=CRITERIVOX_BACKEND_HOST=127.0.0.1 --dart-define=CRITERIVOX_BACKEND_PORT=$Port --dart-define=CRITERIVOX_BACKEND_URL=$BackendUrl > ""$FlutterLog"" 2> ""$FlutterErrorLog"""""
     $FlutterProcess = Start-Process -FilePath 'cmd.exe' -ArgumentList @('/d','/c',$FlutterCommandLine) -WorkingDirectory $PresentationRoot -PassThru
     Write-LauncherLog "Flutter process started. PID=$($FlutterProcess.Id)"
     Write-LauncherLog "Presentation target: $PresentationUrl"
