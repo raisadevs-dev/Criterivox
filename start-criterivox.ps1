@@ -8,70 +8,33 @@ $BackendLog = Join-Path $DiagnosticsRoot 'python-runtime.log'
 $BackendErrorLog = Join-Path $DiagnosticsRoot 'python-runtime-error.log'
 $FlutterLog = Join-Path $DiagnosticsRoot 'flutter-runtime.log'
 $FlutterErrorLog = Join-Path $DiagnosticsRoot 'flutter-runtime-error.log'
+$BackendTerminalScript = Join-Path $DiagnosticsRoot 'run-backend.ps1'
+$BackendTerminal = $null
+$FlutterProcess = $null
 
 $Port = if ($env:CRITERIVOX_BACKEND_PORT) { $env:CRITERIVOX_BACKEND_PORT } else { '8000' }
 $WebPort = if ($env:CRITERIVOX_WEB_PORT) { $env:CRITERIVOX_WEB_PORT } else { '8080' }
-$StartupTimeoutSeconds = if ($env:CRITERIVOX_BACKEND_STARTUP_TIMEOUT_SECONDS) { [int]$env:CRITERIVOX_BACKEND_STARTUP_TIMEOUT_SECONDS } else { 60 }
+$StartupTimeoutSeconds = if ($env:CRITERIVOX_BACKEND_STARTUP_TIMEOUT_SECONDS) { [int]$env:CRITERIVOX_BACKEND_STARTUP_TIMEOUT_SECONDS } else { 90 }
+$ImportTimeoutSeconds = if ($env:CRITERIVOX_BACKEND_IMPORT_TIMEOUT_SECONDS) { [int]$env:CRITERIVOX_BACKEND_IMPORT_TIMEOUT_SECONDS } else { 45 }
 
 $BackendUrl = "http://127.0.0.1:$Port"
 $HealthUrl = "$BackendUrl/health"
+$WebSocketUrl = "ws://127.0.0.1:$Port/runtime/characters"
 $PresentationUrl = "http://127.0.0.1:$WebPort"
+$PresentationRoot = Join-Path $Root 'presentation'
+$FlutterEntryPoint = 'lib/app/main.dart'
+$FlutterExecutable = $null
 $PythonExecutable = Join-Path $Root '.venv\Scripts\python.exe'
 
 New-Item -ItemType Directory -Force -Path $DiagnosticsRoot | Out-Null
-"[$(Get-Date -Format o)] Criterivox launcher starting." | Set-Content $RuntimeLog
-$PythonProcess = $null
-$FlutterProcess = $null
+"[$(Get-Date -Format o)] Criterivox launcher starting." | Set-Content $RuntimeLog -Encoding UTF8
 
 function Write-LauncherLog {
-    param(
-        [AllowEmptyString()]
-        [AllowNull()]
-        [string]$Message
-    )
+    param([AllowEmptyString()][AllowNull()][string]$Message)
     if ($null -eq $Message) { $Message = '' }
-    "[$(Get-Date -Format o)] $Message" | Tee-Object -FilePath $RuntimeLog -Append
-}
-
-function Get-FlutterEntrypoint {
-    $libRoot = Join-Path $Root 'presentation\\lib'
-    $conventional = Join-Path $libRoot 'main.dart'
-    $appEntry = Join-Path $libRoot 'app\\main.dart'
-
-    if (Test-Path $conventional) { return 'lib/main.dart' }
-    if (Test-Path $appEntry) { return 'lib/app/main.dart' }
-
-    $matches = @(Get-ChildItem $libRoot -Recurse -Filter *.dart -File |
-        Select-String -Pattern '^\\s*(?:(?:Future\\s*<\\s*void\\s*>|void)\\s+main\\s*\\(' |
-        Select-Object -ExpandProperty Path -Unique)
-
-    if ($matches.Count -eq 1) {
-        return $matches[0].Substring((Join-Path $Root '').Length).TrimStart('\\').Replace('\\','/')
-    }
-
-    if ($matches.Count -eq 0) {
-        throw 'Flutter entrypoint was not found. No Dart file containing main() exists under presentation/lib.'
-    }
-
-    $relative = $matches | ForEach-Object { $_.Substring((Join-Path $Root '').Length).TrimStart('\\').Replace('\\','/') }
-    throw "Flutter entrypoint is ambiguous. Found multiple Dart main() files: $($relative -join ', ')."
-}
-
-function Get-RootCauseClassification([string]$Message) {
-    $flutterError = if (Test-Path $FlutterErrorLog) {
-        Get-Content $FlutterErrorLog -Raw -ErrorAction SilentlyContinue
-    } else { '' }
-
-    $combined = "$Message`n$flutterError"
-
-    if ($combined -match 'Target file .*lib[\\\\/]main\\.dart.*not found') { return 'FLUTTER_ENTRYPOINT_MISSING' }
-    if ($combined -match 'Flutter entrypoint is ambiguous|Flutter entrypoint was not found') { return 'FLUTTER_ENTRYPOINT_CONFIGURATION_FAILURE' }
-    if ($combined -match 'Flutter executable was not found') { return 'FLUTTER_NOT_ON_PATH' }
-    if ($combined -match 'Could not resolve dependencies|version solving failed|pubspec\\.yaml') { return 'FLUTTER_DEPENDENCY_FAILURE' }
-    if ($combined -match 'Chrome.*not found|No devices found|unable to find a device') { return 'CHROME_RUNTIME_MISSING' }
-    if ($combined -match 'WebSocket|websocket|handshake|connection refused') { return 'WEBSOCKET_RUNTIME_FAILURE' }
-    if ($combined -match 'Python runtime|uvicorn|ImportError|ModuleNotFoundError') { return 'PYTHON_RUNTIME_FAILURE' }
-    return 'UNCLASSIFIED_RUNTIME_FAILURE'
+    $line = "[$(Get-Date -Format o)] $Message"
+    Add-Content -Path $RuntimeLog -Value $line -Encoding UTF8
+    Write-Host $line
 }
 
 function Test-PortAvailable([int]$PortNumber) {
@@ -87,27 +50,18 @@ function Test-PortAvailable([int]$PortNumber) {
     }
 }
 
-function Write-ProcessDiagnostics([System.Diagnostics.Process]$Process) {
-    if (-not $Process) { return }
+function Stop-ProcessTree([int]$ProcessId) {
+    if ($ProcessId -le 0) { return }
+    try { & taskkill.exe /PID $ProcessId /T /F 2>$null | Out-Null } catch {}
+}
 
-    try {
-        if ($Process.HasExited) {
-            Write-LauncherLog "Python process exited with code $($Process.ExitCode)."
-        } else {
-            Write-LauncherLog "Python process is still running after readiness timeout. PID=$($Process.Id)."
-        }
-    } catch {
-        Write-LauncherLog "Unable to inspect Python process state: $($_.Exception.Message)"
-    }
-
+function Write-ProcessDiagnostics {
     foreach ($log in @($BackendLog, $BackendErrorLog)) {
         if (Test-Path $log) {
             $lines = @(Get-Content $log -ErrorAction SilentlyContinue)
             if ($lines.Count -gt 0) {
                 Write-LauncherLog "Captured $(Split-Path $log -Leaf) with $($lines.Count) line(s)."
-                foreach ($line in ($lines | Select-Object -Last 30)) {
-                    Write-LauncherLog "PYTHON: $line"
-                }
+                foreach ($line in ($lines | Select-Object -Last 40)) { Write-LauncherLog "PYTHON: $line" }
             } else {
                 Write-LauncherLog "$(Split-Path $log -Leaf) is empty."
             }
@@ -115,14 +69,31 @@ function Write-ProcessDiagnostics([System.Diagnostics.Process]$Process) {
     }
 }
 
+function Get-RootCauseClassification([string]$Message) {
+    $backendText = ''
+    $flutterText = ''
+    if (Test-Path $BackendLog) { $backendText += Get-Content $BackendLog -Raw -ErrorAction SilentlyContinue }
+    if (Test-Path $BackendErrorLog) { $backendText += Get-Content $BackendErrorLog -Raw -ErrorAction SilentlyContinue }
+    if (Test-Path $FlutterErrorLog) { $flutterText = Get-Content $FlutterErrorLog -Raw -ErrorAction SilentlyContinue }
+    $combined = $Message + [Environment]::NewLine + $backendText + [Environment]::NewLine + $flutterText
+
+    if ($combined -match 'ModuleNotFoundError|ImportError|cannot import name') { return 'PYTHON_IMPORT_FAILURE' }
+    if ($combined -match 'Address already in use|Only one usage|port .* already') { return 'BACKEND_PORT_CONFLICT' }
+    if ($combined -match 'uvicorn|Python runtime|backend') { return 'BACKEND_STARTUP_FAILURE' }
+    if ($combined -match 'Target file .*lib[\\/]main\.dart.*not found') { return 'FLUTTER_ENTRYPOINT_MISSING' }
+    if ($combined -match 'Flutter dependency|version solving failed|pubspec\.yaml') { return 'FLUTTER_DEPENDENCY_FAILURE' }
+    if ($combined -match 'Chrome.*not found|No devices found|unable to find a device') { return 'CHROME_RUNTIME_MISSING' }
+    if ($combined -match 'WebSocket|websocket|handshake') { return 'WEBSOCKET_RUNTIME_FAILURE' }
+    return 'UNCLASSIFIED_RUNTIME_FAILURE'
+}
+
 function New-Incident([string]$Stage, [string]$Expected, [string]$Observed, [string]$Recommendation) {
     $classification = Get-RootCauseClassification $Observed
     $id = "CVX-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
     $dir = Join-Path $DiagnosticsRoot "incident-$id"
     New-Item -ItemType Directory -Force -Path $dir | Out-Null
-
     $pythonVersion = if (Test-Path $PythonExecutable) { (& $PythonExecutable --version 2>&1 | Out-String).Trim() } else { 'project .venv Python not found' }
-    $flutterVersion = (& flutter --version 2>&1 | Select-Object -First 1 | Out-String).Trim()
+    $flutterVersion = if ($FlutterExecutable) { (& $FlutterExecutable --version 2>&1 | Select-Object -First 1 | Out-String).Trim() } else { 'Flutter not found' }
 
     $payload = [ordered]@{
         incident_id = $id
@@ -133,70 +104,28 @@ function New-Incident([string]$Stage, [string]$Expected, [string]$Observed, [str
         root_cause_classification = $classification
         expected = $Expected
         observed = $Observed
-        affected_boundary = 'local runtime host / Python / Flutter'
-        user_visible_effect = 'Criterivox could not establish or maintain its local runtime.'
         runtime = [ordered]@{
+            working_directory = $Root
             python = $pythonVersion
             flutter = $flutterVersion
-            backend_url = $BackendUrl
-            presentation_url = $PresentationUrl
-            working_directory = $Root
+            backend = $BackendUrl
+            health = $HealthUrl
+            websocket = $WebSocketUrl
+            presentation = $PresentationUrl
+            flutter_entrypoint = $FlutterEntryPoint
+            import_timeout_seconds = $ImportTimeoutSeconds
             backend_startup_timeout_seconds = $StartupTimeoutSeconds
         }
         evidence = [ordered]@{
             launcher_log = $RuntimeLog
-            python_log = $BackendLog
-            python_error_log = $BackendErrorLog
-            flutter_log = $FlutterLog
-            flutter_error_log = $FlutterErrorLog
+            backend_stdout = $BackendLog
+            backend_stderr = $BackendErrorLog
+            flutter_stdout = $FlutterLog
+            flutter_stderr = $FlutterErrorLog
         }
-        recommended_investigation = $Recommendation
+        recommendation = $Recommendation
     }
-
-    $payload | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $dir 'incident.json') -Encoding UTF8
-
-    @"
-# Criterivox Runtime Incident
-
-- Incident ID: $id
-- Time: $($payload.timestamp)
-- Severity: CRITICAL
-- Stage: $Stage
-- Root-cause classification: $classification
-
-## Expected
-$Expected
-
-## Observed
-$Observed
-
-## Failure story
-The managed runtime startup sequence did not reach its expected readiness condition. The launcher captured process state and available stdout/stderr for diagnosis.
-
-## Affected boundary
-$($payload.affected_boundary)
-
-## User-visible consequence
-$($payload.user_visible_effect)
-
-## Evidence
-- Launcher: $RuntimeLog
-- Python stdout: $BackendLog
-- Python stderr: $BackendErrorLog
-- Flutter stdout: $FlutterLog
-- Flutter stderr: $FlutterErrorLog
-
-## Recommended investigation
-$Recommendation
-
-## Runtime environment
-- Python: $pythonVersion
-- Flutter: $flutterVersion
-- Backend: $BackendUrl
-- Presentation: $PresentationUrl
-- Backend startup timeout: $StartupTimeoutSeconds seconds
-"@ | Set-Content (Join-Path $dir 'incident.md') -Encoding UTF8
-
+    $payload | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $dir 'incident.json') -Encoding UTF8
     Write-LauncherLog "Developer incident created: $dir"
 }
 
@@ -204,100 +133,113 @@ try {
     Set-Location $Root
     $env:PYTHONPATH = Join-Path $Root 'src'
 
-    if (-not (Test-Path $PythonExecutable)) {
-        throw "Project Python environment was not found at $PythonExecutable. Run the documented environment setup first."
-    }
+    if (-not (Test-Path $PythonExecutable)) { throw "Project Python environment was not found at $PythonExecutable." }
 
-    if (-not (Get-Command flutter -ErrorAction SilentlyContinue)) {
-        throw 'Flutter executable was not found on PATH.'
-    }
+    $flutterCommand = Get-Command flutter -ErrorAction SilentlyContinue
+    if (-not $flutterCommand) { throw 'Flutter executable was not found on PATH.' }
+    $FlutterExecutable = $flutterCommand.Source
+    Write-LauncherLog "Flutter executable: $FlutterExecutable"
 
-    Write-LauncherLog 'Running Python syntax preflight before starting the backend.'
+    Write-LauncherLog 'START: Python syntax preflight'
     & $PythonExecutable -m compileall -q src
-    if ($LASTEXITCODE -ne 0) {
-        throw 'Python source preflight failed. The backend was not started.'
+    if ($LASTEXITCODE -ne 0) { throw 'Python source preflight failed.' }
+    Write-LauncherLog 'PASS: Python syntax preflight'
+
+    Write-LauncherLog 'START: Python application import preflight'
+    $ImportProbeLog = Join-Path $DiagnosticsRoot 'python-import-probe.log'
+    $ImportProbeErrorLog = Join-Path $DiagnosticsRoot 'python-import-probe-error.log'
+    Remove-Item $ImportProbeLog,$ImportProbeErrorLog -Force -ErrorAction SilentlyContinue
+    $probe = Start-Process -FilePath $PythonExecutable -ArgumentList @('-u','-c',"import criterivox.app; print('CRITERIVOX_APP_IMPORT_OK')") -WorkingDirectory $Root -RedirectStandardOutput $ImportProbeLog -RedirectStandardError $ImportProbeErrorLog -PassThru
+
+    if (-not $probe.WaitForExit($ImportTimeoutSeconds * 1000)) {
+        Stop-ProcessTree $probe.Id
+        throw "Python application import did not finish within $ImportTimeoutSeconds seconds. See $ImportProbeLog and $ImportProbeErrorLog."
     }
 
-    Write-LauncherLog 'Python source preflight passed.'
+    $probeOutput = if (Test-Path $ImportProbeLog) { Get-Content $ImportProbeLog -Raw -ErrorAction SilentlyContinue } else { '' }
+    $probeError = if (Test-Path $ImportProbeErrorLog) { Get-Content $ImportProbeErrorLog -Raw -ErrorAction SilentlyContinue } else { '' }
+    if ($probe.ExitCode -ne 0) { throw "Python application import failed with exit code $($probe.ExitCode). stdout=$probeOutput stderr=$probeError" }
+    if ($probeOutput -notmatch 'CRITERIVOX_APP_IMPORT_OK') { throw "Python application import completed without its success marker. stdout=$probeOutput stderr=$probeError" }
+    Write-LauncherLog 'PASS: Python application import preflight'
 
-    if (-not (Test-PortAvailable ([int]$Port))) {
-        throw "Backend port $Port is already occupied. Stop the process using $BackendUrl or set CRITERIVOX_BACKEND_PORT to another free port."
-    }
+    if (-not (Test-PortAvailable ([int]$Port))) { throw "Backend port $Port is already occupied." }
 
-    Write-LauncherLog "Backend port $Port is available."
-    Write-LauncherLog "Starting Python runtime on $BackendUrl using project .venv."
-    Write-LauncherLog "Backend readiness timeout: $StartupTimeoutSeconds seconds."
+    if (-not (Test-Path (Join-Path $PresentationRoot 'pubspec.yaml'))) { throw "Flutter pubspec.yaml was not found under $PresentationRoot." }
+    $entrypointPath = Join-Path $PresentationRoot $FlutterEntryPoint
+    if (-not (Test-Path $entrypointPath)) { throw "Required Flutter entrypoint $FlutterEntryPoint was not found." }
+    Write-LauncherLog "Flutter entrypoint fixed to $FlutterEntryPoint."
 
-    $PythonProcess = Start-Process -FilePath $PythonExecutable -ArgumentList @('-u','-m','uvicorn','criterivox.app:app','--host','127.0.0.1','--port',$Port) -WorkingDirectory $Root -RedirectStandardOutput $BackendLog -RedirectStandardError $BackendErrorLog -PassThru -WindowStyle Minimized
+    Write-LauncherLog 'START: Resolve Flutter dependencies'
+    Push-Location $PresentationRoot
+    try {
+        & $FlutterExecutable pub get
+        if ($LASTEXITCODE -ne 0) { throw 'flutter pub get failed.' }
+        & $FlutterExecutable pub get --enforce-lockfile
+        if ($LASTEXITCODE -ne 0) { throw 'flutter pub get --enforce-lockfile failed.' }
+    } finally { Pop-Location }
+    Write-LauncherLog 'PASS: Resolve Flutter dependencies'
+
+    @"
+Set-Location -LiteralPath '$Root'
+& '$PythonExecutable' -u -m uvicorn criterivox.app:app --host 127.0.0.1 --port $Port 2>&1 |
+    Tee-Object -FilePath '$BackendLog' -Append
+Write-Host ''
+Write-Host 'Criterivox backend process ended. The terminal remains open for diagnosis.'
+"@ | Set-Content $BackendTerminalScript -Encoding UTF8
+
+    Write-LauncherLog "Starting FastAPI backend in a visible terminal: $BackendUrl"
+    $BackendTerminal = Start-Process -FilePath 'pwsh.exe' -ArgumentList @('-NoLogo','-NoExit','-ExecutionPolicy','Bypass','-File',$BackendTerminalScript) -WorkingDirectory $Root -PassThru
+    Write-LauncherLog "Backend terminal started. PID=$($BackendTerminal.Id)"
+    Write-LauncherLog "Waiting for backend health: $HealthUrl"
 
     $ready = $false
     $deadline = [DateTime]::UtcNow.AddSeconds($StartupTimeoutSeconds)
-
     while ([DateTime]::UtcNow -lt $deadline) {
         Start-Sleep -Milliseconds 500
-
-        if ($PythonProcess.HasExited) {
-            Write-ProcessDiagnostics $PythonProcess
-            throw "Python runtime exited during startup with code $($PythonProcess.ExitCode)."
-        }
-
         try {
             $response = Invoke-WebRequest -Uri $HealthUrl -UseBasicParsing -TimeoutSec 1
-            if ($response.StatusCode -eq 200) {
-                $ready = $true
-                break
-            }
-        } catch {
-        }
+            if ($response.StatusCode -eq 200) { $ready = $true; break }
+        } catch {}
     }
 
     if (-not $ready) {
-        Write-ProcessDiagnostics $PythonProcess
-        throw "Python runtime did not become ready at $HealthUrl within $StartupTimeoutSeconds seconds."
+        Write-ProcessDiagnostics
+        throw "Backend did not become ready at $HealthUrl within $StartupTimeoutSeconds seconds."
     }
 
-    Write-LauncherLog 'Python runtime is ready.'
+    Write-LauncherLog 'PASS: Backend health is ready.'
+    Write-LauncherLog "Starting Flutter presentation in Chrome using $FlutterEntryPoint"
+    $FlutterProcess = Start-Process -FilePath $FlutterExecutable -ArgumentList @('run','-d','chrome','--web-port',$WebPort,'-t',$FlutterEntryPoint) -WorkingDirectory $PresentationRoot -RedirectStandardOutput $FlutterLog -RedirectStandardError $FlutterErrorLog -PassThru
+    Write-LauncherLog "Flutter process started. PID=$($FlutterProcess.Id)"
+    Write-LauncherLog "Presentation target: $PresentationUrl"
 
-    $FlutterEntryPoint = Get-FlutterEntrypoint
-    Write-LauncherLog "Flutter entrypoint resolved to $FlutterEntryPoint."
-    Write-LauncherLog "Starting Flutter presentation on $PresentationUrl."
+    Start-Sleep -Seconds 5
+    if ($FlutterProcess.HasExited) { throw "Flutter presentation exited during startup with code $($FlutterProcess.ExitCode)." }
 
-    $FlutterProcess = Start-Process -FilePath 'flutter' -ArgumentList @('run','-d','chrome','--web-port',$WebPort,'-t',$FlutterEntryPoint) -WorkingDirectory (Join-Path $Root 'presentation') -RedirectStandardOutput $FlutterLog -RedirectStandardError $FlutterErrorLog -PassThru -WindowStyle Minimized
-
-    Start-Sleep -Seconds 3
-
-    if ($FlutterProcess.HasExited) {
-        throw "Flutter presentation exited during startup with code $($FlutterProcess.ExitCode)."
-    }
-
-    Write-LauncherLog 'Criterivox runtime is running. Flutter will open the presentation in Chrome.'
+    Write-LauncherLog 'Criterivox runtime is running. Chrome presentation is being served by Flutter.'
+    Write-LauncherLog "Backend: $BackendUrl"
+    Write-LauncherLog "Health: $HealthUrl"
+    Write-LauncherLog "WebSocket: $WebSocketUrl"
     Write-LauncherLog "Presentation: $PresentationUrl"
-    Write-LauncherLog "Backend health: $HealthUrl"
-    Write-LauncherLog "Flutter entrypoint: $FlutterEntryPoint"
+    Write-LauncherLog "Entrypoint: $FlutterEntryPoint"
 
     while ($true) {
-        Start-Sleep -Seconds 2
-        if ($PythonProcess.HasExited) {
-            throw "Python runtime stopped unexpectedly with code $($PythonProcess.ExitCode)."
-        }
-        if ($FlutterProcess.HasExited) {
-            throw "Flutter presentation stopped unexpectedly with code $($FlutterProcess.ExitCode)."
-        }
+        Start-Sleep -Seconds 3
+        try {
+            $health = Invoke-WebRequest -Uri $HealthUrl -UseBasicParsing -TimeoutSec 2
+            if ($health.StatusCode -ne 200) { throw "Backend health returned HTTP $($health.StatusCode)." }
+        } catch { throw "Backend health check failed while runtime was active: $($_.Exception.Message)" }
+        if ($FlutterProcess.HasExited) { throw "Flutter presentation stopped unexpectedly with code $($FlutterProcess.ExitCode)." }
     }
 }
 catch {
     $message = $_.Exception.Message
     Write-LauncherLog "CRITICAL runtime failure: $message"
-
-    New-Incident -Stage 'managed_startup_or_runtime' -Expected 'Python and Flutter remain running under the Criterivox runtime host.' -Observed $message -Recommendation 'Inspect incident.md first. The launcher records Python process state and stdout/stderr, uses unbuffered Python output, checks backend-port conflicts before startup, and measures the actual readiness deadline.'
-
+    Write-ProcessDiagnostics
+    New-Incident -Stage 'managed_startup_or_runtime' -Expected 'Python backend reaches /health, WebSocket endpoint is available, and Flutter launches lib/app/main.dart in Chrome.' -Observed $message -Recommendation 'The launcher performs a bounded application-import probe before Uvicorn, fixes the Flutter entrypoint to lib/app/main.dart, keeps the backend terminal visible, captures backend output, and records the exact failed boundary.'
     exit 1
 }
 finally {
-    if ($FlutterProcess -and -not $FlutterProcess.HasExited) {
-        Stop-Process -Id $FlutterProcess.Id -Force -ErrorAction SilentlyContinue
-    }
-    if ($PythonProcess -and -not $PythonProcess.HasExited) {
-        Stop-Process -Id $PythonProcess.Id -Force -ErrorAction SilentlyContinue
-    }
+    if ($FlutterProcess -and -not $FlutterProcess.HasExited) { Stop-ProcessTree $FlutterProcess.Id }
+    if ($BackendTerminal) { Stop-ProcessTree $BackendTerminal.Id }
 }
