@@ -23,8 +23,55 @@ New-Item -ItemType Directory -Force -Path $DiagnosticsRoot | Out-Null
 $PythonProcess = $null
 $FlutterProcess = $null
 
-function Write-LauncherLog([string]$Message) {
+function Write-LauncherLog {
+    param(
+        [AllowEmptyString()]
+        [AllowNull()]
+        [string]$Message
+    )
+    if ($null -eq $Message) { $Message = '' }
     "[$(Get-Date -Format o)] $Message" | Tee-Object -FilePath $RuntimeLog -Append
+}
+
+function Get-FlutterEntrypoint {
+    $libRoot = Join-Path $Root 'presentation\\lib'
+    $conventional = Join-Path $libRoot 'main.dart'
+    $appEntry = Join-Path $libRoot 'app\\main.dart'
+
+    if (Test-Path $conventional) { return 'lib/main.dart' }
+    if (Test-Path $appEntry) { return 'lib/app/main.dart' }
+
+    $matches = @(Get-ChildItem $libRoot -Recurse -Filter *.dart -File |
+        Select-String -Pattern '^\\s*(?:(?:Future\\s*<\\s*void\\s*>|void)\\s+main\\s*\\(' |
+        Select-Object -ExpandProperty Path -Unique)
+
+    if ($matches.Count -eq 1) {
+        return $matches[0].Substring((Join-Path $Root '').Length).TrimStart('\\').Replace('\\','/')
+    }
+
+    if ($matches.Count -eq 0) {
+        throw 'Flutter entrypoint was not found. No Dart file containing main() exists under presentation/lib.'
+    }
+
+    $relative = $matches | ForEach-Object { $_.Substring((Join-Path $Root '').Length).TrimStart('\\').Replace('\\','/') }
+    throw "Flutter entrypoint is ambiguous. Found multiple Dart main() files: $($relative -join ', ')."
+}
+
+function Get-RootCauseClassification([string]$Message) {
+    $flutterError = if (Test-Path $FlutterErrorLog) {
+        Get-Content $FlutterErrorLog -Raw -ErrorAction SilentlyContinue
+    } else { '' }
+
+    $combined = "$Message`n$flutterError"
+
+    if ($combined -match 'Target file .*lib[\\\\/]main\\.dart.*not found') { return 'FLUTTER_ENTRYPOINT_MISSING' }
+    if ($combined -match 'Flutter entrypoint is ambiguous|Flutter entrypoint was not found') { return 'FLUTTER_ENTRYPOINT_CONFIGURATION_FAILURE' }
+    if ($combined -match 'Flutter executable was not found') { return 'FLUTTER_NOT_ON_PATH' }
+    if ($combined -match 'Could not resolve dependencies|version solving failed|pubspec\\.yaml') { return 'FLUTTER_DEPENDENCY_FAILURE' }
+    if ($combined -match 'Chrome.*not found|No devices found|unable to find a device') { return 'CHROME_RUNTIME_MISSING' }
+    if ($combined -match 'WebSocket|websocket|handshake|connection refused') { return 'WEBSOCKET_RUNTIME_FAILURE' }
+    if ($combined -match 'Python runtime|uvicorn|ImportError|ModuleNotFoundError') { return 'PYTHON_RUNTIME_FAILURE' }
+    return 'UNCLASSIFIED_RUNTIME_FAILURE'
 }
 
 function Test-PortAvailable([int]$PortNumber) {
@@ -69,6 +116,7 @@ function Write-ProcessDiagnostics([System.Diagnostics.Process]$Process) {
 }
 
 function New-Incident([string]$Stage, [string]$Expected, [string]$Observed, [string]$Recommendation) {
+    $classification = Get-RootCauseClassification $Observed
     $id = "CVX-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
     $dir = Join-Path $DiagnosticsRoot "incident-$id"
     New-Item -ItemType Directory -Force -Path $dir | Out-Null
@@ -82,6 +130,7 @@ function New-Incident([string]$Stage, [string]$Expected, [string]$Observed, [str
         severity = 'critical'
         stage = $Stage
         component = 'criterivox_runtime_host'
+        root_cause_classification = $classification
         expected = $Expected
         observed = $Observed
         affected_boundary = 'local runtime host / Python / Flutter'
@@ -113,6 +162,7 @@ function New-Incident([string]$Stage, [string]$Expected, [string]$Observed, [str
 - Time: $($payload.timestamp)
 - Severity: CRITICAL
 - Stage: $Stage
+- Root-cause classification: $classification
 
 ## Expected
 $Expected
@@ -207,9 +257,12 @@ try {
     }
 
     Write-LauncherLog 'Python runtime is ready.'
+
+    $FlutterEntryPoint = Get-FlutterEntrypoint
+    Write-LauncherLog "Flutter entrypoint resolved to $FlutterEntryPoint."
     Write-LauncherLog "Starting Flutter presentation on $PresentationUrl."
 
-    $FlutterProcess = Start-Process -FilePath 'flutter' -ArgumentList @('run','-d','chrome','--web-port',$WebPort) -WorkingDirectory (Join-Path $Root 'presentation') -RedirectStandardOutput $FlutterLog -RedirectStandardError $FlutterErrorLog -PassThru -WindowStyle Minimized
+    $FlutterProcess = Start-Process -FilePath 'flutter' -ArgumentList @('run','-d','chrome','--web-port',$WebPort,'-t',$FlutterEntryPoint) -WorkingDirectory (Join-Path $Root 'presentation') -RedirectStandardOutput $FlutterLog -RedirectStandardError $FlutterErrorLog -PassThru -WindowStyle Minimized
 
     Start-Sleep -Seconds 3
 
@@ -220,6 +273,7 @@ try {
     Write-LauncherLog 'Criterivox runtime is running. Flutter will open the presentation in Chrome.'
     Write-LauncherLog "Presentation: $PresentationUrl"
     Write-LauncherLog "Backend health: $HealthUrl"
+    Write-LauncherLog "Flutter entrypoint: $FlutterEntryPoint"
 
     while ($true) {
         Start-Sleep -Seconds 2
