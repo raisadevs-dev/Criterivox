@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://criterivox.org/schemas/avishkaar/evaluation.schema.json",
+  "title": "Criterivox Demo Evaluation Expectations",
+  "type": "object",
+  "required": ["schema_version", "case_id", "purpose", "checks"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "case_id": {"type": "string"},
+    "purpose": {"type": "string"},
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "description", "type", "target"],
+        "properties": {
+          "id": {"type": "string"},
+          "description": {"type": "string"},
+          "type": {"enum": ["presence", "preservation", "provenance", "interaction", "quality"]},
+          "target": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

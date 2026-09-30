@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://criterivox.org/schemas/avishkaar/visualization.schema.json",
+  "title": "Criterivox Visualization Descriptor",
+  "type": "object",
+  "required": ["type", "label", "derived_from"],
+  "properties": {
+    "type": {
+      "enum": [
+        "comparison",
+        "relationship_map",
+        "reasoning_tree",
+        "timeline",
+        "workflow",
+        "activity_map",
+        "conflict_map",
+        "provenance_flow",
+        "metric_chart"
+      ]
+    },
+    "label": {"type": "string"},
+    "description": {"type": "string"},
+    "derived_from": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string"}
+    },
+    "available": {"type": "boolean", "default": true},
+    "data": {"type": "object"},
+    "accessibility_label": {"type": "string"}
+  },
+  "additionalProperties": false
+}

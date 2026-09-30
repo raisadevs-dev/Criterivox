@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0.0",
+  "report_id": "R-CR27-TARKIS",
+  "scope": "character",
+  "human_id": "CR-27",
+  "internal_task_id": "AN-DEMO-CR27",
+  "character_id": "tarkis",
+  "character_name": "Tarkis",
+  "title": "Alternative Exploration · Research Strategy",
+  "status": "complete",
+  "summary": "Alternative exploration preserves three candidate approaches and records the trade-offs visible in the supplied evidence.",
+  "sections": [
+    {
+      "section_id": "tarkis-alternatives",
+      "title": "Alternatives considered",
+      "semantic_type": "alternatives",
+      "text": "Approaches A, B, and C remain in the comparison. Their differences are represented through supplied effort, evidence, uncertainty, and setup observations.",
+      "artifact_refs": ["ART-CR27-ALT-01"],
+      "source_refs": ["E-01", "E-02", "E-03", "E-05", "E-07"],
+      "visualization": {
+        "type": "comparison",
+        "label": "Approach comparison",
+        "description": "Compares the supplied evidence attributes across the three alternatives.",
+        "derived_from": ["ART-CR27-ALT-01"],
+        "available": true,
+        "accessibility_label": "Comparison of three research approaches using the supplied evidence attributes."
+      }
+    }
+  ],
+  "artifact_refs": ["ART-CR27-ALT-01"],
+  "source_refs": ["E-01", "E-02", "E-03", "E-05", "E-07"],
+  "provenance": {
+    "input_refs": ["IN-001", "IN-002", "IN-003"],
+    "artifact_refs": ["ART-CR27-ALT-01"],
+    "generated_from": ["CASE-001"]
+  },
+  "views": {
+    "text": true,
+    "visualization": true
+  }
+}

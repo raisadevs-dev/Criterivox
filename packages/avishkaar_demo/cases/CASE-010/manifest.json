@@ -1,0 +1,112 @@
+{
+  "schema_version": "1.1.0",
+  "case_id": "CASE-010",
+  "human_id": "CR-27",
+  "title": "End-to-End Case",
+  "goal": "Exercise the complete case boundary from human input through foundation, capability execution, character reports, combined report, visualization, and intervention.",
+  "context": "Runtime inputs supplied through Human Residence are authoritative. Package materials are validation fixtures only and never hidden answer keys.",
+  "constraints": [
+    "Do not invent absent evidence.",
+    "Preserve provenance and uncertainty.",
+    "Character reports are separate inspectable artifacts.",
+    "Combined reports reference child artifacts.",
+    "Visualization is derived from structured report data.",
+    "Human intervention preserves prior revisions."
+  ],
+  "inputs": [
+    {
+      "input_id": "IN-010-01",
+      "kind": "text",
+      "label": "End-to-End Case text material",
+      "path_or_inline": "materials/text-01",
+      "source_role": "goal",
+      "provenance_note": "Fixture path convention; live Human Residence input may replace it."
+    },
+    {
+      "input_id": "IN-010-02",
+      "kind": "pdf",
+      "label": "End-to-End Case pdf material",
+      "path_or_inline": "materials/pdf-02",
+      "source_role": "evidence",
+      "provenance_note": "Fixture path convention; live Human Residence input may replace it."
+    },
+    {
+      "input_id": "IN-010-03",
+      "kind": "image",
+      "label": "End-to-End Case image material",
+      "path_or_inline": "materials/image-03",
+      "source_role": "evidence",
+      "provenance_note": "Fixture path convention; live Human Residence input may replace it."
+    },
+    {
+      "input_id": "IN-010-04",
+      "kind": "table_csv",
+      "label": "End-to-End Case table_csv material",
+      "path_or_inline": "materials/table_csv-04",
+      "source_role": "evidence",
+      "provenance_note": "Fixture path convention; live Human Residence input may replace it."
+    },
+    {
+      "input_id": "IN-010-05",
+      "kind": "file",
+      "label": "End-to-End Case file material",
+      "path_or_inline": "materials/file-05",
+      "source_role": "evidence",
+      "provenance_note": "Fixture path convention; live Human Residence input may replace it."
+    }
+  ],
+  "execution": {
+    "profile": "end_to_end",
+    "capability_selection": "dynamic",
+    "human_intervention": true,
+    "revision_history": true,
+    "preserve_character_reports": true,
+    "combined_report": true,
+    "report_views": [
+      "text",
+      "visualization"
+    ]
+  },
+  "expected_capabilities": [
+    "interface_gateway",
+    "data_foundation",
+    "context_understanding",
+    "environment_construction",
+    "critical_review",
+    "insight_generation",
+    "hypothesis_generation",
+    "decision_planning",
+    "validation",
+    "adaptive_refinement",
+    "explanation",
+    "human_challenge",
+    "evidence_evaluation",
+    "oversight",
+    "transfer"
+  ],
+  "expected_artifacts": [
+    "foundation",
+    "capability_plan",
+    "character_reports",
+    "combined_report",
+    "visualization_projection",
+    "provenance",
+    "evaluation"
+  ],
+  "evaluation_contract": {
+    "answer_key": false,
+    "checks": [
+      "capability_activation",
+      "provenance",
+      "uncertainty_preservation",
+      "report_completeness",
+      "visualization_consistency",
+      "human_intervention_preservation"
+    ]
+  },
+  "presentation": {
+    "show_human_id": true,
+    "default_report_view": "text",
+    "allow_view_switch": true
+  }
+}

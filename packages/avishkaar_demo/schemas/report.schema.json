@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://criterivox.org/schemas/avishkaar/report.schema.json",
+  "title": "Criterivox Avishkaar Report",
+  "type": "object",
+  "required": ["schema_version", "report_id", "scope", "human_id", "title", "sections"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "report_id": {"type": "string"},
+    "scope": {"enum": ["task", "character"]},
+    "human_id": {"type": "string"},
+    "internal_task_id": {"type": "string"},
+    "character_id": {"type": "string"},
+    "character_name": {"type": "string"},
+    "title": {"type": "string"},
+    "status": {"enum": ["draft", "working", "complete", "unresolved"]},
+    "summary": {"type": "string"},
+    "sections": {
+      "type": "array",
+      "items": {"$ref": "report-section.schema.json"}
+    },
+    "artifact_refs": {"type": "array", "items": {"type": "string"}},
+    "source_refs": {"type": "array", "items": {"type": "string"}},
+    "child_report_refs": {"type": "array", "items": {"type": "string"}},
+    "provenance": {
+      "type": "object",
+      "required": ["input_refs", "artifact_refs"],
+      "properties": {
+        "input_refs": {"type": "array", "items": {"type": "string"}},
+        "artifact_refs": {"type": "array", "items": {"type": "string"}},
+        "generated_from": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "views": {
+      "type": "object",
+      "required": ["text", "visualization"],
+      "properties": {
+        "text": {"type": "boolean"},
+        "visualization": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

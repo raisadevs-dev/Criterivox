@@ -239,19 +239,37 @@ class _BloomState extends State<Bloom>
   Future<BloomActivation?> _activateThroughPython(
     BloomCapability capability,
   ) async {
-    final response = await http
-        .post(
-          CriterivoxApi.uri('/api/bloom/activate'),
-          headers: const {
-            'content-type': 'application/json',
-          },
-          body: jsonEncode({
-            'capability': capability.name,
-            'source': 'flutter-bloom',
-            if (widget.taskId != null) 'task_id': widget.taskId,
-          }),
-        )
-        .timeout(const Duration(seconds: 3));
+    http.Response? response;
+    Object? lastError;
+    for (var attempt = 1; attempt <= 3; attempt++) {
+      try {
+        response = await http
+            .post(
+              CriterivoxApi.uri('/api/bloom/activate'),
+              headers: const {
+                'content-type': 'application/json',
+              },
+              body: jsonEncode({
+                'capability': capability.name,
+                'source': 'flutter-bloom',
+                if (widget.taskId != null) 'task_id': widget.taskId,
+              }),
+            )
+            .timeout(const Duration(seconds: 10));
+        break;
+      } catch (error) {
+        lastError = error;
+        if (attempt < 3) {
+          await Future<void>.delayed(Duration(milliseconds: 500 * attempt));
+        }
+      }
+    }
+
+    if (response == null) {
+      throw Exception(
+        'Bloom backend request failed after 3 attempts: $lastError',
+      );
+    }
 
     dynamic decoded;
     if (response.body.trim().isNotEmpty) {

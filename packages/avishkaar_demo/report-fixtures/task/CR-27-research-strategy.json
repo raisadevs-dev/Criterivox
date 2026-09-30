@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0.0",
+  "report_id": "R-CR27-TASK",
+  "scope": "task",
+  "human_id": "CR-27",
+  "internal_task_id": "AN-DEMO-CR27",
+  "title": "Research Strategy",
+  "status": "complete",
+  "summary": "Three approaches remain under consideration. The supplied evidence supports different strengths and includes an explicit maintenance conflict for Approach B plus unresolved scaling uncertainty for Approach A.",
+  "sections": [
+    {
+      "section_id": "overview",
+      "title": "What Criterivox examined",
+      "semantic_type": "overview",
+      "text": "Criterivox examined the supplied goal, context, evidence table, three alternatives, the evidence conflict, and the recorded uncertainty.",
+      "artifact_refs": ["ART-CR27-ALT-01", "ART-CR27-EVAL-01"],
+      "source_refs": ["IN-001", "IN-002", "IN-003"]
+    },
+    {
+      "section_id": "alternatives",
+      "title": "Alternatives",
+      "semantic_type": "alternatives",
+      "text": "Approaches A, B, and C were retained as alternatives for inspection.",
+      "artifact_refs": ["ART-CR27-ALT-01"],
+      "source_refs": ["E-01", "E-02", "E-03", "E-05", "E-07"],
+      "visualization": {
+        "type": "comparison",
+        "label": "Approach comparison",
+        "description": "Shows the evidence-backed attributes recorded for each approach.",
+        "derived_from": ["ART-CR27-ALT-01"],
+        "available": true,
+        "accessibility_label": "Comparison of three approaches."
+      }
+    },
+    {
+      "section_id": "conflict",
+      "title": "Evidence conflict",
+      "semantic_type": "evidence",
+      "text": "E-04 and E-06 provide conflicting maintenance claims for Approach B. The report keeps both claims and marks the conflict for human inspection.",
+      "artifact_refs": ["ART-CR27-CONFLICT-01"],
+      "source_refs": ["E-04", "E-06"],
+      "visualization": {
+        "type": "conflict_map",
+        "label": "Evidence conflict",
+        "description": "Shows the relationship between the conflicting supplied claims.",
+        "derived_from": ["ART-CR27-CONFLICT-01"],
+        "available": true,
+        "accessibility_label": "Two supplied evidence records conflict about Approach B maintenance."
+      }
+    },
+    {
+      "section_id": "uncertainty",
+      "title": "Uncertainty",
+      "semantic_type": "uncertainty",
+      "text": "Long-term scaling for Approach A remains uncertain because the supplied evidence is limited.",
+      "artifact_refs": ["ART-CR27-UNC-01"],
+      "source_refs": ["E-08"]
+    },
+    {
+      "section_id": "result",
+      "title": "Current result",
+      "semantic_type": "result",
+      "text": "The current report does not hide the evidence conflict or unresolved uncertainty. The human can inspect the affected evidence and challenge the assumptions before using the comparison.",
+      "artifact_refs": ["ART-CR27-EVAL-01", "ART-CR27-CONFLICT-01", "ART-CR27-UNC-01"],
+      "source_refs": ["E-04", "E-06", "E-08"]
+    }
+  ],
+  "artifact_refs": ["ART-CR27-ALT-01", "ART-CR27-EVAL-01", "ART-CR27-CONFLICT-01", "ART-CR27-UNC-01"],
+  "source_refs": ["IN-001", "IN-002", "IN-003"],
+  "child_report_refs": ["R-CR27-VIVREN", "R-CR27-TARKIS"],
+  "provenance": {
+    "input_refs": ["IN-001", "IN-002", "IN-003"],
+    "artifact_refs": ["ART-CR27-ALT-01", "ART-CR27-EVAL-01", "ART-CR27-CONFLICT-01", "ART-CR27-UNC-01"],
+    "generated_from": ["CASE-001", "R-CR27-VIVREN", "R-CR27-TARKIS"]
+  },
+  "views": {
+    "text": true,
+    "visualization": true
+  }
+}

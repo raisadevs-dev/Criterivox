@@ -66,11 +66,29 @@ class _GuestPassExperiencePageState extends State<GuestPassExperiencePage> {
 
   Future<void> _start() async {
     try {
-      final response = await http
-          .post(
-            CriterivoxApi.uri('/api/guest-pass/session'),
-          )
-          .timeout(const Duration(seconds: 5));
+      http.Response? response;
+      Object? lastError;
+      for (var attempt = 1; attempt <= 4; attempt++) {
+        try {
+          response = await http
+              .post(
+                CriterivoxApi.uri('/api/guest-pass/session'),
+              )
+              .timeout(const Duration(seconds: 10));
+          break;
+        } catch (error) {
+          lastError = error;
+          if (attempt < 4) {
+            await Future<void>.delayed(Duration(milliseconds: 500 * attempt));
+          }
+        }
+      }
+
+      if (response == null) {
+        throw Exception(
+          'guest session request failed after 4 attempts: $lastError',
+        );
+      }
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final decoded = jsonDecode(response.body) as Map<String, dynamic>;

@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0.0",
+  "case_id": "CASE-004",
+  "purpose": "Evaluation expectations only. This file is not an answer key and is never runtime evidence.",
+  "checks": [
+    {
+      "id": "EV-01",
+      "description": "The case activates capabilities selected by its manifest.",
+      "type": "quality",
+      "target": "capability_activation"
+    },
+    {
+      "id": "EV-02",
+      "description": "Outputs retain source and artifact provenance.",
+      "type": "provenance",
+      "target": "provenance"
+    },
+    {
+      "id": "EV-03",
+      "description": "Missing or unresolved information remains explicit.",
+      "type": "preservation",
+      "target": "uncertainty_preservation"
+    },
+    {
+      "id": "EV-04",
+      "description": "Selected capabilities produce separately inspectable character reports and a combined report.",
+      "type": "quality",
+      "target": "report_completeness"
+    },
+    {
+      "id": "EV-05",
+      "description": "Visualization data is derived from the same structured report artifacts as text.",
+      "type": "quality",
+      "target": "visualization_consistency"
+    },
+    {
+      "id": "EV-06",
+      "description": "A human intervention can preserve the prior result while creating a revision.",
+      "type": "interaction",
+      "target": "human_intervention_preservation"
+    }
+  ]
+}

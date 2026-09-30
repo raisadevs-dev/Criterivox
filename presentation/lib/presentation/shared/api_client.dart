@@ -5,6 +5,10 @@ class CriterivoxApi {
     'CRITERIVOX_BACKEND_URL',
     defaultValue: '',
   );
+  static const backendHost = String.fromEnvironment(
+    'CRITERIVOX_BACKEND_HOST',
+    defaultValue: '127.0.0.1',
+  );
   static const backendPort = String.fromEnvironment(
     'CRITERIVOX_BACKEND_PORT',
     defaultValue: '8000',
@@ -21,13 +25,9 @@ class CriterivoxApi {
       return parsed.replace(scheme: socketScheme);
     }
 
-    if (kIsWeb) {
-      final host = Uri.base.host.isEmpty ? '127.0.0.1' : Uri.base.host;
-      final scheme = Uri.base.scheme == 'https'
-          ? (websocket ? 'wss' : 'https')
-          : (websocket ? 'ws' : 'http');
-      return Uri.parse('$scheme://$host:$backendPort');
-    }
+    final scheme = websocket ? 'ws' : 'http';
+    final host = backendHost.isEmpty ? '127.0.0.1' : backendHost;
+    return Uri.parse('$scheme://$host:$backendPort');
 
     return Uri.parse(
       '${websocket ? 'ws' : 'http'}://127.0.0.1:$backendPort',

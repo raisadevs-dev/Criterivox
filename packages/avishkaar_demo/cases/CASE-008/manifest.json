@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.1.0",
+  "case_id": "CASE-008",
+  "human_id": "CR-27",
+  "title": "Human Challenge",
+  "goal": "Accept a human challenge, preserve the original result, rerun affected capabilities, and record the revision.",
+  "context": "Runtime inputs supplied through Human Residence are authoritative. Package materials are validation fixtures only and never hidden answer keys.",
+  "constraints": [
+    "Do not invent absent evidence.",
+    "Preserve provenance and uncertainty.",
+    "Character reports are separate inspectable artifacts.",
+    "Combined reports reference child artifacts.",
+    "Visualization is derived from structured report data.",
+    "Human intervention preserves prior revisions."
+  ],
+  "inputs": [
+    {
+      "input_id": "IN-008-01",
+      "kind": "text",
+      "label": "Human Challenge text material",
+      "path_or_inline": "materials/text-01",
+      "source_role": "goal",
+      "provenance_note": "Fixture path convention; live Human Residence input may replace it."
+    },
+    {
+      "input_id": "IN-008-02",
+      "kind": "file",
+      "label": "Human Challenge file material",
+      "path_or_inline": "materials/file-02",
+      "source_role": "evidence",
+      "provenance_note": "Fixture path convention; live Human Residence input may replace it."
+    }
+  ],
+  "execution": {
+    "profile": "human_intervention",
+    "capability_selection": "dynamic",
+    "human_intervention": true,
+    "revision_history": true,
+    "preserve_character_reports": true,
+    "combined_report": true,
+    "report_views": [
+      "text",
+      "visualization"
+    ]
+  },
+  "expected_capabilities": [
+    "human_challenge",
+    "validation",
+    "revision",
+    "report_composition"
+  ],
+  "expected_artifacts": [
+    "foundation",
+    "capability_plan",
+    "character_reports",
+    "combined_report",
+    "visualization_projection",
+    "provenance",
+    "evaluation"
+  ],
+  "evaluation_contract": {
+    "answer_key": false,
+    "checks": [
+      "capability_activation",
+      "provenance",
+      "uncertainty_preservation",
+      "report_completeness",
+      "visualization_consistency",
+      "human_intervention_preservation"
+    ]
+  },
+  "presentation": {
+    "show_human_id": true,
+    "default_report_view": "text",
+    "allow_view_switch": true
+  }
+}

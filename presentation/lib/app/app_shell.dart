@@ -681,13 +681,16 @@ class _ShellState extends State<CriterivoxShell> {
                       });
                       open('workspace');
                     },
-                    onConfirmInterpretation: (accepted) {
-                      final id = state?.inputConfirmationId;
-                      if (id != null) {
-                        runtime.confirmChatInterpretation(
-                          confirmationId: id,
-                          accepted: accepted,
-                        );
+                    onOpenReportHome: (homeId, characterId) {
+                      setState(() {
+                        chatOverlayOpen = false;
+                        civilizationHome = homeId;
+                        focusedCharacter = characterId;
+                      });
+                      if (characterId != null) {
+                        open('character-focus');
+                      } else {
+                        open('home-preview');
                       }
                     },
                       ),
@@ -882,12 +885,6 @@ class _ShellState extends State<CriterivoxShell> {
             );
           },
           onOpenTask: () => open('workspace'),
-          onConfirmInterpretation: (accepted) {
-            final id = state?.inputConfirmationId;
-            if (id != null) {
-              runtime.confirmChatInterpretation(confirmationId: id, accepted: accepted);
-            }
-          },
         );
 
       case 'home02':

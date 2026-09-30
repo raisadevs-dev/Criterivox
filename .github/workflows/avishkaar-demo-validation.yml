@@ -1,0 +1,53 @@
+name: Avishkaar demo data-report validation
+
+on:
+  push:
+    branches:
+      - avishkaar-demo-data-report-layer
+  workflow_dispatch:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev,ml]"
+      - run: python --version
+      - run: python -m pip check
+      - name: Verify requirements entrypoint
+        run: python -m pip install --dry-run -r requirements.txt
+      - name: Compile Python
+        run: python -m compileall -q src
+      - name: Application import smoke test
+        run: PYTHONPATH=src python -c "from criterivox.app import app; print('CRITERIVOX_APP_IMPORT_OK')"
+      - name: Case contract tests
+        run: PYTHONPATH=src pytest --import-mode=importlib -q tests/application/test_case_contracts.py
+      - name: Relevant application tests
+        run: PYTHONPATH=src pytest --import-mode=importlib -q tests/application
+
+  flutter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: presentation
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Validate Flutter dependency lock
+        run: flutter pub get --enforce-lockfile
+      - name: Check changed Flutter files
+        run: dart format --output=none lib/human/residence/private_room_page.dart lib/interaction/chat/character_chat_page.dart lib/app/app_shell.dart
+      - run: flutter analyze
+      - run: flutter test
+
+# Validation workflow intentionally runs on every branch update in this demo branch.

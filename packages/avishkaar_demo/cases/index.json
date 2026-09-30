@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0.0",
+  "cases": [
+    "CASE-001",
+    "CASE-002",
+    "CASE-003",
+    "CASE-004",
+    "CASE-005",
+    "CASE-006",
+    "CASE-007",
+    "CASE-008",
+    "CASE-009",
+    "CASE-010"
+  ],
+  "contract_version": "1.1.0",
+  "selection": "dynamic",
+  "note": "Cases are execution contracts; fixture materials are validation aids, not answer keys."
+}

@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0.0",
+  "report_id": "R-CR27-VIVREN",
+  "scope": "character",
+  "human_id": "CR-27",
+  "internal_task_id": "AN-DEMO-CR27",
+  "character_id": "vivren",
+  "character_name": "Vivren",
+  "title": "Critical Review · Research Strategy",
+  "status": "complete",
+  "summary": "Critical review identifies a supplied evidence conflict affecting Approach B and preserves uncertainty around long-term scaling for Approach A.",
+  "sections": [
+    {
+      "section_id": "vivren-review",
+      "title": "Critical findings",
+      "semantic_type": "evaluation",
+      "text": "The supplied evidence contains a direct conflict about Approach B maintenance. The conflict should remain visible rather than being silently resolved.",
+      "artifact_refs": ["ART-CR27-EVAL-01", "ART-CR27-CONFLICT-01"],
+      "source_refs": ["E-04", "E-06"],
+      "visualization": {
+        "type": "conflict_map",
+        "label": "Evidence conflict",
+        "description": "Shows the conflicting claims and their source references.",
+        "derived_from": ["ART-CR27-EVAL-01", "ART-CR27-CONFLICT-01"],
+        "available": true,
+        "accessibility_label": "A conflict exists between two supplied maintenance claims for Approach B."
+      }
+    },
+    {
+      "section_id": "vivren-uncertainty",
+      "title": "Uncertainty retained",
+      "semantic_type": "uncertainty",
+      "text": "The available evidence does not establish long-term scaling for Approach A.",
+      "artifact_refs": ["ART-CR27-UNC-01"],
+      "source_refs": ["E-08"]
+    }
+  ],
+  "artifact_refs": ["ART-CR27-EVAL-01", "ART-CR27-CONFLICT-01", "ART-CR27-UNC-01"],
+  "source_refs": ["E-04", "E-06", "E-08"],
+  "provenance": {
+    "input_refs": ["IN-001", "IN-002", "IN-003"],
+    "artifact_refs": ["ART-CR27-EVAL-01", "ART-CR27-CONFLICT-01", "ART-CR27-UNC-01"],
+    "generated_from": ["CASE-001"]
+  },
+  "views": {
+    "text": true,
+    "visualization": true
+  }
+}

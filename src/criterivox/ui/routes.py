@@ -179,12 +179,71 @@ async def human_situation_understand(request: Request):
             supplied_data=supplied_data,
             context=context,
             allow_external_research=bool(payload.get('allow_external_research', False)),
+            case_id=str(payload.get('case_id', 'CASE-010')).strip() or 'CASE-010',
+            foundation_id=str(payload.get('foundation_id', '')).strip() or None,
         )
         return {'accepted': True, **result}
     except ValueError as exc:
         return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=400)
     except Exception as exc:
         return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=502)
+
+@router.get('/api/human-residence/cases')
+async def human_residence_cases(session_token: str):
+    if human_residence_local.owner_for_session(session_token) is None:
+        return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    from ..application.case_catalog import available_cases
+    return {'accepted': True, 'cases': available_cases()}
+
+@router.post('/api/human-residence/case-report')
+async def human_residence_case_report(payload: dict):
+    """Run the inspectable case-report layer from an existing residence intake."""
+    owner_id = human_residence_local.owner_for_session(str(payload.get('session_token', '')))
+    if owner_id is None:
+        return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    try:
+        from ..application.case_reports import case_report_orchestrator
+        from ..agents.sandre.store import data_foundations
+        foundation_id = str(payload.get('foundation_id', '')).strip()
+        foundation = data_foundations.get(foundation_id) if foundation_id else None
+        result = case_report_orchestrator.execute(
+            task=str(payload.get('task', '')).strip(),
+            context=str(payload.get('context', '')).strip(),
+            foundation=foundation,
+            decision_id=str(payload.get('decision_id', '')).strip() or None,
+            case_id=str(payload.get('case_id', 'CASE-001')).strip() or 'CASE-001',
+        )
+        return {'accepted': True, **result}
+    except (ValueError, TypeError) as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=400)
+    except Exception as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=502)
+
+@router.post('/api/human-residence/case-report/{execution_id}/challenge')
+async def human_residence_case_report_challenge(execution_id: str, payload: dict):
+    owner_id = human_residence_local.owner_for_session(str(payload.get('session_token', '')))
+    if owner_id is None:
+        return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    try:
+        from ..application.case_reports import case_report_orchestrator
+        result = case_report_orchestrator.challenge(
+            execution_id=execution_id,
+            text=str(payload.get('text', '')).strip(),
+            actor='human',
+        )
+        return {'accepted': True, **result}
+    except ValueError as exc:
+        return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=400)
+
+@router.get('/api/human-residence/case-report/{report_id}')
+async def human_residence_case_report_get(report_id: str, session_token: str):
+    if human_residence_local.owner_for_session(session_token) is None:
+        return JSONResponse({'accepted': False, 'error': 'invalid_session'}, status_code=401)
+    from ..application.case_reports import case_report_orchestrator
+    report = case_report_orchestrator.store.get(report_id)
+    if report is None:
+        return JSONResponse({'accepted': False, 'error': 'report_not_found'}, status_code=404)
+    return {'accepted': True, 'report': report}
 
 @router.post('/api/human-residence/decision')
 async def human_residence_decision(payload: dict):
@@ -205,6 +264,7 @@ async def human_residence_decision(payload: dict):
             'trace': result.trace,
             'research': result.research,
             'foundation_id': result.foundation_id,
+            'case_id': result.strategy.get('case_id'),
         }
     except PermissionError as exc:
         return JSONResponse({'accepted': False, 'error': str(exc)}, status_code=401)
