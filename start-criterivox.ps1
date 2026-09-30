@@ -9,6 +9,7 @@ $BackendErrorLog = Join-Path $DiagnosticsRoot 'python-runtime-error.log'
 $FlutterLog = Join-Path $DiagnosticsRoot 'flutter-runtime.log'
 $FlutterErrorLog = Join-Path $DiagnosticsRoot 'flutter-runtime-error.log'
 $BackendTerminalScript = Join-Path $DiagnosticsRoot 'run-backend.ps1'
+$ImportProbeScript = Join-Path $DiagnosticsRoot 'python-import-probe.py'
 $BackendTerminal = $null
 $FlutterProcess = $null
 
@@ -77,6 +78,7 @@ function Get-RootCauseClassification([string]$Message) {
     if (Test-Path $FlutterErrorLog) { $flutterText = Get-Content $FlutterErrorLog -Raw -ErrorAction SilentlyContinue }
     $combined = $Message + [Environment]::NewLine + $backendText + [Environment]::NewLine + $flutterText
 
+    if ($combined -match 'SyntaxError|IndentationError|TabError') { return 'PYTHON_SYNTAX_FAILURE' }
     if ($combined -match 'ModuleNotFoundError|ImportError|cannot import name') { return 'PYTHON_IMPORT_FAILURE' }
     if ($combined -match 'Address already in use|Only one usage|port .* already') { return 'BACKEND_PORT_CONFLICT' }
     if ($combined -match 'uvicorn|Python runtime|backend') { return 'BACKEND_STARTUP_FAILURE' }
@@ -122,6 +124,7 @@ function New-Incident([string]$Stage, [string]$Expected, [string]$Observed, [str
             backend_stderr = $BackendErrorLog
             flutter_stdout = $FlutterLog
             flutter_stderr = $FlutterErrorLog
+            import_probe = $ImportProbeScript
         }
         recommendation = $Recommendation
     }
@@ -149,7 +152,13 @@ try {
     $ImportProbeLog = Join-Path $DiagnosticsRoot 'python-import-probe.log'
     $ImportProbeErrorLog = Join-Path $DiagnosticsRoot 'python-import-probe-error.log'
     Remove-Item $ImportProbeLog,$ImportProbeErrorLog -Force -ErrorAction SilentlyContinue
-    $probe = Start-Process -FilePath $PythonExecutable -ArgumentList @('-u','-c',"import criterivox.app; print('CRITERIVOX_APP_IMPORT_OK')") -WorkingDirectory $Root -RedirectStandardOutput $ImportProbeLog -RedirectStandardError $ImportProbeErrorLog -PassThru
+
+    @"
+import criterivox.app
+print("CRITERIVOX_APP_IMPORT_OK")
+"@ | Set-Content $ImportProbeScript -Encoding UTF8
+
+    $probe = Start-Process -FilePath $PythonExecutable -ArgumentList @('-u', $ImportProbeScript) -WorkingDirectory $Root -RedirectStandardOutput $ImportProbeLog -RedirectStandardError $ImportProbeErrorLog -PassThru
 
     if (-not $probe.WaitForExit($ImportTimeoutSeconds * 1000)) {
         Stop-ProcessTree $probe.Id
@@ -236,7 +245,7 @@ catch {
     $message = $_.Exception.Message
     Write-LauncherLog "CRITICAL runtime failure: $message"
     Write-ProcessDiagnostics
-    New-Incident -Stage 'managed_startup_or_runtime' -Expected 'Python backend reaches /health, WebSocket endpoint is available, and Flutter launches lib/app/main.dart in Chrome.' -Observed $message -Recommendation 'The launcher performs a bounded application-import probe before Uvicorn, fixes the Flutter entrypoint to lib/app/main.dart, keeps the backend terminal visible, captures backend output, and records the exact failed boundary.'
+    New-Incident -Stage 'managed_startup_or_runtime' -Expected 'Python backend reaches /health, WebSocket endpoint is available, and Flutter launches lib/app/main.dart in Chrome.' -Observed $message -Recommendation 'The launcher uses a file-based bounded application-import probe, fixes the Flutter entrypoint to lib/app/main.dart, keeps the backend terminal visible, captures backend output, and records the exact failed boundary.' 
     exit 1
 }
 finally {
