@@ -6,6 +6,7 @@ import json
 import logging
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -29,6 +30,13 @@ from .runtime.characters.backbone.operations_api import ENGINE as operations_eng
 
 logger = logging.getLogger(__name__)
 app = FastAPI(title="Criterivox")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\\d+)?$",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 from .application import foundation_runtime_bridge  # noqa: F401
 app.mount("/static", StaticFiles(directory="src/criterivox/ui/static"), name="static")
 stewardship = SandreStewardship()
