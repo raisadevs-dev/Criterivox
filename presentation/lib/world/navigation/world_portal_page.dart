@@ -140,7 +140,7 @@ class _HumanResidencePageState extends State<HumanResidencePage> {
         CriterivoxApi.uri('/api/human-auth/signup'),
         headers: const {'content-type': 'application/json'},
         body: jsonEncode({'email': email.text.trim(), 'password': password.text, 'display_name': name.text.trim(), 'residence_id': id, 'residence_type': type, 'avatar_data_url': avatarDataUrl}),
-      ).timeout(const Duration(seconds: 6));
+      ).timeout(const Duration(seconds: 15));
       if (authResponse.statusCode < 200 || authResponse.statusCode >= 300) throw Exception('Signup rejected');
       final auth = jsonDecode(authResponse.body) as Map<String, dynamic>;
       final token = auth['session_token']?.toString();
