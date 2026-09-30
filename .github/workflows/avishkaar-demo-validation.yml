@@ -23,6 +23,8 @@ jobs:
         run: python -m pip install --dry-run -r requirements.txt
       - name: Compile Python
         run: python -m compileall -q src
+      - name: Application import smoke test
+        run: PYTHONPATH=src python -c "from criterivox.app import app; print('CRITERIVOX_APP_IMPORT_OK')"
       - name: Case contract tests
         run: PYTHONPATH=src pytest --import-mode=importlib -q tests/application/test_case_contracts.py
       - name: Relevant application tests
