@@ -622,6 +622,7 @@ class _Conversation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = CriterivoxTheme.of(context);
+    final compact = MediaQuery.sizeOf(context).width < 520;
 
     final registry =
         _CharacterChatPageState._registry ??
@@ -678,9 +679,8 @@ class _Conversation extends StatelessWidget {
       children: [
         Container(
           height: 86,
-          padding:
-              const EdgeInsets.symmetric(
-            horizontal: 22,
+          padding: EdgeInsets.symmetric(
+            horizontal: compact ? 12 : 22,
           ),
           decoration: BoxDecoration(
             border: Border(
@@ -694,8 +694,8 @@ class _Conversation extends StatelessWidget {
               SessionCharacterAnimationView(
                 characterId: target,
                 state: runtimeState,
-                width: 60,
-                height: 68,
+                width: compact ? 42 : 60,
+                height: compact ? 50 : 68,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -707,9 +707,11 @@ class _Conversation extends StatelessWidget {
                   children: [
                     Text(
                       'Chat with ${member.name}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: t.text,
-                        fontSize: 18,
+                        fontSize: compact ? 15 : 18,
                         fontWeight:
                             FontWeight.w700,
                       ),
@@ -752,8 +754,7 @@ class _Conversation extends StatelessWidget {
         ),
         Expanded(
           child: ListView(
-            padding:
-                const EdgeInsets.all(24),
+            padding: EdgeInsets.all(compact ? 12 : 24),
             children: [
               _Welcome(member: member),
               Wrap(
