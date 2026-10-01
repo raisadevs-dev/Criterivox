@@ -95,6 +95,25 @@ class _CharacterChatPageState
 
   static List<_CharacterInfo>? _registry;
 
+  // Offline fallback keeps chat usable if the bundled registry cannot be fetched.
+  static const fallbackRegistry = <_CharacterInfo>[
+    _CharacterInfo('syvax', 'Syvax', 'Human interaction and orchestration boundary'),
+    _CharacterInfo('dharen', 'Dharen', 'Context architect'),
+    _CharacterInfo('sandre', 'Sandre', 'Canonical data steward'),
+    _CharacterInfo('kaelen', 'Kaelen', 'Builder and experimenter'),
+    _CharacterInfo('anuka', 'Anuka', 'Adaptive context specialist'),
+    _CharacterInfo('vivren', 'Vivren', 'Critical reasoning and inspection specialist'),
+    _CharacterInfo('tarkis', 'Tarkis', 'Hypothesis and exploration specialist'),
+    _CharacterInfo('bodhex', 'Bodhex', 'Insight and action-preparation specialist'),
+    _CharacterInfo('pramon', 'Pramon', 'Planning and decision-structure specialist'),
+    _CharacterInfo('medrus', 'Medrus', 'Evidence acquisition and experimentation specialist'),
+    _CharacterInfo('epistre', 'Epistre', 'Provenance and explanation specialist'),
+    _CharacterInfo('veridat', 'Veridat', 'Verification and truth-boundary specialist'),
+    _CharacterInfo('manis', 'Manis', 'Human-side challenge and oversight representative'),
+    _CharacterInfo('viveda', 'Viveda', 'Knowledge synthesis and reuse specialist'),
+    _CharacterInfo('anukor', 'Anukor', 'Internal cross-home transfer specialist'),
+  ];
+
   static const fallbackPrompts = <String>[
     'What can you do?',
     'What is your current state?',
@@ -183,9 +202,9 @@ class _CharacterChatPageState
       }
 
       setState(() {
-        _registry = items;
+        _registry = items.isEmpty ? fallbackRegistry : items;
 
-        for (final member in items) {
+        for (final member in _registry!) {
           conversations.putIfAbsent(
             member.id,
             () => [],
@@ -202,13 +221,15 @@ class _CharacterChatPageState
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Unable to load character registry: $error',
-          ),
-        ),
-      );
+      // Keep the chat roster available when a stale/missing web asset is returned.
+      setState(() {
+        _registry = fallbackRegistry;
+        for (final member in fallbackRegistry) {
+          conversations.putIfAbsent(member.id, () => []);
+          references.putIfAbsent(member.id, () => []);
+        }
+      });
+      debugPrint('Character registry asset unavailable; using bundled fallback: $error');
     }
   }
 
@@ -601,6 +622,7 @@ class _Conversation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = CriterivoxTheme.of(context);
+    final compact = MediaQuery.sizeOf(context).width < 520;
 
     final registry =
         _CharacterChatPageState._registry ??
@@ -657,9 +679,8 @@ class _Conversation extends StatelessWidget {
       children: [
         Container(
           height: 86,
-          padding:
-              const EdgeInsets.symmetric(
-            horizontal: 22,
+          padding: EdgeInsets.symmetric(
+            horizontal: compact ? 12 : 22,
           ),
           decoration: BoxDecoration(
             border: Border(
@@ -673,8 +694,8 @@ class _Conversation extends StatelessWidget {
               SessionCharacterAnimationView(
                 characterId: target,
                 state: runtimeState,
-                width: 60,
-                height: 68,
+                width: compact ? 42 : 60,
+                height: compact ? 50 : 68,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -686,9 +707,11 @@ class _Conversation extends StatelessWidget {
                   children: [
                     Text(
                       'Chat with ${member.name}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: t.text,
-                        fontSize: 18,
+                        fontSize: compact ? 15 : 18,
                         fontWeight:
                             FontWeight.w700,
                       ),
@@ -731,8 +754,7 @@ class _Conversation extends StatelessWidget {
         ),
         Expanded(
           child: ListView(
-            padding:
-                const EdgeInsets.all(24),
+            padding: EdgeInsets.all(compact ? 12 : 24),
             children: [
               _Welcome(member: member),
               Wrap(
@@ -982,13 +1004,13 @@ class _Composer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compact = MediaQuery.sizeOf(context).width < 520;
     return Container(
-      padding:
-          const EdgeInsets.fromLTRB(
-        18,
+      padding: EdgeInsets.fromLTRB(
+        compact ? 8 : 18,
         10,
-        18,
-        18,
+        compact ? 8 : 18,
+        compact ? 10 : 18,
       ),
       decoration: BoxDecoration(
         border: Border(

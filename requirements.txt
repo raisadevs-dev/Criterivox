@@ -1,10 +1,16 @@
-# Criterivox dependency entrypoint.
+# Criterivox production dependency entrypoint.
 #
-# pyproject.toml is the source of truth. This installs the complete
-# development + ML environment:
-#   python -m pip install -r requirements.txt
+# Keep runtime dependencies explicit here because Railway's Railpack installs
+# requirements.txt before copying the complete source tree into the build
+# image. An editable install (-e .) at this stage fails for this src-layout
+# package because src/ is not available yet.
 #
-# Python WebSocket transport is provided by FastAPI/Starlette. The Flutter
-# WebSocket client is web_socket_channel in presentation/pubspec.yaml.
-# Criterivox does not directly import Python websocket-client/websockets.
--e .[dev,ml]
+# pyproject.toml remains the source of truth. Keep these runtime dependencies
+# aligned with [project].dependencies and the optional [ml] extra.
+fastapi[standard]>=0.115,<1
+pydantic>=2,<3
+pydantic-settings>=2,<3
+numpy>=2,<3
+scikit-learn>=1.9,<1.10
+joblib>=1.4,<2
+datasets>=3,<5
