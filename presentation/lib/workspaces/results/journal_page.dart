@@ -30,7 +30,7 @@ class _ResultsJournalPageState extends State<ResultsJournalPage> {
     }
     final token = r.metadata['session_token']?.toString() ?? '';
     if (token.isEmpty) {
-      setState(() { loading = false; status = 'This residence has no active session. Open Human Territory and sign in again.'; });
+      _loadLocalDraft(r, 'Local-only result. Sign in to sync and retrieve server-saved decisions.');
       return;
     }
     try {
@@ -45,8 +45,21 @@ class _ResultsJournalPageState extends State<ResultsJournalPage> {
       entries = raw is List ? raw.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList() : [];
       setState(() { loading = false; status = ''; });
     } catch (e) {
-      setState(() { loading = false; status = 'Could not load the saved decision record: ${e.toString().replaceFirst('Exception: ', '')}'; });
+      _loadLocalDraft(r, 'Server record unavailable. Showing locally saved work where available. ${e.toString().replaceFirst('Exception: ', '')}');
     }
+  }
+
+  void _loadLocalDraft(HumanResidenceRecord r, String message) {
+    final metadata = r.metadata;
+    final rawStrategy = metadata['decision_support_strategy'];
+    final strategy = rawStrategy is Map ? Map<String, dynamic>.from(rawStrategy) : <String, dynamic>{};
+    final goal = metadata['goal']?.toString() ?? '';
+    final statusValue = metadata['decision_support_last_status']?.toString() ?? '';
+    if (goal.isNotEmpty && strategy.isNotEmpty) {
+      entries = [<String, dynamic>{'title': 'Recent local decision', 'goal': goal, 'strategy': strategy, 'trace': metadata['decision_support_trace'] is List ? metadata['decision_support_trace'] : [], 'decision_id': metadata['decision_support_decision_id'], 'local_only': true, 'status': statusValue}];
+    }
+    if (!mounted) return;
+    setState(() { loading = false; status = message; });
   }
 
   @override Widget build(BuildContext context) {
@@ -74,6 +87,7 @@ class _ResultsJournalPageState extends State<ResultsJournalPage> {
     final strategy = e['strategy'] is Map ? Map<String, dynamic>.from(e['strategy']) : <String, dynamic>{};
     final options = strategy['options'] is List ? strategy['options'] as List : const [];
     return _panel(t, (e['title'] ?? 'Decision').toString(), Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      if (e['local_only'] == true) Container(padding: const EdgeInsets.all(8), margin: const EdgeInsets.only(bottom: 8), decoration: BoxDecoration(color: t.surfaceStrong, borderRadius: BorderRadius.circular(9)), child: Text('LOCAL COPY • NOT SYNCED', style: TextStyle(color: t.primary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),),
       _v(t, 'Goal', e['goal']),
       if (options.isNotEmpty) ...[
         const SizedBox(height: 8),
