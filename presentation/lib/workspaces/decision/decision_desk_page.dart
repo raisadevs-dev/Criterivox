@@ -22,30 +22,31 @@ class _DecisionDeskPageState extends State<DecisionDeskPage> {
   int imageCount = 0;
   String imageRole = 'other';
   List<String> imageNames = [], questions = [];
+  List<Map<String, dynamic>> agentTrace = [];
   Map<String, dynamic>? support, understanding;
   String humanReadable = '';
   String? decisionId;
   Map<String, dynamic>? strategy;
   @override void initState(){super.initState();_restore();}
   @override void dispose(){situation.dispose();data.dispose();contextCtl.dispose();super.dispose();}
-  Future<void> _restore() async { final r=await store.load(); if(!mounted)return; setState((){residence=r;if(r!=null){situation.text=r.metadata['goal']?.toString()??'';data.text=r.metadata['data']?.toString()??'';contextCtl.text=r.metadata['context']?.toString()??'';}}); }
+  Future<void> _restore() async { final r=await store.load(); if(!mounted)return; setState((){residence=r;if(r!=null){situation.text=r.metadata['goal']?.toString()??'';data.text=r.metadata['data']?.toString()??'';contextCtl.text=r.metadata['context']?.toString()??'';final rawTrace=r.metadata['decision_support_trace'];agentTrace=rawTrace is List?rawTrace.whereType<Map>().map((e)=>Map<String,dynamic>.from(e)).toList():[];}}); }
   Future<void> _attachImages() async { final result=await FilePicker.platform.pickFiles(withData:false,allowMultiple:true,type:FileType.image); if(result==null||result.files.isEmpty)return; setState((){imageCount+=result.files.length;imageNames.addAll(result.files.map((f)=>f.name));status='IMAGES_ATTACHED • appearance is not treated as behavioral evidence';}); }
   Future<void> _run([String? safetyAnswer]) async {
     var description=situation.text.trim();
     if(safetyAnswer!=null&&safetyAnswer.isNotEmpty){description='$description\nUser safety answer: $safetyAnswer';situation.text=description;}
     if(description.isEmpty){setState(()=>status='SITUATION_REQUIRED');return;}
     final token=residence?.metadata['session_token']?.toString()??'';
-    setState((){running=true;status='UNDERSTANDING_SITUATION';questions=[];support=null;humanReadable='';decisionId=null;strategy=null;});
+    setState((){running=true;status='UNDERSTANDING_SITUATION';questions=[];support=null;humanReadable='';decisionId=null;strategy=null;agentTrace=[];});
     try {
       final response=await http.post(CriterivoxApi.uri('/api/human-situation/understand'),headers:const {'content-type':'application/json'},body:jsonEncode({'session_token':token,'residence_id':residence?.residenceId??'','description':description,'data':data.text.trim(),'context':contextCtl.text.trim(),'image_count':imageCount,'image_roles':List<String>.filled(imageCount,imageRole),'allow_external_research':external})).timeout(const Duration(seconds:30));
       final decoded=jsonDecode(response.body);
       if(response.statusCode<200||response.statusCode>=300||decoded is! Map)throw Exception(decoded is Map?decoded['error']??'situation pipeline rejected':'situation pipeline rejected');
       final body=Map<String,dynamic>.from(decoded); if(!mounted)return;
-      setState((){understanding=body['understanding'] is Map?Map<String,dynamic>.from(body['understanding']):null;questions=body['questions'] is List?body['questions'].map((x)=>x.toString()).toList():[];support=body['support'] is Map?Map<String,dynamic>.from(body['support']):null;strategy=body['strategy'] is Map?Map<String,dynamic>.from(body['strategy']):null;decisionId=body['decision_id']?.toString();humanReadable=body['human_readable']?.toString()??'';running=false;status=body['status']?.toString().toUpperCase()??'READY';});
+      setState((){understanding=body['understanding'] is Map?Map<String,dynamic>.from(body['understanding']):null;questions=body['questions'] is List?body['questions'].map((x)=>x.toString()).toList():[];support=body['support'] is Map?Map<String,dynamic>.from(body['support']):null;strategy=body['strategy'] is Map?Map<String,dynamic>.from(body['strategy']):null;decisionId=body['decision_id']?.toString();agentTrace=body['trace'] is List?body['trace'].whereType<Map>().map((e)=>Map<String,dynamic>.from(e)).toList():[];humanReadable=body['human_readable']?.toString()??'';running=false;status=body['status']?.toString().toUpperCase()??'READY';});
       if(body['status']=='ready'&&residence!=null)await _persistSituation();
     } catch(e) { if(mounted)setState((){running=false;status='SITUATION_PIPELINE_FAILED • $e';}); }
   }
-  Future<void> _persistSituation() async { final r=residence;if(r==null)return;final metadata=Map<String,dynamic>.from(r.metadata)..['goal']=situation.text.trim()..['context']=contextCtl.text.trim()..['data']=data.text.trim()..['decision_support_last_status']=status..['decision_support_images']=imageNames;await store.save(HumanResidenceRecord(residenceId:r.residenceId,ownerId:r.ownerId,displayName:r.displayName,email:r.email,residenceType:r.residenceType,createdAt:r.createdAt,members:r.members,metadata:metadata)); }
+  Future<void> _persistSituation() async { final r=residence;if(r==null)return;final metadata=Map<String,dynamic>.from(r.metadata)..['goal']=situation.text.trim()..['context']=contextCtl.text.trim()..['data']=data.text.trim()..['decision_support_last_status']=status..['decision_support_images']=imageNames..['decision_support_trace']=agentTrace..['decision_support_strategy']=strategy..['decision_support_decision_id']=decisionId;await store.save(HumanResidenceRecord(residenceId:r.residenceId,ownerId:r.ownerId,displayName:r.displayName,email:r.email,residenceType:r.residenceType,createdAt:r.createdAt,members:r.members,metadata:metadata)); }
   @override Widget build(BuildContext context){
     final t=CriterivoxTheme.of(context);
     final safety=understanding?['situation'] is Map?(understanding!['situation'] as Map)['safety']?.toString():null;
@@ -71,10 +72,12 @@ class _DecisionDeskPageState extends State<DecisionDeskPage> {
       if(sensitive)_panel(t,'SAFETY FIRST',Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('The situation may involve interpersonal harm or an immediate safety concern. Safety takes priority over ordinary analysis.',style:TextStyle(color:t.text,fontSize:12,height:1.45)),const SizedBox(height:10),for(final q in questions.where((q)=>q.toLowerCase().contains('safe right now'))) ...[Text(q,style:TextStyle(color:t.text,fontWeight:FontWeight.w800,fontSize:12)),const SizedBox(height:8),Wrap(spacing:8,children:[OutlinedButton(onPressed:running?null:()=>_run('Yes'),child:const Text('Yes')),OutlinedButton(onPressed:running?null:()=>_run('No'),child:const Text('No')),OutlinedButton(onPressed:running?null:()=>_run("I'm not sure"),child:const Text("I'm not sure"))])]])),
       if(questions.isNotEmpty)_panel(t,'A LITTLE MORE CONTEXT',Column(crossAxisAlignment:CrossAxisAlignment.start,children:[for(final q in questions.where((q)=>!q.toLowerCase().contains('safe right now')))Padding(padding:const EdgeInsets.only(bottom:7),child:Text('• $q',style:TextStyle(color:t.mutedText,fontSize:11))),Text('Add the answer in the situation box, then run it again.',style:TextStyle(color:t.mutedText,fontSize:10))])),
       if(humanReadable.isNotEmpty)_panel(t,'WHAT I UNDERSTAND',Text(humanReadable,style:TextStyle(color:t.text,fontSize:12,height:1.5))),
-      if(humanReadable.isNotEmpty)_panel(t,'RESULT • YOUR DECISION SUPPORT',Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[
-        Text('Criterivox has finished the first decision-support pass.',style:TextStyle(color:t.text,fontWeight:FontWeight.w800,fontSize:13)),
+      if(humanReadable.isNotEmpty||strategy!=null)_panel(t,'FINAL RESULT • YOUR DECISION SUPPORT',Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[
+        Text(status=='READY'?'Decision-support result is ready for your review.':'Decision-support status: $status',style:TextStyle(color:t.text,fontWeight:FontWeight.w800,fontSize:13)),
+        if(humanReadable.isEmpty&&strategy==null)Text('No strategy options were returned for this pass. Review the understanding and uncertainties below before continuing.',style:TextStyle(color:t.mutedText,fontSize:11,height:1.45)),
         const SizedBox(height:8),
-        Text(humanReadable,style:TextStyle(color:t.mutedText,fontSize:11,height:1.5)),
+        if(humanReadable.isNotEmpty)Text(humanReadable,style:TextStyle(color:t.mutedText,fontSize:11,height:1.5)),
+        if(strategy?['challenges'] is List&&(strategy!['challenges'] as List).isNotEmpty)...[(const SizedBox(height:10)),Text('Challenges to consider',style:TextStyle(color:t.primary,fontWeight:FontWeight.w800,fontSize:11)),for(final challenge in (strategy!['challenges'] as List))Padding(padding:const EdgeInsets.only(top:5),child:Text('• $challenge',style:TextStyle(color:t.mutedText,fontSize:10,height:1.4)))],
         if(decisionId!=null)...[const SizedBox(height:10),Text('Saved decision: $decisionId',style:TextStyle(color:t.mutedText,fontSize:9))],
         const SizedBox(height:12),
         Wrap(spacing:8,runSpacing:8,children:[
@@ -82,6 +85,8 @@ class _DecisionDeskPageState extends State<DecisionDeskPage> {
           OutlinedButton.icon(onPressed:()=>setState((){status='READY_FOR_HUMAN_REVIEW';}),icon:const Icon(Icons.edit_note_rounded),label:const Text('Correct the situation')),
         ]),
       ])),
+      if(running)_panel(t,'EXECUTION STATUS',Row(children:[const SizedBox(width:18,height:18,child:CircularProgressIndicator(strokeWidth:2)),const SizedBox(width:12),Expanded(child:Text('Criterivox is processing this request. Detailed agent events appear only when the backend returns them.',style:TextStyle(color:t.mutedText,fontSize:11,height:1.4)))])),
+      if(agentTrace.isNotEmpty)_panel(t,'RECORDED EXECUTION TRACE',Column(crossAxisAlignment:CrossAxisAlignment.start,children:[for(final event in agentTrace)Padding(padding:const EdgeInsets.only(bottom:9),child:Container(width:double.infinity,padding:const EdgeInsets.all(11),decoration:BoxDecoration(color:t.surfaceStrong,borderRadius:BorderRadius.circular(12),border:Border.all(color:t.border)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('${event['actor']??event['agent']??event['agent_id']??'Execution step'}',style:TextStyle(color:t.text,fontSize:11,fontWeight:FontWeight.w800)),if((event['responsibility']??'').toString().isNotEmpty)Padding(padding:const EdgeInsets.only(top:3),child:Text('${event['responsibility']}',style:TextStyle(color:t.primary,fontSize:10,fontWeight:FontWeight.w700))),if((event['detail']??event['summary']??event['message']??'').toString().isNotEmpty)Padding(padding:const EdgeInsets.only(top:3),child:Text('${event['detail']??event['summary']??event['message']}',style:TextStyle(color:t.mutedText,fontSize:10,height:1.4))),if((event['status']??'').toString().isNotEmpty)Padding(padding:const EdgeInsets.only(top:3),child:Text('Status: ${event['status']}',style:TextStyle(color:t.mutedText,fontSize:9)))])))])),
       if(matters is List&&matters.isNotEmpty)_panel(t,'WHAT MATTERS',Column(children:[for(final x in matters)_item(t,x.toString())])),
       if(next is List&&next.isNotEmpty)_panel(t,'WHAT YOU CAN DO NEXT',Column(children:[for(var i=0;i<next.length;i++)_item(t,'${i+1}. ${next[i]}')])),
       if(uncertain is List&&uncertain.isNotEmpty)_panel(t,"WHAT I'M NOT SURE ABOUT",Column(children:[for(final x in uncertain)_item(t,x.toString())])),
