@@ -1004,13 +1004,13 @@ class _Composer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compact = MediaQuery.sizeOf(context).width < 520;
     return Container(
-      padding:
-          const EdgeInsets.fromLTRB(
-        18,
+      padding: EdgeInsets.fromLTRB(
+        compact ? 8 : 18,
         10,
-        18,
-        18,
+        compact ? 8 : 18,
+        compact ? 10 : 18,
       ),
       decoration: BoxDecoration(
         border: Border(
