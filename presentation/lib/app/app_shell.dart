@@ -1051,9 +1051,11 @@ class _TopBarState extends State<_TopBar> {
   @override
   Widget build(BuildContext context) {
     final t = criterivox_theme.CriterivoxTheme.of(context);
+    final compact = MediaQuery.sizeOf(context).width < 480;
+    final showConnectionLabel = MediaQuery.sizeOf(context).width >= 420;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+      padding: EdgeInsets.fromLTRB(compact ? 10 : 20, 8, compact ? 10 : 20, 12),
       child: Row(
         children: [
           Expanded(
@@ -1085,10 +1087,11 @@ class _TopBarState extends State<_TopBar> {
             color: widget.connectionLive ? Colors.green : t.mutedText,
           ),
           const SizedBox(width: 6),
-          Text(
-            widget.connectionLive ? 'Connected' : 'Offline',
-            style: TextStyle(color: t.mutedText, fontSize: 12),
-          ),
+          if (showConnectionLabel)
+            Text(
+              widget.connectionLive ? 'Connected' : 'Offline',
+              style: TextStyle(color: t.mutedText, fontSize: 12),
+            ),
           IconButton(
             tooltip: widget.isDarkMode ? 'Use light theme' : 'Use dark theme',
             onPressed: widget.onToggleTheme,
@@ -1385,9 +1388,10 @@ class _SidebarState extends State<_Sidebar> {
   @override
   Widget build(BuildContext context) {
     final t = criterivox_theme.CriterivoxTheme.of(context);
-    final expanded = widget.expanded;
+    final isCompact = MediaQuery.sizeOf(context).width < 720;
+    final expanded = widget.expanded && !isCompact;
     final strings = CriterivoxStrings(widget.language);
-    final width = expanded ? 244.0 : 76.0;
+    final width = isCompact ? 60.0 : (expanded ? 244.0 : 76.0);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 240),
