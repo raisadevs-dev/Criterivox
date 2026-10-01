@@ -1,0 +1,13 @@
+# Railway deploy configuration for the Criterivox FastAPI service.
+# Configure CRITERIVOX_CORS_ORIGINS and persistent storage in Railway before
+# connecting any public frontend or real user accounts.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5
