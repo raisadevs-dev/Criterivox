@@ -772,13 +772,13 @@ class _ShellState extends State<CriterivoxShell> {
         return ResultsJournalPage(onDecisionDesk: () => open('decision-desk'));
 
       case 'meeting-hall':
-        return CollaborationCommonsPage(destination: CollaborationDestination.meetingHall, onDecisionDesk: () => open('decision-desk'));
+        return CollaborationCommonsPage(destination: CollaborationDestination.meetingHall, onDecisionDesk: () => open('decision-desk'), onCollaborationRoom: () => open('collaboration-room'));
 
       case 'project-rooms':
-        return CollaborationCommonsPage(destination: CollaborationDestination.projectRooms, onDecisionDesk: () => open('decision-desk'));
+        return CollaborationCommonsPage(destination: CollaborationDestination.projectRooms, onDecisionDesk: () => open('decision-desk'), onCollaborationRoom: () => open('collaboration-room'));
 
       case 'shared-workspaces':
-        return CollaborationCommonsPage(destination: CollaborationDestination.sharedWorkspaces, onDecisionDesk: () => open('decision-desk'));
+        return CollaborationCommonsPage(destination: CollaborationDestination.sharedWorkspaces, onDecisionDesk: () => open('decision-desk'), onCollaborationRoom: () => open('collaboration-room'));
 
       case 'decision-action':
         return DecisionActionQuarterPage(
