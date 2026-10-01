@@ -1,45 +1,46 @@
-# Criterivox 2.0 — Python Backend Hosting Readiness
+# Criterivox 2.0 — Railway Backend Hosting Readiness
 
-Status: repository review completed; no public backend deployment performed.
-Target branch: `criterivox-2.0`
+Status: Railway deployment files committed; no Railway project linked and no public backend deployed.
+Target branch: `criterivox-2.0`.
 
-## What exists
+## Repository implementation
 
 - Python package requires Python `>=3.13,<3.14` in `pyproject.toml`.
-- FastAPI application entrypoint: `src/criterivox/app.py`.
+- FastAPI entrypoint: `src/criterivox/app.py`.
 - Health endpoint: `GET /health`.
 - Runtime WebSocket: `/runtime/characters`.
 - Human authentication and residence routes are defined in `src/criterivox/ui/routes.py`.
-- Current auth/residence responses explicitly identify storage as `local-sqlite`.
-- `requirements.txt` installs `-e .[dev,ml]`; project runtime dependencies are declared in `pyproject.toml`.
-- `.env.example` currently contains only the environment selector.
-- Existing CI workflows use Python 3.13, but the repository review did not establish a production container image or hosted service configuration.
-- The FastAPI CORS configuration currently permits localhost/127.0.0.1 origins only. A hosted frontend origin must be explicitly configured; do not broadly allow arbitrary origins with credentials.
-- `src/criterivox/app.py` mounts static files from a repository-relative path. A container must start from the correct project root or configure this path robustly.
+- `Dockerfile` uses Python 3.13, installs the package's ML extra, and launches Uvicorn on Railway's `PORT` (default 8000).
+- `railway.toml` selects the Dockerfile builder and configures `/health` as the health check.
+- `.dockerignore` excludes local environments, databases, secrets, caches and build output.
+- `CRITERIVOX_CORS_ORIGINS` configures explicit comma-separated browser origins. Defaults cover common local development origins; set the exact deployed frontend origin in Railway's service variables.
+- No public URL is created by these commits. Railway project setup, deployment and live verification remain pending.
 
-## Hosting compatibility
+## Important runtime and security limits
 
-AppDeploy's available backend scaffold is TypeScript-based (`backend/index.ts`) and imports its platform SDK. It does not directly execute the repository's Python/FastAPI app. The existing Python service therefore needs a Python-capable hosting target, such as a container-compatible application platform, or a separately provisioned server.
+- Existing human residence/auth responses identify their storage as `local-sqlite`. A hosted service must not assume its filesystem is durable. Configure a persistent volume or migrate to a supported database, then verify isolation, backups and restart behavior before real user data is used.
+- The app has in-memory runtime/context state. A multi-instance deployment may split state; start with one replica and assess shared-state requirements before scaling.
+- Review session expiry/revocation, password handling, authorization on every user-scoped route, upload limits, rate limits, and sensitive logging before public exposure.
+- The current backend's CORS allowlist is explicit. Do not use wildcard origins with credentials.
+- The app mounts static files from `src/criterivox/ui/static`; confirm this directory is present in the container image and startup succeeds.
+- AppDeploy's available backend scaffold is TypeScript-based and does not directly execute this Python/FastAPI service. Host the Python service on Railway and connect the frontend only after endpoint verification.
+- Use Railway-managed variables for configuration and secrets. Never commit credentials or put backend secrets in frontend code.
 
-No provider/account was specified or connected in this task. Do not claim the backend is publicly reachable until a provider is selected, deployment is authorized/configured, and a live health check succeeds.
+## Railway setup and validation
 
-## Pre-deployment requirements
+1. In Railway, create a project and add a service from the GitHub repository `raisadevs-dev/Criterivox`.
+2. Select branch `criterivox-2.0`. Ensure Railway detects the repository's root `Dockerfile` (or select Dockerfile builder explicitly).
+3. Set `CRITERIVOX_ENVIRONMENT=staging` and `CRITERIVOX_CORS_ORIGINS` to the exact AppDeploy frontend origin. Do not add secrets unless a reviewed backend integration actually requires them.
+4. Configure persistent storage for any required SQLite/files, or complete a reviewed migration to a managed database before testing account persistence. Keep staging data synthetic.
+5. Deploy and inspect build/runtime logs. Confirm the Railway-generated HTTPS domain serves `GET /health` with status 200 and that the WebSocket endpoint accepts a valid client connection.
+6. Verify required API routes, reconnect behavior, user/residence authorization boundaries, persistence across restart, and absence of private-data leakage. Do not treat a successful health response as proof all workflows work.
+7. Set the verified HTTPS and WSS base URLs in the frontend's supported environment configuration, then run cross-service end-to-end tests.
+8. Public use requires a separate security and privacy review, including user consent and data retention behavior.
 
-1. Select a Python-capable hosting provider and connect its deployment integration or authorize the required account setup.
-2. Build a reproducible Python 3.13 container/start command from the repository's actual dependency declarations; install only runtime dependencies needed by the service, not development/test extras by default.
-3. Confirm all model files, datasets and static assets required at startup are packaged or retrieved from an approved persistent location. Do not assume local workstation files exist in the cloud.
-4. Inventory every SQLite-backed store, file write, cache, model download and in-memory runtime object. Local ephemeral disks and in-memory dictionaries are not durable multi-instance storage. Decide which records require persistent, user-isolated storage before exposing accounts publicly.
-5. Review session-token generation, expiry, revocation, password handling, authorization on every user-scoped route, upload limits, rate limits and logging of sensitive values.
-6. Configure HTTPS, a strict allowlist of the deployed frontend origin(s), secure WebSocket transport, health/readiness checks, request limits, service restart behavior and monitoring.
-7. Use provider-managed secrets for any credentials. Never commit secrets or put backend credentials in frontend bundles.
-8. Deploy to a staging environment first. Verify `GET /health`, expected API routes, WebSocket connect/reconnect, task isolation, account boundaries, persistence across restart, and no leakage of private residence/research data.
-9. Configure the AppDeploy frontend with the verified API and WebSocket base URLs through safe environment configuration, then run cross-service end-to-end QA.
-10. Promote to a public deployment only after the above checks pass and limitations are documented.
+## Local versus hosted
 
-## Local-versus-hosted behavior
+The local launcher starts services on the user's machine; it does not itself create a public endpoint. Cloud hosting has different filesystem, process, network, secret, persistence and security assumptions. Do not copy local databases or private data to a hosted service without explicit review and consent.
 
-The local launcher starts services in the user's environment; it does not itself provide a public network endpoint. Cloud hosting is a separate runtime with different filesystem, process, network, secrets, persistence and security assumptions. Do not copy a local database or private data into a public deployment without explicit review and consent.
+## Current blocker
 
-## Current decision needed
-
-Choose or connect a Python-capable hosting provider. Until then, implementation can continue in the GitHub branch and local tests, but a genuine public FastAPI URL cannot be created from AppDeploy's TypeScript-only backend runtime alone.
+The Railway project must be created/authorized by an account holder in Railway. The available GitHub integration can commit repository files but cannot create a Railway project or authorize Railway account access. Do not share account passwords, access tokens or secret values in chat.
