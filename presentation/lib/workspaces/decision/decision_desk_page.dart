@@ -52,6 +52,9 @@ class _DecisionDeskPageState extends State<DecisionDeskPage> {
     final safety=understanding?['situation'] is Map?(understanding!['situation'] as Map)['safety']?.toString():null;
     final sensitive=safety=='sensitive'||safety=='immediate';
     final next=support?['suggested_next_steps'], matters=support?['what_matters'], uncertain=support?['uncertainties'];
+    final answerText = [strategy?['direct_answer'], strategy?['answer'], strategy?['summary'], strategy?['recommendation'], humanReadable].map((v)=>v?.toString().trim()??'').firstWhere((v)=>v.isNotEmpty,orElse:()=> '');
+    final evidence = strategy?['evidence'] ?? support?['evidence'];
+    final assumptions = strategy?['assumptions'] ?? support?['assumptions'];
     return Material(
       color: Colors.transparent,
       child: SingleChildScrollView(key:const ValueKey('decision-desk'),padding:const EdgeInsets.all(24),child:Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[
@@ -71,6 +74,16 @@ class _DecisionDeskPageState extends State<DecisionDeskPage> {
       const SizedBox(height:14),
       if(sensitive)_panel(t,'SAFETY FIRST',Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('The situation may involve interpersonal harm or an immediate safety concern. Safety takes priority over ordinary analysis.',style:TextStyle(color:t.text,fontSize:12,height:1.45)),const SizedBox(height:10),for(final q in questions.where((q)=>q.toLowerCase().contains('safe right now'))) ...[Text(q,style:TextStyle(color:t.text,fontWeight:FontWeight.w800,fontSize:12)),const SizedBox(height:8),Wrap(spacing:8,children:[OutlinedButton(onPressed:running?null:()=>_run('Yes'),child:const Text('Yes')),OutlinedButton(onPressed:running?null:()=>_run('No'),child:const Text('No')),OutlinedButton(onPressed:running?null:()=>_run("I'm not sure"),child:const Text("I'm not sure"))])]])),
       if(questions.isNotEmpty)_panel(t,'A LITTLE MORE CONTEXT',Column(crossAxisAlignment:CrossAxisAlignment.start,children:[for(final q in questions.where((q)=>!q.toLowerCase().contains('safe right now')))Padding(padding:const EdgeInsets.only(bottom:7),child:Text('• $q',style:TextStyle(color:t.mutedText,fontSize:11))),Text('Add the answer in the situation box, then run it again.',style:TextStyle(color:t.mutedText,fontSize:10))])),
+      if(humanReadable.isNotEmpty||strategy!=null)_panel(t,'ANSWER • WHAT YOU CAN TAKE AWAY',Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[
+        Text(answerText.isNotEmpty?answerText:'The situation was processed, but the system did not return a direct answer in its structured response. Review the findings and try refining the question.',style:TextStyle(color:t.text,fontSize:14,height:1.55,fontWeight:FontWeight.w600)),
+        if(status!='READY'&&status!='COMPLETE'&&status!='COMPLETED')Padding(padding:const EdgeInsets.only(top:8),child:Text('This is a partial or non-final result. Status: $status',style:TextStyle(color:t.mutedText,fontSize:10))),
+        if(evidence is List&&evidence.isNotEmpty)...[const SizedBox(height:10),Text('Evidence returned',style:TextStyle(color:t.primary,fontWeight:FontWeight.w800,fontSize:11)),for(final e in evidence)Padding(padding:const EdgeInsets.only(top:4),child:Text('• ${e is Map?(e['summary']??e['title']??e['detail']??jsonEncode(e)):e}',style:TextStyle(color:t.mutedText,fontSize:10,height:1.4)))],
+        if(assumptions is List&&assumptions.isNotEmpty)...[const SizedBox(height:10),Text('Assumptions to verify',style:TextStyle(color:t.primary,fontWeight:FontWeight.w800,fontSize:11)),for(final a in assumptions)Padding(padding:const EdgeInsets.only(top:4),child:Text('• $a',style:TextStyle(color:t.mutedText,fontSize:10,height:1.4)))],
+        const SizedBox(height:12),Wrap(spacing:8,runSpacing:8,children:[
+          if(widget.onResults!=null)OutlinedButton.icon(onPressed:widget.onResults,icon:const Icon(Icons.bookmark_border_rounded),label:const Text('Save / view in Results Journal')),
+          OutlinedButton.icon(onPressed:()=>setState(()=>status='READY_FOR_HUMAN_REVIEW'),icon:const Icon(Icons.edit_note_rounded),label:const Text('Revise question')),
+        ]),
+      ])),
       if(humanReadable.isNotEmpty)_panel(t,'WHAT I UNDERSTAND',Text(humanReadable,style:TextStyle(color:t.text,fontSize:12,height:1.5))),
       if(humanReadable.isNotEmpty||strategy!=null)_panel(t,'FINAL RESULT • YOUR DECISION SUPPORT',Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[
         Text(status=='READY'?'Decision-support result is ready for your review.':'Decision-support status: $status',style:TextStyle(color:t.text,fontWeight:FontWeight.w800,fontSize:13)),
