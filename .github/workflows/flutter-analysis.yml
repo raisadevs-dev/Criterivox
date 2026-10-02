@@ -39,5 +39,6 @@ jobs:
         working-directory: presentation
         run: flutter analyze --no-fatal-infos
       - name: Tests
+        if: always()
         working-directory: presentation
         run: flutter test
