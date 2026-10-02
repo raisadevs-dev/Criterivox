@@ -1,13 +1,15 @@
-name: S6 Flutter Analysis
+name: Human Territory Flutter Analysis
 
 on:
   push:
     branches:
       - s6-home03-syvax-bloom-complete
+      - human-territory-decision-journey
   pull_request:
     branches:
       - main
       - s6-home03-syvax-bloom-complete
+      - human-territory-decision-journey
   workflow_dispatch:
 
 jobs:
