@@ -175,6 +175,11 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     base['results_journal'] = journal;
     base['foundation_id'] = foundationId;
     base['decision_id'] = decisionId;
+    base['strategy_options'] = options;
+    base['strategy_challenges'] = challenges;
+    base['strategy_trace'] = trace;
+    base['strategy_research'] = research;
+    base['decision_pipeline_status'] = status;
     base['case_execution_id'] = caseReport?['execution_id'];
     base['case_report_id'] = caseReport?['report_id'];
     base['case_child_report_refs'] = caseReport?['child_report_refs'];
@@ -739,6 +744,12 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
             'Timing, constraints, stakeholders, assumptions '
                 'and changing conditions.',
           ),
+          const SizedBox(height: 8),
+          Align(alignment: Alignment.centerLeft, child: OutlinedButton.icon(
+            onPressed: residence == null || running ? null : () => _persist('context_saved'),
+            icon: const Icon(Icons.bookmark_add_outlined),
+            label: const Text('Save context for next time'),
+          )),
           const SizedBox(height: 10),
           Align(
             alignment: Alignment.centerLeft,
