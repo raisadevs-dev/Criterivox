@@ -5,23 +5,16 @@ import 'package:presentation/presentation/shared/language_mode.dart';
 
 void main() {
   testWidgets(
-    'Criterivox opens on Bloom and exposes current navigation',
+    'Criterivox opens on Human Territory welcome and exposes navigation',
     (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: CriterivoxShell(
-            isDarkMode: true,
-            connectRuntime: false,
-          ),
-        ),
-      );
-
+      await tester.pumpWidget(const MaterialApp(
+        home: CriterivoxShell(isDarkMode: true, connectRuntime: false),
+      ));
       await tester.pump();
-
       expect(find.text('Criterivox'), findsWidgets);
-      expect(find.text('Living Interaction'), findsOneWidget);
-      expect(find.text('Lifecycle'), findsOneWidget);
-      expect(find.text('START HERE'), findsOneWidget);
+      expect(find.text('HUMAN TERRITORY'), findsWidgets);
+      expect(find.text('Your goals. Your context. Your decisions.'), findsOneWidget);
+      expect(find.text('Continue as Guest'), findsOneWidget);
       expect(find.text('HUMAN TERRITORY'), findsWidgets);
       expect(find.text('App Introduction'), findsOneWidget);
       expect(find.byTooltip(RegExp('Language')), findsOneWidget);
@@ -72,26 +65,15 @@ void main() {
   );
 
   testWidgets(
-    'Bloom exposes its current living interaction surface',
+    'Human Territory exposes welcome and guest entry',
     (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: CriterivoxShell(
-            isDarkMode: true,
-            connectRuntime: false,
-          ),
-        ),
-      );
-
+      await tester.pumpWidget(const MaterialApp(
+        home: CriterivoxShell(isDarkMode: true, connectRuntime: false),
+      ));
       await tester.pump();
-
-      expect(find.text('Living Interaction'), findsOneWidget);
-      expect(
-        find.text('Choose a capability and follow its contextual path.'),
-        findsOneWidget,
-      );
-      expect(find.text('Lifecycle'), findsOneWidget);
-      expect(find.text('IDLE'), findsOneWidget);
+      expect(find.text('Your goals. Your context. Your decisions.'), findsOneWidget);
+      expect(find.text('Sign in / Create account'), findsOneWidget);
+      expect(find.text('Continue as Guest'), findsOneWidget);
     },
   );
 
