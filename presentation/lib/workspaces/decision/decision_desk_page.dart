@@ -103,16 +103,77 @@ class _DecisionDeskPageState extends State<DecisionDeskPage> {
       if(matters is List&&matters.isNotEmpty)_panel(t,'WHAT MATTERS',Column(children:[for(final x in matters)_item(t,x.toString())])),
       if(next is List&&next.isNotEmpty)_panel(t,'WHAT YOU CAN DO NEXT',Column(children:[for(var i=0;i<next.length;i++)_item(t,'${i+1}. ${next[i]}')])),
       if(uncertain is List&&uncertain.isNotEmpty)_panel(t,"WHAT I'M NOT SURE ABOUT",Column(children:[for(final x in uncertain)_item(t,x.toString())])),
-      if(strategy?['options'] is List&&(strategy!['options'] as List).isNotEmpty)_panel(t,'STRATEGY OPTIONS',Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[
-        for(final x in (strategy!['options'] as List).whereType<Map>())Container(margin:const EdgeInsets.only(bottom:8),padding:const EdgeInsets.all(12),decoration:BoxDecoration(color:t.surfaceStrong,borderRadius:BorderRadius.circular(14),border:Border.all(color:t.border)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-          Text(x['label']?.toString()??'Option',style:TextStyle(color:t.text,fontWeight:FontWeight.w800,fontSize:12)),
-          const SizedBox(height:4),Text(x['approach']?.toString()??'',style:TextStyle(color:t.mutedText,fontSize:10,height:1.4)),
-          const SizedBox(height:6),Text('Risk: ${x['risk']??'Not specified'}',style:TextStyle(color:t.mutedText,fontSize:9)),
-        ])),
+      if(strategy?['options'] is List&&(strategy!['options'] as List).isNotEmpty)_panel(t,'CRITERIVOX • STRATEGY PACKAGE',Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[
+        Text('Compare the available paths against your goal, evidence and constraints. These are alternatives for human review, not an automatic decision.',style:TextStyle(color:t.mutedText,fontSize:11,height:1.45)),
+        const SizedBox(height:10),
+        for(var index=0;index<(strategy!['options'] as List).length;index++)
+          if((strategy!['options'] as List)[index] is Map)
+            _strategyCard(t,Map<String,dynamic>.from((strategy!['options'] as List)[index] as Map),index),
       ])),
       _panel(t,'HUMAN AUTHORITY',Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('Criterivox supports the decision. You remain able to correct the situation description, reject a suggestion, inspect evidence, explore another option, or decide what happens next.',style:TextStyle(color:t.text,fontSize:12,height:1.45)),const SizedBox(height:8),Text(status,style:TextStyle(color:t.mutedText,fontSize:10,fontWeight:FontWeight.w800)),if(widget.onResults!=null)Padding(padding:const EdgeInsets.only(top:10),child:OutlinedButton.icon(onPressed:widget.onResults,icon:const Icon(Icons.menu_book_outlined),label:const Text('Open Results Journal')))])),
     ])));
   }
+  String _strategyText(dynamic value) {
+    if (value == null) return '';
+    if (value is String) return value.trim();
+    if (value is num || value is bool) return value.toString();
+    if (value is Map || value is List) return const JsonEncoder.withIndent('  ').convert(value);
+    return value.toString();
+  }
+
+  Widget _strategyCard(CriterivoxTheme t, Map<String,dynamic> option, int index) {
+    final label = _strategyText(option['label']).isEmpty ? 'Strategy ${index + 1}' : _strategyText(option['label']);
+    final tradeoffs = option['tradeoffs'];
+    final evidence = option['evidence'];
+    final steps = option['steps'];
+    final benefits = option['benefits'];
+    Widget section(String title, dynamic value) {
+      final textValue = _strategyText(value);
+      if (textValue.isEmpty) return const SizedBox.shrink();
+      return Padding(padding: const EdgeInsets.only(top:9), child: Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+        Text(title,style:TextStyle(color:t.primary,fontSize:10,fontWeight:FontWeight.w800)),
+        const SizedBox(height:3),
+        Text(textValue,style:TextStyle(color:t.text,fontSize:10,height:1.45)),
+      ]));
+    }
+    Widget listSection(String title, dynamic raw) {
+      if (raw is! List || raw.isEmpty) return const SizedBox.shrink();
+      return Padding(padding:const EdgeInsets.only(top:9),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+        Text(title,style:TextStyle(color:t.primary,fontSize:10,fontWeight:FontWeight.w800)),
+        const SizedBox(height:4),
+        for(var i=0;i<raw.length;i++) Padding(padding:const EdgeInsets.only(bottom:4),child:Row(crossAxisAlignment:CrossAxisAlignment.start,children:[
+          Text('${i+1}. ',style:TextStyle(color:t.mutedText,fontSize:10,fontWeight:FontWeight.w700)),
+          Expanded(child:Text(_strategyText(raw[i]),style:TextStyle(color:t.text,fontSize:10,height:1.4))),
+        ])),
+      ]));
+    }
+    return Container(margin:const EdgeInsets.only(bottom:10),padding:const EdgeInsets.all(14),decoration:BoxDecoration(color:t.surfaceStrong,borderRadius:BorderRadius.circular(15),border:Border.all(color:t.border)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+      Row(crossAxisAlignment:CrossAxisAlignment.start,children:[
+        Container(width:27,height:27,alignment:Alignment.center,decoration:BoxDecoration(color:t.primary.withValues(alpha:.12),borderRadius:BorderRadius.circular(9)),child:Text('${index+1}',style:TextStyle(color:t.primary,fontSize:11,fontWeight:FontWeight.w900))),
+        const SizedBox(width:9),
+        Expanded(child:Text(label,style:TextStyle(color:t.text,fontSize:13,fontWeight:FontWeight.w800))),
+      ]),
+      section('OBJECTIVE',option['objective']),
+      section('APPROACH',option['approach']),
+      listSection('IMPLEMENTATION STEPS',steps),
+      listSection('EXPECTED BENEFITS',benefits),
+      if(tradeoffs is Map)...[
+        const SizedBox(height:9),
+        Text('TRADE-OFF PROFILE',style:TextStyle(color:t.primary,fontSize:10,fontWeight:FontWeight.w800)),
+        const SizedBox(height:5),
+        Wrap(spacing:6,runSpacing:6,children:[
+          for(final key in ['speed','cost','reliability'])
+            if(tradeoffs[key]!=null)Container(padding:const EdgeInsets.symmetric(horizontal:8,vertical:5),decoration:BoxDecoration(color:t.surface,borderRadius:BorderRadius.circular(8),border:Border.all(color:t.border)),child:Text('${key.toUpperCase()}: ${tradeoffs[key]} / 100',style:TextStyle(color:t.text,fontSize:9,fontWeight:FontWeight.w700))),
+        ]),
+      ],
+      section('RISKS',option['risk']),
+      section('EVIDENCE BASIS',option['evidence_basis']),
+      if(evidence is List&&evidence.isNotEmpty)listSection('EVIDENCE / SOURCE RECORDS',evidence),
+      if(option['assumptions']!=null)listSection('ASSUMPTIONS TO VERIFY',option['assumptions']),
+      if(option['contingency']!=null)section('CONTINGENCY',option['contingency']),
+    ]));
+  }
+
   Widget _panel(CriterivoxTheme t,String title,Widget child)=>Container(margin:const EdgeInsets.only(bottom:12),padding:const EdgeInsets.all(18),decoration:BoxDecoration(color:t.surface,borderRadius:BorderRadius.circular(20),border:Border.all(color:t.border)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(title,style:TextStyle(color:t.primary,fontSize:9,fontWeight:FontWeight.w900,letterSpacing:1.2)),const SizedBox(height:10),child]));
   Widget _item(CriterivoxTheme t,String value)=>Container(width:double.infinity,margin:const EdgeInsets.only(bottom:8),padding:const EdgeInsets.all(12),decoration:BoxDecoration(color:t.surfaceStrong,borderRadius:BorderRadius.circular(14),border:Border.all(color:t.border)),child:Text(value,style:TextStyle(color:t.text,fontSize:10,height:1.4)));
 }
