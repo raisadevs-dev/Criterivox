@@ -22,45 +22,26 @@ void main() {
   );
 
   testWidgets(
-    'global character chat is available from the current application shell',
+    'Human Territory quick actions are available from the application shell',
     (WidgetTester tester) async {
       await tester.binding.setSurfaceSize(const Size(1280, 900));
-      addTearDown(() async {
-        await tester.binding.setSurfaceSize(null);
-      });
-
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: CriterivoxShell(
-            isDarkMode: true,
-            connectRuntime: false,
-          ),
-        ),
-      );
-
+      addTearDown(() async => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(const MaterialApp(
+        home: CriterivoxShell(isDarkMode: true, connectRuntime: false),
+      ));
       await tester.pump();
-
-      final openChat = find.byTooltip('Open character chat');
-      expect(openChat, findsOneWidget);
-
-      await tester.tap(openChat);
-      await _pumpUntil(
-        tester,
-        () => find.byTooltip('Close character chat'),
-      );
-
-      expect(find.byTooltip('Close character chat'), findsOneWidget);
-      expect(
-        find.byKey(const ValueKey('global-character-chat')),
-        findsOneWidget,
-      );
-      expect(
-        find.descendant(
-          of: find.byKey(const ValueKey('global-character-chat')),
-          matching: find.byType(TextField),
-        ),
-        findsOneWidget,
-      );
+      final launcher = find.byKey(const ValueKey('global-character-chat-launcher'));
+      expect(launcher, findsOneWidget);
+      final button = tester.widget<FloatingActionButton>(launcher);
+      expect(button.tooltip, 'Human Territory quick actions');
+      button.onPressed!();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.text('Human Territory launcher'), findsOneWidget);
+      expect(find.text('Profile'), findsOneWidget);
+      expect(find.text('Private Room'), findsOneWidget);
+      expect(find.text('Decision Desk'), findsOneWidget);
+      expect(find.text('Results Journal'), findsOneWidget);
+      expect(find.text('Group Room'), findsOneWidget);
     },
   );
 
