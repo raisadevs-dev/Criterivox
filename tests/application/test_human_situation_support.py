@@ -98,7 +98,7 @@ def test_authenticated_decision_forwards_case_and_foundation(monkeypatch):
         return SimpleNamespace(
             strategy={"goal": kwargs["goal"], "options": [{"label": "Test path", "steps": ["Review"]}]},
             decision_id="DECISION-TEST",
-            trace=[{"actor": "pramon", "detail": "Options structured"}],
+            trace=[{"actor": "pramon", "agent_id": "pramon", "agent_label": "Pramon", "detail": "Options structured"}],
             research=None,
         )
 
@@ -117,5 +117,6 @@ def test_authenticated_decision_forwards_case_and_foundation(monkeypatch):
     assert result["strategy"]["options"][0]["label"] == "Test path"
     assert captured["case_id"] == "CASE-010"
     assert captured["foundation_id"] == "FOUNDATION-TEST"
-    assert result["trace"][0]["agent_id"] == "pramon" or result["trace"]
+    assert result["trace"][0]["agent_id"] == "pramon"
+    assert result["trace"][0]["agent_label"] == "Pramon"
     assert result["strategy"]["options"][0]["label"] == "Test path"
