@@ -11,6 +11,8 @@ import '../world/civilization/home_preview_page.dart';
 import '../workspaces/operations/level2_operational_page.dart';
 import '../world/navigation/world_portal_page.dart';
 import '../human/residence/entry_page.dart';
+import '../human/residence/welcome_page.dart';
+import '../human/residence/profile_page.dart';
 import '../human/access/guest_pass_experience_page.dart';
 import '../human/residence/private_room_page.dart';
 import '../human/collaboration/room_page.dart';
@@ -92,7 +94,7 @@ class _ShellState extends State<CriterivoxShell> {
   PresentationState? state;
   final List<PresentationState> _history = [];
 
-  String page = 'bloom';
+  String page = 'human-welcome';
   String chatTarget = 'dharen';
   String? focusedCharacter;
 
@@ -813,6 +815,12 @@ class _ShellState extends State<CriterivoxShell> {
               : null,
         );
 
+      case 'human-welcome':
+        return HumanWelcomePage(onProfile: () => open('human-profile'), onSignIn: () => open('human-residence-entry'), onGuest: () => open('guest'));
+
+      case 'human-profile':
+        return HumanProfilePage(onPrivateRoom: () => open('private-room'), onSignIn: () => open('human-residence-entry'));
+
       case 'human-residence-entry':
         return HumanResidenceEntryPage(
           onOpenResidence: () => open('private-room'),
@@ -1481,6 +1489,8 @@ class _SidebarState extends State<_Sidebar> {
                       Icons.home_work_rounded,
                       humanTerritoryOpen,
                       widget.page == 'human-residence' ||
+                          widget.page == 'human-welcome' ||
+                          widget.page == 'human-profile' ||
                           widget.page == 'human-residence-entry' ||
                           widget.page == 'private-room' ||
                           widget.page == 'decision-desk' ||
@@ -1496,7 +1506,9 @@ class _SidebarState extends State<_Sidebar> {
                     ),
                     if (expanded && humanTerritoryOpen) ...[
                       _section(strings.loginSignup, true, t),
-                                            _nav(strings.signUpLogin, Icons.person_rounded,
+                                            _nav('Welcome', Icons.auto_awesome_rounded, widget.page == 'human-welcome', () => widget.onOpen('human-welcome'), true, t, indent: true),
+                      _nav('Profile', Icons.account_circle_outlined, widget.page == 'human-profile', () => widget.onOpen('human-profile'), true, t, indent: true),
+                      _nav(strings.signUpLogin, Icons.person_rounded,
                           widget.page == 'human-residence-entry',
                           () => widget.onOpen('human-residence-entry'),
                           true, t, indent: true),
