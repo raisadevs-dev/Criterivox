@@ -159,11 +159,11 @@ class _DecisionDeskPageState extends State<DecisionDeskPage> {
       listSection('EXPECTED BENEFITS',benefits),
       if(tradeoffs is Map)...[
         const SizedBox(height:9),
-        Text('TRADE-OFF PROFILE',style:TextStyle(color:t.primary,fontSize:10,fontWeight:FontWeight.w800)),
+        Text('QUALITATIVE TRADE-OFF PROFILE • NOT MEASURED SCORES',style:TextStyle(color:t.primary,fontSize:10,fontWeight:FontWeight.w800)),
         const SizedBox(height:5),
         Wrap(spacing:6,runSpacing:6,children:[
           for(final key in ['speed','cost','reliability'])
-            if(tradeoffs[key]!=null)Container(padding:const EdgeInsets.symmetric(horizontal:8,vertical:5),decoration:BoxDecoration(color:t.surface,borderRadius:BorderRadius.circular(8),border:Border.all(color:t.border)),child:Text('${key.toUpperCase()}: ${tradeoffs[key]} / 100',style:TextStyle(color:t.text,fontSize:9,fontWeight:FontWeight.w700))),
+            if(tradeoffs[key]!=null)Container(padding:const EdgeInsets.symmetric(horizontal:8,vertical:5),decoration:BoxDecoration(color:t.surface,borderRadius:BorderRadius.circular(8),border:Border.all(color:t.border)),child:Text('${key.toUpperCase()}: ${tradeoffs[key]}',style:TextStyle(color:t.text,fontSize:9,fontWeight:FontWeight.w700))),
         ]),
       ],
       section('RISKS',option['risk']),
