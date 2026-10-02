@@ -59,7 +59,7 @@ class DecisionOrchestrator:
                 "agent_label": {
                     "human": "Human decision-maker", "sandre": "Sandre",
                     "kaelen": "Kaelen", "dharen": "Dharen",
-                    "case": "Case execution contract", "google-research": "External research",
+                    "case": "Case execution contract", "google-research": "External research", "decision-pipeline": "Decision pipeline",
                     "tarkis": "Tarkis", "pramon": "Pramon", "manis": "Manis",
                 }.get(actor, actor.replace("-", " ").title()),
                 "stage": responsibility, "responsibility": responsibility,
@@ -141,7 +141,8 @@ class DecisionOrchestrator:
             event("human", "research authorization", "External research was not authorized; supplied material only.")
 
         event("tarkis", "reasoning", "Evaluated the structured goal, constraints and available evidence.")
-        option_rows = PramonPlanner().build_options(goal, plan, research_run, foundation=foundation, context=context)        for option in option_rows:
+        option_rows = PramonPlanner().build_options(goal, plan, research_run, foundation=foundation, context=context)
+        for option in option_rows:
             option["generated_by"] = {"agent_id": "pramon", "agent_label": "Pramon", "stage": "decision options"}
             option["section_attribution"] = {
                 key: {"agent_id": "pramon", "agent_label": "Pramon"}
@@ -149,7 +150,7 @@ class DecisionOrchestrator:
                 if key in option
             }
         event("pramon", "decision options", "Produced strategy candidates with explicit trade-offs.", option_count=len(option_rows))
-        event("manis", "challenge", "Generated challenge points for the human to stress-test.")
+        event("decision-pipeline", "challenge prompts", "Prepared challenge prompts for the human to stress-test.")
 
         strategy = {
             "goal": goal,
@@ -164,7 +165,7 @@ class DecisionOrchestrator:
                 "goal": {"agent_id": "human", "agent_label": "Human decision-maker"},
                 "plan": {"agent_id": "syvax", "agent_label": "Syvax"},
                 "options": {"agent_id": "pramon", "agent_label": "Pramon"},
-                "challenges": {"agent_id": "manis", "agent_label": "Manis"},
+                "challenges": {"agent_id": "decision-pipeline", "agent_label": "Decision pipeline"},
                 "evidence_summary": {"agent_id": "sandre", "agent_label": "Sandre"},
             },
             "challenges": [
