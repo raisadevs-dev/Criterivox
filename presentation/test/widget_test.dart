@@ -5,23 +5,16 @@ import 'package:presentation/presentation/shared/language_mode.dart';
 
 void main() {
   testWidgets(
-    'Criterivox opens on Bloom and exposes current navigation',
+    'Criterivox opens on Human Territory welcome and exposes navigation',
     (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: CriterivoxShell(
-            isDarkMode: true,
-            connectRuntime: false,
-          ),
-        ),
-      );
-
+      await tester.pumpWidget(const MaterialApp(
+        home: CriterivoxShell(isDarkMode: true, connectRuntime: false),
+      ));
       await tester.pump();
-
       expect(find.text('Criterivox'), findsWidgets);
-      expect(find.text('Living Interaction'), findsOneWidget);
-      expect(find.text('Lifecycle'), findsOneWidget);
-      expect(find.text('START HERE'), findsOneWidget);
+      expect(find.text('HUMAN TERRITORY'), findsWidgets);
+      expect(find.text('Your goals. Your context. Your decisions.'), findsOneWidget);
+      expect(find.text('Continue as Guest'), findsOneWidget);
       expect(find.text('HUMAN TERRITORY'), findsWidgets);
       expect(find.text('App Introduction'), findsOneWidget);
       expect(find.byTooltip(RegExp('Language')), findsOneWidget);
@@ -29,69 +22,39 @@ void main() {
   );
 
   testWidgets(
-    'global character chat is available from the current application shell',
+    'Human Territory quick actions are available from the application shell',
     (WidgetTester tester) async {
       await tester.binding.setSurfaceSize(const Size(1280, 900));
-      addTearDown(() async {
-        await tester.binding.setSurfaceSize(null);
-      });
-
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: CriterivoxShell(
-            isDarkMode: true,
-            connectRuntime: false,
-          ),
-        ),
-      );
-
+      addTearDown(() async => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(const MaterialApp(
+        home: CriterivoxShell(isDarkMode: true, connectRuntime: false),
+      ));
       await tester.pump();
-
-      final openChat = find.byTooltip('Open character chat');
-      expect(openChat, findsOneWidget);
-
-      await tester.tap(openChat);
-      await _pumpUntil(
-        tester,
-        () => find.byTooltip('Close character chat'),
-      );
-
-      expect(find.byTooltip('Close character chat'), findsOneWidget);
-      expect(
-        find.byKey(const ValueKey('global-character-chat')),
-        findsOneWidget,
-      );
-      expect(
-        find.descendant(
-          of: find.byKey(const ValueKey('global-character-chat')),
-          matching: find.byType(TextField),
-        ),
-        findsOneWidget,
-      );
+      final launcher = find.byKey(const ValueKey('global-character-chat-launcher'));
+      expect(launcher, findsOneWidget);
+      final button = tester.widget<FloatingActionButton>(launcher);
+      expect(button.tooltip, 'Human Territory quick actions');
+      button.onPressed!();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.text('Human Territory launcher'), findsOneWidget);
+      expect(find.text('Profile'), findsWidgets);
+      expect(find.text('Private Room'), findsWidgets);
+      expect(find.text('Decision Desk'), findsWidgets);
+      expect(find.text('Results Journal'), findsWidgets);
+      expect(find.text('Group Room'), findsOneWidget);
     },
   );
 
   testWidgets(
-    'Bloom exposes its current living interaction surface',
+    'Human Territory exposes welcome and guest entry',
     (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: CriterivoxShell(
-            isDarkMode: true,
-            connectRuntime: false,
-          ),
-        ),
-      );
-
+      await tester.pumpWidget(const MaterialApp(
+        home: CriterivoxShell(isDarkMode: true, connectRuntime: false),
+      ));
       await tester.pump();
-
-      expect(find.text('Living Interaction'), findsOneWidget);
-      expect(
-        find.text('Choose a capability and follow its contextual path.'),
-        findsOneWidget,
-      );
-      expect(find.text('Lifecycle'), findsOneWidget);
-      expect(find.text('IDLE'), findsOneWidget);
+      expect(find.text('Your goals. Your context. Your decisions.'), findsOneWidget);
+      expect(find.text('Sign in / Create account'), findsOneWidget);
+      expect(find.text('Continue as Guest'), findsOneWidget);
     },
   );
 
@@ -140,19 +103,3 @@ void main() {
   );
 }
 
-Future<void> _pumpUntil(
-  WidgetTester tester,
-  Finder Function() finder, {
-  Duration timeout = const Duration(seconds: 4),
-}) async {
-  final deadline = DateTime.now().add(timeout);
-
-  while (DateTime.now().isBefore(deadline)) {
-    if (finder().evaluate().isNotEmpty) {
-      return;
-    }
-    await tester.pump(const Duration(milliseconds: 50));
-  }
-
-  expect(finder(), findsOneWidget);
-}

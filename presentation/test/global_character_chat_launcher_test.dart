@@ -4,68 +4,27 @@ import 'package:presentation/app/app_shell.dart';
 
 void main() {
   testWidgets(
-    'global character chat uses one toggle and preserves chat page state',
+    'Human Territory launcher exposes quick actions from the welcome screen',
     (tester) async {
       await tester.binding.setSurfaceSize(const Size(1280, 900));
-      addTearDown(() async {
-        await tester.binding.setSurfaceSize(null);
-      });
-
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: CriterivoxShell(connectRuntime: false),
-        ),
-      );
+      addTearDown(() async => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(const MaterialApp(
+        home: CriterivoxShell(connectRuntime: false),
+      ));
       await tester.pump();
-
-      final openChat = find.byKey(const ValueKey('global-character-chat-launcher'));
-      expect(openChat, findsOneWidget);
-
-      final openButton = tester.widget<FloatingActionButton>(openChat);
-      openButton.onPressed!();
+      final launcher = find.byKey(const ValueKey('global-character-chat-launcher'));
+      expect(launcher, findsOneWidget);
+      final button = tester.widget<FloatingActionButton>(launcher);
+      expect(button.tooltip, 'Human Territory quick actions');
+      button.onPressed!();
+      await tester.pump(const Duration(milliseconds: 500));
       await tester.pump();
-      await _pumpUntil(
-        tester,
-        () => find.byTooltip('Close character chat'),
-      );
-
-      final globalChat = find.byKey(
-        const ValueKey('global-character-chat'),
-      );
-      final chatInput = find.descendant(
-        of: globalChat,
-        matching: find.byType(TextField),
-      );
-
-      expect(find.byTooltip('Close character chat'), findsOneWidget);
-      expect(globalChat, findsOneWidget);
-      expect(chatInput, findsOneWidget);
-
-      await tester.enterText(chatInput, 'Preserve this draft.');
-      expect(find.text('Preserve this draft.'), findsOneWidget);
-
-      final closeFinder = find.byKey(const ValueKey('global-character-chat-launcher'));
-      final closeButton = tester.widget<FloatingActionButton>(closeFinder);
-      closeButton.onPressed!();
-      await tester.pump(const Duration(milliseconds: 300));
-
-      expect(find.byTooltip('Open character chat'), findsOneWidget);
-      expect(find.text('Preserve this draft.'), findsOneWidget);
-
-      final reopenFinder = find.byKey(const ValueKey('global-character-chat-launcher'));
-      final reopenButton = tester.widget<FloatingActionButton>(reopenFinder);
-      reopenButton.onPressed!();
-      await _pumpUntil(
-        tester,
-        () => find.byTooltip('Close character chat'),
-      );
-
-      expect(find.byKey(const ValueKey('global-character-chat-launcher')), findsOneWidget);
-      expect(
-        find.byKey(const ValueKey('global-character-chat')),
-        findsOneWidget,
-      );
-      expect(find.text('Preserve this draft.'), findsOneWidget);
+      expect(find.text('Human Territory launcher'), findsOneWidget);
+      expect(find.text('Profile'), findsWidgets);
+      expect(find.text('Private Room'), findsWidgets);
+      expect(find.text('Decision Desk'), findsWidgets);
+      expect(find.text('Results Journal'), findsWidgets);
+      expect(find.text('Group Room'), findsOneWidget);
     },
   );
 

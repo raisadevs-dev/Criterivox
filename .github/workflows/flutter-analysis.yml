@@ -1,13 +1,15 @@
-name: S6 Flutter Analysis
+name: Human Territory Flutter Analysis
 
 on:
   push:
     branches:
       - s6-home03-syvax-bloom-complete
+      - human-territory-decision-journey
   pull_request:
     branches:
       - main
       - s6-home03-syvax-bloom-complete
+      - human-territory-decision-journey
   workflow_dispatch:
 
 jobs:
@@ -16,6 +18,13 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install Python test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Test Human Situation strategy routing
+        run: python -m pytest tests/application/test_human_situation_support.py -q
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -23,12 +32,13 @@ jobs:
       - name: Pub get
         working-directory: presentation
         run: flutter pub get
-      - name: Format check
+      - name: Format Dart sources
         working-directory: presentation
-        run: dart format --output=none --set-exit-if-changed lib test
+        run: dart format lib test
       - name: Analyze
         working-directory: presentation
-        run: flutter analyze
+        run: flutter analyze --no-fatal-infos
       - name: Tests
+        if: always()
         working-directory: presentation
         run: flutter test

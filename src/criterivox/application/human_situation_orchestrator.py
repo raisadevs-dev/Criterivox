@@ -31,6 +31,8 @@ class HumanSituationOrchestrator:
         supplied_data: str = "",
         context: str = "",
         allow_external_research: bool = False,
+        case_id: str = "CASE-010",
+        foundation_id: str | None = None,
     ) -> dict[str, Any]:
         understanding = self.understanding.understand(
             description,
@@ -60,6 +62,8 @@ class HumanSituationOrchestrator:
                 supplied_data=supplied_data,
                 context=context,
                 allow_external_research=allow_external_research,
+                case_id=case_id,
+                foundation_id=foundation_id,
             )
             strategy = result.strategy
             decision_id = result.decision_id
@@ -82,6 +86,8 @@ class HumanSituationOrchestrator:
                     "What is the smallest reversible next step?",
                 ],
                 "research_authorized": False,
+                "case_id": case_id,
+                "foundation_id": foundation_id,
             }
             decision_id = None
             trace = []

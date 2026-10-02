@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
+
+from criterivox.application import human_situation_orchestrator as situation_module
 from criterivox.application.human_situation_orchestrator import HumanSituationOrchestrator
 from criterivox.application.ollama_language import OllamaLanguageLayer
 from criterivox.application.situation import SafetyLevel
@@ -84,3 +87,36 @@ def test_language_layer_is_used_when_available():
     assert result["status"] == "ready"
     assert result["ollama_used"] is True
     assert result["human_readable"].startswith("WHAT I UNDERSTAND")
+
+
+
+def test_authenticated_decision_forwards_case_and_foundation(monkeypatch):
+    captured = {}
+
+    def fake_execute(**kwargs):
+        captured.update(kwargs)
+        return SimpleNamespace(
+            strategy={"goal": kwargs["goal"], "options": [{"label": "Test path", "steps": ["Review"]}]},
+            decision_id="DECISION-TEST",
+            trace=[{"actor": "pramon", "agent_id": "pramon", "agent_label": "Pramon", "detail": "Options structured"}],
+            research=None,
+        )
+
+    monkeypatch.setattr(situation_module.decision_orchestrator, "execute", fake_execute)
+    result = HumanSituationOrchestrator(
+        language=OllamaLanguageLayer(base_url="http://127.0.0.1:9")
+    ).execute(
+        description="I need to plan my study schedule.",
+        session_token="test-session",
+        residence_id="test-residence",
+        case_id="CASE-010",
+        foundation_id="FOUNDATION-TEST",
+    )
+
+    assert result["status"] == "ready"
+    assert result["strategy"]["options"][0]["label"] == "Test path"
+    assert captured["case_id"] == "CASE-010"
+    assert captured["foundation_id"] == "FOUNDATION-TEST"
+    assert result["trace"][0]["agent_id"] == "pramon"
+    assert result["trace"][0]["agent_label"] == "Pramon"
+    assert result["strategy"]["options"][0]["label"] == "Test path"
