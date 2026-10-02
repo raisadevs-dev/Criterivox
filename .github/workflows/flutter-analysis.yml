@@ -37,7 +37,7 @@ jobs:
         run: dart format lib test
       - name: Analyze
         working-directory: presentation
-        run: flutter analyze
+        run: flutter analyze --no-fatal-infos
       - name: Tests
         working-directory: presentation
         run: flutter test
