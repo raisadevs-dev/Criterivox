@@ -175,6 +175,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     base['results_journal'] = journal;
     base['foundation_id'] = foundationId;
     base['decision_id'] = decisionId;
+    base['strategy_payload'] = strategyPayload;
     base['strategy_options'] = options;
     base['strategy_challenges'] = challenges;
     base['strategy_trace'] = trace;
@@ -318,6 +319,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
   bool allowExternalResearch = false;
   Map<String, dynamic>? research;
   List<Map<String, dynamic>> trace = <Map<String, dynamic>>[];
+  Map<String, dynamic>? strategyPayload;
   String? decisionId;
   String? acceptedStrategyId;
   String? calendarId;
@@ -337,6 +339,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
       options = <String>[];
       challenges = <String>[];
       trace = <Map<String, dynamic>>[];
+      strategyPayload = null;
       research = null;
     });
     try {
@@ -366,6 +369,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
         options = rawOptions is List ? rawOptions.whereType<Map>().map((item) => '${item['id'] ?? ''}|${item['label'] ?? ''}: ${item['approach'] ?? ''} • Risk: ${item['risk'] ?? 'review'}').toList() : <String>[];
         challenges = rawChallenges is List ? rawChallenges.map((item) => '$item').toList() : <String>[];
         trace = decoded['trace'] is List ? decoded['trace'].whereType<Map>().map((item) => Map<String, dynamic>.from(item)).toList() : <Map<String, dynamic>>[];
+        strategyPayload = strategy.isEmpty ? null : strategy;
         research = decoded['research'] is Map ? Map<String, dynamic>.from(decoded['research'] as Map) : null;
         decisionId = decoded['decision_id']?.toString();
         foundationId = decoded['foundation_id']?.toString() ?? foundationId;
@@ -437,14 +441,14 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
             'residence_id': residence!.residenceId,
             'title': goal.text.trim().isEmpty ? 'Criterivox Strategy' : goal.text.trim(),
             'goal': goal.text.trim(),
-            'strategy': {
+            'strategy': strategyPayload ?? {
               'options': options,
               'speed': speed.round(),
               'cost': cost.round(),
               'reliability': reliability.round(),
               'challenges': challenges,
             },
-            'trace': options.where((x) => x.startsWith('Execution trace:')).toList(),
+            'trace': trace,
           }),
         ).timeout(const Duration(seconds: 8));
       } catch (_) {
