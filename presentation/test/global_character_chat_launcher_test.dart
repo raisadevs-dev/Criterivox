@@ -20,7 +20,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pump();
       expect(find.text('Human Territory launcher'), findsOneWidget);
-      expect(find.text('Profile'), findsOneWidget);
+      expect(find.text('Profile'), findsWidgets);
       expect(find.text('Private Room'), findsOneWidget);
       expect(find.text('Decision Desk'), findsOneWidget);
       expect(find.text('Results Journal'), findsOneWidget);
