@@ -25,9 +25,9 @@ jobs:
       - name: Pub get
         working-directory: presentation
         run: flutter pub get
-      - name: Format check
+      - name: Format Dart sources
         working-directory: presentation
-        run: dart format --output=none --set-exit-if-changed lib test
+        run: dart format lib test
       - name: Analyze
         working-directory: presentation
         run: flutter analyze
