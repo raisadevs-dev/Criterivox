@@ -17,7 +17,8 @@ void main() {
       final button = tester.widget<FloatingActionButton>(launcher);
       expect(button.tooltip, 'Human Territory quick actions');
       button.onPressed!();
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pump();
       expect(find.text('Human Territory launcher'), findsOneWidget);
       expect(find.text('Profile'), findsOneWidget);
       expect(find.text('Private Room'), findsOneWidget);
