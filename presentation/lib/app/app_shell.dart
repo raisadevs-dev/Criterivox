@@ -527,6 +527,37 @@ class _ShellState extends State<CriterivoxShell> {
     );
   }
 
+  bool get _isHumanTerritory => const {'human-welcome','human-profile','human-residence-entry','human-residence','private-room','decision-desk','results-journal','meeting-hall','project-rooms','shared-workspaces','collaboration-room','guest','guest-experience','decision-history'}.contains(page);
+
+  Future<void> _openHumanOrb() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        final actions = <Map<String, dynamic>>[
+          {'label': 'Profile', 'icon': Icons.account_circle_outlined, 'route': 'human-profile'},
+          {'label': 'Private Room', 'icon': Icons.lock_outline_rounded, 'route': 'private-room'},
+          {'label': 'Decision Desk', 'icon': Icons.fact_check_outlined, 'route': 'decision-desk'},
+          {'label': 'Results Journal', 'icon': Icons.menu_book_outlined, 'route': 'results-journal'},
+          {'label': 'Group Room', 'icon': Icons.groups_outlined, 'route': 'collaboration-room'},
+        ];
+        return SafeArea(child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 18),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            const ListTile(leading: Icon(Icons.auto_awesome_rounded), title: Text('Human Territory launcher'), subtitle: Text('Quick paths for your current work')),
+            for (final action in actions)
+              ListTile(
+                leading: Icon(action['icon'] as IconData),
+                title: Text(action['label'] as String),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () { Navigator.of(sheetContext).pop(); open(action['route'] as String); },
+              ),
+          ]),
+        ));
+      },
+    );
+  }
+
   void toggleGlobalChat() {
     setState(() {
       chatOverlayOpen = !chatOverlayOpen;
@@ -707,20 +738,12 @@ class _ShellState extends State<CriterivoxShell> {
               child: Semantics(
                 button: true,
                 toggled: chatOverlayOpen,
-                label: chatOverlayOpen
-                    ? 'Close character chat'
-                    : 'Open character chat',
+                label: _isHumanTerritory ? 'Open Human Territory quick actions' : (chatOverlayOpen ? 'Close character chat' : 'Open character chat'),
                 child: FloatingActionButton(
                   key: const ValueKey('global-character-chat-launcher'),
-                  tooltip: chatOverlayOpen
-                      ? 'Close character chat'
-                      : 'Open character chat',
-                  onPressed: toggleGlobalChat,
-                  child: Icon(
-                    chatOverlayOpen
-                        ? Icons.close_rounded
-                        : Icons.forum_rounded,
-                  ),
+                  tooltip: _isHumanTerritory ? 'Human Territory quick actions' : (chatOverlayOpen ? 'Close character chat' : 'Open character chat'),
+                  onPressed: _isHumanTerritory ? _openHumanOrb : toggleGlobalChat,
+                  child: Icon(_isHumanTerritory ? Icons.auto_awesome_rounded : (chatOverlayOpen ? Icons.close_rounded : Icons.forum_rounded)),
                 ),
               ),
             ),
