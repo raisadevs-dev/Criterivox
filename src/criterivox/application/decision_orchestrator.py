@@ -53,7 +53,18 @@ class DecisionOrchestrator:
         trace: list[dict[str, Any]] = []
 
         def event(actor: str, responsibility: str, detail: str, **extra: Any) -> None:
-            trace.append({"actor": actor, "responsibility": responsibility, "detail": detail, **extra})
+            trace.append({
+                "actor": actor,
+                "agent_id": actor,
+                "agent_label": {
+                    "human": "Human decision-maker", "sandre": "Sandre",
+                    "kaelen": "Kaelen", "dharen": "Dharen",
+                    "case": "Case execution contract", "google-research": "External research", "decision-pipeline": "Decision pipeline",
+                    "tarkis": "Tarkis", "pramon": "Pramon", "manis": "Manis",
+                }.get(actor, actor.replace("-", " ").title()),
+                "stage": responsibility, "responsibility": responsibility,
+                "status": "completed", "detail": detail, **extra,
+            })
 
         event("human", "authority", "Submitted natural-language problem, supplied material and context.", email=email, case_id=case_id)
         event("sandre", "data stewardship", "Registered supplied material and provenance.")
@@ -131,8 +142,15 @@ class DecisionOrchestrator:
 
         event("tarkis", "reasoning", "Evaluated the structured goal, constraints and available evidence.")
         option_rows = PramonPlanner().build_options(goal, plan, research_run, foundation=foundation, context=context)
+        for option in option_rows:
+            option["generated_by"] = {"agent_id": "pramon", "agent_label": "Pramon", "stage": "decision options"}
+            option["section_attribution"] = {
+                key: {"agent_id": "pramon", "agent_label": "Pramon"}
+                for key in ("objective", "approach", "steps", "benefits", "tradeoffs", "risk", "evidence", "evidence_basis")
+                if key in option
+            }
         event("pramon", "decision options", "Produced strategy candidates with explicit trade-offs.", option_count=len(option_rows))
-        event("manis", "challenge", "Generated challenge points for the human to stress-test.")
+        event("decision-pipeline", "challenge prompts", "Prepared challenge prompts for the human to stress-test.")
 
         strategy = {
             "goal": goal,
@@ -143,7 +161,13 @@ class DecisionOrchestrator:
                 "entities": list(plan.intent.entities),
             },
             "options": option_rows,
-            "tradeoffs": {"speed": 50, "cost": 50, "reliability": 50},
+            "section_attribution": {
+                "goal": {"agent_id": "human", "agent_label": "Human decision-maker"},
+                "plan": {"agent_id": "syvax", "agent_label": "Syvax"},
+                "options": {"agent_id": "pramon", "agent_label": "Pramon"},
+                "challenges": {"agent_id": "decision-pipeline", "agent_label": "Decision pipeline"},
+                "evidence_summary": {"agent_id": "sandre", "agent_label": "Sandre"},
+            },
             "challenges": [
                 "What assumption would break this option first?",
                 "What evidence would make you reject this path?",

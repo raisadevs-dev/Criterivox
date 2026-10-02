@@ -175,6 +175,12 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
     base['results_journal'] = journal;
     base['foundation_id'] = foundationId;
     base['decision_id'] = decisionId;
+    base['strategy_payload'] = strategyPayload;
+    base['strategy_options'] = options;
+    base['strategy_challenges'] = challenges;
+    base['strategy_trace'] = trace;
+    base['strategy_research'] = research;
+    base['decision_pipeline_status'] = status;
     base['case_execution_id'] = caseReport?['execution_id'];
     base['case_report_id'] = caseReport?['report_id'];
     base['case_child_report_refs'] = caseReport?['child_report_refs'];
@@ -313,6 +319,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
   bool allowExternalResearch = false;
   Map<String, dynamic>? research;
   List<Map<String, dynamic>> trace = <Map<String, dynamic>>[];
+  Map<String, dynamic>? strategyPayload;
   String? decisionId;
   String? acceptedStrategyId;
   String? calendarId;
@@ -332,6 +339,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
       options = <String>[];
       challenges = <String>[];
       trace = <Map<String, dynamic>>[];
+      strategyPayload = null;
       research = null;
     });
     try {
@@ -361,6 +369,7 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
         options = rawOptions is List ? rawOptions.whereType<Map>().map((item) => '${item['id'] ?? ''}|${item['label'] ?? ''}: ${item['approach'] ?? ''} • Risk: ${item['risk'] ?? 'review'}').toList() : <String>[];
         challenges = rawChallenges is List ? rawChallenges.map((item) => '$item').toList() : <String>[];
         trace = decoded['trace'] is List ? decoded['trace'].whereType<Map>().map((item) => Map<String, dynamic>.from(item)).toList() : <Map<String, dynamic>>[];
+        strategyPayload = strategy.isEmpty ? null : strategy;
         research = decoded['research'] is Map ? Map<String, dynamic>.from(decoded['research'] as Map) : null;
         decisionId = decoded['decision_id']?.toString();
         foundationId = decoded['foundation_id']?.toString() ?? foundationId;
@@ -432,14 +441,14 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
             'residence_id': residence!.residenceId,
             'title': goal.text.trim().isEmpty ? 'Criterivox Strategy' : goal.text.trim(),
             'goal': goal.text.trim(),
-            'strategy': {
+            'strategy': strategyPayload ?? {
               'options': options,
               'speed': speed.round(),
               'cost': cost.round(),
               'reliability': reliability.round(),
               'challenges': challenges,
             },
-            'trace': options.where((x) => x.startsWith('Execution trace:')).toList(),
+            'trace': trace,
           }),
         ).timeout(const Duration(seconds: 8));
       } catch (_) {
@@ -739,6 +748,12 @@ class _PrivateRoomPageState extends State<PrivateRoomPage> {
             'Timing, constraints, stakeholders, assumptions '
                 'and changing conditions.',
           ),
+          const SizedBox(height: 8),
+          Align(alignment: Alignment.centerLeft, child: OutlinedButton.icon(
+            onPressed: residence == null || running ? null : () => _persist('context_saved'),
+            icon: const Icon(Icons.bookmark_add_outlined),
+            label: const Text('Save context for next time'),
+          )),
           const SizedBox(height: 10),
           Align(
             alignment: Alignment.centerLeft,

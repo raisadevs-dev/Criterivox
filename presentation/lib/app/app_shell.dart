@@ -11,6 +11,9 @@ import '../world/civilization/home_preview_page.dart';
 import '../workspaces/operations/level2_operational_page.dart';
 import '../world/navigation/world_portal_page.dart';
 import '../human/residence/entry_page.dart';
+import '../human/residence/welcome_page.dart';
+import '../human/residence/profile_page.dart';
+import '../human/residence/store.dart';
 import '../human/access/guest_pass_experience_page.dart';
 import '../human/residence/private_room_page.dart';
 import '../human/collaboration/room_page.dart';
@@ -92,7 +95,7 @@ class _ShellState extends State<CriterivoxShell> {
   PresentationState? state;
   final List<PresentationState> _history = [];
 
-  String page = 'bloom';
+  String page = 'human-welcome';
   String chatTarget = 'dharen';
   String? focusedCharacter;
 
@@ -525,6 +528,37 @@ class _ShellState extends State<CriterivoxShell> {
     );
   }
 
+  bool get _isHumanTerritory => const {'human-welcome','human-profile','human-residence-entry','human-residence','private-room','decision-desk','results-journal','meeting-hall','project-rooms','shared-workspaces','collaboration-room','guest','guest-experience','decision-history'}.contains(page);
+
+  Future<void> _openHumanOrb() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        final actions = <Map<String, dynamic>>[
+          {'label': 'Profile', 'icon': Icons.account_circle_outlined, 'route': 'human-profile'},
+          {'label': 'Private Room', 'icon': Icons.lock_outline_rounded, 'route': 'private-room'},
+          {'label': 'Decision Desk', 'icon': Icons.fact_check_outlined, 'route': 'decision-desk'},
+          {'label': 'Results Journal', 'icon': Icons.menu_book_outlined, 'route': 'results-journal'},
+          {'label': 'Group Room', 'icon': Icons.groups_outlined, 'route': 'collaboration-room'},
+        ];
+        return SafeArea(child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 18),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            const ListTile(leading: Icon(Icons.auto_awesome_rounded), title: Text('Human Territory launcher'), subtitle: Text('Quick paths for your current work')),
+            for (final action in actions)
+              ListTile(
+                leading: Icon(action['icon'] as IconData),
+                title: Text(action['label'] as String),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () { Navigator.of(sheetContext).pop(); open(action['route'] as String); },
+              ),
+          ]),
+        ));
+      },
+    );
+  }
+
   void toggleGlobalChat() {
     setState(() {
       chatOverlayOpen = !chatOverlayOpen;
@@ -705,20 +739,12 @@ class _ShellState extends State<CriterivoxShell> {
               child: Semantics(
                 button: true,
                 toggled: chatOverlayOpen,
-                label: chatOverlayOpen
-                    ? 'Close character chat'
-                    : 'Open character chat',
+                label: _isHumanTerritory ? 'Open Human Territory quick actions' : (chatOverlayOpen ? 'Close character chat' : 'Open character chat'),
                 child: FloatingActionButton(
                   key: const ValueKey('global-character-chat-launcher'),
-                  tooltip: chatOverlayOpen
-                      ? 'Close character chat'
-                      : 'Open character chat',
-                  onPressed: toggleGlobalChat,
-                  child: Icon(
-                    chatOverlayOpen
-                        ? Icons.close_rounded
-                        : Icons.forum_rounded,
-                  ),
+                  tooltip: _isHumanTerritory ? 'Human Territory quick actions' : (chatOverlayOpen ? 'Close character chat' : 'Open character chat'),
+                  onPressed: _isHumanTerritory ? _openHumanOrb : toggleGlobalChat,
+                  child: Icon(_isHumanTerritory ? Icons.auto_awesome_rounded : (chatOverlayOpen ? Icons.close_rounded : Icons.forum_rounded)),
                 ),
               ),
             ),
@@ -772,13 +798,13 @@ class _ShellState extends State<CriterivoxShell> {
         return ResultsJournalPage(onDecisionDesk: () => open('decision-desk'));
 
       case 'meeting-hall':
-        return CollaborationCommonsPage(destination: CollaborationDestination.meetingHall, onDecisionDesk: () => open('decision-desk'));
+        return CollaborationCommonsPage(destination: CollaborationDestination.meetingHall, onDecisionDesk: () => open('decision-desk'), onCollaborationRoom: () => open('collaboration-room'));
 
       case 'project-rooms':
-        return CollaborationCommonsPage(destination: CollaborationDestination.projectRooms, onDecisionDesk: () => open('decision-desk'));
+        return CollaborationCommonsPage(destination: CollaborationDestination.projectRooms, onDecisionDesk: () => open('decision-desk'), onCollaborationRoom: () => open('collaboration-room'));
 
       case 'shared-workspaces':
-        return CollaborationCommonsPage(destination: CollaborationDestination.sharedWorkspaces, onDecisionDesk: () => open('decision-desk'));
+        return CollaborationCommonsPage(destination: CollaborationDestination.sharedWorkspaces, onDecisionDesk: () => open('decision-desk'), onCollaborationRoom: () => open('collaboration-room'));
 
       case 'decision-action':
         return DecisionActionQuarterPage(
@@ -812,6 +838,12 @@ class _ShellState extends State<CriterivoxShell> {
               ? _openReasoningRoom
               : null,
         );
+
+      case 'human-welcome':
+        return HumanWelcomePage(onProfile: () => open('human-profile'), onSignIn: () => open('human-residence-entry'), onGuest: () => open('guest'));
+
+      case 'human-profile':
+        return HumanProfilePage(onPrivateRoom: () => open('private-room'), onSignIn: () => open('human-residence-entry'));
 
       case 'human-residence-entry':
         return HumanResidenceEntryPage(
@@ -1202,6 +1234,29 @@ class _ChildNav {
 
 class _SidebarState extends State<_Sidebar> {
   bool humanTerritoryOpen = true;
+  bool _authResolved = false;
+  bool _isAuthenticated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshAuthentication();
+  }
+
+  @override
+  void didUpdateWidget(covariant _Sidebar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.page != widget.page) _refreshAuthentication();
+  }
+
+  Future<void> _refreshAuthentication() async {
+    final record = await HumanResidenceStore().load();
+    if (!mounted) return;
+    setState(() {
+      _isAuthenticated = record?.metadata['authenticated'] == true;
+      _authResolved = true;
+    });
+  }
   bool civilizationOpen = true;
 
   Widget _section(
@@ -1481,6 +1536,8 @@ class _SidebarState extends State<_Sidebar> {
                       Icons.home_work_rounded,
                       humanTerritoryOpen,
                       widget.page == 'human-residence' ||
+                          widget.page == 'human-welcome' ||
+                          widget.page == 'human-profile' ||
                           widget.page == 'human-residence-entry' ||
                           widget.page == 'private-room' ||
                           widget.page == 'decision-desk' ||
@@ -1496,14 +1553,17 @@ class _SidebarState extends State<_Sidebar> {
                     ),
                     if (expanded && humanTerritoryOpen) ...[
                       _section(strings.loginSignup, true, t),
-                                            _nav(strings.signUpLogin, Icons.person_rounded,
+                                            _nav('Welcome', Icons.auto_awesome_rounded, widget.page == 'human-welcome', () => widget.onOpen('human-welcome'), true, t, indent: true),
+                      _nav('Profile', Icons.account_circle_outlined, widget.page == 'human-profile', () => widget.onOpen('human-profile'), true, t, indent: true),
+                      _nav(strings.signUpLogin, Icons.person_rounded,
                           widget.page == 'human-residence-entry',
                           () => widget.onOpen('human-residence-entry'),
                           true, t, indent: true),
-                      _nav(strings.guestPass, Icons.confirmation_number_rounded,
-                          widget.page == 'guest',
-                          () => widget.onOpen('guest'),
-                          true, t, indent: true),
+                      if (_authResolved && !_isAuthenticated)
+                        _nav(strings.guestPass, Icons.confirmation_number_rounded,
+                            widget.page == 'guest',
+                            () => widget.onOpen('guest'),
+                            true, t, indent: true),
                       _nav(strings.privateRoom, Icons.lock_outline_rounded,
                           widget.page == 'private-room',
                           () => widget.onOpen('private-room'),

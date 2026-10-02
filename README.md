@@ -4,6 +4,17 @@ Criterivox is a research-driven, context-aware, evidence-grounded and inspectabl
 
 It is designed around a simple principle: computational support should help a human understand a situation, inspect the relevant evidence and reasoning, challenge or confirm interpretations, and retain explicit authority over consequential decisions.
 
+## Live Application
+
+Criterivox has a hosted web deployment:
+
+- **Web app:** [Open Criterivox](https://criterivox-web-production.up.railway.app)
+- **API health endpoint:** [Check API health](https://criterivox-api-production.up.railway.app/health)
+
+The web application and API are hosted on Railway. The Railway-provided domains are deployment URLs; a custom domain can be configured separately. Deployment availability and feature behavior may change as the research prototype evolves. A live URL does not imply release-readiness or empirical validation.
+
+For deployment notes and configuration boundaries, see [Deployment](docs/DEPLOYMENT.md).
+
 ## Current Status
 
 **Current baseline: integrated main.**

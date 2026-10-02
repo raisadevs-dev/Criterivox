@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 class CriterivoxApi {
   static const backendUrl = String.fromEnvironment(
     'CRITERIVOX_BACKEND_URL',
@@ -29,9 +27,6 @@ class CriterivoxApi {
     final host = backendHost.isEmpty ? '127.0.0.1' : backendHost;
     return Uri.parse('$scheme://$host:$backendPort');
 
-    return Uri.parse(
-      '${websocket ? 'ws' : 'http'}://127.0.0.1:$backendPort',
-    );
   }
 
   /// Resolve an API path without discarding a configured backend path prefix.

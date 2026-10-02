@@ -196,6 +196,34 @@ class _CollaborationRoomPageState extends State<CollaborationRoomPage> {
     if (mounted) setState(() => busy = false);
   }
 
+  Future<void> _sharePrivateStrategy() async {
+    final r = residence;
+    final sid = sessionId;
+    if (r == null || sid == null || actor.isEmpty) return;
+    final raw = r.metadata['strategy_payload'];
+    final options = r.metadata['strategy_options'];
+    final challenges = r.metadata['strategy_challenges'];
+    if ((raw == null || raw is! Map || raw.isEmpty) && (options is! List || options.isEmpty)) {
+      setState(() => status = 'No saved strategy is available to share yet.');
+      return;
+    }
+    final payload = raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{'options': options, 'challenges': challenges};
+    final safeShare = <String, dynamic>{
+      'goal': r.metadata['goal']?.toString() ?? '',
+      'strategy': payload,
+      'shared_from': 'Private Room',
+    };
+    final result = await _request('POST', '/api/collaboration/session/$sid/comment', {
+      'actor': actor,
+      'text': 'Shared decision strategy: ${jsonEncode(safeShare)}',
+      'visibility': 'PUBLIC_TO_ROOM',
+    });
+    if (result != null) {
+      setState(() => status = 'Strategy shared with this Group Room.');
+      await _refresh();
+    }
+  }
+
   Future<void> _postComment() async {
     final sid = sessionId;
     final text = messageCtl.text.trim();
@@ -542,6 +570,8 @@ class _CollaborationRoomPageState extends State<CollaborationRoomPage> {
         Text(
             'Raw discussion is not authoritative context. Syvax classifies it into a candidate variable; a human must confirm it before Dharen receives a Context Diff.',
             style: TextStyle(color: t.text, fontSize: 10)),
+        const SizedBox(height: 10),
+        OutlinedButton.icon(onPressed: busy ? null : _sharePrivateStrategy, icon: const Icon(Icons.ios_share_rounded), label: const Text('Share saved Private Room strategy')),
         const SizedBox(height: 8),
         TextField(
             controller: messageCtl,
