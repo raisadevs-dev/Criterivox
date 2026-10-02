@@ -5,6 +5,7 @@ on:
     branches:
       - s6-home03-syvax-bloom-complete
       - human-territory-decision-journey
+      - railway/production-deployment
   pull_request:
     branches:
       - main
