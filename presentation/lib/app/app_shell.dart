@@ -13,6 +13,7 @@ import '../world/navigation/world_portal_page.dart';
 import '../human/residence/entry_page.dart';
 import '../human/residence/welcome_page.dart';
 import '../human/residence/profile_page.dart';
+import '../human/residence/store.dart';
 import '../human/access/guest_pass_experience_page.dart';
 import '../human/residence/private_room_page.dart';
 import '../human/collaboration/room_page.dart';
@@ -1233,6 +1234,29 @@ class _ChildNav {
 
 class _SidebarState extends State<_Sidebar> {
   bool humanTerritoryOpen = true;
+  bool _authResolved = false;
+  bool _isAuthenticated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshAuthentication();
+  }
+
+  @override
+  void didUpdateWidget(covariant _Sidebar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.page != widget.page) _refreshAuthentication();
+  }
+
+  Future<void> _refreshAuthentication() async {
+    final record = await HumanResidenceStore().load();
+    if (!mounted) return;
+    setState(() {
+      _isAuthenticated = record?.metadata['authenticated'] == true;
+      _authResolved = true;
+    });
+  }
   bool civilizationOpen = true;
 
   Widget _section(
@@ -1535,10 +1559,11 @@ class _SidebarState extends State<_Sidebar> {
                           widget.page == 'human-residence-entry',
                           () => widget.onOpen('human-residence-entry'),
                           true, t, indent: true),
-                      _nav(strings.guestPass, Icons.confirmation_number_rounded,
-                          widget.page == 'guest',
-                          () => widget.onOpen('guest'),
-                          true, t, indent: true),
+                      if (_authResolved && !_isAuthenticated)
+                        _nav(strings.guestPass, Icons.confirmation_number_rounded,
+                            widget.page == 'guest',
+                            () => widget.onOpen('guest'),
+                            true, t, indent: true),
                       _nav(strings.privateRoom, Icons.lock_outline_rounded,
                           widget.page == 'private-room',
                           () => widget.onOpen('private-room'),
