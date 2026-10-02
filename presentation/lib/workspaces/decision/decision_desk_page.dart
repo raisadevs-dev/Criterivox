@@ -131,16 +131,22 @@ class _DecisionDeskPageState extends State<DecisionDeskPage> {
     Widget section(String title, dynamic value) {
       final textValue = _strategyText(value);
       if (textValue.isEmpty) return const SizedBox.shrink();
+      final key = switch(title) {'OBJECTIVE'=>'objective','APPROACH'=>'approach','RISKS'=>'risk','EVIDENCE BASIS'=>'evidence_basis',_=>''};
+      final attribution = option['section_attribution'] is Map ? (option['section_attribution'] as Map)[key] : null;
+      final agent = attribution is Map ? attribution['agent_label']?.toString() : null;
       return Padding(padding: const EdgeInsets.only(top:9), child: Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-        Text(title,style:TextStyle(color:t.primary,fontSize:10,fontWeight:FontWeight.w800)),
+        Text(agent==null?'$title • ATTRIBUTION UNAVAILABLE':'$title • $agent',style:TextStyle(color:t.primary,fontSize:10,fontWeight:FontWeight.w800)),
         const SizedBox(height:3),
         Text(textValue,style:TextStyle(color:t.text,fontSize:10,height:1.45)),
       ]));
     }
     Widget listSection(String title, dynamic raw) {
       if (raw is! List || raw.isEmpty) return const SizedBox.shrink();
+      final key = switch(title) {'IMPLEMENTATION STEPS'=>'steps','EXPECTED BENEFITS'=>'benefits','EVIDENCE / SOURCE RECORDS'=>'evidence',_=>''};
+      final attribution = option['section_attribution'] is Map ? (option['section_attribution'] as Map)[key] : null;
+      final agent = attribution is Map ? attribution['agent_label']?.toString() : null;
       return Padding(padding:const EdgeInsets.only(top:9),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-        Text(title,style:TextStyle(color:t.primary,fontSize:10,fontWeight:FontWeight.w800)),
+        Text(agent==null?'$title • ATTRIBUTION UNAVAILABLE':'$title • $agent',style:TextStyle(color:t.primary,fontSize:10,fontWeight:FontWeight.w800)),
         const SizedBox(height:4),
         for(var i=0;i<raw.length;i++) Padding(padding:const EdgeInsets.only(bottom:4),child:Row(crossAxisAlignment:CrossAxisAlignment.start,children:[
           Text('${i+1}. ',style:TextStyle(color:t.mutedText,fontSize:10,fontWeight:FontWeight.w700)),
