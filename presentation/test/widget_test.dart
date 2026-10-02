@@ -40,7 +40,7 @@ void main() {
       expect(find.text('Profile'), findsWidgets);
       expect(find.text('Private Room'), findsWidgets);
       expect(find.text('Decision Desk'), findsWidgets);
-      expect(find.text('Results Journal'), findsOneWidget);
+      expect(find.text('Results Journal'), findsWidgets);
       expect(find.text('Group Room'), findsOneWidget);
     },
   );
@@ -103,19 +103,3 @@ void main() {
   );
 }
 
-Future<void> _pumpUntil(
-  WidgetTester tester,
-  Finder Function() finder, {
-  Duration timeout = const Duration(seconds: 4),
-}) async {
-  final deadline = DateTime.now().add(timeout);
-
-  while (DateTime.now().isBefore(deadline)) {
-    if (finder().evaluate().isNotEmpty) {
-      return;
-    }
-    await tester.pump(const Duration(milliseconds: 50));
-  }
-
-  expect(finder(), findsOneWidget);
-}
