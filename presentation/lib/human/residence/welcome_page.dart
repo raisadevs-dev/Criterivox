@@ -67,8 +67,10 @@ class _HumanWelcomePageState extends State<HumanWelcomePage> {
         const SizedBox(height: 22),
         FilledButton.icon(onPressed: _ready && _record?.metadata['authenticated'] == true ? widget.onProfile : widget.onSignIn, icon: const Icon(Icons.person_outline_rounded), label: Text(_record?.metadata['authenticated'] == true ? 'Open Profile' : 'Sign in / Create account')),
         const SizedBox(height: 8),
-        OutlinedButton.icon(onPressed: widget.onGuest, icon: const Icon(Icons.explore_outlined), label: const Text('Continue as Guest')),
-        const SizedBox(height: 10),
+        if (_ready && _record?.metadata['authenticated'] != true) ...[
+          OutlinedButton.icon(onPressed: widget.onGuest, icon: const Icon(Icons.explore_outlined), label: const Text('Continue as Guest')),
+          const SizedBox(height: 10),
+        ],
         Text('Continuing automatically…', textAlign: TextAlign.center, style: TextStyle(color: t.mutedText, fontSize: 10)),
       ])),
     )));
