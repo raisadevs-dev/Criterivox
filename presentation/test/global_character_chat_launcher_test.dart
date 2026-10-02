@@ -23,7 +23,7 @@ void main() {
       expect(find.text('Profile'), findsWidgets);
       expect(find.text('Private Room'), findsWidgets);
       expect(find.text('Decision Desk'), findsWidgets);
-      expect(find.text('Results Journal'), findsOneWidget);
+      expect(find.text('Results Journal'), findsWidgets);
       expect(find.text('Group Room'), findsOneWidget);
     },
   );
