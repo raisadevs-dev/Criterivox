@@ -117,3 +117,5 @@ def test_authenticated_decision_forwards_case_and_foundation(monkeypatch):
     assert result["strategy"]["options"][0]["label"] == "Test path"
     assert captured["case_id"] == "CASE-010"
     assert captured["foundation_id"] == "FOUNDATION-TEST"
+    assert result["trace"][0]["agent_id"] == "pramon" or result["trace"]
+    assert result["strategy"]["options"][0]["label"] == "Test path"
