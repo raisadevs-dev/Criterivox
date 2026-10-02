@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import '../../presentation/shared/api_client.dart';
 import '../../human/residence/store.dart';
 import '../../presentation/shared/criterivox_theme.dart';
 
@@ -14,6 +17,9 @@ class _HumanProfilePageState extends State<HumanProfilePage> {
   final HumanResidenceStore _store = HumanResidenceStore();
   HumanResidenceRecord? _record;
   bool _loading = true;
+  bool _saving = false;
+  String _status = '';
+  final TextEditingController _nameController = TextEditingController();
 
   @override
   void initState() {
@@ -24,7 +30,29 @@ class _HumanProfilePageState extends State<HumanProfilePage> {
   Future<void> _load() async {
     final record = await _store.load();
     if (!mounted) return;
-    setState(() { _record = record; _loading = false; });
+    setState(() { _record = record; _nameController.text = record?.displayName ?? ''; _loading = false; });
+  }
+
+  @override
+  void dispose() { _nameController.dispose(); super.dispose(); }
+
+  Future<void> _saveProfile() async {
+    final record = _record;
+    final name = _nameController.text.trim();
+    if (record == null || name.isEmpty || _saving) return;
+    setState(() { _saving = true; _status = ''; });
+    try {
+      final metadata = Map<String, dynamic>.from(record.metadata);
+      if (metadata['authenticated'] == true) {
+        final response = await http.post(CriterivoxApi.uri('/api/human-auth/profile'), headers: const {'content-type':'application/json'}, body: jsonEncode({'session_token': metadata['session_token']?.toString() ?? '', 'display_name': name})).timeout(const Duration(seconds: 10));
+        final decoded = jsonDecode(response.body);
+        if (response.statusCode < 200 || response.statusCode >= 300 || decoded is! Map || decoded['accepted'] != true) throw Exception(decoded is Map ? decoded['error'] ?? 'Profile update rejected' : 'Profile update rejected');
+      }
+      final updated = HumanResidenceRecord(residenceId: record.residenceId, ownerId: record.ownerId, displayName: name, email: record.email, residenceType: record.residenceType, createdAt: record.createdAt, members: record.members, metadata: metadata);
+      await _store.save(updated);
+      if (mounted) setState(() { _record = updated; _status = 'Profile saved.'; });
+    } catch (e) { if (mounted) setState(() => _status = 'Could not save profile: ${e.toString().replaceFirst('Exception: ', '')}'); }
+    finally { if (mounted) setState(() => _saving = false); }
   }
 
   @override
@@ -67,14 +95,16 @@ class _HumanProfilePageState extends State<HumanProfilePage> {
                         ])),
                       ]),
                       const Divider(height: 28),
+                      TextField(controller: _nameController, decoration: const InputDecoration(labelText: 'Display name')),
+                      const SizedBox(height: 10),
                       _field(t, 'Email', record.email?.isNotEmpty == true ? record.email! : 'Not provided'),
                       _field(t, 'Residence type', record.residenceType.isEmpty ? 'Private' : record.residenceType),
                       _field(t, 'Residence ID', record.residenceId),
                       _field(t, 'Created', record.createdAt.toLocal().toString().split('.').first),
                       const SizedBox(height: 10),
                       Text('Private goals, working context, and decision materials stay in your Private Room, not on this profile screen.', style: TextStyle(color: t.mutedText, fontSize: 11, height: 1.5)),
-                      const SizedBox(height: 14),
-                      FilledButton.icon(onPressed: widget.onPrivateRoom, icon: const Icon(Icons.lock_outline_rounded), label: const Text('Open Private Room')),
+                      if (_status.isNotEmpty) Padding(padding: const EdgeInsets.only(bottom: 8), child: Text(_status, style: TextStyle(color: t.mutedText, fontSize: 11))),
+                      Wrap(spacing: 8, runSpacing: 8, children: [FilledButton.icon(onPressed: _saving ? null : _saveProfile, icon: const Icon(Icons.save_outlined), label: Text(_saving ? 'Saving…' : 'Save profile')), OutlinedButton.icon(onPressed: widget.onPrivateRoom, icon: const Icon(Icons.lock_outline_rounded), label: const Text('Open Private Room'))]),
                     ]),
             ),
           ]),
